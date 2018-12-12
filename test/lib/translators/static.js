@@ -26,12 +26,12 @@ const expectedTree = {
 		{
 			id: "sap.f",
 			version: "1.56.1",
-			path: path.join("..", "sap.f")
+			path: "../sap.f"
 		},
 		{
 			id: "sap.m",
 			version: "1.61.0",
-			path: path.join("..", "sap.m")
+			path: "../sap.m"
 		}
 	]
 };
