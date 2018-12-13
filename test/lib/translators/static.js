@@ -1,5 +1,7 @@
 const {test} = require("ava");
 const path = require("path");
+const fs = require("graceful-fs");
+const sinon = require("sinon");
 const staticTranslator = require("../../..").translators.static;
 const projectPath = path.join(__dirname, "..", "..", "fixtures", "application.h");
 
@@ -10,10 +12,15 @@ test("Generates dependency tree for project with projectDependencies.yaml", (t) 
 		});
 });
 
+
 test("Error: Throws if projectDependencies.yaml was not found", async (t) => {
 	const projectPath = "notExistingPath";
+	const fsError = new Error("File not found");
+	const fsStub = sinon.stub(fs, "readFile");
+	fsStub.callsArgWith(1, fsError);
 	const error = await t.throws(staticTranslator.generateDependencyTree(projectPath));
-	t.is(error.message, `[static translator] Failed to locate projectDependencies.json for "${projectPath}"`);
+	t.is(error.message, `[static translator] Failed to locate projectDependencies.json at path: "${projectPath}" - Error: ${fsError.message}`);
+	fsStub.restore();
 });
 
 const expectedTree = {
