@@ -541,14 +541,12 @@ test("Project tree A with default YAMLs", (t) => {
 });
 
 test("Project tree B with inline configs", (t) => {
-	// Tree B depends on Library B which has a dependency to Library D
 	return projectPreprocessor.processTree(treeBWithInlineConfigs).then((parsedTree) => {
 		t.deepEqual(parsedTree, expectedTreeBWithInlineConfigs, "Parsed correctly");
 	});
 });
 
 test("Project tree Cycle A with inline configs", (t) => {
-	// Tree B depends on Library B which has a dependency to Library D
 	return projectPreprocessor.processTree(treeApplicationCycleA).then((parsedTree) => {
 		t.deepEqual(parsedTree, expectedTreeApplicationCycleA, "Parsed correctly");
 	});
@@ -558,6 +556,102 @@ test("Project with nested invalid dependencies", (t) => {
 	return projectPreprocessor.processTree(treeWithInvalidModules).then((parsedTree) => {
 		t.deepEqual(parsedTree, expectedTreeWithInvalidModules);
 	});
+});
+
+test("Application version in package.json data is missing", (t) => {
+	const tree = {
+		id: "application.a",
+		path: applicationAPath,
+		dependencies: [],
+		type: "application",
+		metadata: {
+			name: "xy"
+		}
+	};
+	return t.throws(projectPreprocessor.processTree(tree)).then((error) => {
+		t.is(error.message, "\"version\" is missing for project " + tree.id);
+	});
+});
+
+test("Library version in package.json data is missing", (t) => {
+	const tree = {
+		id: "library.d",
+		path: libraryDPath,
+		dependencies: [],
+		type: "library",
+		metadata: {
+			name: "library.d"
+		}
+	};
+	return t.throws(projectPreprocessor.processTree(tree)).then((error) => {
+		t.is(error.message, "\"version\" is missing for project " + tree.id);
+	});
+});
+
+test("specVersion: Missing version", (t) => {
+	const tree = {
+		id: "application.a",
+		path: "non-existent",
+		dependencies: [],
+		version: "1.0.0",
+		type: "application",
+		metadata: {
+			name: "xy"
+		}
+	};
+	return t.throws(projectPreprocessor.processTree(tree),
+		"No specification version defined for root project application.a",
+		"Rejected with error");
+});
+
+test("specVersion: Project with invalid version", async (t) => {
+	const tree = {
+		id: "application.a",
+		path: applicationAPath,
+		dependencies: [],
+		version: "1.0.0",
+		specVersion: "0.9",
+		type: "application",
+		metadata: {
+			name: "xy"
+		}
+	};
+	await t.throws(projectPreprocessor.processTree(tree),
+		"Invalid specification version defined for project application.a: 0.9. " +
+		"See https://github.com/SAP/ui5-project/blob/master/docs/Configuration.md#specification-versions",
+		"Rejected with error");
+});
+
+test("specVersion: Project with valid version 0.1", async (t) => {
+	const tree = {
+		id: "application.a",
+		path: applicationAPath,
+		dependencies: [],
+		version: "1.0.0",
+		specVersion: "0.1",
+		type: "application",
+		metadata: {
+			name: "xy"
+		}
+	};
+	const res = await projectPreprocessor.processTree(tree);
+	t.deepEqual(res.specVersion, "0.1", "Correct spec version");
+});
+
+test("specVersion: Project with valid version 1.0", async (t) => {
+	const tree = {
+		id: "application.a",
+		path: applicationAPath,
+		dependencies: [],
+		version: "1.0.0",
+		specVersion: "1.0",
+		type: "application",
+		metadata: {
+			name: "xy"
+		}
+	};
+	const res = await projectPreprocessor.processTree(tree);
+	t.deepEqual(res.specVersion, "1.0", "Correct spec version");
 });
 
 /* ========================= */
@@ -1543,7 +1637,6 @@ const expectedTreeApplicationCycleA = {
 
 /* ======= /Test data ======= */
 /* ========================= */
-
 test("Application version in package.json data is missing", (t) => {
 	const tree = {
 		id: "application.a",
