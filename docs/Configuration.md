@@ -62,6 +62,18 @@ builder:
       - "some/project/name/thirdparty/**"
   cachebuster:
     signatureType: time
+  bundles:
+    - bundleDefinition:
+      name: "some-bundle-name.js"
+      defaultFileTypes:
+        - ".js"
+    sections:
+      - mode: "provided"
+        filters:
+          - "some/project/name"
+          - "some/other/project/name"
+          - "!some/other/project/name"
+        resolve: true
 server:
   settings:
     port: 8099
@@ -122,7 +134,6 @@ Some general information:
     - `name` (mandatory): The name of the custom task
     - `afterTask` or `beforeTask` (only one, mandatory): The name of the build task after or before which your custom task will be executed.
     - `configuration` (optional): Additional configuration that is passed to the custom build task
-
 #### server (optional)
 - `settings` (not yet implemented)
     - `port`: Project default server port; can be overwritten via CLI parameters
