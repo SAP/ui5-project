@@ -94,12 +94,30 @@ Some general information:
 
 #### builder (optional)
 - `resources`: General resource configuration for this project
-    - `excludes`: List of glob patterns. Matching resources of this project will be ignored by the builder (i.e. all tasks).  
+    - `excludes`: List of glob patterns. Matching resources of this project will be ignored by the builder (i.e. all tasks).
     Patterns are applied to the **virtual** path of resources (i.e. the UI5 runtime paths). Exclude patterns are always applied after any includes.
 - `jsdoc`: Configuration specific to the JSDoc build task
-    - `excludes`: List of glob patterns. Matching resources will be ignored by the JSDoc build task.  
+    - `excludes`: List of glob patterns. Matching resources will be ignored by the JSDoc build task.
     Patterns are always applied relative to the projects virtual **source** directory `/resources/`.
     Any general builder excludes (as defined in `builder.resources.excludes`) are applied *after* these excludes.
+- `bundles` (optional, list): In this block you describe your desired custom bundles with a list of 'bundle definitions'. 
+  - `bundleDefinition` A bundle definition contains of the following options:
+    - `name`: The module bundle name
+    - `defaultFileTypes`: List of default file types which should be included in the bundle
+    - `sections`: A list of module bundle definition sections. Each section specifies an embedding technology and lists the resources that should be in- or excluded from the section
+      - `mode`:  The embedding technology (e.g. provided, raw, preload)
+      - `filters`: List of resources that should be in- or excluded
+      - `resolve`: Setting resolve to `true` will also include all (transitive) dependencies of the files
+      - `resolveConfitional`: Whether conditional dependencies of modules should be resolved and added to the module set for this section. By default set to `false`
+      - `renderer`: Whether renderers for controls should be added to the module set. By default set to `false`
+      - `sort`:  By default, modules are sorted by their dependencies. The sorting can be suppressed by setting the option to `false`
+      - `avoidLazyParsing`: Whether `sap.ui.define` factory functions and preload-generated wrapper functions should be wrapped with the parenthesis to avoid lazy parsing in V8 and Chakra. By default set to `false`
+    - `bundleOptions`
+      - `optimize`: By default set to `false`. If set to `true`, the module bundle gets minified
+      - `decorateBootstrapModule`: By default set to `true`. If set to `false`, the module won't be decorated with an optimization marker
+      - `addTryCatchRestartWrapper`: By default set to `false`. If set to `true`, bootable module bundles gets wrapped with a try/catch to filter "Restart" errors
+      - `usePredefineCalls`: If set to `true`, `sap.ui.predefine` is used for UI5 modules
+      - `numberOfParts`: By default set to `1`. The number of parts into which a module bundle should be splitted
 - `customTasks` (optional, list): In this block, you define additional custom build tasks, see [here](./BuildExtensibility.md) for a detailed explanation and examples of the build extensibility. Each entry in the `customTasks` list consists of the following options:
     - `name` (mandatory): The name of the custom task
     - `afterTask` or `beforeTask` (only one, mandatory): The name of the build task after or before which your custom task will be executed.
