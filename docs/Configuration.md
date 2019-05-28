@@ -42,8 +42,6 @@ resources:
     paths:
       "<virtual path 1>": "<physical path 1>"
       "<virtual path 2>": "<physical path 2>"
-  excludes:
-    - /test-resources/some/project/name/screenshots/**
 builder:
   customTasks:
     - name: custom-task-name-1
@@ -87,17 +85,18 @@ Some general information:
         + `<virtual path>: <physical path>` (default `/: ./`): Any virtual path mapping can be defined here.  
           *(Only available for projects of type `module`)*  
           It is recommended that modules include their namespace in the virtual path and use the `/resources` prefix (e.g. `/resources/my/first/library/module-xy`).
-- `excludes`: List of glob patterns. Matching resources will be ignored by the UI5 Tooling (builder, server, etc.)
 
 #### builder (optional)
+- `resources`: General resource configuration
+    - `excludes`: List of glob patterns. Matching resources will be ignored by the builder (i.e. all tasks).  
+    Patterns are applied to the **virtual** path of resources (i.e. the UI5 runtime paths).
+- `jsdoc`: Configuration specific to the JSDoc build task
+    - `excludes`: List of glob patterns. Matching resources will be ignored by the JSDoc build task.  
+    Patterns are always applied relative to the projects virtual **source** directory `/resources/`
 - `customTasks` (optional, list): In this block, you define additional custom build tasks, see [here](./BuildExtensibility.md) for a detailed explanation and examples of the build extensibility. Each entry in the `customTasks` list consists of the following options:
     - `name` (mandatory): The name of the custom task
     - `afterTask` or `beforeTask` (only one, mandatory): The name of the build task after or before which your custom task will be executed.
     - `configuration` (optional): Additional configuration that is passed to the custom build task
-- `resources`:
-    - `excludes`: List of glob patterns. Matching resources will be ignored by the builder
-- `jsdoc`
-    - `excludes`: List of glob patterns. Matching resources will be ignored from the JSDoc build
 
 #### server (optional)
 - `settings` (not yet implemented)
