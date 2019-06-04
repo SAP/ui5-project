@@ -54,12 +54,12 @@ builder:
         color: blue
   resources:
     excludes:
-      - /resources/some/project/name/test_results/**
-      - /test-resources/**
-      - !/test-resources/some/project/name/demo-app/**
+      - "/resources/some/project/name/test_results/**"
+      - "/test-resources/**"
+      - "!/test-resources/some/project/name/demo-app/**"
   jsdoc:
     excludes:
-      - some/project/name/thirdparty/**
+      - "some/project/name/thirdparty/**"
 server:
   settings:
     port: 8099
