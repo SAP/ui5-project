@@ -307,7 +307,8 @@ shims:
 Custom bundles can be defined in the `ui5.yaml`. It should be located in the `builder` configuration. With the property `bundles` a list of `bundleDefinitions` can be described.
 
 ```yaml
- bundles:
+builder:
+  bundles:
     - bundleDefinition:
         name: "sap-ui-custom.js"
         defaultFileTypes:
@@ -346,14 +347,13 @@ A list of bundle definitions. A bundle definition contains of the following opti
 
 - `name`: The module bundle name
 - `defaultFileTypes`: List of default file types which should be included in the bundle
-  - `sections`: A list of module bundle definition sections. Each section specifies an embedding technology and lists the resources that should be in- or excluded from the section
+  - `sections`: A list of module bundle definition sections. Each section specifies an embedding technology (see [API-Reference](https://sap.github.io/ui5-tooling/module-@ui5_builder.tasks.html#.generateBundle)) and lists the resources that should be in- or excluded from the section.
     - `mode`:  The embedding technology (e.g. provided, raw, preload)
-    - `filters`: List of resources that should be in- or excluded
+    - `filters`: List of resources as glob patterns that should be in- or excluded. A pattern either contains of trailing slashes '/', single '*' or double asterisks '**' which denote an arbitrary number of characters or folder names. Exludes should be marked with a leading exclamation mark '!'.
     - `resolve`: Setting resolve to `true` will also include all (transitive) dependencies of the files
     - `resolveConfitional`: Whether conditional dependencies of modules should be resolved and added to the module set for this section. By default set to `false`
     - `renderer`: Whether renderers for controls should be added to the module set. By default set to `false`
     - `sort`:  By default, modules are sorted by their dependencies. The sorting can be suppressed by setting the option to `false`
-    - `avoidLazyParsing`: Whether `sap.ui.define` factory functions and preload-generated wrapper functions should be wrapped with the parenthesis to avoid lazy parsing in V8 and Chakra. By default set to `false`
 
 **bundleOptions**
 - `optimize`: By default set to `false`. If set to `true`, the module bundle gets minified
