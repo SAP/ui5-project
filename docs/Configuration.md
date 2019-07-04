@@ -95,7 +95,7 @@ Some general information:
 
 #### builder (optional)
 - `resources`: General resource configuration for this project
-    - `excludes`: List of glob patterns. Matching resources of this project will be ignored by the builder (i.e. all tasks).
+    - `excludes`: List of glob patterns. Matching resources of this project will be ignored by the builder (i.e. all tasks).  
     Patterns are applied to the **virtual** path of resources (i.e. the UI5 runtime paths). Exclude patterns are always applied after any includes.
 - `jsdoc`: Configuration specific to the JSDoc build task
     - `excludes`: List of glob patterns. Matching resources will be ignored by the JSDoc build task.
@@ -319,8 +319,8 @@ builder:
             - ui5loader-autoconfig.js
             resolve: true
             sort: true
-        bundleOptions:
-          optimize: true
+      bundleOptions:
+        optimize: true
     - bundleDefinition:
         name: "app.js"
         defaultFileTypes:
@@ -335,21 +335,21 @@ builder:
             filters:
             - ui5loader-autoconfig.js
             resolve: true
-        bundleOptions:
-          optimize: true
+      bundleOptions:
+        optimize: true
   ```
 
 ### Properties
 
-**bundleDefinitions**
+**bundles**
 
-A list of bundle definitions. A bundle definition contains of the following options:
+A list of bundle definitions. A `bundleDefinition` contains of the following options:
 
 - `name`: The module bundle name
 - `defaultFileTypes`: List of default file types which should be included in the bundle
   - `sections`: A list of module bundle definition sections. Each section specifies an embedding technology (see [API-Reference](https://sap.github.io/ui5-tooling/module-@ui5_builder.tasks.html#.generateBundle)) and lists the resources that should be in- or excluded from the section.
     - `mode`:  The embedding technology (e.g. provided, raw, preload)
-    - `filters`: List of resources as glob patterns that should be in- or excluded. A pattern either contains of trailing slashes '/', single '*' or double asterisks '**' which denote an arbitrary number of characters or folder names. Exludes should be marked with a leading exclamation mark '!'.
+    - `filters`: List of resources as glob patterns that should be in- or excluded. A pattern either contains of a trailing slash '/' or single '*' and double '**' asterisks which denote an arbitrary number of characters or folder names. Exludes should be marked with a leading exclamation mark '!'. The order of filters is relevant, a later exclusion overrides an earlier inclusion and vice versa.
     - `resolve`: Setting resolve to `true` will also include all (transitive) dependencies of the files
     - `resolveConfitional`: Whether conditional dependencies of modules should be resolved and added to the module set for this section. By default set to `false`
     - `renderer`: Whether renderers for controls should be added to the module set. By default set to `false`
