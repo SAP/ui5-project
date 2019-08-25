@@ -112,7 +112,7 @@
 		"coveralls": "^3.0.6",
 		"cross-env": "^5.2.0",
 		"docdash": "^1.1.1",
-		"eslint": "^5.16.0",
+		"eslint": "^6.2.2",
 		"eslint-config-google": "^0.12.0",
 		"eslint-plugin-jsdoc": "^4.8.4",
 		"jsdoc": "^3.6.3",
