@@ -102,6 +102,7 @@
 		"graceful-fs": "^4.2.3",
 		"js-yaml": "^3.13.1",
 		"mock-require": "^3.0.3",
+		"pacote": "^9.5.8",
 		"pretty-hrtime": "^1.0.3",
 		"read-pkg": "^3.0.0",
 		"read-pkg-up": "^4.0.0",
