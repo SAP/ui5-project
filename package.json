@@ -108,7 +108,7 @@
 		"resolve": "^1.15.1"
 	},
 	"devDependencies": {
-		"ava": "^2.4.0",
+		"ava": "^3.2.0",
 		"coveralls": "^3.0.9",
 		"cross-env": "^6.0.3",
 		"docdash": "^1.2.0",
