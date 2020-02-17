@@ -2,7 +2,90 @@ const test = require("ava");
 const sinon = require("sinon");
 const mock = require("mock-require");
 
-const FrameworkInstaller = require("../../../lib/translators/ui5Framework").FrameworkInstaller;
+const ui5Framework = require("../../../lib/translators/ui5Framework");
+const FrameworkInstaller = ui5Framework.FrameworkInstaller;
+
+test.afterEach.always((t) => {
+	sinon.restore();
+	mock.stopAll();
+});
+
+test.skip("generateDependencyTree should ignore root project without framework configuration", async (t) => {
+	const tree = {
+		id: "test-id",
+		version: "1.2.3",
+		path: "/test-project/",
+		metadata: {
+			name: "test-name"
+		},
+		dependencies: []
+	};
+	const ui5FrameworkTree = await ui5Framework.generateDependencyTree(tree);
+
+	t.deepEqual(ui5FrameworkTree, {
+		id: "test-id",
+		version: "1.2.3",
+		path: "/test-project/",
+		dependencies: []
+	});
+});
+
+test.serial("generateDependencyTree", async (t) => {
+	const tree = {
+		id: "test-id",
+		version: "1.2.3",
+		path: "/test-project/",
+		metadata: {
+			name: "test-name"
+		},
+		framework: {
+			version: "1.75.0",
+			libraries: [
+				{
+					name: "lib1"
+				}
+			]
+		},
+		dependencies: []
+	};
+
+	sinon.stub(FrameworkInstaller, "_collectReferencedUi5Libraries")
+		.withArgs(tree, [], true)
+		.returns([
+			"lib1"
+		]);
+
+	sinon.stub(FrameworkInstaller.prototype, "install")
+		.withArgs({libraryNames: ["lib1"]})
+		.resolves();
+
+	sinon.stub(FrameworkInstaller.prototype, "generateDependencyTree")
+		.withArgs({libraryNames: ["lib1"]})
+		.resolves([
+			{
+				id: "@sapui5/lib1",
+				version: "1.75.0",
+				path: "/some/path",
+				dependencies: []
+			}
+		]);
+
+	const ui5FrameworkTree = await ui5Framework.generateDependencyTree(tree);
+
+	t.deepEqual(ui5FrameworkTree, {
+		id: "test-id",
+		version: "1.2.3",
+		path: "/test-project/",
+		dependencies: [
+			{
+				id: "@sapui5/lib1",
+				version: "1.75.0",
+				path: "/some/path",
+				dependencies: []
+			}
+		]
+	});
+});
 
 test("_isUi5FrameworkProject", (t) => {
 	t.true(FrameworkInstaller._isUi5FrameworkProject({id: "@sapui5/foo"}), "@sapui5/foo");
@@ -89,6 +172,22 @@ test("Create FrameworkInstaller instance", (t) => {
 		distVersion: "1.75.0"
 	});
 	t.pass("Can create FrameworkInstaller instance");
+});
+
+test("FrameworkInstaller constructor requires 'dirPath'", (t) => {
+	t.throws(() => {
+		new FrameworkInstaller({
+			distVersion: "1.75.0"
+		});
+	}, `FrameworkInstaller: missing parameter "dirPath"`);
+});
+
+test("FrameworkInstaller constructor requires 'distVersion'", (t) => {
+	t.throws(() => {
+		new FrameworkInstaller({
+			dirPath: "/test-project/"
+		});
+	}, `FrameworkInstaller: missing parameter "distVersion"`);
 });
 
 test("_getDistMetadata returns metadata from @sapui5/distribution-metadata package", async (t) => {
