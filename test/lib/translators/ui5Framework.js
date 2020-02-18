@@ -10,7 +10,7 @@ test.afterEach.always((t) => {
 	mock.stopAll();
 });
 
-test.skip("generateDependencyTree should ignore root project without framework configuration", async (t) => {
+test("generateDependencyTree should ignore root project without framework configuration", async (t) => {
 	const tree = {
 		id: "test-id",
 		version: "1.2.3",
@@ -22,12 +22,7 @@ test.skip("generateDependencyTree should ignore root project without framework c
 	};
 	const ui5FrameworkTree = await ui5Framework.generateDependencyTree(tree);
 
-	t.deepEqual(ui5FrameworkTree, {
-		id: "test-id",
-		version: "1.2.3",
-		path: "/test-project/",
-		dependencies: []
-	});
+	t.is(ui5FrameworkTree, null, "No framework tree should be returned");
 });
 
 test.serial("generateDependencyTree", async (t) => {
@@ -87,14 +82,14 @@ test.serial("generateDependencyTree", async (t) => {
 	});
 });
 
-test("_isUi5FrameworkProject", (t) => {
+test("FrameworkInstaller._isUi5FrameworkProject", (t) => {
 	t.true(FrameworkInstaller._isUi5FrameworkProject({id: "@sapui5/foo"}), "@sapui5/foo");
 	t.true(FrameworkInstaller._isUi5FrameworkProject({id: "@openui5/foo"}), "@openui5/foo");
 	t.false(FrameworkInstaller._isUi5FrameworkProject({id: "sapui5"}), "sapui5");
 	t.false(FrameworkInstaller._isUi5FrameworkProject({id: "openui5"}), "openui5");
 });
 
-test("_collectReferencedUi5Libraries: Project without dependencies", (t) => {
+test("FrameworkInstaller._collectReferencedUi5Libraries: Project without dependencies", (t) => {
 	const tree = {
 		id: "test",
 		metadata: {
@@ -109,7 +104,7 @@ test("_collectReferencedUi5Libraries: Project without dependencies", (t) => {
 	t.deepEqual(ui5Dependencies, []);
 });
 
-test("_collectReferencedUi5Libraries: Project with libraries and dependency with libraries", (t) => {
+test("FrameworkInstaller._collectReferencedUi5Libraries: Project with libraries and dependency with libraries", (t) => {
 	const tree = {
 		id: "test1",
 		metadata: {
@@ -166,15 +161,15 @@ test("_collectReferencedUi5Libraries: Project with libraries and dependency with
 	t.deepEqual(ui5Dependencies, ["lib1", "lib2", "lib3", "lib5"]);
 });
 
-test("Create FrameworkInstaller instance", (t) => {
-	new FrameworkInstaller({
+test("FrameworkInstaller: Constructor", (t) => {
+	const frameworkInstaller = new FrameworkInstaller({
 		dirPath: "/test-project/",
 		distVersion: "1.75.0"
 	});
-	t.pass("Can create FrameworkInstaller instance");
+	t.true(frameworkInstaller instanceof FrameworkInstaller, "Constructor returns instance of class");
 });
 
-test("FrameworkInstaller constructor requires 'dirPath'", (t) => {
+test("FrameworkInstaller: Constructor requires 'dirPath'", (t) => {
 	t.throws(() => {
 		new FrameworkInstaller({
 			distVersion: "1.75.0"
@@ -182,7 +177,7 @@ test("FrameworkInstaller constructor requires 'dirPath'", (t) => {
 	}, `FrameworkInstaller: missing parameter "dirPath"`);
 });
 
-test("FrameworkInstaller constructor requires 'distVersion'", (t) => {
+test("FrameworkInstaller: Constructor requires 'distVersion'", (t) => {
 	t.throws(() => {
 		new FrameworkInstaller({
 			dirPath: "/test-project/"
@@ -190,7 +185,49 @@ test("FrameworkInstaller constructor requires 'distVersion'", (t) => {
 	}, `FrameworkInstaller: missing parameter "distVersion"`);
 });
 
-test("_getDistMetadata returns metadata from @sapui5/distribution-metadata package", async (t) => {
+
+test("FrameworkInstaller#install", async (t) => {
+	// Mock data
+	const distMetadata = {
+		libraries: {
+			"sap.ui.foo": {
+				"npmPackageName": "@openui5/sap.ui.foo",
+				"version": "1.75.0",
+				"dependencies": [],
+				"optionalDependencies": []
+			}
+		}
+	};
+	const packagesToInstall = {
+		"sap.ui.foo": {
+			"version": "1.75.0"
+		}
+	};
+
+	const framework = new FrameworkInstaller({
+		dirPath: "/test-project/",
+		distVersion: "1.75.0"
+	});
+
+	const frameworkMock = sinon.mock(framework);
+	frameworkMock.expects("_getDistMetadata").once().resolves(distMetadata);
+	frameworkMock.expects("_collectTransitiveDependencies").once().withExactArgs({
+		libraryNames: ["sap.ui.foo"],
+		metadata: distMetadata
+	}).returns(packagesToInstall);
+	frameworkMock.expects("_installPackages").once().withExactArgs({
+		packages: packagesToInstall
+	}).resolves();
+
+	await framework.install({
+		libraryNames: ["sap.ui.foo"]
+	});
+
+	t.pass("Install should not fail");
+	frameworkMock.verify();
+});
+
+test("FrameworkInstaller#_getDistMetadata returns metadata from @sapui5/distribution-metadata package", async (t) => {
 	const framework = new FrameworkInstaller({
 		dirPath: "/test-project/",
 		distVersion: "1.75.0"
@@ -224,4 +261,4 @@ test("_getDistMetadata returns metadata from @sapui5/distribution-metadata packa
 	mock.stop("/path/to/distribution-metadata/1.75.0/metadata.json");
 });
 
-test.todo("_getDistMetadata only installs and reads metadata once");
+test.todo("FrameworkInstaller._getDistMetadata only installs and reads metadata once");
