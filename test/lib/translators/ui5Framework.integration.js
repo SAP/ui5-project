@@ -261,7 +261,7 @@ test.serial("ui5Framework translator should enhance tree with UI5 framework libr
 				},
 				dependencies: [
 					{
-						_level: 1, // TODO: level seems to be wrong
+						_level: 1,
 						id: "@openui5/sap.ui.lib1",
 						version: "1.75.1",
 						path: path.join(ui5PackagesBaseDir, "@openui5", "sap.ui.lib1", "1.75.1"),
@@ -307,7 +307,7 @@ test.serial("ui5Framework translator should enhance tree with UI5 framework libr
 								},
 								dependencies: [
 									{
-										_level: 1, // TODO: level seems to be wrong
+										_level: 1,
 										id: "@openui5/sap.ui.lib4",
 										version: "1.75.4",
 										path: path.join(ui5PackagesBaseDir, "@openui5", "sap.ui.lib4", "1.75.4"),
@@ -381,7 +381,7 @@ test.serial("ui5Framework translator should enhance tree with UI5 framework libr
 	t.deepEqual(tree, expectedTree, "Returned tree should be correct");
 });
 
-test.todo("Ensure that _level property is maintained correctly during mergeTrees");
+test.todo("Check if _level property is maintained correctly during mergeTrees");
 
 test.todo("Should not download packages again in case they are already installed");
 
