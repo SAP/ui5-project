@@ -383,7 +383,7 @@ test.serial("SAPUI5: ui5Framework translator should enhance tree with UI5 framew
 	t.deepEqual(tree, expectedTree, "Returned tree should be correct");
 });
 
-test.serial.skip("OpenUI5: ui5Framework translator should enhance tree with UI5 framework libraries", async (t) => {
+test.serial("OpenUI5: ui5Framework translator should enhance tree with UI5 framework libraries", async (t) => {
 	const translatorTree = {
 		id: "test-id",
 		version: "1.2.3",
@@ -464,8 +464,7 @@ test.serial.skip("OpenUI5: ui5Framework translator should enhance tree with UI5 
 			type: "library",
 			metadata: {
 				name: "sap.ui.lib1"
-			},
-			framework: {libraries: []}
+			}
 		}])
 		.withArgs(path.join(ui5PackagesBaseDir, "@openui5", "sap.ui.lib2", "1.75.0", "ui5.yaml"))
 		.resolves([{
@@ -473,8 +472,7 @@ test.serial.skip("OpenUI5: ui5Framework translator should enhance tree with UI5 
 			type: "library",
 			metadata: {
 				name: "sap.ui.lib2"
-			},
-			framework: {libraries: []}
+			}
 		}])
 		.withArgs(path.join(ui5PackagesBaseDir, "@openui5", "sap.ui.lib3", "1.75.0", "ui5.yaml"))
 		.resolves([{
@@ -482,8 +480,7 @@ test.serial.skip("OpenUI5: ui5Framework translator should enhance tree with UI5 
 			type: "library",
 			metadata: {
 				name: "sap.ui.lib3"
-			},
-			framework: {libraries: []}
+			}
 		}])
 		.withArgs(path.join(ui5PackagesBaseDir, "@openui5", "sap.ui.lib4", "1.75.0", "ui5.yaml"))
 		.resolves([{
@@ -491,8 +488,7 @@ test.serial.skip("OpenUI5: ui5Framework translator should enhance tree with UI5 
 			type: "library",
 			metadata: {
 				name: "sap.ui.lib4"
-			},
-			framework: {libraries: []}
+			}
 		}]);
 
 	// Prevent applying types as this would require a lot of mocking
@@ -507,41 +503,34 @@ test.serial.skip("OpenUI5: ui5Framework translator should enhance tree with UI5 
 	});
 	sinon.stub(pacote, "extract").resolves();
 
-	mock(path.join(fakeBaseDir,
-		"homedir", ".ui5", "framework", "packages",
-		"@sapui5", "distribution-metadata", "1.75.0",
-		"metadata.json"), {
-		libraries: {
-			"sap.ui.lib1": {
-				npmPackageName: "@sapui5/sap.ui.lib1",
-				version: "1.75.1",
-				dependencies: [],
-				optionalDependencies: []
-			},
-			"sap.ui.lib2": {
-				npmPackageName: "@sapui5/sap.ui.lib2",
-				version: "1.75.2",
-				dependencies: [
-					"sap.ui.lib3"
-				],
-				optionalDependencies: []
-			},
-			"sap.ui.lib3": {
-				npmPackageName: "@sapui5/sap.ui.lib3",
-				version: "1.75.3",
-				dependencies: [],
-				optionalDependencies: [
-					"sap.ui.lib4"
-				]
-			},
-			"sap.ui.lib4": {
-				npmPackageName: "@openui5/sap.ui.lib4",
-				version: "1.75.4",
-				dependencies: [],
-				optionalDependencies: []
+	sinon.stub(pacote, "manifest")
+		.withArgs("@openui5/sap.ui.lib1@1.75.0")
+		.resolves({
+			name: "@openui5/sap.ui.lib1",
+			version: "1.75.0",
+			dependencies: {}
+		})
+		.withArgs("@openui5/sap.ui.lib2@1.75.0")
+		.resolves({
+			name: "@openui5/sap.ui.lib2",
+			version: "1.75.0",
+			dependencies: {
+				"@openui5/sap.ui.lib3": "1.75.0"
 			}
-		}
-	});
+		})
+		.withArgs("@openui5/sap.ui.lib3@1.75.0")
+		.resolves({
+			name: "@openui5/sap.ui.lib3",
+			version: "1.75.0",
+			devDependencies: {
+				"@openui5/sap.ui.lib4": "1.75.0"
+			}
+		})
+		.withArgs("@openui5/sap.ui.lib4@1.75.0")
+		.resolves({
+			name: "@openui5/sap.ui.lib4",
+			version: "1.75.0"
+		});
 
 	const expectedTree = {
 		_level: 0,
@@ -555,6 +544,7 @@ test.serial.skip("OpenUI5: ui5Framework translator should enhance tree with UI5 
 			name: "test-project"
 		},
 		framework: {
+			name: "OpenUI5",
 			version: "1.75.0",
 			libraries: [
 				{
@@ -601,9 +591,6 @@ test.serial.skip("OpenUI5: ui5Framework translator should enhance tree with UI5 
 						metadata: {
 							name: "sap.ui.lib1"
 						},
-						framework: {
-							libraries: []
-						},
 						dependencies: []
 					},
 					{
@@ -617,9 +604,6 @@ test.serial.skip("OpenUI5: ui5Framework translator should enhance tree with UI5 
 						metadata: {
 							name: "sap.ui.lib2"
 						},
-						framework: {
-							libraries: []
-						},
 						dependencies: [
 							{
 								_level: 2,
@@ -632,9 +616,6 @@ test.serial.skip("OpenUI5: ui5Framework translator should enhance tree with UI5 
 								metadata: {
 									name: "sap.ui.lib3"
 								},
-								framework: {
-									libraries: []
-								},
 								dependencies: [
 									{
 										_level: 1,
@@ -646,9 +627,6 @@ test.serial.skip("OpenUI5: ui5Framework translator should enhance tree with UI5 
 										type: "library",
 										metadata: {
 											name: "sap.ui.lib4"
-										},
-										framework: {
-											libraries: []
 										},
 										dependencies: []
 									},
@@ -682,9 +660,6 @@ test.serial.skip("OpenUI5: ui5Framework translator should enhance tree with UI5 
 				metadata: {
 					name: "sap.ui.lib1"
 				},
-				framework: {
-					libraries: []
-				},
 				dependencies: []
 			},
 			{
@@ -697,9 +672,6 @@ test.serial.skip("OpenUI5: ui5Framework translator should enhance tree with UI5 
 				type: "library",
 				metadata: {
 					name: "sap.ui.lib4"
-				},
-				framework: {
-					libraries: []
 				},
 				dependencies: []
 			},
