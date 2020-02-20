@@ -16,6 +16,11 @@ const fakeBaseDir = path.join(__dirname, "fake-tmp");
 const ui5FrameworkBaseDir = path.join(fakeBaseDir, "homedir", ".ui5", "framework");
 const ui5PackagesBaseDir = path.join(ui5FrameworkBaseDir, "packages");
 
+test.before((t) => {
+	// Enable verbose logging
+	require("@ui5/logger").setLevel("verbose");
+})
+
 test.beforeEach((t) => {
 	sinon.stub(os, "homedir").returns(path.join(fakeBaseDir, "homedir"));
 });
@@ -208,7 +213,9 @@ test.serial("SAPUI5: ui5Framework translator should enhance tree with UI5 framew
 			"sap.ui.lib4": {
 				npmPackageName: "@openui5/sap.ui.lib4",
 				version: "1.75.4",
-				dependencies: [],
+				dependencies: [
+					"sap.ui.lib1"
+				],
 				optionalDependencies: []
 			}
 		}
@@ -322,8 +329,25 @@ test.serial("SAPUI5: ui5Framework translator should enhance tree with UI5 framew
 										framework: {
 											libraries: []
 										},
-										dependencies: []
-									},
+										dependencies: [
+											{
+												_level: 1,
+												id: "@sapui5/sap.ui.lib1",
+												version: "1.75.1",
+												path: path.join(ui5PackagesBaseDir, "@sapui5", "sap.ui.lib1", "1.75.1"),
+												specVersion: "1.0",
+												kind: "project",
+												type: "library",
+												metadata: {
+													name: "sap.ui.lib1"
+												},
+												framework: {
+													libraries: []
+												},
+												dependencies: []
+											}
+										]
+									}
 								]
 							}
 						]
@@ -373,7 +397,24 @@ test.serial("SAPUI5: ui5Framework translator should enhance tree with UI5 framew
 				framework: {
 					libraries: []
 				},
-				dependencies: []
+				dependencies: [
+					{
+						_level: 1,
+						id: "@sapui5/sap.ui.lib1",
+						version: "1.75.1",
+						path: path.join(ui5PackagesBaseDir, "@sapui5", "sap.ui.lib1", "1.75.1"),
+						specVersion: "1.0",
+						kind: "project",
+						type: "library",
+						metadata: {
+							name: "sap.ui.lib1"
+						},
+						framework: {
+							libraries: []
+						},
+						dependencies: []
+					}
+				]
 			},
 		]
 	};
