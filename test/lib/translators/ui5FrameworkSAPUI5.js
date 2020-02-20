@@ -29,7 +29,7 @@ test.afterEach.always((t) => {
 	mock.stopAll();
 });
 
-test.serial("FrameworkResolverSAPUI5#prepare loads metadata once from @sapui5/distribution-metadata package", async (t) => {
+test.serial("FrameworkResolverSAPUI5: prepare loads metadata once from @sapui5/distribution-metadata package", async (t) => {
 	const resolver = new FrameworkResolverSAPUI5({
 		cwd: "/test-project/",
 		version: "1.75.0"
@@ -73,7 +73,7 @@ test.serial("FrameworkResolverSAPUI5#prepare loads metadata once from @sapui5/di
 
 	mock.stop("/path/to/distribution-metadata/1.75.0/metadata.json");
 });
-test.serial("FrameworkResolverSAPUI5#install", async (t) => {
+test.serial("FrameworkResolverSAPUI5: install", async (t) => {
 	const resolver = new FrameworkResolverSAPUI5({
 		cwd: "/test-project/",
 		version: "1.75.0"

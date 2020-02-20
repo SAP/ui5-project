@@ -29,7 +29,7 @@ test.afterEach.always((t) => {
 	mock.stopAll();
 });
 
-test.serial("FrameworkResolverOpenUI5#prepare does not load any package", async (t) => {
+test.serial("FrameworkResolverOpenUI5: prepare does not load any package", async (t) => {
 	const resolver = new FrameworkResolverOpenUI5({
 		cwd: "/test-project/",
 		version: "1.75.0"
@@ -45,7 +45,7 @@ test.serial("FrameworkResolverOpenUI5#prepare does not load any package", async 
 		"Metadata should still be filled with an empty libraries object after calling prepare");
 	resolverMock.verify();
 });
-test.serial("FrameworkResolverOpenUI5#install", async (t) => {
+test.serial("FrameworkResolverOpenUI5: install", async (t) => {
 	const resolver = new FrameworkResolverOpenUI5({
 		cwd: "/test-project/",
 		version: "1.75.0"

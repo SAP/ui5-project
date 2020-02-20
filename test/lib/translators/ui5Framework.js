@@ -32,28 +32,28 @@ test.afterEach.always((t) => {
 });
 
 // Generic Resolver
-test.serial("FrameworkResolver#constructor", (t) => {
+test.serial("FrameworkResolver: constructor", (t) => {
 	const resolver = new FrameworkResolver({
 		cwd: "/test-project/",
 		version: "1.75.0"
 	});
 	t.true(resolver instanceof FrameworkResolver, "Constructor returns instance of class");
 });
-test.serial("FrameworkResolver#constructor requires 'dirPath'", (t) => {
+test.serial("FrameworkResolver: constructor requires 'dirPath'", (t) => {
 	t.throws(() => {
 		new FrameworkResolver({
 			version: "1.75.0"
 		});
 	}, `FrameworkResolver: Missing parameter "cwd"`);
 });
-test.serial("FrameworkResolver#constructor requires 'version'", (t) => {
+test.serial("FrameworkResolver: constructor requires 'version'", (t) => {
 	t.throws(() => {
 		new FrameworkResolver({
 			cwd: "/test-project/"
 		});
 	}, `FrameworkResolver: Missing parameter "version"`);
 });
-test.serial("FrameworkResolver#install", async (t) => {
+test.serial("FrameworkResolver: install", async (t) => {
 	const resolver = new FrameworkResolver({
 		cwd: "/test-project/",
 		version: "1.75.0"
@@ -114,7 +114,7 @@ test.serial("FrameworkResolver#install", async (t) => {
 	t.is(prepareStub.callCount, 1, "prepare should be called once");
 	t.is(handleLibraryStub.callCount, 4, "Each library should be handled once");
 });
-test.serial("FrameworkResolver#generateDependencyTree", async (t) => {
+test.serial("FrameworkResolver: generateDependencyTree", async (t) => {
 	const resolver = new FrameworkResolver({
 		cwd: "/test-project/",
 		version: "1.75.0"
@@ -212,7 +212,7 @@ test.serial("FrameworkResolver#generateDependencyTree", async (t) => {
 		}
 	]);
 });
-test.todo("FrameworkResolver#_installPackage");
+test.todo("FrameworkResolver: _installPackage");
 
 // Translator
 test.serial("generateDependencyTree should ignore root project without framework configuration", async (t) => {
