@@ -12,7 +12,6 @@ const FrameworkResolverSAPUI5 = ui5Framework.FrameworkResolverSAPUI5;
 // in case mocks/stubs do not work and real fs is used
 const fakeBaseDir = path.join(__dirname, "fake-tmp");
 const ui5FrameworkBaseDir = path.join(fakeBaseDir, "homedir", ".ui5", "framework");
-const ui5PackagesBaseDir = path.join(ui5FrameworkBaseDir, "packages");
 
 test.beforeEach((t) => {
 	sinon.stub(os, "homedir").returns(path.join(fakeBaseDir, "homedir"));

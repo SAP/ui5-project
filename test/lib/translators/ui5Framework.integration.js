@@ -19,7 +19,7 @@ const ui5PackagesBaseDir = path.join(ui5FrameworkBaseDir, "packages");
 test.before((t) => {
 	// Enable verbose logging
 	require("@ui5/logger").setLevel("verbose");
-})
+});
 
 test.beforeEach((t) => {
 	sinon.stub(os, "homedir").returns(path.join(fakeBaseDir, "homedir"));
