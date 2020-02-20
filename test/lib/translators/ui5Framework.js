@@ -10,7 +10,7 @@ test.afterEach.always((t) => {
 	mock.stopAll();
 });
 
-test("generateDependencyTree should ignore root project without framework configuration", async (t) => {
+test.serial("generateDependencyTree should ignore root project without framework configuration", async (t) => {
 	const tree = {
 		id: "test-id",
 		version: "1.2.3",
@@ -83,14 +83,14 @@ test.serial("generateDependencyTree (SAPUI5)", async (t) => {
 	});
 });
 
-test("FrameworkInstaller._isUi5FrameworkProject", (t) => {
+test.serial("FrameworkInstaller._isUi5FrameworkProject", (t) => {
 	t.true(FrameworkInstaller._isUi5FrameworkProject({id: "@sapui5/foo"}), "@sapui5/foo");
 	t.true(FrameworkInstaller._isUi5FrameworkProject({id: "@openui5/foo"}), "@openui5/foo");
 	t.false(FrameworkInstaller._isUi5FrameworkProject({id: "sapui5"}), "sapui5");
 	t.false(FrameworkInstaller._isUi5FrameworkProject({id: "openui5"}), "openui5");
 });
 
-test("FrameworkInstaller._collectReferencedUi5Libraries: Project without dependencies", (t) => {
+test.serial("FrameworkInstaller._collectReferencedUi5Libraries: Project without dependencies", (t) => {
 	const tree = {
 		id: "test",
 		metadata: {
@@ -105,7 +105,7 @@ test("FrameworkInstaller._collectReferencedUi5Libraries: Project without depende
 	t.deepEqual(ui5Dependencies, []);
 });
 
-test("FrameworkInstaller._collectReferencedUi5Libraries: Project with libraries and dependency with libraries", (t) => {
+test.serial("FrameworkInstaller._collectReferencedUi5Libraries: Project with libraries and dependency with libraries", (t) => {
 	const tree = {
 		id: "test1",
 		metadata: {
@@ -162,7 +162,7 @@ test("FrameworkInstaller._collectReferencedUi5Libraries: Project with libraries 
 	t.deepEqual(ui5Dependencies, ["lib1", "lib2", "lib3", "lib5"]);
 });
 
-test("FrameworkInstaller: Constructor", (t) => {
+test.serial("FrameworkInstaller: Constructor", (t) => {
 	const frameworkInstaller = new FrameworkInstaller({
 		dirPath: "/test-project/",
 		version: "1.75.0",
@@ -171,7 +171,7 @@ test("FrameworkInstaller: Constructor", (t) => {
 	t.true(frameworkInstaller instanceof FrameworkInstaller, "Constructor returns instance of class");
 });
 
-test("FrameworkInstaller: Constructor requires 'dirPath'", (t) => {
+test.serial("FrameworkInstaller: Constructor requires 'dirPath'", (t) => {
 	t.throws(() => {
 		new FrameworkInstaller({
 			version: "1.75.0",
@@ -180,7 +180,7 @@ test("FrameworkInstaller: Constructor requires 'dirPath'", (t) => {
 	}, `FrameworkInstaller: Missing parameter "dirPath"`);
 });
 
-test("FrameworkInstaller: Constructor requires 'name'", (t) => {
+test.serial("FrameworkInstaller: Constructor requires 'name'", (t) => {
 	t.throws(() => {
 		new FrameworkInstaller({
 			dirPath: "/test-project/",
@@ -189,7 +189,7 @@ test("FrameworkInstaller: Constructor requires 'name'", (t) => {
 	}, `FrameworkInstaller: Missing parameter "name"`);
 });
 
-test("FrameworkInstaller: Constructor requires valid 'name'", (t) => {
+test.serial("FrameworkInstaller: Constructor requires valid 'name'", (t) => {
 	t.throws(() => {
 		new FrameworkInstaller({
 			dirPath: "/test-project/",
@@ -199,7 +199,7 @@ test("FrameworkInstaller: Constructor requires valid 'name'", (t) => {
 	}, `FrameworkInstaller: Invalid value "Foo" for parameter "name". Must be "OpenUI5" or "SAPUI5"`);
 });
 
-test("FrameworkInstaller: Constructor requires 'version'", (t) => {
+test.serial("FrameworkInstaller: Constructor requires 'version'", (t) => {
 	t.throws(() => {
 		new FrameworkInstaller({
 			dirPath: "/test-project/",
@@ -208,7 +208,7 @@ test("FrameworkInstaller: Constructor requires 'version'", (t) => {
 	}, `FrameworkInstaller: Missing parameter "version"`);
 });
 
-test("FrameworkInstaller#install: SAPUI5", async (t) => {
+test.serial("FrameworkInstaller#install: SAPUI5", async (t) => {
 	// Mock data
 	const distMetadata = {
 		libraries: {
@@ -220,11 +220,6 @@ test("FrameworkInstaller#install: SAPUI5", async (t) => {
 			}
 		}
 	};
-	const packagesToInstall = {
-		"sap.ui.foo": {
-			"version": "1.75.0"
-		}
-	};
 
 	const framework = new FrameworkInstaller({
 		dirPath: "/test-project/",
@@ -234,12 +229,9 @@ test("FrameworkInstaller#install: SAPUI5", async (t) => {
 
 	const frameworkMock = sinon.mock(framework);
 	frameworkMock.expects("_getDistMetadata").once().resolves(distMetadata);
-	frameworkMock.expects("_collectTransitiveDependencies").once().withExactArgs({
-		libraryNames: ["sap.ui.foo"],
-		metadata: distMetadata
-	}).returns(packagesToInstall);
-	frameworkMock.expects("_installPackages").once().withExactArgs({
-		packages: packagesToInstall
+	frameworkMock.expects("_installPackage").once().withExactArgs({
+		pkgName: "@openui5/sap.ui.foo",
+		version: "1.75.0"
 	}).resolves();
 
 	await framework.install({
@@ -250,7 +242,7 @@ test("FrameworkInstaller#install: SAPUI5", async (t) => {
 	frameworkMock.verify();
 });
 
-test("FrameworkInstaller#_getDistMetadata returns metadata from @sapui5/distribution-metadata package", async (t) => {
+test.serial("FrameworkInstaller#_getDistMetadata returns metadata from @sapui5/distribution-metadata package", async (t) => {
 	const framework = new FrameworkInstaller({
 		dirPath: "/test-project/",
 		version: "1.75.0",
@@ -287,7 +279,9 @@ test("FrameworkInstaller#_getDistMetadata returns metadata from @sapui5/distribu
 
 test.todo("FrameworkInstaller._getDistMetadata only installs and reads metadata once");
 
-test("OpenUI5 installAllDependencies", async (t) => {
+test.todo("Ensure no unhandled promise rejection happens during install");
+
+test.serial("installViaResolver + generateDependencyTree: OpenUI5", async (t) => {
 	const framework = new FrameworkInstaller({
 		dirPath: "/test-project/",
 		version: "1.75.0",
@@ -331,15 +325,20 @@ test("OpenUI5 installAllDependencies", async (t) => {
 
 	const _installPackage = sinon.stub(framework, "_installPackage");
 	_installPackage
-		.callsFake(async ({pkgName}) => {
-			throw new Error("Unknown install call: " + pkgName);
+		.callsFake(async ({pkgName, version}) => {
+			throw new Error(`Unknown install call: ${pkgName}@${version}`);
 		})
 		.withArgs({pkgName: "@openui5/sap.ui.lib1", version: "1.75.0"}).resolves()
 		.withArgs({pkgName: "@openui5/sap.ui.lib2", version: "1.75.0"}).resolves()
 		.withArgs({pkgName: "@openui5/sap.ui.lib3", version: "1.75.0"}).resolves()
 		.withArgs({pkgName: "@openui5/sap.ui.lib4", version: "1.75.0"}).resolves();
 
-	const tree = await framework._installAllOpenUI5Dependencies(["sap.ui.lib1", "sap.ui.lib2", "sap.ui.lib4"]);
+	await framework.installViaResolver(["sap.ui.lib1", "sap.ui.lib2", "sap.ui.lib4"]);
+
+	t.is(_requestPackageManifest.callCount, 4, "Manifests should only be requested once");
+	t.is(_installPackage.callCount, 4, "Installation should only be done once");
+
+	const tree = await framework.generateDependencyTreeViaResolver(["sap.ui.lib1", "sap.ui.lib2", "sap.ui.lib4"]);
 
 	t.deepEqual(tree, [
 		{
@@ -375,9 +374,63 @@ test("OpenUI5 installAllDependencies", async (t) => {
 			dependencies: []
 		}
 	]);
-
-	t.is(_requestPackageManifest.callCount, 4, "Manifests should only be requested once");
-	t.is(_installPackage.callCount, 4, "Installation should only be done once");
 });
 
-test.todo("Ensure no unhandled promise rejection happens during install");
+test.serial("installViaResolver: SAPUI5", async (t) => {
+	const framework = new FrameworkInstaller({
+		dirPath: "/test-project/",
+		version: "1.75.0",
+		name: "SAPUI5"
+	});
+
+	framework._baseDir = "/.ui5/framework/packages/";
+
+	const _getDistMetadata = sinon.stub(framework, "_getDistMetadata");
+	_getDistMetadata.resolves({
+		libraries: {
+			"sap.ui.lib1": {
+				"npmPackageName": "@openui5/sap.ui.lib1",
+				"version": "1.75.0",
+				"dependencies": [],
+				"optionalDependencies": []
+			},
+			"sap.ui.lib2": {
+				"npmPackageName": "@openui5/sap.ui.lib2",
+				"version": "1.75.0",
+				"dependencies": [
+					"sap.ui.lib3"
+				],
+				"optionalDependencies": []
+			},
+			"sap.ui.lib3": {
+				"npmPackageName": "@openui5/sap.ui.lib3",
+				"version": "1.75.0",
+				"dependencies": [],
+				"optionalDependencies": [
+					"sap.ui.lib4"
+				]
+			},
+			"sap.ui.lib4": {
+				"npmPackageName": "@openui5/sap.ui.lib4",
+				"version": "1.75.0",
+				"dependencies": [],
+				"optionalDependencies": []
+			}
+		}
+	});
+
+	const _installPackage = sinon.stub(framework, "_installPackage");
+	_installPackage
+		.callsFake(async ({pkgName, version}) => {
+			throw new Error(`Unknown install call: ${pkgName}@${version}`);
+		})
+		.withArgs({pkgName: "@openui5/sap.ui.lib1", version: "1.75.0"}).resolves()
+		.withArgs({pkgName: "@openui5/sap.ui.lib2", version: "1.75.0"}).resolves()
+		.withArgs({pkgName: "@openui5/sap.ui.lib3", version: "1.75.0"}).resolves()
+		.withArgs({pkgName: "@openui5/sap.ui.lib4", version: "1.75.0"}).resolves();
+
+	await framework.installViaResolver(["sap.ui.lib1", "sap.ui.lib2", "sap.ui.lib4"]);
+
+	t.is(_getDistMetadata.callCount, 1, "Dist Metadata should only be requested once");
+	t.is(_installPackage.callCount, 4, "Installation should only be done once");
+});
