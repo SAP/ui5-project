@@ -29,22 +29,10 @@ test.afterEach.always((t) => {
 	mock.stopAll();
 });
 
-test.serial("FrameworkResolverOpenUI5: prepare does not load any package", async (t) => {
-	const resolver = new FrameworkResolverOpenUI5({
-		cwd: "/test-project/",
-		version: "1.75.0"
-	});
-
-	const resolverMock = sinon.mock(resolver);
-	resolverMock.expects("_installPackage").never();
-
-	t.deepEqual(resolver.metadata, {libraries: {}},
-		"Metadata should be filled with an empty libraries object");
-	await resolver.prepare();
-	t.deepEqual(resolver.metadata, {libraries: {}},
-		"Metadata should still be filled with an empty libraries object after calling prepare");
-	resolverMock.verify();
+test.serial("FrameworkResolverOpenUI5: _getNpmPackageName", (t) => {
+	t.is(FrameworkResolverOpenUI5._getNpmPackageName("foo"), "@openui5/foo");
 });
+
 test.serial("FrameworkResolverOpenUI5: install", async (t) => {
 	const resolver = new FrameworkResolverOpenUI5({
 		cwd: "/test-project/",
@@ -99,3 +87,7 @@ test.serial("FrameworkResolverOpenUI5: install", async (t) => {
 	t.is(getLibraryMetadataStub.callCount, 4, "getLibraryMetadata should be called once for each package");
 	t.is(_installPackage.callCount, 4, "Installation should only be done once");
 });
+
+test.todo("Test handleLibrary");
+
+test.todo("Ensure that _fetchPackageManifest is not called too many times");

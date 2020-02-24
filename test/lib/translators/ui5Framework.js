@@ -59,8 +59,6 @@ test.serial("FrameworkResolver: install", async (t) => {
 		version: "1.75.0"
 	});
 
-	const prepareStub = sinon.stub(resolver, "prepare");
-
 	const handleLibraryStub = sinon.stub(resolver, "handleLibrary");
 	handleLibraryStub
 		.callsFake(async (libraryName) => {
@@ -111,7 +109,6 @@ test.serial("FrameworkResolver: install", async (t) => {
 
 	await resolver.install(["sap.ui.lib1", "sap.ui.lib2", "sap.ui.lib4"]);
 
-	t.is(prepareStub.callCount, 1, "prepare should be called once");
 	t.is(handleLibraryStub.callCount, 4, "Each library should be handled once");
 });
 test.serial("FrameworkResolver: generateDependencyTree", async (t) => {

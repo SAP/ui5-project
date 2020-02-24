@@ -29,7 +29,7 @@ test.afterEach.always((t) => {
 	mock.stopAll();
 });
 
-test.serial("FrameworkResolverSAPUI5: prepare loads metadata once from @sapui5/distribution-metadata package", async (t) => {
+test.serial("FrameworkResolverSAPUI5: loadDistMetadata loads metadata once from @sapui5/distribution-metadata package", async (t) => {
 	const resolver = new FrameworkResolverSAPUI5({
 		cwd: "/test-project/",
 		version: "1.75.0"
@@ -59,17 +59,17 @@ test.serial("FrameworkResolverSAPUI5: prepare loads metadata once from @sapui5/d
 	};
 	mock("/path/to/distribution-metadata/1.75.0/metadata.json", expectedMetadata);
 
-	t.deepEqual(resolver.metadata, {libraries: {}},
-		"Metadata should be filled with an empty libraries object");
-	await resolver.prepare();
+	t.deepEqual(resolver.metadata, undefined,
+		"Metadata should not be set");
+	await resolver.loadDistMetadata();
 	t.deepEqual(resolver.metadata, expectedMetadata,
-		"Metadata should be filled with expected metadata after calling prepare");
+		"Metadata should be filled with expected metadata after calling loadDistMetadata");
 
-	// Calling prepare again should not load package again (verified via mock)
-	await resolver.prepare();
+	// Calling loadDistMetadata again should not load package again (verified via mock)
+	await resolver.loadDistMetadata();
 	resolverMock.verify();
 	t.deepEqual(resolver.metadata, expectedMetadata,
-		"Metadata should still be filled with expected metadata after calling prepare again");
+		"Metadata should still be filled with expected metadata after calling loadDistMetadata again");
 
 	mock.stop("/path/to/distribution-metadata/1.75.0/metadata.json");
 });
@@ -79,8 +79,8 @@ test.serial("FrameworkResolverSAPUI5: install", async (t) => {
 		version: "1.75.0"
 	});
 
-	const prepareStub = sinon.stub(resolver, "prepare");
-	prepareStub.callsFake(async () => {
+	const loadDistMetadataStub = sinon.stub(resolver, "loadDistMetadata");
+	loadDistMetadataStub.callsFake(async () => {
 		resolver.metadata = {
 			libraries: {
 				"sap.ui.lib1": {
@@ -129,6 +129,6 @@ test.serial("FrameworkResolverSAPUI5: install", async (t) => {
 
 	await resolver.install(["sap.ui.lib1", "sap.ui.lib2", "sap.ui.lib4"]);
 
-	t.is(prepareStub.callCount, 1, "prepare should be called once");
+	t.is(loadDistMetadataStub.callCount, 1, "loadDistMetadata should be called once");
 	t.is(_installPackage.callCount, 4, "Installation should only be done once");
 });
