@@ -3,10 +3,9 @@ const sinon = require("sinon");
 const mock = require("mock-require");
 const path = require("path");
 const os = require("os");
-
 const libnpmconfig = require("libnpmconfig");
-const ui5Framework = require("../../../lib/translators/ui5Framework");
-const FrameworkResolverSAPUI5 = ui5Framework.FrameworkResolverSAPUI5;
+
+const Sapui5Resolver = require("../../../lib/ui5Framework/Sapui5Resolver");
 
 // Use path within project as mocking base directory to reduce chance of side effects
 // in case mocks/stubs do not work and real fs is used
@@ -29,19 +28,19 @@ test.afterEach.always((t) => {
 	mock.stopAll();
 });
 
-test.serial("FrameworkResolverSAPUI5: loadDistMetadata loads metadata once from @sapui5/distribution-metadata package", async (t) => {
-	const resolver = new FrameworkResolverSAPUI5({
+test.serial("Sapui5Resolver: loadDistMetadata loads metadata once from @sapui5/distribution-metadata package", async (t) => {
+	const resolver = new Sapui5Resolver({
 		cwd: "/test-project/",
 		version: "1.75.0"
 	});
 
-	const resolverMock = sinon.mock(resolver);
-
-	resolverMock.expects("_getTargetDirForPackage").once().withArgs({
+	const getTargetDirForPackage = sinon.stub(resolver._installer, "_getTargetDirForPackage");
+	getTargetDirForPackage.withArgs({
 		pkgName: "@sapui5/distribution-metadata",
 		version: "1.75.0"
 	}).returns("/path/to/distribution-metadata/1.75.0/");
-	resolverMock.expects("_installPackage").once().withArgs({
+	const installPackage = sinon.stub(resolver._installer, "installPackage");
+	installPackage.withArgs({
 		pkgName: "@sapui5/distribution-metadata",
 		version: "1.75.0",
 		targetDir: "/path/to/distribution-metadata/1.75.0/"
@@ -62,19 +61,22 @@ test.serial("FrameworkResolverSAPUI5: loadDistMetadata loads metadata once from 
 	t.deepEqual(resolver.metadata, undefined,
 		"Metadata should not be set");
 	await resolver.loadDistMetadata();
+	t.is(installPackage.callCount, 1, "Distribution metadata package should be installed once");
 	t.deepEqual(resolver.metadata, expectedMetadata,
 		"Metadata should be filled with expected metadata after calling loadDistMetadata");
 
-	// Calling loadDistMetadata again should not load package again (verified via mock)
+	// Calling loadDistMetadata again should not load package again
 	await resolver.loadDistMetadata();
-	resolverMock.verify();
+
+	t.is(installPackage.callCount, 1, "Distribution metadata package should still be installed once");
 	t.deepEqual(resolver.metadata, expectedMetadata,
 		"Metadata should still be filled with expected metadata after calling loadDistMetadata again");
 
 	mock.stop("/path/to/distribution-metadata/1.75.0/metadata.json");
 });
-test.serial("FrameworkResolverSAPUI5: install", async (t) => {
-	const resolver = new FrameworkResolverSAPUI5({
+
+test.serial("Sapui5Resolver: install", async (t) => {
+	const resolver = new Sapui5Resolver({
 		cwd: "/test-project/",
 		version: "1.75.0"
 	});
@@ -117,8 +119,8 @@ test.serial("FrameworkResolverSAPUI5: install", async (t) => {
 		};
 	});
 
-	const _installPackage = sinon.stub(resolver, "_installPackage");
-	_installPackage
+	const installPackage = sinon.stub(resolver._installer, "installPackage");
+	installPackage
 		.callsFake(async ({pkgName, version}) => {
 			throw new Error(`Unknown install call: ${pkgName}@${version}`);
 		})
@@ -130,5 +132,5 @@ test.serial("FrameworkResolverSAPUI5: install", async (t) => {
 	await resolver.install(["sap.ui.lib1", "sap.ui.lib2", "sap.ui.lib4"]);
 
 	t.is(loadDistMetadataStub.callCount, 1, "loadDistMetadata should be called once");
-	t.is(_installPackage.callCount, 4, "Installation should only be done once");
+	t.is(installPackage.callCount, 4, "Installation should only be done once");
 });
