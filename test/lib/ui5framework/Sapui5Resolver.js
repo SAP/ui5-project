@@ -18,9 +18,8 @@ test.serial("Sapui5Resolver: loadDistMetadata loads metadata once from @sapui5/d
 	const installPackage = sinon.stub(resolver._installer, "installPackage");
 	installPackage.withArgs({
 		pkgName: "@sapui5/distribution-metadata",
-		version: "1.75.0",
-		targetDir: "/path/to/distribution-metadata/1.75.0/"
-	}).resolves();
+		version: "1.75.0"
+	}).resolves({pkgPath: "/path/to/distribution-metadata/1.75.0/"});
 
 	const expectedMetadata = {
 		libraries: {
@@ -76,7 +75,7 @@ test("Sapui5Resolver: handleLibrary", async (t) => {
 		.callsFake(async ({pkgName, version}) => {
 			throw new Error(`Unknown install call: ${pkgName}@${version}`);
 		})
-		.withArgs({pkgName: "@openui5/sap.ui.lib1", version: "1.75.0"}).resolves();
+		.withArgs({pkgName: "@openui5/sap.ui.lib1", version: "1.75.0"}).resolves({pkgPath: "/foo/sap.ui.lib1"});
 
 	const {libraryMetadata, install} = await resolver.handleLibrary("sap.ui.lib1");
 
@@ -138,10 +137,10 @@ test("Sapui5Resolver: install", async (t) => {
 		.callsFake(async ({pkgName, version}) => {
 			throw new Error(`Unknown install call: ${pkgName}@${version}`);
 		})
-		.withArgs({pkgName: "@openui5/sap.ui.lib1", version: "1.75.0"}).resolves()
-		.withArgs({pkgName: "@openui5/sap.ui.lib2", version: "1.75.0"}).resolves()
-		.withArgs({pkgName: "@openui5/sap.ui.lib3", version: "1.75.0"}).resolves()
-		.withArgs({pkgName: "@openui5/sap.ui.lib4", version: "1.75.0"}).resolves();
+		.withArgs({pkgName: "@openui5/sap.ui.lib1", version: "1.75.0"}).resolves({pkgPath: "/foo/sap.ui.lib1"})
+		.withArgs({pkgName: "@openui5/sap.ui.lib2", version: "1.75.0"}).resolves({pkgPath: "/foo/sap.ui.lib2"})
+		.withArgs({pkgName: "@openui5/sap.ui.lib3", version: "1.75.0"}).resolves({pkgPath: "/foo/sap.ui.lib3"})
+		.withArgs({pkgName: "@openui5/sap.ui.lib4", version: "1.75.0"}).resolves({pkgPath: "/foo/sap.ui.lib4"});
 
 	await resolver.install(["sap.ui.lib1", "sap.ui.lib2", "sap.ui.lib4"]);
 

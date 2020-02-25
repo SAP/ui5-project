@@ -151,10 +151,10 @@ test("Openui5Resolver: install", async (t) => {
 		.callsFake(async ({pkgName, version}) => {
 			throw new Error(`Unknown install call: ${pkgName}@${version}`);
 		})
-		.withArgs({pkgName: "@openui5/sap.ui.lib1", version: "1.75.0"}).resolves()
-		.withArgs({pkgName: "@openui5/sap.ui.lib2", version: "1.75.0"}).resolves()
-		.withArgs({pkgName: "@openui5/sap.ui.lib3", version: "1.75.0"}).resolves()
-		.withArgs({pkgName: "@openui5/sap.ui.lib4", version: "1.75.0"}).resolves();
+		.withArgs({pkgName: "@openui5/sap.ui.lib1", version: "1.75.0"}).resolves({pkgPath: "/foo/sap.ui.lib1"})
+		.withArgs({pkgName: "@openui5/sap.ui.lib2", version: "1.75.0"}).resolves({pkgPath: "/foo/sap.ui.lib2"})
+		.withArgs({pkgName: "@openui5/sap.ui.lib3", version: "1.75.0"}).resolves({pkgPath: "/foo/sap.ui.lib3"})
+		.withArgs({pkgName: "@openui5/sap.ui.lib4", version: "1.75.0"}).resolves({pkgPath: "/foo/sap.ui.lib4"});
 
 	await resolver.install(["sap.ui.lib1", "sap.ui.lib2", "sap.ui.lib4"]);
 
