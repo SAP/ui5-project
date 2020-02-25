@@ -1,40 +1,114 @@
 const test = require("ava");
 const sinon = require("sinon");
-const mock = require("mock-require");
-const path = require("path");
-const os = require("os");
 
-const libnpmconfig = require("libnpmconfig");
-const ui5Framework = require("../../../lib/translators/ui5Framework");
-const FrameworkResolverOpenUI5 = ui5Framework.FrameworkResolverOpenUI5;
+const Openui5Resolver = require("../../../lib/ui5Framework/Openui5Resolver");
 
-// Use path within project as mocking base directory to reduce chance of side effects
-// in case mocks/stubs do not work and real fs is used
-const fakeBaseDir = path.join(__dirname, "fake-tmp");
-const ui5FrameworkBaseDir = path.join(fakeBaseDir, "homedir", ".ui5", "framework");
+test("Openui5Resolver: _getNpmPackageName", (t) => {
+	t.is(Openui5Resolver._getNpmPackageName("foo"), "@openui5/foo");
+});
 
-test.beforeEach((t) => {
-	sinon.stub(os, "homedir").returns(path.join(fakeBaseDir, "homedir"));
-	sinon.stub(libnpmconfig, "read").returns({
-		toJSON: sinon.stub().returns({
-			registry: "https://registry.fake",
-			cache: path.join(ui5FrameworkBaseDir, "cacache"),
-			proxy: ""
-		})
+test("Openui5Resolver: _getLibaryName", (t) => {
+	t.is(Openui5Resolver._getLibaryName("@openui5/foo"), "foo");
+	t.is(Openui5Resolver._getLibaryName("@something/else"), "@something/else");
+});
+
+test("Openui5Resolver: _getLibraryMetadata", async (t) => {
+	const resolver = new Openui5Resolver({
+		cwd: "/test-project/",
+		version: "1.75.0"
 	});
+
+	const fetchPackageManifest = sinon.stub(resolver._installer, "fetchPackageManifest");
+	fetchPackageManifest
+		.callsFake(async ({pkgName}) => {
+			throw new Error(`Unknown install call: ${pkgName}`);
+		})
+		.withArgs({pkgName: "@openui5/sap.ui.lib1"}).resolves({})
+		.withArgs({pkgName: "@openui5/sap.ui.lib2"}).resolves({
+			dependencies: {
+				"sap.ui.lib3": "1.2.3"
+			},
+			devDependencies: {
+				"sap.ui.lib4": "4.5.6"
+			}
+		});
+
+	async function assert(libraryName, expectedMetadata) {
+		const pLibraryMetadata = resolver._getLibraryMetadata(libraryName);
+		const pLibraryMetadata2 = resolver._getLibraryMetadata(libraryName);
+
+		const libraryMetadata = await pLibraryMetadata;
+		t.deepEqual(libraryMetadata, expectedMetadata,
+			libraryName + ": First call should resolve with expected metadata");
+		const libraryMetadata2 = await pLibraryMetadata2;
+		t.deepEqual(libraryMetadata2, expectedMetadata,
+			libraryName + ": Second call should also resolve with expected metadata");
+
+		const libraryMetadata3 = await resolver._getLibraryMetadata(libraryName);
+
+		t.deepEqual(libraryMetadata3, expectedMetadata,
+			libraryName + ": Third call should still return the same metadata");
+	}
+
+	await assert("sap.ui.lib1", {
+		npmPackageName: "@openui5/sap.ui.lib1",
+		version: "1.75.0",
+		dependencies: [],
+		optionalDependencies: []
+	});
+
+	await assert("sap.ui.lib2", {
+		npmPackageName: "@openui5/sap.ui.lib2",
+		version: "1.75.0",
+		dependencies: [
+			"sap.ui.lib3"
+		],
+		optionalDependencies: [
+			"sap.ui.lib4"
+		]
+	});
+
+	t.is(fetchPackageManifest.callCount, 2, "fetchPackageManifest should be called twice");
 });
 
-test.afterEach.always((t) => {
-	sinon.restore();
-	mock.stopAll();
+test("Openui5Resolver: handleLibrary", async (t) => {
+	const resolver = new Openui5Resolver({
+		cwd: "/test-project/",
+		version: "1.75.0"
+	});
+
+	const getLibraryMetadataStub = sinon.stub(resolver, "_getLibraryMetadata");
+	getLibraryMetadataStub
+		.callsFake(async (libraryName) => {
+			throw new Error("_getLibraryMetadata stub called with unknown libraryName: " + libraryName);
+		})
+		.withArgs("sap.ui.lib1").resolves({
+			"npmPackageName": "@openui5/sap.ui.lib1",
+			"version": "1.75.0",
+			"dependencies": [],
+			"optionalDependencies": []
+		});
+
+	const _installPackage = sinon.stub(resolver._installer, "installPackage");
+	_installPackage
+		.callsFake(async ({pkgName, version}) => {
+			throw new Error(`Unknown install call: ${pkgName}@${version}`);
+		})
+		.withArgs({pkgName: "@openui5/sap.ui.lib1", version: "1.75.0"}).resolves();
+
+	const {libraryMetadata, install} = await resolver.handleLibrary("sap.ui.lib1");
+
+	t.deepEqual(libraryMetadata, {
+		"npmPackageName": "@openui5/sap.ui.lib1",
+		"version": "1.75.0",
+		"dependencies": [],
+		"optionalDependencies": []
+	}, "Expected library metadata should be returned");
+	t.true(install instanceof Promise, "Install promise should be returned");
 });
 
-test.serial("FrameworkResolverOpenUI5: _getNpmPackageName", (t) => {
-	t.is(FrameworkResolverOpenUI5._getNpmPackageName("foo"), "@openui5/foo");
-});
-
-test.serial("FrameworkResolverOpenUI5: install", async (t) => {
-	const resolver = new FrameworkResolverOpenUI5({
+test("Openui5Resolver: install", async (t) => {
+	const resolver = new Openui5Resolver({
 		cwd: "/test-project/",
 		version: "1.75.0"
 	});
@@ -72,7 +146,7 @@ test.serial("FrameworkResolverOpenUI5: install", async (t) => {
 			"optionalDependencies": []
 		});
 
-	const _installPackage = sinon.stub(resolver, "_installPackage");
+	const _installPackage = sinon.stub(resolver._installer, "installPackage");
 	_installPackage
 		.callsFake(async ({pkgName, version}) => {
 			throw new Error(`Unknown install call: ${pkgName}@${version}`);
@@ -87,7 +161,3 @@ test.serial("FrameworkResolverOpenUI5: install", async (t) => {
 	t.is(getLibraryMetadataStub.callCount, 4, "getLibraryMetadata should be called once for each package");
 	t.is(_installPackage.callCount, 4, "Installation should only be done once");
 });
-
-test.todo("Test handleLibrary");
-
-test.todo("Ensure that _fetchPackageManifest is not called too many times");
