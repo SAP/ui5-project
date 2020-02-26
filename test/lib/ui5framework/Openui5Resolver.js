@@ -23,8 +23,8 @@ test("Openui5Resolver: _getLibraryMetadata", async (t) => {
 		.callsFake(async ({pkgName}) => {
 			throw new Error(`Unknown install call: ${pkgName}`);
 		})
-		.withArgs({pkgName: "@openui5/sap.ui.lib1"}).resolves({})
-		.withArgs({pkgName: "@openui5/sap.ui.lib2"}).resolves({
+		.withArgs({pkgName: "@openui5/sap.ui.lib1", version: "1.75.0"}).resolves({})
+		.withArgs({pkgName: "@openui5/sap.ui.lib2", version: "1.75.0"}).resolves({
 			dependencies: {
 				"sap.ui.lib3": "1.2.3"
 			},
