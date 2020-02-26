@@ -51,14 +51,14 @@ test("Openui5Resolver: _getLibraryMetadata", async (t) => {
 	}
 
 	await assert("sap.ui.lib1", {
-		npmPackageName: "@openui5/sap.ui.lib1",
+		id: "@openui5/sap.ui.lib1",
 		version: "1.75.0",
 		dependencies: [],
 		optionalDependencies: []
 	});
 
 	await assert("sap.ui.lib2", {
-		npmPackageName: "@openui5/sap.ui.lib2",
+		id: "@openui5/sap.ui.lib2",
 		version: "1.75.0",
 		dependencies: [
 			"sap.ui.lib3"
@@ -83,7 +83,7 @@ test("Openui5Resolver: handleLibrary", async (t) => {
 			throw new Error("_getLibraryMetadata stub called with unknown libraryName: " + libraryName);
 		})
 		.withArgs("sap.ui.lib1").resolves({
-			"npmPackageName": "@openui5/sap.ui.lib1",
+			"id": "@openui5/sap.ui.lib1",
 			"version": "1.75.0",
 			"dependencies": [],
 			"optionalDependencies": []
@@ -99,65 +99,10 @@ test("Openui5Resolver: handleLibrary", async (t) => {
 	const {libraryMetadata, install} = await resolver.handleLibrary("sap.ui.lib1");
 
 	t.deepEqual(libraryMetadata, {
-		"npmPackageName": "@openui5/sap.ui.lib1",
+		"id": "@openui5/sap.ui.lib1",
 		"version": "1.75.0",
 		"dependencies": [],
 		"optionalDependencies": []
 	}, "Expected library metadata should be returned");
 	t.true(install instanceof Promise, "Install promise should be returned");
-});
-
-test("Openui5Resolver: install", async (t) => {
-	const resolver = new Openui5Resolver({
-		cwd: "/test-project/",
-		version: "1.75.0"
-	});
-
-	const getLibraryMetadataStub = sinon.stub(resolver, "_getLibraryMetadata");
-	getLibraryMetadataStub
-		.callsFake(async (libraryName) => {
-			throw new Error("_getLibraryMetadata stub called with unknown libraryName: " + libraryName);
-		})
-		.withArgs("sap.ui.lib1").resolves({
-			"npmPackageName": "@openui5/sap.ui.lib1",
-			"version": "1.75.0",
-			"dependencies": [],
-			"optionalDependencies": []
-		}).withArgs("sap.ui.lib2").resolves({
-			"npmPackageName": "@openui5/sap.ui.lib2",
-			"version": "1.75.0",
-			"dependencies": [
-				"sap.ui.lib3"
-			],
-			"optionalDependencies": []
-		}).withArgs("sap.ui.lib3").resolves({
-			"npmPackageName": "@openui5/sap.ui.lib3",
-			"version": "1.75.0",
-			"dependencies": [],
-			"optionalDependencies": [
-				"sap.ui.lib4"
-			]
-		}).withArgs("sap.ui.lib4").resolves({
-			"npmPackageName": "@openui5/sap.ui.lib4",
-			"version": "1.75.0",
-			"dependencies": [
-				"sap.ui.lib1"
-			],
-			"optionalDependencies": []
-		});
-
-	const _installPackage = sinon.stub(resolver._installer, "installPackage");
-	_installPackage
-		.callsFake(async ({pkgName, version}) => {
-			throw new Error(`Unknown install call: ${pkgName}@${version}`);
-		})
-		.withArgs({pkgName: "@openui5/sap.ui.lib1", version: "1.75.0"}).resolves({pkgPath: "/foo/sap.ui.lib1"})
-		.withArgs({pkgName: "@openui5/sap.ui.lib2", version: "1.75.0"}).resolves({pkgPath: "/foo/sap.ui.lib2"})
-		.withArgs({pkgName: "@openui5/sap.ui.lib3", version: "1.75.0"}).resolves({pkgPath: "/foo/sap.ui.lib3"})
-		.withArgs({pkgName: "@openui5/sap.ui.lib4", version: "1.75.0"}).resolves({pkgPath: "/foo/sap.ui.lib4"});
-
-	await resolver.install(["sap.ui.lib1", "sap.ui.lib2", "sap.ui.lib4"]);
-
-	t.is(getLibraryMetadataStub.callCount, 4, "getLibraryMetadata should be called once for each package");
-	t.is(_installPackage.callCount, 4, "Installation should only be done once");
 });

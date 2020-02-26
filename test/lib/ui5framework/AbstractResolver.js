@@ -1,35 +1,9 @@
 const test = require("ava");
 const sinon = require("sinon");
-const mock = require("mock-require");
-const path = require("path");
-const os = require("os");
-const libnpmconfig = require("libnpmconfig");
 
 const AbstractResolver = require("../../../lib/ui5Framework/AbstractResolver");
 
-// Use path within project as mocking base directory to reduce chance of side effects
-// in case mocks/stubs do not work and real fs is used
-const fakeBaseDir = path.join(__dirname, "fake-tmp");
-const ui5FrameworkBaseDir = path.join(fakeBaseDir, "homedir", ".ui5", "framework");
-const ui5PackagesBaseDir = path.join(ui5FrameworkBaseDir, "packages");
-
-test.beforeEach((t) => {
-	sinon.stub(os, "homedir").returns(path.join(fakeBaseDir, "homedir"));
-	sinon.stub(libnpmconfig, "read").returns({
-		toJSON: sinon.stub().returns({
-			registry: "https://registry.fake",
-			cache: path.join(ui5FrameworkBaseDir, "cacache"),
-			proxy: ""
-		})
-	});
-});
-
-test.afterEach.always((t) => {
-	sinon.restore();
-	mock.stopAll();
-});
-
-test.serial("AbstractResolver: constructor", (t) => {
+test("AbstractResolver: constructor", (t) => {
 	const resolver = new AbstractResolver({
 		cwd: "/test-project/",
 		version: "1.75.0"
@@ -37,7 +11,7 @@ test.serial("AbstractResolver: constructor", (t) => {
 	t.true(resolver instanceof AbstractResolver, "Constructor returns instance of class");
 });
 
-test.serial("AbstractResolver: constructor requires 'cwd'", (t) => {
+test("AbstractResolver: constructor requires 'cwd'", (t) => {
 	t.throws(() => {
 		new AbstractResolver({
 			version: "1.75.0"
@@ -45,7 +19,7 @@ test.serial("AbstractResolver: constructor requires 'cwd'", (t) => {
 	}, `AbstractResolver: Missing parameter "cwd"`);
 });
 
-test.serial("AbstractResolver: constructor requires 'version'", (t) => {
+test("AbstractResolver: constructor requires 'version'", (t) => {
 	t.throws(() => {
 		new AbstractResolver({
 			cwd: "/test-project/"
@@ -53,7 +27,17 @@ test.serial("AbstractResolver: constructor requires 'version'", (t) => {
 	}, `AbstractResolver: Missing parameter "version"`);
 });
 
-test.serial("AbstractResolver: install", async (t) => {
+test("AbstractResolver: handleLibrary should throw an Error when not implemented", async (t) => {
+	await t.throwsAsync(async () => {
+		const resolver = new AbstractResolver({
+			cwd: "/test-project/",
+			version: "1.75.0"
+		});
+		await resolver.handleLibrary();
+	}, `AbstractResolver: handleLibrary must be implemented!`);
+});
+
+test("AbstractResolver: install", async (t) => {
 	const resolver = new AbstractResolver({
 		cwd: "/test-project/",
 		version: "1.75.0"
