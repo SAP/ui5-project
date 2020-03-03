@@ -6,6 +6,7 @@ const os = require("os");
 
 const pacote = require("pacote");
 const libnpmconfig = require("libnpmconfig");
+const logger = require("@ui5/logger");
 const normalizer = require("../../../lib/normalizer");
 const projectPreprocessor = require("../../../lib/projectPreprocessor");
 const ui5Framework = require("../../../lib/translators/ui5Framework");
@@ -15,11 +16,6 @@ const ui5Framework = require("../../../lib/translators/ui5Framework");
 const fakeBaseDir = path.join(__dirname, "fake-tmp");
 const ui5FrameworkBaseDir = path.join(fakeBaseDir, "homedir", ".ui5", "framework");
 const ui5PackagesBaseDir = path.join(ui5FrameworkBaseDir, "packages");
-
-test.before((t) => {
-	// Enable verbose logging
-	require("@ui5/logger").setLevel("verbose");
-});
 
 test.beforeEach((t) => {
 	sinon.stub(libnpmconfig, "read").returns({
@@ -33,14 +29,21 @@ test.beforeEach((t) => {
 test.afterEach.always((t) => {
 	sinon.restore();
 	mock.stopAll();
+	logger.setLevel("info"); // default log level
 });
 
 function defineTest(testName, {
-	frameworkName
+	frameworkName,
+	verbose = false
 }) {
 	const npmScope = frameworkName === "SAPUI5" ? "@sapui5" : "@openui5";
 
-	test.serial(testName, async (t) => {
+	test.serial(`${frameworkName}: ${verbose ? "(verbose) " : ""}${testName}`, async (t) => {
+		// Enable verbose logging
+		if (verbose) {
+			logger.setLevel("verbose");
+		}
+
 		const translatorTree = {
 			id: "test-id",
 			version: "1.2.3",
@@ -441,11 +444,19 @@ function defineTest(testName, {
 	});
 }
 
-defineTest("SAPUI5: ui5Framework translator should enhance tree with UI5 framework libraries", {
+defineTest("ui5Framework translator should enhance tree with UI5 framework libraries", {
 	frameworkName: "SAPUI5"
 });
-defineTest("OpenUI5: ui5Framework translator should enhance tree with UI5 framework libraries", {
+defineTest("ui5Framework translator should enhance tree with UI5 framework libraries", {
+	frameworkName: "SAPUI5",
+	verbose: true
+});
+defineTest("ui5Framework translator should enhance tree with UI5 framework libraries", {
 	frameworkName: "OpenUI5"
+});
+defineTest("ui5Framework translator should enhance tree with UI5 framework libraries", {
+	frameworkName: "OpenUI5",
+	verbose: true
 });
 
 function defineErrorTest(testName, {
@@ -638,12 +649,6 @@ Error: Failed to read manifest of @openui5/sap.ui.lib1@1.75.0
 Error: Failed to read manifest of @openui5/sap.ui.lib4@1.75.0`
 });
 
-test.todo("Should not download packages again in case they are already installed");
-
-test.todo("Should not download dist-metadata package when no libraries are defined");
-
-test.todo("Should ignore framework libraries in dependencies");
-
 test.serial("ui5Framework translator should not be called when no framework configuration is given", async (t) => {
 	const translatorTree = {
 		id: "test-id",
@@ -672,3 +677,147 @@ test.serial("ui5Framework translator should not be called when no framework conf
 	t.deepEqual(tree, expectedTree, "Returned tree should be correct");
 	ui5FrameworkMock.verify();
 });
+
+test.serial("ui5Framework translator should not try to install anything when no library is referenced", async (t) => {
+	const translatorTree = {
+		id: "test-id",
+		version: "1.2.3",
+		path: path.join(fakeBaseDir, "application-project"),
+		dependencies: []
+	};
+	const projectPreprocessorTree = Object.assign({}, translatorTree, {
+		specVersion: "1.1",
+		type: "application",
+		metadata: {
+			name: "test-project"
+		},
+		framework: {
+			name: "SAPUI5",
+			version: "1.75.0"
+		}
+	});
+
+	sinon.stub(normalizer, "generateDependencyTree").resolves(translatorTree);
+	sinon.stub(projectPreprocessor, "processTree").withArgs(translatorTree).resolves(projectPreprocessorTree);
+
+	const extractStub = sinon.stub(pacote, "extract");
+	const manifestStub = sinon.stub(pacote, "manifest");
+
+	await normalizer.generateProjectTree();
+
+	t.is(extractStub.callCount, 0, "No package should be extracted");
+	t.is(manifestStub.callCount, 0, "No manifest should be requested");
+});
+
+test.serial("ui5Framework translator should throw an error when framework version is not defined", async (t) => {
+	const translatorTree = {
+		id: "test-id",
+		version: "1.2.3",
+		path: path.join(fakeBaseDir, "application-project"),
+		dependencies: []
+	};
+	const projectPreprocessorTree = Object.assign({}, translatorTree, {
+		specVersion: "1.1",
+		type: "application",
+		metadata: {
+			name: "test-project"
+		},
+		framework: {
+			name: "SAPUI5"
+		}
+	});
+
+	sinon.stub(normalizer, "generateDependencyTree").resolves(translatorTree);
+	sinon.stub(projectPreprocessor, "processTree").withArgs(translatorTree).resolves(projectPreprocessorTree);
+
+	await t.throwsAsync(async () => {
+		await normalizer.generateProjectTree();
+	}, `test-project (1.2.3): framework.version is not defined`);
+});
+
+test.serial("ui5Framework translator should throw an error when framework name is not supported", async (t) => {
+	const translatorTree = {
+		id: "test-id",
+		version: "1.2.3",
+		path: path.join(fakeBaseDir, "application-project"),
+		dependencies: []
+	};
+	const projectPreprocessorTree = Object.assign({}, translatorTree, {
+		specVersion: "1.1",
+		type: "application",
+		metadata: {
+			name: "test-project"
+		},
+		framework: {
+			name: "UI5"
+		}
+	});
+
+	sinon.stub(normalizer, "generateDependencyTree").resolves(translatorTree);
+	sinon.stub(projectPreprocessor, "processTree").withArgs(translatorTree).resolves(projectPreprocessorTree);
+
+	await t.throwsAsync(async () => {
+		await normalizer.generateProjectTree();
+	}, `test-project (1.2.3): Unknown framework.name "UI5". Must be "OpenUI5" or "SAPUI5"`);
+});
+
+test.serial("SAPUI5: ui5Framework translator should throw error when using a library that is not part of the dist metadata", async (t) => {
+	const translatorTree = {
+		id: "test-id",
+		version: "1.2.3",
+		path: path.join(fakeBaseDir, "application-project"),
+		dependencies: []
+	};
+	const projectPreprocessorTree = Object.assign({}, translatorTree, {
+		specVersion: "1.1",
+		type: "application",
+		metadata: {
+			name: "test-project"
+		},
+		framework: {
+			name: "SAPUI5",
+			version: "1.75.0",
+			libraries: [
+				{name: "sap.ui.lib1"},
+				{name: "does.not.exist"},
+				{name: "sap.ui.lib4"},
+			]
+		}
+	});
+
+	sinon.stub(normalizer, "generateDependencyTree").resolves(translatorTree);
+	sinon.stub(projectPreprocessor, "processTree").withArgs(translatorTree).resolves(projectPreprocessorTree);
+
+	sinon.stub(pacote, "extract").resolves();
+
+	mock(path.join(fakeBaseDir,
+		"homedir", ".ui5", "framework", "packages",
+		"@sapui5", "distribution-metadata", "1.75.0",
+		"metadata.json"), {
+		libraries: {
+			"sap.ui.lib1": {
+				npmPackageName: "@sapui5/sap.ui.lib1",
+				version: "1.75.1",
+				dependencies: [],
+				optionalDependencies: []
+			},
+			"sap.ui.lib4": {
+				npmPackageName: "@openui5/sap.ui.lib4",
+				version: "1.75.4",
+				dependencies: [
+					"sap.ui.lib1"
+				],
+				optionalDependencies: []
+			}
+		}
+	});
+
+	await t.throwsAsync(async () => {
+		await normalizer.generateProjectTree();
+	}, `Failed to install libraries:
+Error: Could not find library "does.not.exist"`);
+});
+
+test.todo("Should not download packages again in case they are already installed");
+
+test.todo("Should ignore framework libraries in dependencies");
