@@ -84,19 +84,19 @@ test("AbstractResolver: install", async (t) => {
 			throw new Error(`Unknown handleLibrary call: ${libraryName}`);
 		})
 		.withArgs("sap.ui.lib1").resolves({
-			libraryMetadata: resolver.metadata.libraries["sap.ui.lib1"],
+			metadata: resolver.metadata.libraries["sap.ui.lib1"],
 			install: Promise.resolve({pkgPath: "/foo/sap.ui.lib1"})
 		})
 		.withArgs("sap.ui.lib2").resolves({
-			libraryMetadata: resolver.metadata.libraries["sap.ui.lib2"],
+			metadata: resolver.metadata.libraries["sap.ui.lib2"],
 			install: Promise.resolve({pkgPath: "/foo/sap.ui.lib2"})
 		})
 		.withArgs("sap.ui.lib3").resolves({
-			libraryMetadata: resolver.metadata.libraries["sap.ui.lib3"],
+			metadata: resolver.metadata.libraries["sap.ui.lib3"],
 			install: Promise.resolve({pkgPath: "/foo/sap.ui.lib3"})
 		})
 		.withArgs("sap.ui.lib4").resolves({
-			libraryMetadata: resolver.metadata.libraries["sap.ui.lib4"],
+			metadata: resolver.metadata.libraries["sap.ui.lib4"],
 			install: Promise.resolve({pkgPath: "/foo/sap.ui.lib4"})
 		});
 

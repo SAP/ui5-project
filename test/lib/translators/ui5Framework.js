@@ -1,29 +1,25 @@
 const test = require("ava");
 const sinon = require("sinon");
 const mock = require("mock-require");
-const path = require("path");
-const os = require("os");
 
-const libnpmconfig = require("libnpmconfig");
-const ui5Framework = require("../../../lib/translators/ui5Framework");
-const utils = ui5Framework._utils;
-const FrameworkResolver = ui5Framework.FrameworkResolver;
-
-// Use path within project as mocking base directory to reduce chance of side effects
-// in case mocks/stubs do not work and real fs is used
-const fakeBaseDir = path.join(__dirname, "fake-tmp");
-const ui5FrameworkBaseDir = path.join(fakeBaseDir, "homedir", ".ui5", "framework");
-const ui5PackagesBaseDir = path.join(ui5FrameworkBaseDir, "packages");
+let ui5Framework;
+let utils;
 
 test.beforeEach((t) => {
-	sinon.stub(os, "homedir").returns(path.join(fakeBaseDir, "homedir"));
-	sinon.stub(libnpmconfig, "read").returns({
-		toJSON: sinon.stub().returns({
-			registry: "https://registry.fake",
-			cache: path.join(ui5FrameworkBaseDir, "cacache"),
-			proxy: ""
-		})
+	t.context.Sapui5ResolverStub = sinon.stub();
+	t.context.Sapui5ResolverInstallStub = sinon.stub();
+	t.context.Sapui5ResolverStub.callsFake(() => {
+		return {
+			install: t.context.Sapui5ResolverInstallStub
+		};
 	});
+	mock("../../../lib/ui5Framework/Sapui5Resolver", t.context.Sapui5ResolverStub);
+
+	t.context.Openui5ResolverStub = sinon.stub();
+	mock("../../../lib/ui5Framework/Openui5Resolver", t.context.Openui5ResolverStub);
+
+	ui5Framework = mock.reRequire("../../../lib/translators/ui5Framework");
+	utils = ui5Framework._utils;
 });
 
 test.afterEach.always((t) => {
@@ -31,107 +27,74 @@ test.afterEach.always((t) => {
 	mock.stopAll();
 });
 
-test.skip("FrameworkResolver: generateDependencyTree", async (t) => {
-	const resolver = new FrameworkResolver({
-		cwd: "/test-project/",
-		version: "1.75.0"
+test.serial("generateDependencyTree", async (t) => {
+	const tree = {
+		id: "test1",
+		version: "1.0.0",
+		path: "/test-project/",
+		framework: {
+			name: "SAPUI5",
+			version: "1.75.0"
+		}
+	};
+
+	const referencedLibraries = ["sap.ui.lib1", "sap.ui.lib2", "sap.ui.lib3"];
+	const libraryMetadata = {fake: "metadata"};
+
+	const getFrameworkLibrariesFromTreeStub = sinon.stub(utils, "getFrameworkLibrariesFromTree")
+		.returns(referencedLibraries);
+
+	t.context.Sapui5ResolverInstallStub.resolves({libraryMetadata});
+
+	const getProjectStub = sinon.stub();
+	getProjectStub.onFirstCall().returns({fake: "metadata-project-1"});
+	getProjectStub.onSecondCall().returns({fake: "metadata-project-2"});
+	getProjectStub.onThirdCall().returns({fake: "metadata-project-3"});
+	const ProjectProcessorStub = sinon.stub(utils, "ProjectProcessor")
+		.callsFake(() => {
+			return {
+				getProject: getProjectStub
+			};
+		});
+
+	const ui5FrameworkTree = await ui5Framework.generateDependencyTree(tree);
+
+	t.is(getFrameworkLibrariesFromTreeStub.callCount, 1, "getFrameworkLibrariesFromTree should be called once");
+	t.deepEqual(getFrameworkLibrariesFromTreeStub.getCall(0).args, [tree],
+		"getFrameworkLibrariesFromTree should be called with expected args");
+
+	t.is(t.context.Sapui5ResolverStub.callCount, 1, "Sapui5Resolver#constructor should be called once");
+	t.deepEqual(t.context.Sapui5ResolverStub.getCall(0).args, [{cwd: tree.path, version: tree.framework.version}],
+		"Sapui5Resolver#constructor should be called with expected args");
+
+	t.is(t.context.Sapui5ResolverInstallStub.callCount, 1, "Sapui5Resolver#install should be called once");
+	t.deepEqual(t.context.Sapui5ResolverInstallStub.getCall(0).args, [referencedLibraries],
+		"Sapui5Resolver#install should be called with expected args");
+
+	t.is(ProjectProcessorStub.callCount, 1, "ProjectProcessor#constructor should be called once");
+	t.deepEqual(ProjectProcessorStub.getCall(0).args, [{libraryMetadata}],
+		"ProjectProcessor#constructor should be called with expected args");
+
+	t.is(getProjectStub.callCount, 3, "ProjectProcessor#getProject should be called 3 times");
+	t.deepEqual(getProjectStub.getCall(0).args, [referencedLibraries[0]],
+		"Sapui5Resolver#getProject should be called with expected args (call 1)");
+	t.deepEqual(getProjectStub.getCall(1).args, [referencedLibraries[1]],
+		"Sapui5Resolver#getProject should be called with expected args (call 2)");
+	t.deepEqual(getProjectStub.getCall(2).args, [referencedLibraries[2]],
+		"Sapui5Resolver#getProject should be called with expected args (call 3)");
+
+	t.deepEqual(ui5FrameworkTree, {
+		id: "test1",
+		version: "1.0.0",
+		path: "/test-project/",
+		dependencies: [
+			{fake: "metadata-project-1"},
+			{fake: "metadata-project-2"},
+			{fake: "metadata-project-3"}
+		]
 	});
-
-	resolver.libraries = {
-		"sap.ui.lib1": true,
-		"sap.ui.lib2": true,
-		"sap.ui.lib3": true,
-		"sap.ui.lib4": true,
-	};
-	resolver.metadata = {
-		"libraries": {
-			"sap.ui.lib1": {
-				"npmPackageName": "@openui5/sap.ui.lib1",
-				"version": "1.75.0",
-				"dependencies": [],
-				"optionalDependencies": []
-			},
-			"sap.ui.lib2": {
-				"npmPackageName": "@openui5/sap.ui.lib2",
-				"version": "1.75.0",
-				"dependencies": [
-					"sap.ui.lib3"
-				],
-				"optionalDependencies": []
-			},
-			"sap.ui.lib3": {
-				"npmPackageName": "@openui5/sap.ui.lib3",
-				"version": "1.75.0",
-				"dependencies": [],
-				"optionalDependencies": [
-					"sap.ui.lib4"
-				]
-			},
-			"sap.ui.lib4": {
-				"npmPackageName": "@openui5/sap.ui.lib4",
-				"version": "1.75.0",
-				"dependencies": [
-					"sap.ui.lib1"
-				],
-				"optionalDependencies": []
-			},
-		}
-	};
-
-	const tree = resolver.generateDependencyTree(["sap.ui.lib1", "sap.ui.lib2", "sap.ui.lib4"]);
-
-	t.deepEqual(tree, [
-		{
-			id: "@openui5/sap.ui.lib1",
-			version: "1.75.0",
-			path: path.join(ui5PackagesBaseDir, "@openui5", "sap.ui.lib1", "1.75.0"),
-			dependencies: []
-		},
-		{
-			id: "@openui5/sap.ui.lib2",
-			version: "1.75.0",
-			path: path.join(ui5PackagesBaseDir, "@openui5", "sap.ui.lib2", "1.75.0"),
-			dependencies: [
-				{
-					id: "@openui5/sap.ui.lib3",
-					version: "1.75.0",
-					path: path.join(ui5PackagesBaseDir, "@openui5", "sap.ui.lib3", "1.75.0"),
-					dependencies: [
-						{
-							id: "@openui5/sap.ui.lib4",
-							version: "1.75.0",
-							path: path.join(ui5PackagesBaseDir, "@openui5", "sap.ui.lib4", "1.75.0"),
-							dependencies: [
-								{
-									id: "@openui5/sap.ui.lib1",
-									version: "1.75.0",
-									path: path.join(ui5PackagesBaseDir, "@openui5", "sap.ui.lib1", "1.75.0"),
-									dependencies: []
-								}
-							],
-						}
-					],
-				}
-			]
-		},
-		{
-			id: "@openui5/sap.ui.lib4",
-			version: "1.75.0",
-			path: path.join(ui5PackagesBaseDir, "@openui5", "sap.ui.lib4", "1.75.0"),
-			dependencies: [
-				{
-					id: "@openui5/sap.ui.lib1",
-					version: "1.75.0",
-					path: path.join(ui5PackagesBaseDir, "@openui5", "sap.ui.lib1", "1.75.0"),
-					dependencies: []
-				}
-			]
-		}
-	]);
 });
-test.todo("FrameworkResolver: _installPackage");
 
-// Translator
 test.serial("generateDependencyTree should ignore root project without framework configuration", async (t) => {
 	const tree = {
 		id: "test-id",
@@ -224,6 +187,8 @@ test.serial("utils.getFrameworkLibrariesFromTree: Project with libraries and dep
 	t.deepEqual(ui5Dependencies, ["lib1", "lib2", "lib3", "lib5"]);
 });
 
-test.todo("utils._getDistMetadata only installs and reads metadata once");
+test.todo("utils.getAllNodesOfTree");
 
 test.todo("Ensure no unhandled promise rejection happens during install");
+
+test.todo("ProjectProcessor");

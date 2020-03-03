@@ -724,7 +724,203 @@ test.serial("OpenUI5: ui5Framework translator should enhance tree with UI5 frame
 	t.deepEqual(tree, expectedTree, "Returned tree should be correct");
 });
 
-test.todo("Check if _level property is maintained correctly during mergeTrees");
+test.serial("OpenUI5: ui5Framework translator should throw a proper error when manifest request fails", async (t) => {
+	const translatorTree = {
+		id: "test-id",
+		version: "1.2.3",
+		path: path.join(fakeBaseDir, "application-project"),
+		dependencies: []
+	};
+
+	sinon.stub(normalizer, "generateDependencyTree").resolves(translatorTree);
+
+	sinon.stub(projectPreprocessor.ProjectPreprocessor.prototype, "readConfigFile")
+		.callsFake(async (configPath) => {
+			throw new Error("ProjectPreprocessor#readConfigFile stub called with unknown configPath: " + configPath);
+		})
+		.withArgs(path.join(fakeBaseDir, "application-project", "ui5.yaml"))
+		.resolves([{
+			specVersion: "1.1",
+			type: "application",
+			metadata: {
+				name: "test-project"
+			},
+			framework: {
+				name: "OpenUI5",
+				version: "1.75.0",
+				libraries: [
+					{
+						name: "sap.ui.lib1"
+					},
+					{
+						name: "sap.ui.lib4",
+						optional: true
+					}
+				]
+			}
+		}]);
+
+	// Prevent applying types as this would require a lot of mocking
+	sinon.stub(projectPreprocessor.ProjectPreprocessor.prototype, "applyType");
+
+	sinon.stub(libnpmconfig, "read").returns({
+		toJSON: sinon.stub().returns({
+			registry: "https://registry.fake",
+			cache: path.join(ui5FrameworkBaseDir, "cacache"),
+			proxy: ""
+		})
+	});
+	sinon.stub(pacote, "extract").resolves();
+
+	sinon.stub(pacote, "manifest")
+		.withArgs("@openui5/sap.ui.lib1@1.75.0")
+		.rejects(new Error("Failed to read manifest of @openui5/sap.ui.lib1@1.75.0"))
+		.withArgs("@openui5/sap.ui.lib4@1.75.0")
+		.rejects(new Error("Failed to read manifest of @openui5/sap.ui.lib4@1.75.0"));
+
+	await t.throwsAsync(async () => {
+		await normalizer.generateProjectTree();
+	}, `Failed to install libraries:
+Error: Failed to read manifest of @openui5/sap.ui.lib1@1.75.0
+Error: Failed to read manifest of @openui5/sap.ui.lib4@1.75.0`);
+});
+
+test.serial("OpenUI5: ui5Framework translator should throw a proper error when package extraction fails", async (t) => {
+	const translatorTree = {
+		id: "test-id",
+		version: "1.2.3",
+		path: path.join(fakeBaseDir, "application-project"),
+		dependencies: []
+	};
+
+	sinon.stub(normalizer, "generateDependencyTree").resolves(translatorTree);
+
+	sinon.stub(projectPreprocessor.ProjectPreprocessor.prototype, "readConfigFile")
+		.callsFake(async (configPath) => {
+			throw new Error("ProjectPreprocessor#readConfigFile stub called with unknown configPath: " + configPath);
+		})
+		.withArgs(path.join(fakeBaseDir, "application-project", "ui5.yaml"))
+		.resolves([{
+			specVersion: "1.1",
+			type: "application",
+			metadata: {
+				name: "test-project"
+			},
+			framework: {
+				name: "OpenUI5",
+				version: "1.75.0",
+				libraries: [
+					{
+						name: "sap.ui.lib1"
+					},
+					{
+						name: "sap.ui.lib4",
+						optional: true
+					}
+				]
+			}
+		}]);
+
+	// Prevent applying types as this would require a lot of mocking
+	sinon.stub(projectPreprocessor.ProjectPreprocessor.prototype, "applyType");
+
+	sinon.stub(libnpmconfig, "read").returns({
+		toJSON: sinon.stub().returns({
+			registry: "https://registry.fake",
+			cache: path.join(ui5FrameworkBaseDir, "cacache"),
+			proxy: ""
+		})
+	});
+	sinon.stub(pacote, "extract")
+		.withArgs("@openui5/sap.ui.lib1@1.75.0")
+		.rejects(new Error("Failed extracting package @openui5/sap.ui.lib1@1.75.0"))
+		.withArgs("@openui5/sap.ui.lib4@1.75.0")
+		.rejects(new Error("Failed extracting package @openui5/sap.ui.lib4@1.75.0"));
+
+	sinon.stub(pacote, "manifest")
+		.withArgs("@openui5/sap.ui.lib1@1.75.0")
+		.resolves({
+			name: "@openui5/sap.ui.lib1",
+			version: "1.75.0",
+			dependencies: {}
+		})
+		.withArgs("@openui5/sap.ui.lib4@1.75.0")
+		.resolves({
+			name: "@openui5/sap.ui.lib4",
+			version: "1.75.0"
+		});
+
+	await t.throwsAsync(async () => {
+		await normalizer.generateProjectTree();
+	}, `Failed to install libraries:
+Error: Failed extracting package @openui5/sap.ui.lib1@1.75.0
+Error: Failed extracting package @openui5/sap.ui.lib4@1.75.0`);
+});
+
+test.serial("OpenUI5: ui5Framework translator should throw a proper error when manifest request and package extraction fails", async (t) => {
+	const translatorTree = {
+		id: "test-id",
+		version: "1.2.3",
+		path: path.join(fakeBaseDir, "application-project"),
+		dependencies: []
+	};
+
+	sinon.stub(normalizer, "generateDependencyTree").resolves(translatorTree);
+
+	sinon.stub(projectPreprocessor.ProjectPreprocessor.prototype, "readConfigFile")
+		.callsFake(async (configPath) => {
+			throw new Error("ProjectPreprocessor#readConfigFile stub called with unknown configPath: " + configPath);
+		})
+		.withArgs(path.join(fakeBaseDir, "application-project", "ui5.yaml"))
+		.resolves([{
+			specVersion: "1.1",
+			type: "application",
+			metadata: {
+				name: "test-project"
+			},
+			framework: {
+				name: "OpenUI5",
+				version: "1.75.0",
+				libraries: [
+					{
+						name: "sap.ui.lib1"
+					},
+					{
+						name: "sap.ui.lib4",
+						optional: true
+					}
+				]
+			}
+		}]);
+
+	// Prevent applying types as this would require a lot of mocking
+	sinon.stub(projectPreprocessor.ProjectPreprocessor.prototype, "applyType");
+
+	sinon.stub(libnpmconfig, "read").returns({
+		toJSON: sinon.stub().returns({
+			registry: "https://registry.fake",
+			cache: path.join(ui5FrameworkBaseDir, "cacache"),
+			proxy: ""
+		})
+	});
+	sinon.stub(pacote, "extract")
+		.withArgs("@openui5/sap.ui.lib1@1.75.0")
+		.rejects(new Error("Failed extracting package @openui5/sap.ui.lib1@1.75.0"))
+		.withArgs("@openui5/sap.ui.lib4@1.75.0")
+		.rejects(new Error("Failed extracting package @openui5/sap.ui.lib4@1.75.0"));
+
+	sinon.stub(pacote, "manifest")
+		.withArgs("@openui5/sap.ui.lib1@1.75.0")
+		.rejects(new Error("Failed to read manifest of @openui5/sap.ui.lib1@1.75.0"))
+		.withArgs("@openui5/sap.ui.lib4@1.75.0")
+		.rejects(new Error("Failed to read manifest of @openui5/sap.ui.lib4@1.75.0"));
+
+	await t.throwsAsync(async () => {
+		await normalizer.generateProjectTree();
+	}, `Failed to install libraries:
+Error: Failed to read manifest of @openui5/sap.ui.lib1@1.75.0
+Error: Failed to read manifest of @openui5/sap.ui.lib4@1.75.0`);
+});
 
 test.todo("Should not download packages again in case they are already installed");
 

@@ -78,9 +78,9 @@ test("Sapui5Resolver: handleLibrary", async (t) => {
 		.withArgs({pkgName: "@openui5/sap.ui.lib1", version: "1.75.0"}).resolves({pkgPath: "/foo/sap.ui.lib1"});
 
 	async function assert() {
-		const {libraryMetadata, install} = await resolver.handleLibrary("sap.ui.lib1");
+		const {metadata, install} = await resolver.handleLibrary("sap.ui.lib1");
 
-		t.deepEqual(libraryMetadata, {
+		t.deepEqual(metadata, {
 			"id": "@openui5/sap.ui.lib1",
 			"version": "1.75.0",
 			"dependencies": [],
