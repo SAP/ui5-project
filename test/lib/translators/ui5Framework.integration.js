@@ -20,9 +20,13 @@ const ui5PackagesBaseDir = path.join(ui5FrameworkBaseDir, "packages");
 
 test.beforeEach((t) => {
 	sinon.stub(libnpmconfig, "read").returns({
-		registry: "https://registry.fake",
-		cache: path.join(ui5FrameworkBaseDir, "cacache"),
-		proxy: ""
+		toJSON: () => {
+			return {
+				registry: "https://registry.fake",
+				cache: path.join(ui5FrameworkBaseDir, "cacache"),
+				proxy: ""
+			};
+		}
 	});
 	sinon.stub(os, "homedir").returns(path.join(fakeBaseDir, "homedir"));
 	sinon.stub(Installer, "_mkdirp").resolves();
