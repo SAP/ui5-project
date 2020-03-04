@@ -102,6 +102,8 @@
 		"graceful-fs": "^4.2.3",
 		"js-yaml": "^3.13.1",
 		"libnpmconfig": "^1.2.1",
+		"lockfile": "^1.0.4",
+		"mkdirp": "^1.0.3",
 		"pacote": "^11.0.0",
 		"pretty-hrtime": "^1.0.3",
 		"read-pkg": "^3.0.0",

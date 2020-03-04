@@ -10,6 +10,7 @@ const logger = require("@ui5/logger");
 const normalizer = require("../../../lib/normalizer");
 const projectPreprocessor = require("../../../lib/projectPreprocessor");
 const ui5Framework = require("../../../lib/translators/ui5Framework");
+const Installer = require("../../../lib/ui5Framework/npm/Installer");
 
 // Use path within project as mocking base directory to reduce chance of side effects
 // in case mocks/stubs do not work and real fs is used
@@ -24,6 +25,9 @@ test.beforeEach((t) => {
 		proxy: ""
 	});
 	sinon.stub(os, "homedir").returns(path.join(fakeBaseDir, "homedir"));
+	sinon.stub(Installer, "_mkdirp").resolves();
+	sinon.stub(Installer, "_lock").resolves();
+	sinon.stub(Installer, "_unlock").resolves();
 });
 
 test.afterEach.always((t) => {
@@ -605,48 +609,48 @@ function defineErrorTest(testName, {
 defineErrorTest("SAPUI5: ui5Framework translator should throw a proper error when metadata request fails", {
 	frameworkName: "SAPUI5",
 	failMetadata: true,
-	expectedErrorMessage: `Failed to install libraries:
-Error: Failed extracting package @sapui5/distribution-metadata@1.75.0
-Error: Failed extracting package @sapui5/distribution-metadata@1.75.0` // TODO: should only be returned once?
+	expectedErrorMessage: `Resolution of framework libraries failed with errors:
+Failed to resolve library sap.ui.lib1: Failed extracting package @sapui5/distribution-metadata@1.75.0
+Failed to resolve library sap.ui.lib4: Failed extracting package @sapui5/distribution-metadata@1.75.0` // TODO: should only be returned once?
 });
 defineErrorTest("SAPUI5: ui5Framework translator should throw a proper error when package extraction fails", {
 	frameworkName: "SAPUI5",
 	failExtract: true,
-	expectedErrorMessage: `Failed to install libraries:
-Error: Failed extracting package @sapui5/sap.ui.lib1@1.75.1
-Error: Failed extracting package @openui5/sap.ui.lib4@1.75.4`
+	expectedErrorMessage: `Resolution of framework libraries failed with errors:
+Failed to resolve library sap.ui.lib1: Failed extracting package @sapui5/sap.ui.lib1@1.75.1
+Failed to resolve library sap.ui.lib4: Failed extracting package @openui5/sap.ui.lib4@1.75.4`
 });
 defineErrorTest("SAPUI5: ui5Framework translator should throw a proper error when metadata request and package extraction fails", {
 	frameworkName: "SAPUI5",
 	failMetadata: true,
 	failExtract: true,
-	expectedErrorMessage: `Failed to install libraries:
-Error: Failed extracting package @sapui5/distribution-metadata@1.75.0
-Error: Failed extracting package @sapui5/distribution-metadata@1.75.0`
+	expectedErrorMessage: `Resolution of framework libraries failed with errors:
+Failed to resolve library sap.ui.lib1: Failed extracting package @sapui5/distribution-metadata@1.75.0
+Failed to resolve library sap.ui.lib4: Failed extracting package @sapui5/distribution-metadata@1.75.0`
 });
 
 
 defineErrorTest("OpenUI5: ui5Framework translator should throw a proper error when metadata request fails", {
 	frameworkName: "OpenUI5",
 	failMetadata: true,
-	expectedErrorMessage: `Failed to install libraries:
-Error: Failed to read manifest of @openui5/sap.ui.lib1@1.75.0
-Error: Failed to read manifest of @openui5/sap.ui.lib4@1.75.0`
+	expectedErrorMessage: `Resolution of framework libraries failed with errors:
+Failed to resolve library sap.ui.lib1: Failed to read manifest of @openui5/sap.ui.lib1@1.75.0
+Failed to resolve library sap.ui.lib4: Failed to read manifest of @openui5/sap.ui.lib4@1.75.0`
 });
 defineErrorTest("OpenUI5: ui5Framework translator should throw a proper error when package extraction fails", {
 	frameworkName: "OpenUI5",
 	failExtract: true,
-	expectedErrorMessage: `Failed to install libraries:
-Error: Failed extracting package @openui5/sap.ui.lib1@1.75.0
-Error: Failed extracting package @openui5/sap.ui.lib4@1.75.0`
+	expectedErrorMessage: `Resolution of framework libraries failed with errors:
+Failed to resolve library sap.ui.lib1: Failed extracting package @openui5/sap.ui.lib1@1.75.0
+Failed to resolve library sap.ui.lib4: Failed extracting package @openui5/sap.ui.lib4@1.75.0`
 });
 defineErrorTest("OpenUI5: ui5Framework translator should throw a proper error when metadata request and package extraction fails", {
 	frameworkName: "OpenUI5",
 	failMetadata: true,
 	failExtract: true,
-	expectedErrorMessage: `Failed to install libraries:
-Error: Failed to read manifest of @openui5/sap.ui.lib1@1.75.0
-Error: Failed to read manifest of @openui5/sap.ui.lib4@1.75.0`
+	expectedErrorMessage: `Resolution of framework libraries failed with errors:
+Failed to resolve library sap.ui.lib1: Failed to read manifest of @openui5/sap.ui.lib1@1.75.0
+Failed to resolve library sap.ui.lib4: Failed to read manifest of @openui5/sap.ui.lib4@1.75.0`
 });
 
 test.serial("ui5Framework translator should not be called when no framework configuration is given", async (t) => {
@@ -814,8 +818,8 @@ test.serial("SAPUI5: ui5Framework translator should throw error when using a lib
 
 	await t.throwsAsync(async () => {
 		await normalizer.generateProjectTree();
-	}, `Failed to install libraries:
-Error: Could not find library "does.not.exist"`);
+	}, `Resolution of framework libraries failed with errors:
+Failed to resolve library does.not.exist: Could not find library "does.not.exist"`);
 });
 
 test.todo("Should not download packages again in case they are already installed");

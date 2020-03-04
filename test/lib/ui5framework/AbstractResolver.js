@@ -1,5 +1,6 @@
 const test = require("ava");
 const sinon = require("sinon");
+const path = require("path");
 
 const AbstractResolver = require("../../../lib/ui5Framework/AbstractResolver");
 
@@ -11,20 +12,42 @@ test("AbstractResolver: constructor", (t) => {
 	t.true(resolver instanceof AbstractResolver, "Constructor returns instance of class");
 });
 
-test("AbstractResolver: constructor requires 'cwd'", (t) => {
-	t.throws(() => {
-		new AbstractResolver({
-			version: "1.75.0"
-		});
-	}, `AbstractResolver: Missing parameter "cwd"`);
-});
-
 test("AbstractResolver: constructor requires 'version'", (t) => {
 	t.throws(() => {
-		new AbstractResolver({
-			cwd: "/test-project/"
-		});
+		new AbstractResolver({});
 	}, `AbstractResolver: Missing parameter "version"`);
+});
+
+test("AbstractResolver: Set 'cwd'", (t) => {
+	const resolver = new AbstractResolver({
+		version: "1.75.0",
+		cwd: "/my-cwd/"
+	});
+	t.is(resolver._cwd, "/my-cwd/", "Should be given 'cwd'");
+});
+
+test("AbstractResolver: Defaults 'cwd' to process.cwd()", (t) => {
+	const resolver = new AbstractResolver({
+		version: "1.75.0",
+		ui5HomeDir: "/ui5home/"
+	});
+	t.is(resolver._cwd, process.cwd(), "Should default to process.cwd()");
+});
+
+test("AbstractResolver: Set 'ui5HomeDir'", (t) => {
+	const resolver = new AbstractResolver({
+		version: "1.75.0",
+		ui5HomeDir: "/my-ui5HomeDir/"
+	});
+	t.is(resolver._ui5HomeDir, "/my-ui5HomeDir/", "Should be given 'ui5HomeDir'");
+});
+
+test("AbstractResolver: Defaults 'ui5HomeDir' to ~/.ui5", (t) => {
+	const resolver = new AbstractResolver({
+		version: "1.75.0",
+		cwd: "/test-project/"
+	});
+	t.is(resolver._ui5HomeDir, path.join(require("os").homedir(), ".ui5"), "Should default to ~/.ui5");
 });
 
 test("AbstractResolver: handleLibrary should throw an Error when not implemented", async (t) => {
