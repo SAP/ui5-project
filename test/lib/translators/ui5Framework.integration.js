@@ -42,6 +42,87 @@ function defineTest(testName, {
 }) {
 	const npmScope = frameworkName === "SAPUI5" ? "@sapui5" : "@openui5";
 
+	const distributionMetadata = {
+		libraries: {
+			"sap.ui.lib1": {
+				npmPackageName: "@sapui5/sap.ui.lib1",
+				version: "1.75.1",
+				dependencies: [],
+				optionalDependencies: []
+			},
+			"sap.ui.lib2": {
+				npmPackageName: "@sapui5/sap.ui.lib2",
+				version: "1.75.2",
+				dependencies: [
+					"sap.ui.lib3"
+				],
+				optionalDependencies: []
+			},
+			"sap.ui.lib3": {
+				npmPackageName: "@sapui5/sap.ui.lib3",
+				version: "1.75.3",
+				dependencies: [],
+				optionalDependencies: [
+					"sap.ui.lib4"
+				]
+			},
+			"sap.ui.lib4": {
+				npmPackageName: "@openui5/sap.ui.lib4",
+				version: "1.75.4",
+				dependencies: [
+					"sap.ui.lib1"
+				],
+				optionalDependencies: []
+			}
+		}
+	};
+
+	function project({name, version, type, framework, _level, dependencies = []}) {
+		const proj = {
+			_level,
+			id: name + "-id",
+			version,
+			path: path.join(fakeBaseDir, "project-" + name),
+			specVersion: "1.1",
+			kind: "project",
+			type,
+			metadata: {
+				name
+			},
+			dependencies
+		};
+		if (framework) {
+			proj.framework = framework;
+		}
+		return proj;
+	}
+	function frameworkProject({name, _level, dependencies = []}) {
+		const metadata = frameworkName === "SAPUI5" ? distributionMetadata.libraries[name] : null;
+		const id = frameworkName === "SAPUI5" ? metadata.npmPackageName : npmScope + "/" + name;
+		const version = frameworkName === "SAPUI5" ? metadata.version : "1.75.0";
+		return {
+			_level,
+			id,
+			version,
+			path: path.join(
+				ui5PackagesBaseDir,
+				// sap.ui.lib4 is in @openui5 scope in SAPUI5 and OpenUI5
+				name === "sap.ui.lib4" ? "@openui5" : npmScope,
+				name, version
+			),
+			specVersion: "1.0",
+			kind: "project",
+			type: "library",
+			metadata: {
+				name
+			},
+			framework: {
+				libraries: []
+			},
+			dependencies
+		};
+	}
+
 	test.serial(`${frameworkName}: ${verbose ? "(verbose) " : ""}${testName}`, async (t) => {
 		// Enable verbose logging
 		if (verbose) {
@@ -49,20 +130,20 @@ function defineTest(testName, {
 		}
 
 		const translatorTree = {
-			id: "test-id",
+			id: "test-application-id",
 			version: "1.2.3",
-			path: path.join(fakeBaseDir, "application-project"),
+			path: path.join(fakeBaseDir, "project-test-application"),
 			dependencies: [
 				{
 					id: "test-dependency-id",
 					version: "4.5.6",
-					path: path.join(fakeBaseDir, "dependency-project"),
+					path: path.join(fakeBaseDir, "project-test-dependency"),
 					dependencies: []
 				},
 				{
 					id: "test-dependency-no-framework-id",
 					version: "7.8.9",
-					path: path.join(fakeBaseDir, "dependency-project-no-framework"),
+					path: path.join(fakeBaseDir, "project-test-dependency-no-framework"),
 					dependencies: []
 				}
 			]
@@ -74,12 +155,12 @@ function defineTest(testName, {
 			.callsFake(async (configPath) => {
 				throw new Error("ProjectPreprocessor#readConfigFile stub called with unknown configPath: " + configPath);
 			})
-			.withArgs(path.join(fakeBaseDir, "application-project", "ui5.yaml"))
+			.withArgs(path.join(fakeBaseDir, "project-test-application", "ui5.yaml"))
 			.resolves([{
 				specVersion: "1.1",
 				type: "application",
 				metadata: {
-					name: "test-project"
+					name: "test-application"
 				},
 				framework: {
 					name: frameworkName,
@@ -95,12 +176,12 @@ function defineTest(testName, {
 					]
 				}
 			}])
-			.withArgs(path.join(fakeBaseDir, "dependency-project", "ui5.yaml"))
+			.withArgs(path.join(fakeBaseDir, "project-test-dependency", "ui5.yaml"))
 			.resolves([{
 				specVersion: "1.1",
 				type: "library",
 				metadata: {
-					name: "test-project"
+					name: "test-dependency"
 				},
 				framework: {
 					version: "1.99.0",
@@ -114,12 +195,12 @@ function defineTest(testName, {
 					]
 				}
 			}])
-			.withArgs(path.join(fakeBaseDir, "dependency-project-no-framework", "ui5.yaml"))
+			.withArgs(path.join(fakeBaseDir, "project-test-dependency-no-framework", "ui5.yaml"))
 			.resolves([{
 				specVersion: "1.1",
 				type: "library",
 				metadata: {
-					name: "test-project-no-framework"
+					name: "test-dependency-no-framework"
 				}
 			}])
 			.withArgs(path.join(ui5PackagesBaseDir, npmScope, "sap.ui.lib1",
@@ -208,53 +289,14 @@ function defineTest(testName, {
 			mock(path.join(fakeBaseDir,
 				"homedir", ".ui5", "framework", "packages",
 				"@sapui5", "distribution-metadata", "1.75.0",
-				"metadata.json"), {
-				libraries: {
-					"sap.ui.lib1": {
-						npmPackageName: "@sapui5/sap.ui.lib1",
-						version: "1.75.1",
-						dependencies: [],
-						optionalDependencies: []
-					},
-					"sap.ui.lib2": {
-						npmPackageName: "@sapui5/sap.ui.lib2",
-						version: "1.75.2",
-						dependencies: [
-							"sap.ui.lib3"
-						],
-						optionalDependencies: []
-					},
-					"sap.ui.lib3": {
-						npmPackageName: "@sapui5/sap.ui.lib3",
-						version: "1.75.3",
-						dependencies: [],
-						optionalDependencies: [
-							"sap.ui.lib4"
-						]
-					},
-					"sap.ui.lib4": {
-						npmPackageName: "@openui5/sap.ui.lib4",
-						version: "1.75.4",
-						dependencies: [
-							"sap.ui.lib1"
-						],
-						optionalDependencies: []
-					}
-				}
-			});
+				"metadata.json"), distributionMetadata);
 		}
 
-		const expectedTree = {
+		const expectedTree = project({
 			_level: 0,
-			id: "test-id",
-			kind: "project",
+			name: "test-application",
 			version: "1.2.3",
-			path: path.join(fakeBaseDir, "application-project"),
-			specVersion: "1.1",
 			type: "application",
-			metadata: {
-				name: "test-project"
-			},
 			framework: {
 				name: frameworkName,
 				version: "1.75.0",
@@ -269,17 +311,11 @@ function defineTest(testName, {
 				]
 			},
 			dependencies: [
-				{
+				project({
 					_level: 1,
-					id: "test-dependency-id",
+					name: "test-dependency",
 					version: "4.5.6",
-					path: path.join(fakeBaseDir, "dependency-project"),
-					specVersion: "1.1",
-					kind: "project",
 					type: "library",
-					metadata: {
-						name: "test-project"
-					},
 					framework: {
 						version: "1.99.0",
 						libraries: [
@@ -292,155 +328,56 @@ function defineTest(testName, {
 						]
 					},
 					dependencies: [
-						{
+						frameworkProject({
 							_level: 1,
-							id: npmScope + "/sap.ui.lib1",
-							version: frameworkName === "SAPUI5" ? "1.75.1" : "1.75.0",
-							path: path.join(ui5PackagesBaseDir, npmScope, "sap.ui.lib1", frameworkName === "SAPUI5" ? "1.75.1" : "1.75.0"),
-							specVersion: "1.0",
-							kind: "project",
-							type: "library",
-							metadata: {
-								name: "sap.ui.lib1"
-							},
-							framework: {
-								libraries: []
-							},
-							dependencies: []
-						},
-						{
+							name: "sap.ui.lib1",
+						}),
+						frameworkProject({
 							_level: 1,
-							id: npmScope + "/sap.ui.lib2",
-							version: frameworkName === "SAPUI5" ? "1.75.2" : "1.75.0",
-							path: path.join(ui5PackagesBaseDir, npmScope, "sap.ui.lib2", frameworkName === "SAPUI5" ? "1.75.2" : "1.75.0"),
-							specVersion: "1.0",
-							kind: "project",
-							type: "library",
-							metadata: {
-								name: "sap.ui.lib2"
-							},
-							framework: {
-								libraries: []
-							},
+							name: "sap.ui.lib2",
 							dependencies: [
-								{
+								frameworkProject({
 									_level: 2,
-									id: npmScope + "/sap.ui.lib3",
-									version: frameworkName === "SAPUI5" ? "1.75.3" : "1.75.0",
-									path: path.join(ui5PackagesBaseDir, npmScope, "sap.ui.lib3", frameworkName === "SAPUI5" ? "1.75.3" : "1.75.0"),
-									specVersion: "1.0",
-									kind: "project",
-									type: "library",
-									metadata: {
-										name: "sap.ui.lib3"
-									},
-									framework: {
-										libraries: []
-									},
+									name: "sap.ui.lib3",
 									dependencies: [
-										{
+										frameworkProject({
+											name: "sap.ui.lib4",
 											_level: 1,
-											id: "@openui5/sap.ui.lib4",
-											version: frameworkName === "SAPUI5" ? "1.75.4" : "1.75.0",
-											path: path.join(ui5PackagesBaseDir, "@openui5", "sap.ui.lib4", frameworkName === "SAPUI5" ? "1.75.4" : "1.75.0"),
-											specVersion: "1.0",
-											kind: "project",
-											type: "library",
-											metadata: {
-												name: "sap.ui.lib4"
-											},
-											framework: {
-												libraries: []
-											},
 											dependencies: [
-												{
+												frameworkProject({
 													_level: 1,
-													id: npmScope + "/sap.ui.lib1",
-													version: frameworkName === "SAPUI5" ? "1.75.1" : "1.75.0",
-													path: path.join(ui5PackagesBaseDir, npmScope, "sap.ui.lib1", frameworkName === "SAPUI5" ? "1.75.1" : "1.75.0"),
-													specVersion: "1.0",
-													kind: "project",
-													type: "library",
-													metadata: {
-														name: "sap.ui.lib1"
-													},
-													framework: {
-														libraries: []
-													},
-													dependencies: []
-												}
+													name: "sap.ui.lib1"
+												})
 											]
-										}
+										})
 									]
-								}
+								})
 							]
-						}
+						})
 					]
-				},
-				{
+				}),
+				project({
 					_level: 1,
-					id: "test-dependency-no-framework-id",
+					name: "test-dependency-no-framework",
 					version: "7.8.9",
-					path: path.join(fakeBaseDir, "dependency-project-no-framework"),
-					specVersion: "1.1",
-					kind: "project",
-					type: "library",
-					metadata: {
-						name: "test-project-no-framework"
-					},
-					dependencies: []
-				},
-				{
+					type: "library"
+				}),
+				frameworkProject({
 					_level: 1,
-					id: npmScope + "/sap.ui.lib1",
-					version: frameworkName === "SAPUI5" ? "1.75.1" : "1.75.0",
-					path: path.join(ui5PackagesBaseDir, npmScope, "sap.ui.lib1", frameworkName === "SAPUI5" ? "1.75.1" : "1.75.0"),
-					specVersion: "1.0",
-					kind: "project",
-					type: "library",
-					metadata: {
-						name: "sap.ui.lib1"
-					},
-					framework: {
-						libraries: []
-					},
-					dependencies: []
-				},
-				{
+					name: "sap.ui.lib1",
+				}),
+				frameworkProject({
+					name: "sap.ui.lib4",
 					_level: 1,
-					id: "@openui5/sap.ui.lib4",
-					version: frameworkName === "SAPUI5" ? "1.75.4" : "1.75.0",
-					path: path.join(ui5PackagesBaseDir, "@openui5", "sap.ui.lib4", frameworkName === "SAPUI5" ? "1.75.4" : "1.75.0"),
-					specVersion: "1.0",
-					kind: "project",
-					type: "library",
-					metadata: {
-						name: "sap.ui.lib4"
-					},
-					framework: {
-						libraries: []
-					},
 					dependencies: [
-						{
+						frameworkProject({
 							_level: 1,
-							id: npmScope + "/sap.ui.lib1",
-							version: frameworkName === "SAPUI5" ? "1.75.1" : "1.75.0",
-							path: path.join(ui5PackagesBaseDir, npmScope, "sap.ui.lib1", frameworkName === "SAPUI5" ? "1.75.1" : "1.75.0"),
-							specVersion: "1.0",
-							kind: "project",
-							type: "library",
-							metadata: {
-								name: "sap.ui.lib1"
-							},
-							framework: {
-								libraries: []
-							},
-							dependencies: []
-						}
+							name: "sap.ui.lib1"
+						})
 					]
-				},
+				})
 			]
-		};
+		});
 
 		const tree = await normalizer.generateProjectTree();
 
