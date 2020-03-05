@@ -9,7 +9,7 @@ test.beforeEach((t) => {
 	t.context.unlockStub = sinon.stub(Installer, "_unlock");
 });
 
-test.afterEach(() => {
+test.afterEach.always(() => {
 	sinon.restore();
 });
 
@@ -94,6 +94,8 @@ test.serial("Installer: _synchronize", async (t) => {
 });
 
 test.serial("Installer: _synchronize should unlock when callback promise has resolved", async (t) => {
+	t.plan(4);
+
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5HomeDir: "/ui5Home/"
@@ -107,19 +109,10 @@ test.serial("Installer: _synchronize should unlock when callback promise has res
 
 	const callback = sinon.stub().callsFake(() => {
 		t.is(t.context.lockStub.callCount, 1, "_lock should have been called when the callback is invoked");
-
-		const promise = Promise.resolve().then(() => {
+		return Promise.resolve().then(() => {
 			t.is(t.context.unlockStub.callCount, 0,
 				"_unlock should not be called when the callback did not fully resolve, yet");
 		});
-
-		process.nextTick(() => {
-			promise.then(() => {
-				t.is(t.context.unlockStub.callCount, 1, "_unlock should be called when the callback has resolved");
-			});
-		});
-
-		return promise;
 	});
 
 	await installer._synchronize({
@@ -130,6 +123,8 @@ test.serial("Installer: _synchronize should unlock when callback promise has res
 	// Ensure to wait for the callback promise to be resolved
 	t.is(callback.callCount, 1, "callback should be called once");
 	await callback.getCall(0).returnValue;
+
+	t.is(t.context.unlockStub.callCount, 1, "_unlock should be called when the callback has resolved");
 });
 
 test.serial("Installer: _synchronize should throw when locking fails", async (t) => {
