@@ -1,5 +1,6 @@
 const test = require("ava");
 const sinon = require("sinon");
+const path = require("path");
 
 const Installer = require("../../../../lib/ui5Framework/npm/Installer");
 
@@ -19,8 +20,8 @@ test.serial("Installer: constructor", (t) => {
 		ui5HomeDir: "/ui5Home/"
 	});
 	t.true(installer instanceof Installer, "Constructor returns instance of class");
-	t.is(installer._baseDir, "/ui5Home/framework/packages");
-	t.is(installer._lockDir, "/ui5Home/framework/locks");
+	t.is(installer._baseDir, path.join("/ui5Home/", "framework", "packages"));
+	t.is(installer._lockDir, path.join("/ui5Home/", "framework", "locks"));
 });
 
 test.serial("Installer: constructor requires 'cwd'", (t) => {
@@ -48,7 +49,7 @@ test.serial("Installer: _getLockPath", async (t) => {
 		version: "1.2.3"
 	});
 
-	t.is(lockPath, "/ui5Home/framework/locks/package-@openui5-sap.ui.lib1@1.2.3.lock");
+	t.is(lockPath, path.join("/ui5Home/", "framework", "locks", "package-@openui5-sap.ui.lib1@1.2.3.lock"));
 });
 
 test.serial("Installer: _synchronize", async (t) => {
@@ -75,7 +76,7 @@ test.serial("Installer: _synchronize", async (t) => {
 		"_getLockPath should be called with expected args");
 
 	t.is(t.context.mkdirpStub.callCount, 1, "_mkdirp should be called once");
-	t.deepEqual(t.context.mkdirpStub.getCall(0).args, ["/ui5Home/framework/locks"],
+	t.deepEqual(t.context.mkdirpStub.getCall(0).args, [path.join("/ui5Home/", "framework", "locks")],
 		"_mkdirp should be called with expected args");
 
 	t.is(t.context.lockStub.callCount, 1, "_lock should be called once");
