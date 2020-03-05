@@ -115,6 +115,34 @@ test.serial("utils.isFrameworkProject", (t) => {
 	t.false(utils.isFrameworkProject({id: "sapui5"}), "sapui5");
 	t.false(utils.isFrameworkProject({id: "openui5"}), "openui5");
 });
+test.serial("utils.shouldIncludeDependency", (t) => {
+	// root project dependency should always be included
+	t.true(utils.shouldIncludeDependency({}, true));
+	t.true(utils.shouldIncludeDependency({optional: true}, true));
+	t.true(utils.shouldIncludeDependency({optional: false}, true));
+	t.true(utils.shouldIncludeDependency({optional: null}, true));
+	t.true(utils.shouldIncludeDependency({optional: "abc"}, true));
+	t.true(utils.shouldIncludeDependency({development: true}, true));
+	t.true(utils.shouldIncludeDependency({development: false}, true));
+	t.true(utils.shouldIncludeDependency({development: null}, true));
+	t.true(utils.shouldIncludeDependency({development: "abc"}, true));
+	t.true(utils.shouldIncludeDependency({foo: true}, true));
+
+	t.true(utils.shouldIncludeDependency({}, false));
+	t.false(utils.shouldIncludeDependency({optional: true}, false));
+	t.true(utils.shouldIncludeDependency({optional: false}, false));
+	t.true(utils.shouldIncludeDependency({optional: null}, false));
+	t.true(utils.shouldIncludeDependency({optional: "abc"}, false));
+	t.false(utils.shouldIncludeDependency({development: true}, false));
+	t.true(utils.shouldIncludeDependency({development: false}, false));
+	t.true(utils.shouldIncludeDependency({development: null}, false));
+	t.true(utils.shouldIncludeDependency({development: "abc"}, false));
+	t.true(utils.shouldIncludeDependency({foo: true}, false));
+
+	// Having both optional and development should not be the case, but that should be validated beforehand
+	t.true(utils.shouldIncludeDependency({optional: true, development: true}, true));
+	t.false(utils.shouldIncludeDependency({optional: true, development: true}, false));
+});
 test.serial("utils.getFrameworkLibrariesFromTree: Project without dependencies", (t) => {
 	const tree = {
 		id: "test",
@@ -144,6 +172,10 @@ test.serial("utils.getFrameworkLibrariesFromTree: Project with libraries and dep
 				{
 					name: "lib2",
 					optional: true
+				},
+				{
+					name: "lib6",
+					development: true
 				}
 			]
 		},
@@ -174,6 +206,10 @@ test.serial("utils.getFrameworkLibrariesFromTree: Project with libraries and dep
 							libraries: [
 								{
 									name: "lib5"
+								},
+								{
+									name: "lib7",
+									development: true
 								}
 							]
 						},
@@ -184,7 +220,7 @@ test.serial("utils.getFrameworkLibrariesFromTree: Project with libraries and dep
 		]
 	};
 	const ui5Dependencies = utils.getFrameworkLibrariesFromTree(tree);
-	t.deepEqual(ui5Dependencies, ["lib1", "lib2", "lib3", "lib5"]);
+	t.deepEqual(ui5Dependencies, ["lib1", "lib2", "lib6", "lib3", "lib5"]);
 });
 
 test.todo("utils.getAllNodesOfTree");
