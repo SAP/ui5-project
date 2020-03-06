@@ -1,6 +1,6 @@
 const test = require("ava");
 const sinon = require("sinon");
-const mock = require("mock-require");
+const path = require("path");
 
 const Sapui5Resolver = require("../../../lib/ui5Framework/Sapui5Resolver");
 
@@ -14,12 +14,12 @@ test.serial("Sapui5Resolver: loadDistMetadata loads metadata once from @sapui5/d
 	getTargetDirForPackage.withArgs({
 		pkgName: "@sapui5/distribution-metadata",
 		version: "1.75.0"
-	}).returns("/path/to/distribution-metadata/1.75.0/");
+	}).returns(path.join("/path", "to", "distribution-metadata", "1.75.0"));
 	const installPackage = sinon.stub(resolver._installer, "installPackage");
 	installPackage.withArgs({
 		pkgName: "@sapui5/distribution-metadata",
 		version: "1.75.0"
-	}).resolves({pkgPath: "/path/to/distribution-metadata/1.75.0/"});
+	}).resolves({pkgPath: path.join("/path", "to", "distribution-metadata", "1.75.0")});
 
 	const expectedMetadata = {
 		libraries: {
@@ -31,7 +31,10 @@ test.serial("Sapui5Resolver: loadDistMetadata loads metadata once from @sapui5/d
 			}
 		}
 	};
-	mock("/path/to/distribution-metadata/1.75.0/metadata.json", expectedMetadata);
+	sinon.stub(resolver._installer, "readJson")
+		.callThrough()
+		.withArgs(path.join("/path", "to", "distribution-metadata", "1.75.0", "metadata.json"))
+		.resolves(expectedMetadata);
 
 	t.deepEqual(resolver._distMetadata, null,
 		"_distMetadata should not be set");
@@ -46,8 +49,6 @@ test.serial("Sapui5Resolver: loadDistMetadata loads metadata once from @sapui5/d
 	t.is(installPackage.callCount, 1, "Distribution metadata package should still be installed once");
 	t.deepEqual(resolver._distMetadata, expectedMetadata,
 		"Metadata should still be filled with expected metadata after calling loadDistMetadata again");
-
-	mock.stop("/path/to/distribution-metadata/1.75.0/metadata.json");
 });
 
 test("Sapui5Resolver: handleLibrary", async (t) => {

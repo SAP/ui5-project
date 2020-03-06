@@ -290,10 +290,13 @@ function defineTest(testName, {
 					}
 				});
 		} else if (frameworkName === "SAPUI5") {
-			mock(path.join(fakeBaseDir,
-				"homedir", ".ui5", "framework", "packages",
-				"@sapui5", "distribution-metadata", "1.75.0",
-				"metadata.json"), distributionMetadata);
+			sinon.stub(Installer.prototype, "readJson")
+				.callThrough()
+				.withArgs(path.join(fakeBaseDir,
+					"homedir", ".ui5", "framework", "packages",
+					"@sapui5", "distribution-metadata", "1.75.0",
+					"metadata.json"))
+				.resolves(distributionMetadata);
 		}
 
 		const expectedTree = project({
@@ -471,43 +474,46 @@ function defineErrorTest(testName, {
 				extractStub
 					.withArgs("@sapui5/distribution-metadata@1.75.0")
 					.resolves();
-				mock(path.join(fakeBaseDir,
-					"homedir", ".ui5", "framework", "packages",
-					"@sapui5", "distribution-metadata", "1.75.0",
-					"metadata.json"), {
-					libraries: {
-						"sap.ui.lib1": {
-							npmPackageName: "@sapui5/sap.ui.lib1",
-							version: "1.75.1",
-							dependencies: [],
-							optionalDependencies: []
-						},
-						"sap.ui.lib2": {
-							npmPackageName: "@sapui5/sap.ui.lib2",
-							version: "1.75.2",
-							dependencies: [
-								"sap.ui.lib3"
-							],
-							optionalDependencies: []
-						},
-						"sap.ui.lib3": {
-							npmPackageName: "@sapui5/sap.ui.lib3",
-							version: "1.75.3",
-							dependencies: [],
-							optionalDependencies: [
-								"sap.ui.lib4"
-							]
-						},
-						"sap.ui.lib4": {
-							npmPackageName: "@openui5/sap.ui.lib4",
-							version: "1.75.4",
-							dependencies: [
-								"sap.ui.lib1"
-							],
-							optionalDependencies: []
+				sinon.stub(Installer.prototype, "readJson")
+					.callThrough()
+					.withArgs(path.join(fakeBaseDir,
+						"homedir", ".ui5", "framework", "packages",
+						"@sapui5", "distribution-metadata", "1.75.0",
+						"metadata.json"))
+					.resolves({
+						libraries: {
+							"sap.ui.lib1": {
+								npmPackageName: "@sapui5/sap.ui.lib1",
+								version: "1.75.1",
+								dependencies: [],
+								optionalDependencies: []
+							},
+							"sap.ui.lib2": {
+								npmPackageName: "@sapui5/sap.ui.lib2",
+								version: "1.75.2",
+								dependencies: [
+									"sap.ui.lib3"
+								],
+								optionalDependencies: []
+							},
+							"sap.ui.lib3": {
+								npmPackageName: "@sapui5/sap.ui.lib3",
+								version: "1.75.3",
+								dependencies: [],
+								optionalDependencies: [
+									"sap.ui.lib4"
+								]
+							},
+							"sap.ui.lib4": {
+								npmPackageName: "@openui5/sap.ui.lib4",
+								version: "1.75.4",
+								dependencies: [
+									"sap.ui.lib1"
+								],
+								optionalDependencies: []
+							}
 						}
-					}
-				});
+					});
 			}
 		} else if (frameworkName === "OpenUI5") {
 			if (failExtract) {
@@ -735,27 +741,30 @@ test.serial("SAPUI5: ui5Framework translator should throw error when using a lib
 
 	sinon.stub(pacote, "extract").resolves();
 
-	mock(path.join(fakeBaseDir,
-		"homedir", ".ui5", "framework", "packages",
-		"@sapui5", "distribution-metadata", "1.75.0",
-		"metadata.json"), {
-		libraries: {
-			"sap.ui.lib1": {
-				npmPackageName: "@sapui5/sap.ui.lib1",
-				version: "1.75.1",
-				dependencies: [],
-				optionalDependencies: []
-			},
-			"sap.ui.lib4": {
-				npmPackageName: "@openui5/sap.ui.lib4",
-				version: "1.75.4",
-				dependencies: [
-					"sap.ui.lib1"
-				],
-				optionalDependencies: []
+	sinon.stub(Installer.prototype, "readJson")
+		.callThrough()
+		.withArgs(path.join(fakeBaseDir,
+			"homedir", ".ui5", "framework", "packages",
+			"@sapui5", "distribution-metadata", "1.75.0",
+			"metadata.json"))
+		.resolves({
+			libraries: {
+				"sap.ui.lib1": {
+					npmPackageName: "@sapui5/sap.ui.lib1",
+					version: "1.75.1",
+					dependencies: [],
+					optionalDependencies: []
+				},
+				"sap.ui.lib4": {
+					npmPackageName: "@openui5/sap.ui.lib4",
+					version: "1.75.4",
+					dependencies: [
+						"sap.ui.lib1"
+					],
+					optionalDependencies: []
+				}
 			}
-		}
-	});
+		});
 
 	await t.throwsAsync(async () => {
 		await normalizer.generateProjectTree();
@@ -763,6 +772,6 @@ test.serial("SAPUI5: ui5Framework translator should throw error when using a lib
 Failed to resolve library does.not.exist: Could not find library "does.not.exist"`);
 });
 
-test.todo("Should not download packages again in case they are already installed");
+// TODO test: Should not download packages again in case they are already installed
 
-test.todo("Should ignore framework libraries in dependencies");
+// TODO test: Should ignore framework libraries in dependencies

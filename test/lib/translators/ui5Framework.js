@@ -223,8 +223,6 @@ test.serial("utils.getFrameworkLibrariesFromTree: Project with libraries and dep
 	t.deepEqual(ui5Dependencies, ["lib1", "lib2", "lib6", "lib3", "lib5"]);
 });
 
-test.todo("utils.getAllNodesOfTree");
+// TODO test: utils.getAllNodesOfTree
 
-test.todo("Ensure no unhandled promise rejection happens during install");
-
-test.todo("ProjectProcessor");
+// TODO test: ProjectProcessor
