@@ -78,15 +78,20 @@ test("Sapui5Resolver: handleLibrary", async (t) => {
 		.withArgs({pkgName: "@openui5/sap.ui.lib1", version: "1.75.0"}).resolves({pkgPath: "/foo/sap.ui.lib1"});
 
 	async function assert() {
-		const {metadata, install} = await resolver.handleLibrary("sap.ui.lib1");
+		const promises = await resolver.handleLibrary("sap.ui.lib1");
 
+		t.true(promises.metadata instanceof Promise, "Metadata promise should be returned");
+		t.true(promises.install instanceof Promise, "Install promise should be returned");
+
+		const metadata = await promises.metadata;
 		t.deepEqual(metadata, {
 			"id": "@openui5/sap.ui.lib1",
 			"version": "1.75.0",
 			"dependencies": [],
 			"optionalDependencies": []
 		}, "Expected library metadata should be returned");
-		t.true(install instanceof Promise, "Install promise should be returned");
+
+		t.deepEqual(await promises.install, {pkgPath: "/foo/sap.ui.lib1"}, "Install should resolve with expected object");
 	}
 
 	// Call handleLibrary twice to test distMetadata caching

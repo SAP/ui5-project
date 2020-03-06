@@ -94,15 +94,20 @@ test("Openui5Resolver: handleLibrary", async (t) => {
 		.callsFake(async ({pkgName, version}) => {
 			throw new Error(`Unknown install call: ${pkgName}@${version}`);
 		})
-		.withArgs({pkgName: "@openui5/sap.ui.lib1", version: "1.75.0"}).resolves();
+		.withArgs({pkgName: "@openui5/sap.ui.lib1", version: "1.75.0"}).resolves({pkgPath: "/foo/sap.ui.lib1"});
 
-	const {metadata, install} = await resolver.handleLibrary("sap.ui.lib1");
+	const promises = await resolver.handleLibrary("sap.ui.lib1");
 
+	t.true(promises.metadata instanceof Promise, "Metadata promise should be returned");
+	t.true(promises.install instanceof Promise, "Install promise should be returned");
+
+	const metadata = await promises.metadata;
 	t.deepEqual(metadata, {
 		"id": "@openui5/sap.ui.lib1",
 		"version": "1.75.0",
 		"dependencies": [],
 		"optionalDependencies": []
 	}, "Expected library metadata should be returned");
-	t.true(install instanceof Promise, "Install promise should be returned");
+
+	t.deepEqual(await promises.install, {pkgPath: "/foo/sap.ui.lib1"}, "Install should resolve with expected object");
 });
