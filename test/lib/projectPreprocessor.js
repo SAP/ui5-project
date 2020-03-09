@@ -14,6 +14,7 @@ const cycleDepsBasePath = path.join(__dirname, "..", "fixtures", "cyclic-deps", 
 const pathToInvalidModule = path.join(__dirname, "..", "fixtures", "invalidModule");
 
 test.afterEach.always((t) => {
+	mock.stopAll();
 	sinon.restore();
 });
 
@@ -1838,7 +1839,6 @@ test.serial("checkProjectMetadata: Warning logged for deprecated dependencies", 
 	t.deepEqual(logWarnSpy.getCall(0).args[0],
 		"Dependency my.project is deprecated and should not be used for new projects!",
 		"Logged expected warning message");
-	mock.stop("@ui5/logger");
 });
 
 test.serial("checkProjectMetadata: Warning logged for SAP internal dependencies", async (t) => {
@@ -1881,7 +1881,6 @@ test.serial("checkProjectMetadata: Warning logged for SAP internal dependencies"
 		`If the project root.project is an SAP internal project, add the attribute ` +
 		`"allowSapInternal: true" to its metadata configuration`,
 		"Logged expected warning message");
-	mock.stop("@ui5/logger");
 });
 
 test.serial("checkProjectMetadata: No warning logged for allowed SAP internal libraries", async (t) => {
@@ -1918,5 +1917,4 @@ test.serial("checkProjectMetadata: No warning logged for allowed SAP internal li
 	await preprocessor.checkProjectMetadata(parent, project);
 
 	t.is(logWarnSpy.callCount, 0, "No warning got logged");
-	mock.stop("@ui5/logger");
 });
