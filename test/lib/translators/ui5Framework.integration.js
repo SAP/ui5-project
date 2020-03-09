@@ -155,7 +155,7 @@ function defineTest(testName, {
 
 		sinon.stub(normalizer, "generateDependencyTree").resolves(translatorTree);
 
-		sinon.stub(projectPreprocessor.ProjectPreprocessor.prototype, "readConfigFile")
+		sinon.stub(projectPreprocessor._ProjectPreprocessor.prototype, "readConfigFile")
 			.callsFake(async (configPath) => {
 				throw new Error("ProjectPreprocessor#readConfigFile stub called with unknown configPath: " + configPath);
 			})
@@ -253,7 +253,7 @@ function defineTest(testName, {
 			}]);
 
 		// Prevent applying types as this would require a lot of mocking
-		sinon.stub(projectPreprocessor.ProjectPreprocessor.prototype, "applyType");
+		sinon.stub(projectPreprocessor._ProjectPreprocessor.prototype, "applyType");
 
 		sinon.stub(pacote, "extract").resolves();
 
@@ -423,7 +423,7 @@ function defineErrorTest(testName, {
 
 		sinon.stub(normalizer, "generateDependencyTree").resolves(translatorTree);
 
-		sinon.stub(projectPreprocessor.ProjectPreprocessor.prototype, "readConfigFile")
+		sinon.stub(projectPreprocessor._ProjectPreprocessor.prototype, "readConfigFile")
 			.callsFake(async (configPath) => {
 				throw new Error("ProjectPreprocessor#readConfigFile stub called with unknown configPath: " + configPath);
 			})
@@ -450,7 +450,7 @@ function defineErrorTest(testName, {
 			}]);
 
 		// Prevent applying types as this would require a lot of mocking
-		sinon.stub(projectPreprocessor.ProjectPreprocessor.prototype, "applyType");
+		sinon.stub(projectPreprocessor._ProjectPreprocessor.prototype, "applyType");
 
 		const extractStub = sinon.stub(pacote, "extract");
 
