@@ -95,6 +95,66 @@ test.serial("generateDependencyTree", async (t) => {
 	});
 });
 
+test.serial("generateDependencyTree (with versionOverride)", async (t) => {
+	const tree = {
+		id: "test1",
+		version: "1.0.0",
+		path: "/test-project/",
+		framework: {
+			name: "SAPUI5",
+			version: "1.75.0"
+		}
+	};
+
+	const referencedLibraries = ["sap.ui.lib1", "sap.ui.lib2", "sap.ui.lib3"];
+	const libraryMetadata = {fake: "metadata"};
+
+	sinon.stub(utils, "getFrameworkLibrariesFromTree").returns(referencedLibraries);
+
+	t.context.Sapui5ResolverInstallStub.resolves({libraryMetadata});
+
+	const getProjectStub = sinon.stub();
+	getProjectStub.onFirstCall().returns({fake: "metadata-project-1"});
+	getProjectStub.onSecondCall().returns({fake: "metadata-project-2"});
+	getProjectStub.onThirdCall().returns({fake: "metadata-project-3"});
+	sinon.stub(utils, "ProjectProcessor")
+		.callsFake(() => {
+			return {
+				getProject: getProjectStub
+			};
+		});
+
+	await ui5Framework.generateDependencyTree(tree, {versionOverride: "1.99.0"});
+
+	t.is(t.context.Sapui5ResolverStub.callCount, 1, "Sapui5Resolver#constructor should be called once");
+	t.deepEqual(t.context.Sapui5ResolverStub.getCall(0).args, [{cwd: tree.path, version: "1.99.0"}],
+		"Sapui5Resolver#constructor should be called with expected args");
+});
+
+test.serial("generateDependencyTree should throw error when no framework version is provided in tree", async (t) => {
+	const tree = {
+		id: "test-id",
+		version: "1.2.3",
+		path: "/test-project/",
+		metadata: {
+			name: "test-name"
+		},
+		framework: {
+			name: "SAPUI5"
+		}
+	};
+
+	await t.throwsAsync(async () => {
+		await ui5Framework.generateDependencyTree(tree);
+	}, "test-name (1.2.3): framework.version is not defined");
+
+	await t.throwsAsync(async () => {
+		await ui5Framework.generateDependencyTree(tree, {
+			versionOverride: "1.75.0"
+		});
+	}, "test-name (1.2.3): framework.version is not defined");
+});
+
 test.serial("generateDependencyTree should ignore root project without framework configuration", async (t) => {
 	const tree = {
 		id: "test-id",
