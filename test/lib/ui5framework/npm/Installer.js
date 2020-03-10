@@ -61,6 +61,164 @@ test.serial("Installer: _getLockPath", async (t) => {
 	t.is(lockPath, path.join("/ui5Home/", "framework", "locks", "package-@openui5-sap.ui.lib1@1.2.3.lock"));
 });
 
+test.serial("Installer: fetchPackageManifest (without existing package.json)", async (t) => {
+	const installer = new Installer({
+		cwd: "/cwd/",
+		ui5HomeDir: "/ui5Home/"
+	});
+
+	const mockedManifest = {
+		name: "myPackage",
+		dependencies: {
+			"foo": "1.2.3"
+		},
+		devDependencies: {
+			"bar": "4.5.6"
+		},
+		foo: "bar"
+	};
+
+	const expectedManifest = {
+		name: "myPackage",
+		dependencies: {
+			"foo": "1.2.3"
+		},
+		devDependencies: {
+			"bar": "4.5.6"
+		}
+	};
+
+	const requestPackageManifestStub = sinon.stub(installer._registry, "requestPackageManifest")
+		.callsFake((pkgName, version) => {
+			throw new Error(
+				"_registry.requestPackageManifest stub called with unknown arguments " +
+				`pkgName: ${pkgName}, version: ${version}}`
+			);
+		})
+		.withArgs("myPackage", "1.2.3").resolves(mockedManifest);
+
+	const readJsonStub = sinon.stub(installer, "readJson")
+		.callsFake((path) => {
+			throw new Error(
+				`readJson stub called with unknown path: ${path}`
+			);
+		})
+		.withArgs(path.join("/path", "to", "myPackage", "1.2.3", "package.json"))
+		.callsFake(async (path) => {
+			const error = new Error(`ENOENT: no such file or directory, open '${path}'`);
+			error.code = "ENOENT";
+			throw error;
+		});
+
+	const getTargetDirForPackageStub = sinon.stub(installer, "_getTargetDirForPackage")
+		.callsFake(({pkgName, version}) => {
+			throw new Error(
+				`_getTargetDirForPackage stub called with unknown arguments pkgName: ${pkgName}, version: ${version}}`
+			);
+		})
+		.withArgs({
+			pkgName: "myPackage",
+			version: "1.2.3"
+		}).returns(path.join("/path", "to", "myPackage", "1.2.3"));
+
+	const manifest = await installer.fetchPackageManifest({pkgName: "myPackage", version: "1.2.3"});
+
+	t.deepEqual(manifest, expectedManifest, "Should return expected manifest object");
+	t.is(getTargetDirForPackageStub.callCount, 1, "_getTargetDirForPackage should be called once");
+	t.is(readJsonStub.callCount, 1, "readJson should be called once");
+	t.is(requestPackageManifestStub.callCount, 1, "requestPackageManifest should be called once");
+});
+
+test.serial("Installer: fetchPackageManifest (with existing package.json)", async (t) => {
+	const installer = new Installer({
+		cwd: "/cwd/",
+		ui5HomeDir: "/ui5Home/"
+	});
+
+	const mockedManifest = {
+		name: "myPackage",
+		dependencies: {
+			"foo": "1.2.3"
+		},
+		devDependencies: {
+			"bar": "4.5.6"
+		},
+		foo: "bar"
+	};
+
+	const expectedManifest = {
+		name: "myPackage",
+		dependencies: {
+			"foo": "1.2.3"
+		},
+		devDependencies: {
+			"bar": "4.5.6"
+		}
+	};
+
+	const requestPackageManifestStub = sinon.stub(installer._registry, "requestPackageManifest")
+		.rejects(new Error("Unexpected call"));
+
+	const readJsonStub = sinon.stub(installer, "readJson")
+		.callsFake((path) => {
+			throw new Error(
+				`readJson stub called with unknown path: ${path}`
+			);
+		})
+		.withArgs(path.join("/path", "to", "myPackage", "1.2.3", "package.json"))
+		.resolves(mockedManifest);
+
+	const getTargetDirForPackageStub = sinon.stub(installer, "_getTargetDirForPackage")
+		.callsFake(({pkgName, version}) => {
+			throw new Error(
+				`_getTargetDirForPackage stub called with unknown arguments pkgName: ${pkgName}, version: ${version}}`
+			);
+		})
+		.withArgs({
+			pkgName: "myPackage",
+			version: "1.2.3"
+		}).returns(path.join("/path", "to", "myPackage", "1.2.3"));
+
+	const manifest = await installer.fetchPackageManifest({pkgName: "myPackage", version: "1.2.3"});
+
+	t.deepEqual(manifest, expectedManifest, "Should return expected manifest object");
+	t.is(getTargetDirForPackageStub.callCount, 1, "_getTargetDirForPackage should be called once");
+	t.is(readJsonStub.callCount, 1, "readJson should be called once");
+	t.is(requestPackageManifestStub.callCount, 0, "requestPackageManifest should not be called");
+});
+
+test.serial("Installer: fetchPackageManifest (readJson throws error)", async (t) => {
+	const installer = new Installer({
+		cwd: "/cwd/",
+		ui5HomeDir: "/ui5Home/"
+	});
+
+	const requestPackageManifestStub = sinon.stub(installer._registry, "requestPackageManifest")
+		.rejects(new Error("Unexpected call"));
+
+	const readJsonStub = sinon.stub(installer, "readJson")
+		.rejects(new Error("Error from readJson"));
+
+	const getTargetDirForPackageStub = sinon.stub(installer, "_getTargetDirForPackage")
+		.callsFake(({pkgName, version}) => {
+			throw new Error(
+				`_getTargetDirForPackage stub called with unknown arguments pkgName: ${pkgName}, version: ${version}}`
+			);
+		})
+		.withArgs({
+			pkgName: "myPackage",
+			version: "1.2.3"
+		}).returns(path.join("/path", "to", "myPackage", "1.2.3"));
+
+	await t.throwsAsync(async () => {
+		await installer.fetchPackageManifest({pkgName: "myPackage", version: "1.2.3"});
+	}, "Error from readJson");
+
+	t.is(getTargetDirForPackageStub.callCount, 1, "_getTargetDirForPackage should be called once");
+	t.is(readJsonStub.callCount, 1, "readJson should be called once");
+	t.is(requestPackageManifestStub.callCount, 0, "requestPackageManifest should not be called");
+});
+
 test.serial("Installer: _synchronize", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
