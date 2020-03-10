@@ -216,6 +216,34 @@ test.serial("utils.getFrameworkLibrariesFromTree: Project with libraries and dep
 						dependencies: []
 					}
 				]
+			},
+			{
+				id: "@sapui5/lib8",
+				metadata: {
+					name: "lib8"
+				},
+				framework: {
+					libraries: [
+						{
+							name: "should.be.ignored"
+						}
+					]
+				},
+				dependencies: []
+			},
+			{
+				id: "@openui5/lib9",
+				metadata: {
+					name: "lib9"
+				},
+				dependencies: []
+			},
+			{
+				id: "@foo/library",
+				metadata: {
+					name: "foo.library"
+				},
+				dependencies: []
 			}
 		]
 	};

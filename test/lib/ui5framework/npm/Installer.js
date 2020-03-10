@@ -1,17 +1,26 @@
 const test = require("ava");
 const sinon = require("sinon");
+const mock = require("mock-require");
 const path = require("path");
 
-const Installer = require("../../../../lib/ui5Framework/npm/Installer");
+const lockfile = require("lockfile");
+
+let Installer;
 
 test.beforeEach((t) => {
-	t.context.mkdirpStub = sinon.stub(Installer, "_mkdirp");
-	t.context.lockStub = sinon.stub(Installer, "_lock");
-	t.context.unlockStub = sinon.stub(Installer, "_unlock");
+	t.context.mkdirpStub = sinon.stub().resolves();
+	mock("mkdirp", t.context.mkdirpStub);
+
+	t.context.lockStub = sinon.stub(lockfile, "lock");
+	t.context.unlockStub = sinon.stub(lockfile, "unlock");
+
+	// Re-require to ensure that mocked modules are used
+	Installer = mock.reRequire("../../../../lib/ui5Framework/npm/Installer");
 });
 
 test.afterEach.always(() => {
 	sinon.restore();
+	mock.stopAll();
 });
 
 test.serial("Installer: constructor", (t) => {
@@ -59,8 +68,8 @@ test.serial("Installer: _synchronize", async (t) => {
 	});
 
 	t.context.mkdirpStub.resolves();
-	t.context.lockStub.resolves();
-	t.context.unlockStub.resolves();
+	t.context.lockStub.yieldsAsync();
+	t.context.unlockStub.yieldsAsync();
 
 	const getLockPathStub = sinon.stub(installer, "_getLockPath").returns("/locks/lockfile.lock");
 
@@ -79,14 +88,15 @@ test.serial("Installer: _synchronize", async (t) => {
 	t.deepEqual(t.context.mkdirpStub.getCall(0).args, [path.join("/ui5Home/", "framework", "locks")],
 		"_mkdirp should be called with expected args");
 
-	t.is(t.context.lockStub.callCount, 1, "_lock should be called once");
-	t.deepEqual(t.context.lockStub.getCall(0).args, [
-		"/locks/lockfile.lock", {wait: 10000, stale: 60000, retries: 10}
-	], "_lock should be called with expected args");
+	t.is(t.context.lockStub.callCount, 1, "lock should be called once");
+	t.deepEqual(t.context.lockStub.getCall(0).args[0], "/locks/lockfile.lock",
+		"lock should be called with expected path");
+	t.deepEqual(t.context.lockStub.getCall(0).args[1], {wait: 10000, stale: 60000, retries: 10},
+		"lock should be called with expected options");
 
-	t.is(t.context.unlockStub.callCount, 1, "_unlock should be called once");
-	t.deepEqual(t.context.unlockStub.getCall(0).args, ["/locks/lockfile.lock"],
-		"_unlock should be called with expected args");
+	t.is(t.context.unlockStub.callCount, 1, "unlock should be called once");
+	t.deepEqual(t.context.unlockStub.getCall(0).args[0], "/locks/lockfile.lock",
+		"unlock should be called with expected path");
 
 	t.is(callback.callCount, 1, "callback should be called once");
 
@@ -103,16 +113,16 @@ test.serial("Installer: _synchronize should unlock when callback promise has res
 	});
 
 	t.context.mkdirpStub.resolves();
-	t.context.lockStub.resolves();
-	t.context.unlockStub.resolves();
+	t.context.lockStub.yieldsAsync();
+	t.context.unlockStub.yieldsAsync();
 
 	sinon.stub(installer, "_getLockPath").returns("/locks/lockfile.lock");
 
 	const callback = sinon.stub().callsFake(() => {
-		t.is(t.context.lockStub.callCount, 1, "_lock should have been called when the callback is invoked");
+		t.is(t.context.lockStub.callCount, 1, "lock should have been called when the callback is invoked");
 		return Promise.resolve().then(() => {
 			t.is(t.context.unlockStub.callCount, 0,
-				"_unlock should not be called when the callback did not fully resolve, yet");
+				"unlock should not be called when the callback did not fully resolve, yet");
 		});
 	});
 
@@ -121,11 +131,8 @@ test.serial("Installer: _synchronize should unlock when callback promise has res
 		version: "1.2.3"
 	}, callback);
 
-	// Ensure to wait for the callback promise to be resolved
 	t.is(callback.callCount, 1, "callback should be called once");
-	await callback.getCall(0).returnValue;
-
-	t.is(t.context.unlockStub.callCount, 1, "_unlock should be called when the callback has resolved");
+	t.is(t.context.unlockStub.callCount, 1, "unlock should be called after _synchronize has resolved");
 });
 
 test.serial("Installer: _synchronize should throw when locking fails", async (t) => {
@@ -135,7 +142,7 @@ test.serial("Installer: _synchronize should throw when locking fails", async (t)
 	});
 
 	t.context.mkdirpStub.resolves();
-	t.context.lockStub.throws(new Error("Locking error"));
+	t.context.lockStub.yieldsAsync(new Error("Locking error"));
 
 	sinon.stub(installer, "_getLockPath").returns("/locks/lockfile.lock");
 
@@ -149,7 +156,7 @@ test.serial("Installer: _synchronize should throw when locking fails", async (t)
 	}, "Locking error");
 
 	t.is(callback.callCount, 0, "callback should not be called");
-	t.is(t.context.unlockStub.callCount, 0, "_unlock should not be called");
+	t.is(t.context.unlockStub.callCount, 0, "unlock should not be called");
 });
 
 test.serial("Installer: _synchronize should still unlock when callback throws an error", async (t) => {
@@ -159,21 +166,47 @@ test.serial("Installer: _synchronize should still unlock when callback throws an
 	});
 
 	t.context.mkdirpStub.resolves();
-	t.context.lockStub.resolves();
-	t.context.unlockStub.resolves();
+	t.context.lockStub.yieldsAsync();
+	t.context.unlockStub.yieldsAsync();
 
 	sinon.stub(installer, "_getLockPath").returns("/locks/lockfile.lock");
 
-	const callback = sinon.stub().throws(new Error("Callback error"));
+	const callback = sinon.stub().throws(new Error("Callback throws error"));
 
 	await t.throwsAsync(async () => {
 		await installer._synchronize({
 			pkgName: "@openui5/sap.ui.lib1",
 			version: "1.2.3"
 		}, callback);
-	}, "Callback error");
+	}, "Callback throws error");
 
 	t.is(callback.callCount, 1, "callback should be called once");
-	t.is(t.context.lockStub.callCount, 1, "_lock should be called once");
-	t.is(t.context.unlockStub.callCount, 1, "_unlock should be called once");
+	t.is(t.context.lockStub.callCount, 1, "lock should be called once");
+	t.is(t.context.unlockStub.callCount, 1, "unlock should be called once");
+});
+
+test.serial("Installer: _synchronize should still unlock when callback rejects with error", async (t) => {
+	const installer = new Installer({
+		cwd: "/cwd/",
+		ui5HomeDir: "/ui5Home/"
+	});
+
+	t.context.mkdirpStub.resolves();
+	t.context.lockStub.yieldsAsync();
+	t.context.unlockStub.yieldsAsync();
+
+	sinon.stub(installer, "_getLockPath").returns("/locks/lockfile.lock");
+
+	const callback = sinon.stub().rejects(new Error("Callback rejects with error"));
+
+	await t.throwsAsync(async () => {
+		await installer._synchronize({
+			pkgName: "@openui5/sap.ui.lib1",
+			version: "1.2.3"
+		}, callback);
+	}, "Callback rejects with error");
+
+	t.is(callback.callCount, 1, "callback should be called once");
+	t.is(t.context.lockStub.callCount, 1, "lock should be called once");
+	t.is(t.context.unlockStub.callCount, 1, "unlock should be called once");
 });

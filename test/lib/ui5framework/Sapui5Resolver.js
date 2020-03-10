@@ -11,6 +11,9 @@ test.serial("Sapui5Resolver: loadDistMetadata loads metadata once from @sapui5/d
 	});
 
 	const getTargetDirForPackage = sinon.stub(resolver._installer, "_getTargetDirForPackage");
+	getTargetDirForPackage.callsFake(({pkgName, version}) => {
+		throw new Error(`_getTargetDirForPackage stub called with unknown arguments pkgName: ${pkgName}, version: ${version}}`);
+	});
 	getTargetDirForPackage.withArgs({
 		pkgName: "@sapui5/distribution-metadata",
 		version: "1.75.0"
@@ -36,19 +39,17 @@ test.serial("Sapui5Resolver: loadDistMetadata loads metadata once from @sapui5/d
 		.withArgs(path.join("/path", "to", "distribution-metadata", "1.75.0", "metadata.json"))
 		.resolves(expectedMetadata);
 
-	t.deepEqual(resolver._distMetadata, null,
-		"_distMetadata should not be set");
-	await resolver.loadDistMetadata();
+	let distMetadata = await resolver.loadDistMetadata();
 	t.is(installPackage.callCount, 1, "Distribution metadata package should be installed once");
-	t.deepEqual(resolver._distMetadata, expectedMetadata,
-		"_distMetadata should be filled with expected metadata after calling loadDistMetadata");
+	t.deepEqual(distMetadata, expectedMetadata,
+		"loadDistMetadata should resolve with expected metadata");
 
 	// Calling loadDistMetadata again should not load package again
-	await resolver.loadDistMetadata();
+	distMetadata = await resolver.loadDistMetadata();
 
 	t.is(installPackage.callCount, 1, "Distribution metadata package should still be installed once");
-	t.deepEqual(resolver._distMetadata, expectedMetadata,
-		"Metadata should still be filled with expected metadata after calling loadDistMetadata again");
+	t.deepEqual(distMetadata, expectedMetadata,
+		"Metadata should still be the expected metadata after calling loadDistMetadata again");
 });
 
 test("Sapui5Resolver: handleLibrary", async (t) => {
@@ -58,17 +59,15 @@ test("Sapui5Resolver: handleLibrary", async (t) => {
 	});
 
 	const loadDistMetadataStub = sinon.stub(resolver, "loadDistMetadata");
-	loadDistMetadataStub.callsFake(async () => {
-		resolver._distMetadata = {
-			libraries: {
-				"sap.ui.lib1": {
-					"npmPackageName": "@openui5/sap.ui.lib1",
-					"version": "1.75.0",
-					"dependencies": [],
-					"optionalDependencies": []
-				}
+	loadDistMetadataStub.resolves({
+		libraries: {
+			"sap.ui.lib1": {
+				"npmPackageName": "@openui5/sap.ui.lib1",
+				"version": "1.75.0",
+				"dependencies": [],
+				"optionalDependencies": []
 			}
-		};
+		}
 	});
 
 	const installPackage = sinon.stub(resolver._installer, "installPackage");
@@ -78,26 +77,20 @@ test("Sapui5Resolver: handleLibrary", async (t) => {
 		})
 		.withArgs({pkgName: "@openui5/sap.ui.lib1", version: "1.75.0"}).resolves({pkgPath: "/foo/sap.ui.lib1"});
 
-	async function assert() {
-		const promises = await resolver.handleLibrary("sap.ui.lib1");
 
-		t.true(promises.metadata instanceof Promise, "Metadata promise should be returned");
-		t.true(promises.install instanceof Promise, "Install promise should be returned");
+	const promises = await resolver.handleLibrary("sap.ui.lib1");
 
-		const metadata = await promises.metadata;
-		t.deepEqual(metadata, {
-			"id": "@openui5/sap.ui.lib1",
-			"version": "1.75.0",
-			"dependencies": [],
-			"optionalDependencies": []
-		}, "Expected library metadata should be returned");
+	t.true(promises.metadata instanceof Promise, "Metadata promise should be returned");
+	t.true(promises.install instanceof Promise, "Install promise should be returned");
 
-		t.deepEqual(await promises.install, {pkgPath: "/foo/sap.ui.lib1"}, "Install should resolve with expected object");
-	}
+	const metadata = await promises.metadata;
+	t.deepEqual(metadata, {
+		"id": "@openui5/sap.ui.lib1",
+		"version": "1.75.0",
+		"dependencies": [],
+		"optionalDependencies": []
+	}, "Expected library metadata should be returned");
 
-	// Call handleLibrary twice to test distMetadata caching
-	await assert();
-	await assert();
-
-	t.is(loadDistMetadataStub.callCount, 1, "loadDistMetadata should only be called once");
+	t.deepEqual(await promises.install, {pkgPath: "/foo/sap.ui.lib1"}, "Install should resolve with expected object");
+	t.is(loadDistMetadataStub.callCount, 1, "loadDistMetadata should be called once");
 });

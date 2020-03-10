@@ -6,11 +6,12 @@ const os = require("os");
 
 const pacote = require("pacote");
 const libnpmconfig = require("libnpmconfig");
+const lockfile = require("lockfile");
 const logger = require("@ui5/logger");
 const normalizer = require("../../../lib/normalizer");
 const projectPreprocessor = require("../../../lib/projectPreprocessor");
-const ui5Framework = require("../../../lib/translators/ui5Framework");
-const Installer = require("../../../lib/ui5Framework/npm/Installer");
+let ui5Framework;
+let Installer;
 
 // Use path within project as mocking base directory to reduce chance of side effects
 // in case mocks/stubs do not work and real fs is used
@@ -29,9 +30,15 @@ test.beforeEach((t) => {
 		}
 	});
 	sinon.stub(os, "homedir").returns(path.join(fakeBaseDir, "homedir"));
-	sinon.stub(Installer, "_mkdirp").resolves();
-	sinon.stub(Installer, "_lock").resolves();
-	sinon.stub(Installer, "_unlock").resolves();
+
+	sinon.stub(lockfile, "lock").yieldsAsync();
+	sinon.stub(lockfile, "unlock").yieldsAsync();
+
+	mock("mkdirp", sinon.stub().resolves());
+
+	// Re-require to ensure that mocked modules are used
+	ui5Framework = mock.reRequire("../../../lib/translators/ui5Framework");
+	Installer = require("../../../lib/ui5Framework/npm/Installer");
 });
 
 test.afterEach.always((t) => {
@@ -259,6 +266,9 @@ function defineTest(testName, {
 
 		if (frameworkName === "OpenUI5") {
 			sinon.stub(pacote, "manifest")
+				.callsFake(async (spec) => {
+					throw new Error("pacote.manifest stub called with unknown spec: " + spec);
+				})
 				.withArgs("@openui5/sap.ui.lib1@1.75.0")
 				.resolves({
 					name: "@openui5/sap.ui.lib1",
@@ -291,7 +301,9 @@ function defineTest(testName, {
 				});
 		} else if (frameworkName === "SAPUI5") {
 			sinon.stub(Installer.prototype, "readJson")
-				.callThrough()
+				.callsFake(async (path) => {
+					throw new Error("Installer#readJson stub called with unknown path: " + path);
+				})
 				.withArgs(path.join(fakeBaseDir,
 					"homedir", ".ui5", "framework", "packages",
 					"@sapui5", "distribution-metadata", "1.75.0",
@@ -453,6 +465,14 @@ function defineErrorTest(testName, {
 		sinon.stub(projectPreprocessor._ProjectPreprocessor.prototype, "applyType");
 
 		const extractStub = sinon.stub(pacote, "extract");
+		extractStub.callsFake(async (spec) => {
+			throw new Error("pacote.extract stub called with unknown spec: " + spec);
+		});
+
+		const manifestStub = sinon.stub(pacote, "manifest");
+		manifestStub.callsFake(async (spec) => {
+			throw new Error("pacote.manifest stub called with unknown spec: " + spec);
+		});
 
 		if (frameworkName === "SAPUI5") {
 			if (failExtract) {
@@ -523,16 +543,20 @@ function defineErrorTest(testName, {
 					.withArgs("@openui5/sap.ui.lib4@1.75.0")
 					.rejects(new Error("Failed extracting package @openui5/sap.ui.lib4@1.75.0"));
 			} else {
-				extractStub.resolves();
+				extractStub
+					.withArgs("@openui5/sap.ui.lib1@1.75.0")
+					.resolves()
+					.withArgs("@openui5/sap.ui.lib4@1.75.0")
+					.resolves();
 			}
 			if (failMetadata) {
-				sinon.stub(pacote, "manifest")
+				manifestStub
 					.withArgs("@openui5/sap.ui.lib1@1.75.0")
 					.rejects(new Error("Failed to read manifest of @openui5/sap.ui.lib1@1.75.0"))
 					.withArgs("@openui5/sap.ui.lib4@1.75.0")
 					.rejects(new Error("Failed to read manifest of @openui5/sap.ui.lib4@1.75.0"));
 			} else {
-				sinon.stub(pacote, "manifest")
+				manifestStub
 					.withArgs("@openui5/sap.ui.lib1@1.75.0")
 					.resolves({
 						name: "@openui5/sap.ui.lib1",
