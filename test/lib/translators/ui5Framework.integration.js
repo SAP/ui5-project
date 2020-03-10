@@ -707,7 +707,7 @@ test.serial("ui5Framework translator should throw an error when framework versio
 
 	await t.throwsAsync(async () => {
 		await normalizer.generateProjectTree();
-	}, `test-project (1.2.3): framework.version is not defined`);
+	}, `framework.version is not defined for project test-id`);
 });
 
 test.serial("ui5Framework translator should throw an error when framework name is not supported", async (t) => {
@@ -733,7 +733,7 @@ test.serial("ui5Framework translator should throw an error when framework name i
 
 	await t.throwsAsync(async () => {
 		await normalizer.generateProjectTree();
-	}, `test-project (1.2.3): Unknown framework.name "UI5". Must be "OpenUI5" or "SAPUI5"`);
+	}, `Unknown framework.name "UI5" for project test-id. Must be "OpenUI5" or "SAPUI5"`);
 });
 
 test.serial("SAPUI5: ui5Framework translator should throw error when using a library that is not part of the dist metadata", async (t) => {
