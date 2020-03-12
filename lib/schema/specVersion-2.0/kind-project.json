@@ -21,10 +21,40 @@
 	},
 	"if": {
 		"properties": {
-			"type": {"const": "library"}
+			"type": {"const": "application"}
 		}
 	},
 	"then": {
-		"$ref": "kind-project/library.json"
+		"$ref": "kind-project/application.json"
+	},
+	"else": {
+		"if": {
+			"properties": {
+				"type": {"const": "library"}
+			}
+		},
+		"then": {
+			"$ref": "kind-project/library.json"
+		},
+		"else": {
+			"if": {
+				"properties": {
+					"type": {"const": "theme-library"}
+				}
+			},
+			"then": {
+				"$ref": "kind-project/theme-library.json"
+			},
+			"else": {
+				"if": {
+					"properties": {
+						"type": {"const": "module"}
+					}
+				},
+				"then": {
+					"$ref": "kind-project/module.json"
+				}
+			}
+		}
 	}
 }

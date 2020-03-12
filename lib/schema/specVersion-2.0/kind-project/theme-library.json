@@ -1,5 +1,5 @@
 {
-	"$id": "http://ui5.sap/schema/specVersion-2.0/kind-project/library.json",
+	"$id": "http://ui5.sap/schema/specVersion-2.0/kind-project/theme-library.json",
 
 	"additionalProperties": false,
 	"required": ["specVersion", "type", "metadata"],
@@ -9,7 +9,7 @@
 			"enum": ["project", null]
 		},
 		"type": {
-			"enum": ["library"]
+			"enum": ["theme-library"]
 		},
 		"metadata": {
 			"$ref": "../../ui5.json#/definitions/metadata"

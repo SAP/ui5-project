@@ -1,0 +1,19 @@
+{
+	"$id": "http://ui5.sap/schema/specVersion-2.0/kind-project/module.json",
+
+	"additionalProperties": false,
+	"required": ["specVersion", "type", "metadata"],
+	"properties": {
+		"specVersion": { "enum": ["2.0"] },
+		"kind": {
+			"enum": ["project", null]
+		},
+		"type": {
+			"enum": ["module"]
+		},
+		"metadata": {
+			"$ref": "../../ui5.json#/definitions/metadata"
+		}
+	},
+	"__comment": "TBD"
+}
