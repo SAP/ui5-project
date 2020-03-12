@@ -1,0 +1,30 @@
+{
+	"$id": "http://ui5.sap/schema/specVersion-2.0/kind-project.json",
+
+	"required": ["specVersion", "type", "metadata"],
+	"properties": {
+		"specVersion": { "enum": ["2.0"] },
+		"kind": {
+			"enum": ["project", null]
+		},
+		"type": {
+			"enum": [
+				"application",
+				"library",
+				"theme-library",
+				"module"
+			]
+		},
+		"metadata": {
+			"$ref": "../ui5.json#/definitions/metadata"
+		}
+	},
+	"if": {
+		"properties": {
+			"type": {"const": "library"}
+		}
+	},
+	"then": {
+		"$ref": "kind-project/library.json"
+	}
+}

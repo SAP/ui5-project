@@ -1,0 +1,206 @@
+{
+	"$id": "http://ui5.sap/schema/specVersion-2.0/kind-project/library.json",
+
+	"additionalProperties": false,
+	"required": ["specVersion", "type", "metadata"],
+	"properties": {
+		"specVersion": { "enum": ["2.0"] },
+		"kind": {
+			"enum": ["project", null]
+		},
+		"type": {
+			"enum": ["library"]
+		},
+		"metadata": {
+			"$ref": "../../ui5.json#/definitions/metadata"
+		},
+		"resources": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"configuration": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"propertiesFileSourceEncoding": {
+							"$ref": "#/definitions/specVersion-2.0-resources-configuration-propertiesFileSourceEncoding"
+						},
+						"paths": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"src": {
+									"type": "string"
+								},
+								"test": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"builder": {
+			"$ref": "#/definitions/specVersion-2.0-builder"
+		},
+		"server": {
+			"$ref": "#/definitions/specVersion-2.0-server"
+		}
+	},
+
+	"definitions": {
+		"specVersion-2.0-resources-configuration-propertiesFileSourceEncoding": {
+			"enum": ["UTF-8", "ISO-8859-1"],
+			"default": "ISO-8859-1",
+			"title": "Encoding of *.properties files",
+			"description": "By default, the UI5 Tooling expects *.properties files to be ISO-8859-1 encoded."
+		},
+
+		"specVersion-2.0-builder": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"resources": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"excludes": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					}
+				},
+				"jsdoc": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"excludes": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					}
+				},
+				"cachebuster": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"signatureType": {
+							"enum": ["time", "hash"]
+						}
+					}
+				},
+				"bundles": {
+					"type": "object",
+					"additionalProperties": false,
+					"__comment": "TODO"
+				},
+				"customTasks": {
+					"type": "array",
+					"items": {
+						"oneOf": [
+							{
+								"type": "object",
+								"additionalProperties": false,
+								"required": ["name", "beforeTask"],
+								"properties": {
+									"name": {
+										"type": "string"
+									},
+									"beforeTask": {
+										"type": "string",
+										"__comment": "TODO: enum?"
+									},
+									"configuration": {}
+								}
+							},
+							{
+								"type": "object",
+								"additionalProperties": false,
+								"required": ["name", "afterTask"],
+								"properties": {
+									"name": {
+										"type": "string"
+									},
+									"afterTask": {
+										"type": "string",
+										"__comment": "TODO: enum?"
+									},
+									"configuration": {}
+								}
+							}
+						]
+					}
+				}
+			}
+		},
+
+		"specVersion-2.0-server": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"settings": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"httpPort": {
+							"type": "number"
+						},
+						"httpsPort": {
+							"type": "number"
+						}
+					}
+				},
+				"customMiddleware": {
+					"__comment": "TODO: not documented in general configuration page",
+					"type": "array",
+					"items": {
+						"oneOf": [
+							{
+								"type": "object",
+								"additionalProperties": false,
+								"required": ["name", "beforeMiddleware"],
+								"properties": {
+									"name": {
+										"type": "string"
+									},
+									"mountPath": {
+										"type": "string"
+									},
+									"beforeMiddleware": {
+										"type": "string",
+										"__comment": "TODO: enum?"
+									},
+									"configuration": {}
+								}
+							},
+							{
+								"type": "object",
+								"additionalProperties": false,
+								"required": ["name", "afterMiddleware"],
+								"properties": {
+									"name": {
+										"type": "string"
+									},
+									"mountPath": {
+										"type": "string"
+									},
+									"afterMiddleware": {
+										"type": "string",
+										"__comment": "TODO: enum?"
+									},
+									"configuration": {}
+								}
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+
+}
