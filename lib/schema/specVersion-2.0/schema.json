@@ -22,29 +22,6 @@
 		"$ref": "kind-project.json"
 	},
 	"else": {
-		"$ref": "#/definitions/specVersion-2.0-kind-extension"
-	},
-
-	"definitions": {
-		"specVersion-2.0-kind-extension": {
-			"additionalProperties": false,
-			"required": ["specVersion", "kind", "type", "metadata"],
-			"properties": {
-				"specVersion": { "enum": ["2.0"] },
-				"kind": {
-					"enum": ["extension"]
-				},
-				"type": {
-					"enum": [
-						"task",
-						"server-middleware",
-						"project-shim"
-					]
-				},
-				"metadata": {
-					"$ref": "../ui5.json#/definitions/metadata"
-				}
-			}
-		}
+		"$ref": "kind-extension.json"
 	}
 }

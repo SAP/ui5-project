@@ -1,0 +1,49 @@
+{
+	"$id": "http://ui5.sap/schema/specVersion-2.0/kind-extension.json",
+
+	"required": ["specVersion", "kind", "type", "metadata"],
+	"properties": {
+		"specVersion": { "enum": ["2.0"] },
+		"kind": {
+			"enum": ["extension"]
+		},
+		"type": {
+			"enum": [
+				"task",
+				"server-middleware",
+				"project-shim"
+			]
+		},
+		"metadata": {
+			"$ref": "../ui5.json#/definitions/metadata"
+		}
+	},
+	"if": {
+		"properties": {
+			"type": {"const": "task"}
+		}
+	},
+	"then": {
+		"$ref": "kind-extension/task.json"
+	},
+	"else": {
+		"if": {
+			"properties": {
+				"type": {"const": "server-middleware"}
+			}
+		},
+		"then": {
+			"$ref": "kind-extension/server-middleware.json"
+		},
+		"else": {
+			"if": {
+				"properties": {
+					"type": {"const": "project-shim"}
+				}
+			},
+			"then": {
+				"$ref": "kind-extension/project-shim.json"
+			}
+		}
+	}
+}
