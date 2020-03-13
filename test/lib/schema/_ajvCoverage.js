@@ -1,11 +1,14 @@
 // Inspired by https://github.com/epoberezkin/ajv-istanbul
 
+const path = require("path");
+const crypto = require("crypto");
 const beautify = require("js-beautify").js_beautify;
 const libReport = require("istanbul-lib-report");
 const reports = require("istanbul-reports");
 const libCoverage = require("istanbul-lib-coverage");
 const {createInstrumenter} = require("istanbul-lib-instrument");
-const rFileName = new RegExp(/sourceURL=http:\/\/ui5\.sap\/([^\s]*)/);
+const rFileName = new RegExp(/sourceURL=http:\/\/ui5\.sap\/schema\/([^\s]*)/);
+const basePath = path.join(__dirname, "..", "..", "..", "lib", "schema");
 
 module.exports = function(Ajv, options) {
 	const instrumenter = createInstrumenter({});
@@ -22,15 +25,14 @@ module.exports = function(Ajv, options) {
 		let fileName;
 		const fileNameMatch = rFileName.exec(beautifiedCode);
 		if (fileNameMatch) {
-			fileName = fileNameMatch[1].replace(/\//g, "_") + ".js";
+			fileName = fileNameMatch[1].replace(/\.json$/, ".js");
+		} else {
+			fileName = crypto.createHash("sha1").update(originalCode).digest("hex").substr(0, 16) + ".js";
 		}
+
+		fileName = path.join(basePath, fileName);
 
 		const instrumentedCode = instrumenter.instrumentSync(beautifiedCode, fileName);
-
-		const sourceMap = instrumenter.lastSourceMap();
-		if (!fileName) {
-			fileName = sourceMap.sources[0];
-		}
 
 		sources[fileName] = beautifiedCode;
 

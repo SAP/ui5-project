@@ -21,7 +21,7 @@
 		}
 	},
 	"then": {
-		"$ref": "specVersion-2.0/schema.json"
+		"$ref": "specVersion/2.0.json"
 	},
 	"else": {
 		"if": {
@@ -30,7 +30,7 @@
 			}
 		},
 		"then": {
-			"$ref": "#/definitions/new-specVersion-1.1"
+			"additionalProperties": true
 		},
 		"else": {
 			"if": {
@@ -39,7 +39,7 @@
 				}
 			},
 			"then": {
-				"$ref": "#/definitions/new-specVersion-1.0"
+				"additionalProperties": true
 			}
 		}
 	},
@@ -57,39 +57,6 @@
 				},
 				"copyright": {
 					"type": "string"
-				}
-			}
-		},
-
-
-		"new-specVersion-1.1": {
-			"__comment": "TODO",
-			"additionalProperties": false,
-			"required": ["specVersion", "type", "metadata"],
-			"properties": {
-				"specVersion": { "enum": ["1.1"] },
-				"type": {
-					"enum": [
-						"application",
-						"library",
-						"theme-library",
-						"module"
-					]
-				},
-				"metadata": {
-					"$ref": "#/definitions/metadata"
-				}
-			}
-		},
-		"new-specVersion-1.0": {
-			"__comment": "TODO",
-			"properties": {
-				"type": {
-					"enum": [
-						"application",
-						"library",
-						"module"
-					]
 				}
 			}
 		}

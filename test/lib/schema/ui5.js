@@ -1,5 +1,5 @@
 const test = require("ava");
-const Ajv = require("Ajv");
+const Ajv = require("ajv");
 const ajvCoverage = require("./_ajvCoverage");
 const {_Validator: Validator} = require("../../../lib/schema/validate");
 
@@ -14,19 +14,29 @@ function assertValidation(t, data, expectedErrors = undefined) {
 	}
 }
 
+const coverage = false;
+
 let validator;
 let createReport;
 
 test.before(() => {
-	const {ajv, createReport: _createReport} = ajvCoverage(Ajv, {
-		allErrors: true
-	});
-	createReport = _createReport;
-	validator = new Validator(ajv);
+	if (coverage) {
+		const {ajv, createReport: _createReport} = ajvCoverage(Ajv, {
+			allErrors: true
+		});
+		createReport = _createReport;
+		validator = new Validator(ajv);
+	} else {
+		validator = new Validator(new Ajv({
+			allErrors: true
+		}));
+	}
 });
 
 test.after.always(() => {
-	createReport(global.__coverage__);
+	if (createReport) {
+		createReport(global.__coverage__);
+	}
 });
 
 test("Missing specVersion, type, metadata", (t) => {
