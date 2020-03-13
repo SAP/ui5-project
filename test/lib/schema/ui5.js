@@ -3,14 +3,18 @@ const Ajv = require("ajv");
 const ajvCoverage = require("./_ajvCoverage");
 const {_Validator: Validator} = require("../../../lib/schema/validate");
 
-function assertValidation(t, data, expectedErrors = undefined) {
-	const errors = validator.validate(data);
+async function assertValidation(t, config, expectedErrors = undefined) {
+	let errors;
+	try {
+		await validator.validate({config});
+	} catch (validationError) {
+		errors = validationError.errors;
+	}
 	if (expectedErrors) {
 		t.deepEqual(errors, expectedErrors);
 	} else {
 		// Use JSON string for better logging in case of errors
 		t.is(JSON.stringify(errors, null, 2), undefined);
-		t.is(errors, undefined);
 	}
 }
 
@@ -39,16 +43,15 @@ test.after.always(() => {
 	}
 });
 
-test("Missing specVersion, type, metadata", (t) => {
-	assertValidation(t, {}, [
+test("Missing specVersion, type, metadata", async (t) => {
+	await assertValidation(t, {}, [
 		{
 			dataPath: "",
 			keyword: "required",
 			message: "should have required property 'specVersion'",
 			params: {
 				missingProperty: "specVersion",
-			},
-			schemaPath: "#/required"
+			}
 		},
 		{
 			dataPath: "",
@@ -56,8 +59,7 @@ test("Missing specVersion, type, metadata", (t) => {
 			message: "should have required property 'metadata'",
 			params: {
 				missingProperty: "metadata",
-			},
-			schemaPath: "#/required"
+			}
 		},
 		{
 			dataPath: "",
@@ -65,15 +67,14 @@ test("Missing specVersion, type, metadata", (t) => {
 			message: "should have required property 'type'",
 			params: {
 				missingProperty: "type",
-			},
-			schemaPath: "#/required"
+			}
 		}
 
 	]);
 });
 
-test("Missing type, metadata", (t) => {
-	assertValidation(t, {
+test("Missing type, metadata", async (t) => {
+	await assertValidation(t, {
 		"specVersion": "2.0"
 	}, [
 		{
@@ -82,8 +83,7 @@ test("Missing type, metadata", (t) => {
 			message: "should have required property 'metadata'",
 			params: {
 				missingProperty: "metadata",
-			},
-			schemaPath: "#/required"
+			}
 		},
 		{
 			dataPath: "",
@@ -91,13 +91,12 @@ test("Missing type, metadata", (t) => {
 			message: "should have required property 'type'",
 			params: {
 				missingProperty: "type",
-			},
-			schemaPath: "#/required"
+			}
 		}
 	]);
 });
 
-test("Invalid specVersion", (t) => {
+test("Invalid specVersion", async (t) => {
 	assertValidation(t, {
 		"specVersion": "0.0"
 	}, [
@@ -112,14 +111,13 @@ test("Invalid specVersion", (t) => {
 					"1.0",
 					"0.1",
 				],
-			},
-			schemaPath: "#/properties/specVersion/enum"
+			}
 		}
 	]);
 });
 
-test("Invalid type", (t) => {
-	assertValidation(t, {
+test("Invalid type", async (t) => {
+	await assertValidation(t, {
 		"specVersion": "2.0",
 		"type": "foo",
 		"metadata": {
@@ -137,14 +135,13 @@ test("Invalid type", (t) => {
 					"theme-library",
 					"module"
 				]
-			},
-			schemaPath: "#/properties/type/enum"
+			}
 		}
 	]);
 });
 
-test("Invalid kind", (t) => {
-	assertValidation(t, {
+test("Invalid kind", async (t) => {
+	await assertValidation(t, {
 		"specVersion": "2.0",
 		"kind": "foo",
 		"metadata": {
@@ -161,14 +158,13 @@ test("Invalid kind", (t) => {
 					"extension",
 					null
 				],
-			},
-			schemaPath: "#/properties/kind/enum"
+			}
 		}
 	]);
 });
 
-test("Invalid metadata.name", (t) => {
-	assertValidation(t, {
+test("Invalid metadata.name", async (t) => {
+	await assertValidation(t, {
 		"specVersion": "2.0",
 		"type": "application",
 		"metadata": {
@@ -181,14 +177,13 @@ test("Invalid metadata.name", (t) => {
 			message: "should be string",
 			params: {
 				type: "string"
-			},
-			schemaPath: "../ui5.json#/definitions/metadata/properties/name/type"
+			}
 		}
 	]);
 });
 
-test("Invalid metadata.copyright", (t) => {
-	assertValidation(t, {
+test("Invalid metadata.copyright", async (t) => {
+	await assertValidation(t, {
 		"specVersion": "2.0",
 		"type": "application",
 		"metadata": {
@@ -202,14 +197,13 @@ test("Invalid metadata.copyright", (t) => {
 			message: "should be string",
 			params: {
 				type: "string"
-			},
-			schemaPath: "../ui5.json#/definitions/metadata/properties/copyright/type"
+			}
 		}
 	]);
 });
 
-test("Additional metadata property", (t) => {
-	assertValidation(t, {
+test("Additional metadata property", async (t) => {
+	await assertValidation(t, {
 		"specVersion": "2.0",
 		"type": "application",
 		"metadata": {
@@ -223,14 +217,13 @@ test("Additional metadata property", (t) => {
 			message: "should NOT have additional properties",
 			params: {
 				additionalProperty: "copyrihgt"
-			},
-			schemaPath: "../ui5.json#/definitions/metadata/additionalProperties"
+			}
 		}
 	]);
 });
 
-test("type: application", (t) => {
-	assertValidation(t, {
+test("type: application", async (t) => {
+	await assertValidation(t, {
 		"specVersion": "2.0",
 		"type": "application",
 		"metadata": {
@@ -293,8 +286,8 @@ test("type: application", (t) => {
 	});
 });
 
-test("type: application (invalid resources configuration)", (t) => {
-	assertValidation(t, {
+test("type: application (invalid resources configuration)", async (t) => {
+	await assertValidation(t, {
 		"specVersion": "2.0",
 		"type": "application",
 		"metadata": {
@@ -320,8 +313,7 @@ test("type: application (invalid resources configuration)", (t) => {
 			message: "should NOT have additional properties",
 			params: {
 				additionalProperty: "notAllowed",
-			},
-			schemaPath: "#/properties/resources/additionalProperties",
+			}
 		},
 		{
 			dataPath: ".resources.configuration",
@@ -329,8 +321,7 @@ test("type: application (invalid resources configuration)", (t) => {
 			message: "should NOT have additional properties",
 			params: {
 				additionalProperty: "notAllowed",
-			},
-			schemaPath: "#/properties/resources/properties/configuration/additionalProperties",
+			}
 		},
 		{
 			dataPath: ".resources.configuration.propertiesFileSourceEncoding",
@@ -341,8 +332,7 @@ test("type: application (invalid resources configuration)", (t) => {
 					"UTF-8",
 					"ISO-8859-1"
 				],
-			},
-			schemaPath: "#/definitions/resources-configuration-propertiesFileSourceEncoding/enum"
+			}
 		},
 		{
 			dataPath: ".resources.configuration.paths",
@@ -350,8 +340,7 @@ test("type: application (invalid resources configuration)", (t) => {
 			message: "should NOT have additional properties",
 			params: {
 				additionalProperty: "app",
-			},
-			schemaPath: "#/properties/resources/properties/configuration/properties/paths/additionalProperties",
+			}
 		},
 		{
 			dataPath: ".resources.configuration.paths.webapp",
@@ -359,11 +348,10 @@ test("type: application (invalid resources configuration)", (t) => {
 			message: "should be string",
 			params: {
 				type: "string"
-			},
-			schemaPath: "#/properties/resources/properties/configuration/properties/paths/properties/webapp/type"
+			}
 		}
 	]);
-	assertValidation(t, {
+	await assertValidation(t, {
 		"specVersion": "2.0",
 		"type": "application",
 		"metadata": {
@@ -381,14 +369,13 @@ test("type: application (invalid resources configuration)", (t) => {
 			message: "should be object",
 			params: {
 				type: "object"
-			},
-			schemaPath: "#/properties/resources/properties/configuration/properties/paths/type"
+			}
 		}
 	]);
 });
 
-test("type: library", (t) => {
-	assertValidation(t, {
+test("type: library", async (t) => {
+	await assertValidation(t, {
 		"specVersion": "2.0",
 		"type": "library",
 		"metadata": {
@@ -453,7 +440,7 @@ test("type: library", (t) => {
 			]
 		}
 	});
-	assertValidation(t, {
+	await assertValidation(t, {
 		"specVersion": "2.0",
 		"type": "library",
 		"metadata": {
@@ -462,25 +449,24 @@ test("type: library", (t) => {
 		},
 		"foo": true
 	}, [{
-		"keyword": "additionalProperties",
-		"dataPath": "",
-		"schemaPath": "#/additionalProperties",
-		"params": {
-			"additionalProperty": "foo"
-		},
-		"message": "should NOT have additional properties"
+		dataPath: "",
+		keyword: "additionalProperties",
+		message: "should NOT have additional properties",
+		params: {
+			additionalProperty: "foo"
+		}
 	}]);
 });
 
-test("type: theme-library", (t) => {
-	assertValidation(t, {
+test("type: theme-library", async (t) => {
+	await assertValidation(t, {
 		"specVersion": "2.0",
 		"type": "theme-library",
 		"metadata": {
 			"name": "my-theme-library"
 		}
 	});
-	assertValidation(t, {
+	await assertValidation(t, {
 		"specVersion": "2.0",
 		"type": "theme-library",
 		"metadata": {
@@ -488,25 +474,24 @@ test("type: theme-library", (t) => {
 		},
 		"foo": true
 	}, [{
-		"keyword": "additionalProperties",
-		"dataPath": "",
-		"schemaPath": "#/additionalProperties",
-		"params": {
+		dataPath: "",
+		keyword: "additionalProperties",
+		message: "should NOT have additional properties",
+		params: {
 			"additionalProperty": "foo"
-		},
-		"message": "should NOT have additional properties"
+		}
 	}]);
 });
 
-test("type: module", (t) => {
-	assertValidation(t, {
+test("type: module", async (t) => {
+	await assertValidation(t, {
 		"specVersion": "2.0",
 		"type": "module",
 		"metadata": {
 			"name": "my-module"
 		}
 	});
-	assertValidation(t, {
+	await assertValidation(t, {
 		"specVersion": "2.0",
 		"type": "module",
 		"metadata": {
@@ -514,18 +499,17 @@ test("type: module", (t) => {
 		},
 		"foo": true
 	}, [{
-		"keyword": "additionalProperties",
-		"dataPath": "",
-		"schemaPath": "#/additionalProperties",
-		"params": {
+		dataPath: "",
+		keyword: "additionalProperties",
+		message: "should NOT have additional properties",
+		params: {
 			"additionalProperty": "foo"
-		},
-		"message": "should NOT have additional properties"
+		}
 	}]);
 });
 
-test("kind: extension / type: task", (t) => {
-	assertValidation(t, {
+test("kind: extension / type: task", async (t) => {
+	await assertValidation(t, {
 		"specVersion": "2.0",
 		"kind": "extension",
 		"type": "task",
@@ -538,8 +522,8 @@ test("kind: extension / type: task", (t) => {
 	});
 });
 
-test("kind: extension / type: server-middleware", (t) => {
-	assertValidation(t, {
+test("kind: extension / type: server-middleware", async (t) => {
+	await assertValidation(t, {
 		"specVersion": "2.0",
 		"kind": "extension",
 		"type": "server-middleware",
@@ -552,8 +536,8 @@ test("kind: extension / type: server-middleware", (t) => {
 	});
 });
 
-test("kind: extension / type: project-shim", (t) => {
-	assertValidation(t, {
+test("kind: extension / type: project-shim", async (t) => {
+	await assertValidation(t, {
 		"specVersion": "2.0",
 		"kind": "extension",
 		"type": "project-shim",
