@@ -1,5 +1,5 @@
 {
-	"$id": "http://ui5.sap/schema/specVersion-2.0/kind-extension.json",
+	"$id": "http://ui5.sap/schema/specVersion/2.0/kind/extension.json",
 
 	"required": ["specVersion", "kind", "type", "metadata"],
 	"properties": {
@@ -15,7 +15,7 @@
 			]
 		},
 		"metadata": {
-			"$ref": "../ui5.json#/definitions/metadata"
+			"$ref": "../../../ui5.json#/definitions/metadata"
 		}
 	},
 	"if": {
@@ -24,7 +24,7 @@
 		}
 	},
 	"then": {
-		"$ref": "kind-extension/task.json"
+		"$ref": "extension/task.json"
 	},
 	"else": {
 		"if": {
@@ -33,7 +33,7 @@
 			}
 		},
 		"then": {
-			"$ref": "kind-extension/server-middleware.json"
+			"$ref": "extension/server-middleware.json"
 		},
 		"else": {
 			"if": {
@@ -42,7 +42,7 @@
 				}
 			},
 			"then": {
-				"$ref": "kind-extension/project-shim.json"
+				"$ref": "extension/project-shim.json"
 			}
 		}
 	}

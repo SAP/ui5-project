@@ -1,5 +1,5 @@
 {
-	"$id": "http://ui5.sap/schema/specVersion-2.0/kind-project.json",
+	"$id": "http://ui5.sap/schema/specVersion/2.0/kind/project.json",
 
 	"required": ["specVersion", "type", "metadata"],
 	"properties": {
@@ -16,7 +16,7 @@
 			]
 		},
 		"metadata": {
-			"$ref": "../ui5.json#/definitions/metadata"
+			"$ref": "../../../ui5.json#/definitions/metadata"
 		}
 	},
 	"if": {
@@ -25,7 +25,7 @@
 		}
 	},
 	"then": {
-		"$ref": "kind-project/application.json"
+		"$ref": "project/application.json"
 	},
 	"else": {
 		"if": {
@@ -34,7 +34,7 @@
 			}
 		},
 		"then": {
-			"$ref": "kind-project/library.json"
+			"$ref": "project/library.json"
 		},
 		"else": {
 			"if": {
@@ -43,7 +43,7 @@
 				}
 			},
 			"then": {
-				"$ref": "kind-project/theme-library.json"
+				"$ref": "project/theme-library.json"
 			},
 			"else": {
 				"if": {
@@ -52,7 +52,7 @@
 					}
 				},
 				"then": {
-					"$ref": "kind-project/module.json"
+					"$ref": "project/module.json"
 				}
 			}
 		}
