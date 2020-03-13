@@ -547,3 +547,114 @@ test("kind: extension / type: project-shim", async (t) => {
 		"shims": {}
 	});
 });
+
+test("framework configuration: OpenUI5", async (t) => {
+	await assertValidation(t, {
+		"specVersion": "2.0",
+		"type": "application",
+		"metadata": {
+			"name": "my-application"
+		},
+		"framework": {
+			"name": "OpenUI5",
+			"version": "1.75.0",
+			"libraries": [
+				{"name": "sap.ui.core"},
+				{"name": "sap.m"},
+				{"name": "sap.f", "optional": true},
+				{"name": "sap.ui.support", "development": true}
+			]
+		}
+	});
+});
+
+test("framework configuration: SAPUI5", async (t) => {
+	await assertValidation(t, {
+		"specVersion": "2.0",
+		"type": "application",
+		"metadata": {
+			"name": "my-application"
+		},
+		"framework": {
+			"name": "SAPUI5",
+			"version": "1.75.0",
+			"libraries": [
+				{"name": "sap.ui.core"},
+				{"name": "sap.m"},
+				{"name": "sap.f", "optional": true},
+				{"name": "sap.ui.support", "development": true}
+			]
+		}
+	});
+});
+
+test("framework configuration: Invalid", async (t) => {
+	await assertValidation(t, {
+		"specVersion": "2.0",
+		"type": "application",
+		"metadata": {
+			"name": "my-application"
+		},
+		"framework": {
+			"name": "FooUI5",
+			"version": "1.75",
+			"libraries": [
+				"sap.ui.core",
+				{"library": "sap.m"},
+				{"name": "sap.f", "optional": "yes"}
+			]
+		}
+	}, [
+		{
+			dataPath: ".framework.name",
+			keyword: "enum",
+			message: "should be equal to one of the allowed values",
+			params: {
+				allowedValues: [
+					"OpenUI5",
+					"SAPUI5",
+				],
+			},
+		},
+		{
+			dataPath: ".framework.version",
+			keyword: "pattern",
+			message: "should match pattern \"^(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)$\"",
+			params: {
+				pattern: "^(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)$",
+			},
+		},
+		{
+			dataPath: ".framework.libraries[0]",
+			keyword: "type",
+			message: "should be object",
+			params: {
+				type: "object",
+			}
+		},
+		{
+			dataPath: ".framework.libraries[1]",
+			keyword: "additionalProperties",
+			message: "should NOT have additional properties",
+			params: {
+				additionalProperty: "library",
+			}
+		},
+		{
+			dataPath: ".framework.libraries[1]",
+			keyword: "required",
+			message: "should have required property 'name'",
+			params: {
+				missingProperty: "name",
+			}
+		},
+		{
+			dataPath: ".framework.libraries[2].optional",
+			keyword: "type",
+			message: "should be boolean",
+			params: {
+				type: "boolean"
+			},
+		}
+	]);
+});

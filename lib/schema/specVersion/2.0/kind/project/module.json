@@ -13,6 +13,9 @@
 		},
 		"metadata": {
 			"$ref": "../../../../ui5.json#/definitions/metadata"
+		},
+		"framework": {
+			"$ref": "../project.json#/definitions/framework"
 		}
 	},
 	"__comment": "TBD"
