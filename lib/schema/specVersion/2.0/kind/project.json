@@ -60,7 +60,39 @@
 
 	"definitions": {
 		"framework": {
-
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["name", "version"],
+			"properties": {
+				"name": {
+					"enum": ["OpenUI5", "SAPUI5"]
+				},
+				"version": {
+					"type": "string",
+					"pattern": "^(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)$"
+				},
+				"libraries": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"additionalProperties": false,
+						"required": ["name"],
+						"properties": {
+							"name": {
+								"type": "string"
+							},
+							"optional": {
+								"type": "boolean",
+								"default": false
+							},
+							"development": {
+								"type": "boolean",
+								"default": false
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 }
