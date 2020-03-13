@@ -22,6 +22,15 @@
 		"$ref": "kind-project.json"
 	},
 	"else": {
-		"$ref": "kind-extension.json"
+		"if": {
+			"properties": {
+				"kind": {
+					"enum": ["extension"]
+				}
+			}
+		},
+		"then": {
+			"$ref": "kind-extension.json"
+		}
 	}
 }
