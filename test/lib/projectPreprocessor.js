@@ -2,6 +2,7 @@ const test = require("ava");
 const sinon = require("sinon");
 const mock = require("mock-require");
 const path = require("path");
+const gracefulFs = require("graceful-fs");
 const projectPreprocessor = require("../../lib/projectPreprocessor");
 const applicationAPath = path.join(__dirname, "..", "fixtures", "application.a");
 const applicationBPath = path.join(__dirname, "..", "fixtures", "application.b");
@@ -1999,4 +2000,176 @@ test.serial("checkProjectMetadata: No warning logged for nested SAP internal lib
 	await preprocessor.checkProjectMetadata(project1, project2);
 
 	t.is(logWarnSpy.callCount, 0, "No warning got logged");
+});
+
+
+test.serial("readConfigFile: No exception for valid config", async (t) => {
+	const configPath = "/application/ui5.yaml";
+	const ui5yaml = `
+---
+specVersion: "2.0"
+type: application
+metadata:
+  name: application.a
+`;
+
+	const validate = require("../../lib/schema/validate");
+	const validateSpy = sinon.spy(validate);
+	mock("../../lib/schema/validate", validateSpy);
+
+	sinon.stub(gracefulFs, "readFile")
+		.callsFake((path) => {
+			throw new Error("readFileStub called with unexpected path: " + path);
+		})
+		.withArgs(configPath).yieldsAsync(null, ui5yaml);
+
+	// Re-require tested module
+	const projectPreprocessor = mock.reRequire("../../lib/projectPreprocessor");
+	const preprocessor = new projectPreprocessor._ProjectPreprocessor({});
+
+	await t.notThrowsAsync(async () => {
+		await preprocessor.readConfigFile(configPath);
+	});
+
+	t.is(validateSpy.callCount, 1, "validate should be called once");
+	t.deepEqual(validateSpy.getCall(0).args, [{
+		config: {
+			specVersion: "2.0",
+			type: "application",
+			metadata: {
+				name: "application.a"
+			}
+		},
+		yamlDocument: ui5yaml,
+		yamlDocumentIdx: 0,
+	}],
+	"validate should be called with expected args");
+});
+
+test.serial("readConfigFile: Exception for invalid config", async (t) => {
+	const configPath = "/application/ui5.yaml";
+	const ui5yaml = `
+---
+specVersion: "2.0"
+foo: bar
+metadata:
+  name: application.a
+`;
+
+	const validate = require("../../lib/schema/validate");
+	const validateSpy = sinon.spy(validate);
+	mock("../../lib/schema/validate", validateSpy);
+
+	sinon.stub(gracefulFs, "readFile")
+		.callsFake((path) => {
+			throw new Error("readFileStub called with unexpected path: " + path);
+		})
+		.withArgs(configPath).yieldsAsync(null, ui5yaml);
+
+	// Re-require tested module
+	const projectPreprocessor = mock.reRequire("../../lib/projectPreprocessor");
+	const preprocessor = new projectPreprocessor._ProjectPreprocessor({});
+
+	const validationError = await t.throwsAsync(async () => {
+		await preprocessor.readConfigFile(configPath);
+	});
+
+	t.deepEqual(validationError.errors, [
+		{
+			dataPath: "",
+			keyword: "required",
+			message: "should have required property 'type'",
+			params: {
+				missingProperty: "type",
+			},
+		},
+		{
+			dataPath: "",
+			keyword: "additionalProperties",
+			message: "should NOT have additional properties",
+			params: {
+				additionalProperty: "foo",
+			},
+		},
+	]);
+	t.deepEqual(validationError.message,
+		"should have required property 'type'\n" +
+		"should NOT have additional properties"
+	);
+
+	t.is(validateSpy.callCount, 1, "validate should be called once");
+	t.deepEqual(validateSpy.getCall(0).args, [{
+		config: {
+			specVersion: "2.0",
+			foo: "bar",
+			metadata: {
+				name: "application.a"
+			}
+		},
+		yamlDocument: ui5yaml,
+		yamlDocumentIdx: 0,
+	}],
+	"validate should be called with expected args");
+});
+
+test.serial("loadProjectConfiguration: Runs validation if specVersion already exists (error)", async (t) => {
+	const config = {
+		specVersion: "2.0",
+		foo: "bar",
+		metadata: {
+			name: "application.a"
+		},
+
+		id: "id",
+		version: "1.0.0",
+		path: "path",
+		dependencies: []
+	};
+
+	const validate = require("../../lib/schema/validate");
+	const validateSpy = sinon.spy(validate);
+	mock("../../lib/schema/validate", validateSpy);
+
+	// Re-require tested module
+	const projectPreprocessor = mock.reRequire("../../lib/projectPreprocessor");
+	const preprocessor = new projectPreprocessor._ProjectPreprocessor({});
+
+	const validationError = await t.throwsAsync(async () => {
+		await preprocessor.loadProjectConfiguration(config);
+	});
+
+	t.deepEqual(validationError.errors, [
+		{
+			dataPath: "",
+			keyword: "required",
+			message: "should have required property 'type'",
+			params: {
+				missingProperty: "type",
+			},
+		},
+		{
+			dataPath: "",
+			keyword: "additionalProperties",
+			message: "should NOT have additional properties",
+			params: {
+				additionalProperty: "foo",
+			},
+		},
+	]);
+	t.deepEqual(validationError.message,
+		"should have required property 'type'\n" +
+		"should NOT have additional properties"
+	);
+
+	t.is(validateSpy.callCount, 1, "validate should be called once");
+	t.deepEqual(validateSpy.getCall(0).args, [{
+		config: {
+			specVersion: "2.0",
+			foo: "bar",
+			metadata: {
+				name: "application.a"
+			}
+		}
+	}],
+	"validate should be called with expected args");
 });

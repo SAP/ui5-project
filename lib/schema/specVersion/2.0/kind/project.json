@@ -56,5 +56,11 @@
 				}
 			}
 		}
+	},
+
+	"definitions": {
+		"framework": {
+
+		}
 	}
 }
