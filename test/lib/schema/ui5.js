@@ -1,12 +1,12 @@
 const test = require("ava");
 const Ajv = require("ajv");
-const ajvCoverage = require("./_ajvCoverage");
+const AjvCoverage = require("./AjvCoverage");
 const {_Validator: Validator} = require("../../../lib/schema/validate");
 
 async function assertValidation(t, config, expectedErrors = undefined) {
 	let errors;
 	try {
-		await validator.validate({config});
+		await t.context.validator.validate({config});
 	} catch (validationError) {
 		errors = validationError.errors;
 	}
@@ -18,29 +18,46 @@ async function assertValidation(t, config, expectedErrors = undefined) {
 	}
 }
 
-const coverage = false;
+const coverage = true;
 
-let validator;
-let createReport;
-
-test.before(() => {
+test.before((t) => {
 	if (coverage) {
-		const {ajv, createReport: _createReport} = ajvCoverage(Ajv, {
-			allErrors: true
+		t.context.ajvCoverage = new AjvCoverage(Ajv, {
+			allErrors: true,
+			sourceCode: true
 		});
-		createReport = _createReport;
-		validator = new Validator(ajv);
+		t.context.validator = new Validator(t.context.ajvCoverage.ajv);
 	} else {
-		validator = new Validator(new Ajv({
+		t.context.validator = new Validator(new Ajv({
 			allErrors: true
 		}));
 	}
 });
 
-test.after.always(() => {
-	if (createReport) {
-		createReport(global.__coverage__);
+test.after.always((t) => {
+	if (coverage) {
+		t.context.ajvCoverage.createReport(global.__coverage__);
+		const thresholds = {
+			branches: 44,
+			lines: 52,
+			statements: 53,
+			functions: 92
+		};
+		t.context.ajvCoverage.verify(global.__coverage__, thresholds);
 	}
+});
+
+test("Undefined", async (t) => {
+	await assertValidation(t, undefined, [
+		{
+			dataPath: "",
+			keyword: "type",
+			message: "should be object",
+			params: {
+				type: "object",
+			}
+		}
+	]);
 });
 
 test("Missing specVersion, type, metadata", async (t) => {
@@ -220,6 +237,24 @@ test("Additional metadata property", async (t) => {
 			}
 		}
 	]);
+});
+
+test("specVersion 0.1", async (t) => {
+	assertValidation(t, {
+		"specVersion": "0.1"
+	});
+});
+
+test("specVersion 1.0", async (t) => {
+	assertValidation(t, {
+		"specVersion": "1.0"
+	});
+});
+
+test("specVersion 1.1", async (t) => {
+	assertValidation(t, {
+		"specVersion": "1.1"
+	});
 });
 
 test("type: application", async (t) => {
@@ -601,7 +636,8 @@ test("framework configuration: Invalid", async (t) => {
 			"libraries": [
 				"sap.ui.core",
 				{"library": "sap.m"},
-				{"name": "sap.f", "optional": "yes"}
+				{"name": "sap.f", "optional": "x"},
+				{"name": "sap.f", "development": "no"}
 			]
 		}
 	}, [
@@ -619,9 +655,9 @@ test("framework configuration: Invalid", async (t) => {
 		{
 			dataPath: ".framework.version",
 			keyword: "pattern",
-			message: "should match pattern \"^(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)$\"",
+			message: "should match pattern \"^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$\"",
 			params: {
-				pattern: "^(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)$",
+				pattern: "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
 			},
 		},
 		{
@@ -650,6 +686,14 @@ test("framework configuration: Invalid", async (t) => {
 		},
 		{
 			dataPath: ".framework.libraries[2].optional",
+			keyword: "type",
+			message: "should be boolean",
+			params: {
+				type: "boolean"
+			},
+		},
+		{
+			dataPath: ".framework.libraries[3].development",
 			keyword: "type",
 			message: "should be boolean",
 			params: {
