@@ -1,4 +1,5 @@
 {
+	"$schema": "http://json-schema.org/draft-07/schema",
 	"$id": "http://ui5.sap/schema/specVersion/2.0/kind/project.json",
 
 	"required": ["specVersion", "type", "metadata"],
@@ -69,7 +70,9 @@
 				},
 				"version": {
 					"type": "string",
-					"pattern": "^(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)$"
+					"pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+					"title": "Version",
+					"description": "Framework version to use in this project. For example \"1.76.0\""
 				},
 				"libraries": {
 					"type": "array",

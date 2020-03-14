@@ -1,4 +1,5 @@
 {
+	"$schema": "http://json-schema.org/draft-07/schema",
 	"$id": "http://ui5.sap/schema/specVersion/2.0/kind/project/theme-library.json",
 
 	"additionalProperties": false,
