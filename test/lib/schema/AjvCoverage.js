@@ -1,96 +1,42 @@
 // Inspired by https://github.com/epoberezkin/ajv-istanbul
 
-const path = require("path");
 const crypto = require("crypto");
 const beautify = require("js-beautify").js_beautify;
 const libReport = require("istanbul-lib-report");
 const reports = require("istanbul-reports");
 const libCoverage = require("istanbul-lib-coverage");
 const {createInstrumenter} = require("istanbul-lib-instrument");
-const rSchemaName = new RegExp(/sourceURL=([^\s]*)/);
-const basePath = path.join(__dirname, "..", "..", "..", "lib", "schema");
 
+const rSchemaName = new RegExp(/sourceURL=([^\s]*)/);
 
 const rRootDataUndefined = /\n(?:\s)*if \(rootData === undefined\) rootData = data;/g;
 const rEnsureErrorArray = /\n(?:\s)*if \(vErrors === null\) vErrors = \[err\];(?:\s)*else vErrors\.push\(err\);/g;
 const rDataPathOrEmptyString = /dataPath: \(dataPath \|\| ''\)/g;
 
-function insertIgnoreComments(code) {
-	code = code.replace(rRootDataUndefined, "\n/* istanbul ignore next */$&");
-	code = code.replace(rEnsureErrorArray, "\n/* istanbul ignore next */$&");
-	code = code.replace(rDataPathOrEmptyString, "dataPath: (dataPath || /* istanbul ignore next */ '')");
-	return code;
-}
-
 function hash(content) {
 	return crypto.createHash("sha1").update(content).digest("hex").substr(0, 16);
 }
 
-module.exports = function(Ajv, options) {
-	const instrumenter = createInstrumenter({});
-	const sources = {};
-	const processedSchemas = {};
+function randomCoverageVar() {
+	return "__ajv-coverage__" + hash((String(Date.now()) + Math.random()));
+}
 
-	function processCode(originalCode) {
-		if (ajv._schemas["http://json-schema.org/draft-07/schema"].compiling) {
-			// Don't instrument JSON Schema
-			return originalCode;
+class AjvCoverage {
+	constructor(ajv, options = {}) {
+		this.ajv = ajv;
+		this.ajv._opts.processCode = this._processCode.bind(this);
+		if (options.meta === true) {
+			this.ajv._metaOpts.processCode = this._processCode.bind(this);
 		}
-
-		const beautifiedCode = insertIgnoreComments(beautify(originalCode, {indent_size: 2}));
-
-		let fileName;
-		let schemaName;
-		const schemaNameMatch = rSchemaName.exec(beautifiedCode);
-		if (schemaNameMatch) {
-			schemaName = schemaNameMatch[1];
-			processedSchemas[schemaName] = true;
-		} else {
-			// Probably a definition of a schema that is compiled separately
-			// Try to find schema that is currently compiling
-			const schemas = Object.entries(ajv._schemas);
-			const compilingSchemas = schemas.filter(([, schema]) => {
-				return !processedSchemas[schemaName] && schema.compiling;
-			});
-			if (compilingSchemas.length > 0) {
-				schemaName = compilingSchemas[compilingSchemas.length - 1][0] + "-" + hash(originalCode);
-			}
-		}
-
-		if (schemaName) {
-			fileName = schemaName.replace("http://ui5.sap/schema/", "") + ".js";
-		} else {
-			fileName = hash(originalCode) + ".js";
-		}
-
-		fileName = path.join(basePath, fileName);
-
-		const instrumentedCode = instrumenter.instrumentSync(beautifiedCode, fileName);
-
-		sources[fileName] = beautifiedCode;
-
-		return instrumentedCode;
-	}
-
-	function createReport(globalCoverageVar) {
-		const coverageMap = libCoverage.createCoverageMap(globalCoverageVar);
-
-		const context = libReport.createContext({
-			dir: "coverage/ajv",
-			coverageMap,
-			sourceFinder: function(filePath) {
-				return sources[filePath];
-			}
+		this._processFileName = options.processFileName;
+		this._sources = {};
+		this._globalCoverageVar = options.globalCoverage === true ? "__coverage__" : randomCoverageVar();
+		this._instrumenter = createInstrumenter({
+			coverageVariable: this._globalCoverageVar
 		});
-
-		const report = reports.create("html", {});
-
-		report.execute(context);
 	}
-
-
-	function getSummary(globalCoverageVar) {
-		const coverageMap = libCoverage.createCoverageMap(globalCoverageVar);
+	getSummary() {
+		const coverageMap = this._createCoverageMap();
 		const summary = libCoverage.createCoverageSummary();
 
 		const files = coverageMap.files();
@@ -110,14 +56,13 @@ module.exports = function(Ajv, options) {
 			functions: summary.functions.pct
 		};
 	}
-
-	function verify(globalCoverageVar, thresholds) {
+	verify(thresholds) {
 		const thresholdEntries = Object.entries(thresholds);
 		if (thresholdEntries.length === 0) {
 			throw new Error("AjvCoverage#verify: No thresholds defined!");
 		}
 
-		const summary = getSummary(globalCoverageVar);
+		const summary = this.getSummary();
 		const errors = [];
 
 		thresholdEntries.forEach(function([threshold, expectedPct]) {
@@ -136,10 +81,61 @@ module.exports = function(Ajv, options) {
 			throw new Error(errorMessage);
 		}
 	}
+	createReport(name, contextOptions = {}, reportOptions = {}) {
+		const coverageMap = this._createCoverageMap();
+		const context = libReport.createContext(Object.assign({}, contextOptions, {
+			coverageMap,
+			sourceFinder: (filePath) => {
+				if (this._sources[filePath]) {
+					return this._sources[filePath];
+				}
+				const sourceFinder = contextOptions.sourceFinder;
+				if (typeof sourceFinder === "function") {
+					return sourceFinder(filePath);
+				}
+			}
+		}));
+		const report = reports.create(name, reportOptions);
+		report.execute(context);
+	}
+	_createCoverageMap() {
+		return libCoverage.createCoverageMap(global[this._globalCoverageVar]);
+	}
+	_processCode(originalCode) {
+		const code = AjvCoverage.insertIgnoreComments(beautify(originalCode, {indent_size: 2}));
 
-	const ajv = new Ajv(Object.assign({}, options, {
-		processCode
-	}));
+		let fileName;
+		const schemaNameMatch = rSchemaName.exec(code);
+		if (schemaNameMatch) {
+			fileName = schemaNameMatch[1];
+		} else {
+			// Probably a definition of a schema that is compiled separately
+			// Try to find the schema that is currently compiling
+			const schemas = Object.entries(this.ajv._schemas);
+			const compilingSchemas = schemas.filter(([, schema]) => schema.compiling);
+			if (compilingSchemas.length > 0) {
+				// Last schema is the current one
+				const lastSchemaEntry = compilingSchemas[compilingSchemas.length - 1];
+				fileName = lastSchemaEntry[0] + "-" + hash(originalCode);
+			} else {
+				fileName = hash(originalCode);
+			}
+		}
 
-	return {ajv, createReport, getSummary, verify};
-};
+		if (typeof this._processFileName === "function") {
+			fileName = this._processFileName.call(null, fileName);
+		}
+
+		const instrumentedCode = this._instrumenter.instrumentSync(code, fileName);
+		this._sources[fileName] = code;
+		return instrumentedCode;
+	}
+	static insertIgnoreComments(code) {
+		code = code.replace(rRootDataUndefined, "\n/* istanbul ignore next */$&");
+		code = code.replace(rEnsureErrorArray, "\n/* istanbul ignore next */$&");
+		code = code.replace(rDataPathOrEmptyString, "dataPath: (dataPath || /* istanbul ignore next */ '')");
+		return code;
+	}
+}
+
+module.exports = AjvCoverage;

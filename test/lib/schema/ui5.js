@@ -1,5 +1,4 @@
 const test = require("ava");
-const Ajv = require("ajv");
 const AjvCoverage = require("./AjvCoverage");
 const {_Validator: Validator} = require("../../../lib/schema/validate");
 
@@ -7,8 +6,11 @@ async function assertValidation(t, config, expectedErrors = undefined) {
 	let errors;
 	try {
 		await t.context.validator.validate({config});
-	} catch (validationError) {
-		errors = validationError.errors;
+	} catch (err) {
+		if (err.name !== "ValidationError") {
+			throw err; // Unexpected error
+		}
+		errors = err.errors || [];
 	}
 	if (expectedErrors) {
 		t.deepEqual(errors, expectedErrors);
@@ -18,32 +20,20 @@ async function assertValidation(t, config, expectedErrors = undefined) {
 	}
 }
 
-const coverage = true;
-
 test.before((t) => {
-	if (coverage) {
-		t.context.ajvCoverage = new AjvCoverage(Ajv, {
-			allErrors: true
-		});
-		t.context.validator = new Validator(t.context.ajvCoverage.ajv);
-	} else {
-		t.context.validator = new Validator(new Ajv({
-			allErrors: true
-		}));
-	}
+	t.context.validator = new Validator();
+	t.context.ajvCoverage = new AjvCoverage(t.context.validator.ajv);
 });
 
 test.after.always((t) => {
-	if (coverage) {
-		t.context.ajvCoverage.createReport(global.__coverage__);
-		const thresholds = {
-			statements: 59,
-			branches: 50,
-			functions: 100,
-			lines: 58
-		};
-		t.context.ajvCoverage.verify(global.__coverage__, thresholds);
-	}
+	t.context.ajvCoverage.createReport("html", {dir: "coverage/ajv"});
+	const thresholds = {
+		statements: 59,
+		branches: 50,
+		functions: 100,
+		lines: 58
+	};
+	t.context.ajvCoverage.verify(thresholds);
 });
 
 test("Undefined", async (t) => {
@@ -113,7 +103,7 @@ test("Missing type, metadata", async (t) => {
 });
 
 test("Invalid specVersion", async (t) => {
-	assertValidation(t, {
+	await assertValidation(t, {
 		"specVersion": "0.0"
 	}, [
 		{
@@ -239,19 +229,19 @@ test("Additional metadata property", async (t) => {
 });
 
 test("specVersion 0.1", async (t) => {
-	assertValidation(t, {
+	await assertValidation(t, {
 		"specVersion": "0.1"
 	});
 });
 
 test("specVersion 1.0", async (t) => {
-	assertValidation(t, {
+	await assertValidation(t, {
 		"specVersion": "1.0"
 	});
 });
 
 test("specVersion 1.1", async (t) => {
-	assertValidation(t, {
+	await assertValidation(t, {
 		"specVersion": "1.1"
 	});
 });
