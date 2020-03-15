@@ -27,21 +27,11 @@
 	"else": {
 		"if": {
 			"properties": {
-				"specVersion": { "const": "1.1" }
+				"specVersion": { "enum": ["1.1", "1.0", "0.1"] }
 			}
 		},
 		"then": {
 			"additionalProperties": true
-		},
-		"else": {
-			"if": {
-				"properties": {
-					"specVersion": { "enum": ["1.0", "0.1"] }
-				}
-			},
-			"then": {
-				"additionalProperties": true
-			}
 		}
 	},
 

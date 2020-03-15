@@ -61,6 +61,74 @@
 	},
 
 	"definitions": {
+		"resources-configuration-propertiesFileSourceEncoding": {
+			"enum": ["UTF-8", "ISO-8859-1"],
+			"default": "ISO-8859-1",
+			"title": "Encoding of *.properties files",
+			"description": "By default, the UI5 Tooling expects *.properties files to be ISO-8859-1 encoded."
+		},
+		"server": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"settings": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"httpPort": {
+							"type": "number"
+						},
+						"httpsPort": {
+							"type": "number"
+						}
+					}
+				},
+				"customMiddleware": {
+					"__comment": "TODO: not documented in general configuration page",
+					"type": "array",
+					"items": {
+						"oneOf": [
+							{
+								"type": "object",
+								"additionalProperties": false,
+								"required": ["name", "beforeMiddleware"],
+								"properties": {
+									"name": {
+										"type": "string"
+									},
+									"mountPath": {
+										"type": "string"
+									},
+									"beforeMiddleware": {
+										"type": "string",
+										"__comment": "TODO: enum?"
+									},
+									"configuration": {}
+								}
+							},
+							{
+								"type": "object",
+								"additionalProperties": false,
+								"required": ["name", "afterMiddleware"],
+								"properties": {
+									"name": {
+										"type": "string"
+									},
+									"mountPath": {
+										"type": "string"
+									},
+									"afterMiddleware": {
+										"type": "string",
+										"__comment": "TODO: enum?"
+									},
+									"configuration": {}
+								}
+							}
+						]
+					}
+				}
+			}
+		},
 		"framework": {
 			"type": "object",
 			"additionalProperties": false,

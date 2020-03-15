@@ -7,7 +7,7 @@ const libReport = require("istanbul-lib-report");
 const reports = require("istanbul-reports");
 const libCoverage = require("istanbul-lib-coverage");
 const {createInstrumenter} = require("istanbul-lib-instrument");
-const rFileName = new RegExp(/sourceURL=http:\/\/ui5\.sap\/schema\/([^\s]*)/);
+const rSchemaName = new RegExp(/sourceURL=([^\s]*)/);
 const basePath = path.join(__dirname, "..", "..", "..", "lib", "schema");
 
 
@@ -22,12 +22,17 @@ function insertIgnoreComments(code) {
 	return code;
 }
 
+function hash(content) {
+	return crypto.createHash("sha1").update(content).digest("hex").substr(0, 16);
+}
+
 module.exports = function(Ajv, options) {
 	const instrumenter = createInstrumenter({});
 	const sources = {};
+	const processedSchemas = {};
 
 	function processCode(originalCode) {
-		if (originalCode.includes("sourceURL=http://json-schema.org/draft-07/schema#")) {
+		if (ajv._schemas["http://json-schema.org/draft-07/schema"].compiling) {
 			// Don't instrument JSON Schema
 			return originalCode;
 		}
@@ -35,11 +40,27 @@ module.exports = function(Ajv, options) {
 		const beautifiedCode = insertIgnoreComments(beautify(originalCode, {indent_size: 2}));
 
 		let fileName;
-		const fileNameMatch = rFileName.exec(beautifiedCode);
-		if (fileNameMatch) {
-			fileName = fileNameMatch[1].replace(/\.json$/, ".js");
+		let schemaName;
+		const schemaNameMatch = rSchemaName.exec(beautifiedCode);
+		if (schemaNameMatch) {
+			schemaName = schemaNameMatch[1];
+			processedSchemas[schemaName] = true;
 		} else {
-			fileName = crypto.createHash("sha1").update(originalCode).digest("hex").substr(0, 16) + ".js";
+			// Probably a definition of a schema that is compiled separately
+			// Try to find schema that is currently compiling
+			const schemas = Object.entries(ajv._schemas);
+			const compilingSchemas = schemas.filter(([, schema]) => {
+				return !processedSchemas[schemaName] && schema.compiling;
+			});
+			if (compilingSchemas.length > 0) {
+				schemaName = compilingSchemas[compilingSchemas.length - 1][0] + "-" + hash(originalCode);
+			}
+		}
+
+		if (schemaName) {
+			fileName = schemaName.replace("http://ui5.sap/schema/", "") + ".js";
+		} else {
+			fileName = hash(originalCode) + ".js";
 		}
 
 		fileName = path.join(basePath, fileName);
@@ -68,7 +89,7 @@ module.exports = function(Ajv, options) {
 	}
 
 
-	function getSummary(globalCoverageVar, thresholds) {
+	function getSummary(globalCoverageVar) {
 		const coverageMap = libCoverage.createCoverageMap(globalCoverageVar);
 		const summary = libCoverage.createCoverageSummary();
 

@@ -23,8 +23,7 @@ const coverage = true;
 test.before((t) => {
 	if (coverage) {
 		t.context.ajvCoverage = new AjvCoverage(Ajv, {
-			allErrors: true,
-			sourceCode: true
+			allErrors: true
 		});
 		t.context.validator = new Validator(t.context.ajvCoverage.ajv);
 	} else {
@@ -38,10 +37,10 @@ test.after.always((t) => {
 	if (coverage) {
 		t.context.ajvCoverage.createReport(global.__coverage__);
 		const thresholds = {
-			branches: 44,
-			lines: 52,
-			statements: 53,
-			functions: 92
+			statements: 59,
+			branches: 50,
+			functions: 100,
+			lines: 58
 		};
 		t.context.ajvCoverage.verify(global.__coverage__, thresholds);
 	}
@@ -499,6 +498,14 @@ test("type: theme-library", async (t) => {
 		"type": "theme-library",
 		"metadata": {
 			"name": "my-theme-library"
+		},
+		"resources": {
+			"configuration": {
+				"paths": {
+					"src": "src/main/uilib",
+					"test": "src/test/uilib"
+				}
+			}
 		}
 	});
 	await assertValidation(t, {
@@ -543,6 +550,17 @@ test("type: module", async (t) => {
 	}]);
 });
 
+test("kind: project / type: application", async (t) => {
+	await assertValidation(t, {
+		"specVersion": "2.0",
+		"kind": "project",
+		"type": "application",
+		"metadata": {
+			"name": "my-application"
+		}
+	});
+});
+
 test("kind: extension / type: task", async (t) => {
 	await assertValidation(t, {
 		"specVersion": "2.0",
@@ -555,6 +573,25 @@ test("kind: extension / type: task", async (t) => {
 			"path": "/foo"
 		}
 	});
+	await assertValidation(t, {
+		"specVersion": "2.0",
+		"kind": "extension",
+		"type": "task",
+		"metadata": {
+			"name": "my-task"
+		},
+		"task": {
+			"path": "/foo"
+		},
+		"resources": {}
+	}, [{
+		dataPath: "",
+		keyword: "additionalProperties",
+		message: "should NOT have additional properties",
+		params: {
+			"additionalProperty": "resources"
+		}
+	}]);
 });
 
 test("kind: extension / type: server-middleware", async (t) => {
@@ -569,6 +606,27 @@ test("kind: extension / type: server-middleware", async (t) => {
 			"path": "/foo"
 		}
 	});
+	await assertValidation(t, {
+		"specVersion": "2.0",
+		"kind": "extension",
+		"type": "server-middleware",
+		"metadata": {
+			"name": "my-server-middleware"
+		},
+		"middleware": {
+			"path": "/foo"
+		},
+		"task": {
+			"path": "/bar"
+		}
+	}, [{
+		dataPath: "",
+		keyword: "additionalProperties",
+		message: "should NOT have additional properties",
+		params: {
+			"additionalProperty": "task"
+		}
+	}]);
 });
 
 test("kind: extension / type: project-shim", async (t) => {
@@ -579,8 +637,119 @@ test("kind: extension / type: project-shim", async (t) => {
 		"metadata": {
 			"name": "my-project-shim"
 		},
-		"shims": {}
+		"shims": {
+			"configurations": {
+				"my-dependency": {
+					"specVersion": "2.0",
+					"type": "application",
+					"metadata": {
+						"name": "my-application"
+					}
+				},
+				"my-other-dependency": {
+					"specVersion": "3.0",
+					"type": "does-not-exist",
+					"metadata": {
+						"name": "my-application"
+					}
+				}
+			},
+			"dependencies": {
+				"my-dependency": [
+					"my-other-dependency"
+				],
+				"my-other-dependency": [
+					"some-lib",
+					"some-other-lib"
+				]
+			},
+			"collections": {
+				"my-dependency": {
+					"modules": {
+						"lib-1": "src/lib1",
+						"lib-2": "src/lib2"
+					}
+				}
+			}
+		}
 	});
+	await assertValidation(t, {
+		"specVersion": "2.0",
+		"kind": "extension",
+		"type": "project-shim",
+		"metadata": {
+			"name": "my-project-shim"
+		},
+		"shims": {
+			"configurations": {
+				"invalid": {
+					"specVersion": "3.0",
+					"type": "does-not-exist",
+					"metadata": {
+						"name": "my-application"
+					}
+				}
+			},
+			"dependencies": {
+				"my-dependency": {
+					"foo": "bar"
+				}
+			},
+			"collections": {
+				"foo": {
+					"modules": {
+						"lib-1": {
+							"path": "src/lib1"
+						}
+					},
+					"notAllowed": true
+				}
+			},
+			"notAllowed": true
+		},
+		"middleware": {}
+	}, [
+		{
+			dataPath: "",
+			keyword: "additionalProperties",
+			message: "should NOT have additional properties",
+			params: {
+				"additionalProperty": "middleware"
+			}
+		},
+		{
+			dataPath: ".shims",
+			keyword: "additionalProperties",
+			message: "should NOT have additional properties",
+			params: {
+				additionalProperty: "notAllowed",
+			},
+		},
+		{
+			dataPath: ".shims.dependencies['my-dependency']",
+			keyword: "type",
+			message: "should be array",
+			params: {
+				type: "array",
+			},
+		},
+		{
+			dataPath: ".shims.collections['foo']",
+			keyword: "additionalProperties",
+			message: "should NOT have additional properties",
+			params: {
+				additionalProperty: "notAllowed",
+			},
+		},
+		{
+			dataPath: ".shims.collections['foo'].modules['lib-1']",
+			keyword: "type",
+			message: "should be string",
+			params: {
+				type: "string",
+			},
+		}
+	]);
 });
 
 test("framework configuration: OpenUI5", async (t) => {
