@@ -60,6 +60,147 @@ test.serial("ValidationError constructor", (t) => {
 		"ValidationError.formatMessage should be called with errors, project and yaml");
 });
 
+test.serial("ValidationError.filterErrors", (t) => {
+	const allErrors = [
+		{
+			keyword: "if"
+		},
+		{
+			dataPath: "dataPath1",
+			keyword: "keyword1"
+		},
+		{
+			dataPath: "dataPath1",
+			keyword: "keyword2"
+		},
+		{
+			dataPath: "dataPath3",
+			keyword: "keyword2"
+		},
+		{
+			dataPath: "dataPath1",
+			keyword: "keyword1"
+		},
+		{
+			dataPath: "dataPath1",
+			keyword: "keyword1",
+			params: {
+				type: "foo"
+			}
+		},
+		{
+			dataPath: "dataPath4",
+			keyword: "keyword5",
+			params: {
+				type: "foo"
+			}
+		},
+		{
+			dataPath: "dataPath6",
+			keyword: "keyword6",
+			params: {
+				errors: [
+					{
+						"type": "foo"
+					},
+					{
+						"type": "bar"
+					}
+				]
+			}
+		},
+		{
+			dataPath: "dataPath6",
+			keyword: "keyword6",
+			params: {
+				errors: [
+					{
+						"type": "foo"
+					},
+					{
+						"type": "bar"
+					}
+				]
+			}
+		},
+		{
+			dataPath: "dataPath6",
+			keyword: "keyword6",
+			params: {
+				errors: [
+					{
+						"type": "foo"
+					},
+					{
+						"type": "foo"
+					}
+				]
+			}
+		}
+	];
+
+	const expectedErrors = [
+		{
+			dataPath: "dataPath1",
+			keyword: "keyword1"
+		},
+		{
+			dataPath: "dataPath1",
+			keyword: "keyword2"
+		},
+		{
+			dataPath: "dataPath3",
+			keyword: "keyword2"
+		},
+		{
+			dataPath: "dataPath1",
+			keyword: "keyword1",
+			params: {
+				type: "foo"
+			}
+		},
+		{
+			dataPath: "dataPath4",
+			keyword: "keyword5",
+			params: {
+				type: "foo"
+			}
+		},
+		{
+			dataPath: "dataPath6",
+			keyword: "keyword6",
+			params: {
+				errors: [
+					{
+						"type": "foo"
+					},
+					{
+						"type": "bar"
+					}
+				]
+			}
+		},
+		{
+			dataPath: "dataPath6",
+			keyword: "keyword6",
+			params: {
+				errors: [
+					{
+						"type": "foo"
+					},
+					{
+						"type": "foo"
+					}
+				]
+			}
+		}
+	];
+
+	const filteredErrors = ValidationError.filterErrors(allErrors);
+
+	t.deepEqual(filteredErrors, expectedErrors, "filterErrors should return expected errors");
+});
+
 test.serial("ValidationError.formatMessage", (t) => {
 	const options = {
 		errors: [{
