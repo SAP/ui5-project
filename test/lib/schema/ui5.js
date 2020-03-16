@@ -1,22 +1,17 @@
 const test = require("ava");
-const AjvCoverage = require("./AjvCoverage");
-const {_Validator: Validator} = require("../../../lib/schema/validate");
+const AjvCoverage = require("../../utils/AjvCoverage");
+const {_Validator: Validator, ValidationError} = require("../../../lib/schema/validate");
 
 async function assertValidation(t, config, expectedErrors = undefined) {
-	let errors;
-	try {
-		await t.context.validator.validate({config});
-	} catch (err) {
-		if (err.name !== "ValidationError") {
-			throw err; // Unexpected error
-		}
-		errors = err.errors || [];
-	}
+	const validation = t.context.validator.validate({config, project: {id: "my-project"}});
 	if (expectedErrors) {
-		t.deepEqual(errors, expectedErrors);
+		const validationError = await t.throwsAsync(validation, {
+			instanceOf: ValidationError,
+			name: "ValidationError"
+		});
+		t.deepEqual(validationError.errors, expectedErrors);
 	} else {
-		// Use JSON string for better logging in case of errors
-		t.is(JSON.stringify(errors, null, 2), undefined);
+		await t.notThrowsAsync(validation);
 	}
 }
 
@@ -31,22 +26,20 @@ test.after.always((t) => {
 		statements: 59,
 		branches: 50,
 		functions: 100,
-		lines: 58
+		lines: 59
 	};
 	t.context.ajvCoverage.verify(thresholds);
 });
 
 test("Undefined", async (t) => {
-	await assertValidation(t, undefined, [
-		{
-			dataPath: "",
-			keyword: "type",
-			message: "should be object",
-			params: {
-				type: "object",
-			}
+	await assertValidation(t, undefined, [{
+		dataPath: "",
+		keyword: "type",
+		message: "should be object",
+		params: {
+			type: "object",
 		}
-	]);
+	}]);
 });
 
 test("Missing specVersion, type, metadata", async (t) => {
@@ -107,15 +100,29 @@ test("Invalid specVersion", async (t) => {
 		"specVersion": "0.0"
 	}, [
 		{
-			dataPath: ".specVersion",
-			keyword: "enum",
-			message: "should be equal to one of the allowed values",
+			dataPath: "/specVersion",
+			keyword: "errorMessage",
+			message:
+`Unsupported "specVersion":
+Your UI5 CLI installation might be outdated.
+Supported specification versions: "2.0", "1.1", "1.0", "0.1"
+For details see: https://sap.github.io/ui5-tooling/pages/Configuration/#specification-versions`,
 			params: {
-				allowedValues: [
-					"2.0",
-					"1.1",
-					"1.0",
-					"0.1",
+				errors: [
+					{
+						dataPath: "/specVersion",
+						keyword: "enum",
+						message: "should be equal to one of the allowed values",
+						params: {
+							allowedValues: [
+								"2.0",
+								"1.1",
+								"1.0",
+								"0.1",
+							],
+						},
+						schemaPath: "#/properties/specVersion/enum",
+					},
 				],
 			}
 		}
@@ -131,7 +138,7 @@ test("Invalid type", async (t) => {
 		}
 	}, [
 		{
-			dataPath: ".type",
+			dataPath: "/type",
 			keyword: "enum",
 			message: "should be equal to one of the allowed values",
 			params: {
@@ -155,7 +162,7 @@ test("Invalid kind", async (t) => {
 		}
 	}, [
 		{
-			dataPath: ".kind",
+			dataPath: "/kind",
 			keyword: "enum",
 			message: "should be equal to one of the allowed values",
 			params: {
@@ -178,7 +185,7 @@ test("Invalid metadata.name", async (t) => {
 		}
 	}, [
 		{
-			dataPath: ".metadata.name",
+			dataPath: "/metadata/name",
 			keyword: "type",
 			message: "should be string",
 			params: {
@@ -198,7 +205,7 @@ test("Invalid metadata.copyright", async (t) => {
 		}
 	}, [
 		{
-			dataPath: ".metadata.copyright",
+			dataPath: "/metadata/copyright",
 			keyword: "type",
 			message: "should be string",
 			params: {
@@ -218,7 +225,7 @@ test("Additional metadata property", async (t) => {
 		}
 	}, [
 		{
-			dataPath: ".metadata",
+			dataPath: "/metadata",
 			keyword: "additionalProperties",
 			message: "should NOT have additional properties",
 			params: {
@@ -332,7 +339,7 @@ test("type: application (invalid resources configuration)", async (t) => {
 		}
 	}, [
 		{
-			dataPath: ".resources",
+			dataPath: "/resources",
 			keyword: "additionalProperties",
 			message: "should NOT have additional properties",
 			params: {
@@ -340,7 +347,7 @@ test("type: application (invalid resources configuration)", async (t) => {
 			}
 		},
 		{
-			dataPath: ".resources.configuration",
+			dataPath: "/resources/configuration",
 			keyword: "additionalProperties",
 			message: "should NOT have additional properties",
 			params: {
@@ -348,7 +355,7 @@ test("type: application (invalid resources configuration)", async (t) => {
 			}
 		},
 		{
-			dataPath: ".resources.configuration.propertiesFileSourceEncoding",
+			dataPath: "/resources/configuration/propertiesFileSourceEncoding",
 			keyword: "enum",
 			message: "should be equal to one of the allowed values",
 			params: {
@@ -359,7 +366,7 @@ test("type: application (invalid resources configuration)", async (t) => {
 			}
 		},
 		{
-			dataPath: ".resources.configuration.paths",
+			dataPath: "/resources/configuration/paths",
 			keyword: "additionalProperties",
 			message: "should NOT have additional properties",
 			params: {
@@ -367,7 +374,7 @@ test("type: application (invalid resources configuration)", async (t) => {
 			}
 		},
 		{
-			dataPath: ".resources.configuration.paths.webapp",
+			dataPath: "/resources/configuration/paths/webapp",
 			keyword: "type",
 			message: "should be string",
 			params: {
@@ -388,7 +395,7 @@ test("type: application (invalid resources configuration)", async (t) => {
 		}
 	}, [
 		{
-			dataPath: ".resources.configuration.paths",
+			dataPath: "/resources/configuration/paths",
 			keyword: "type",
 			message: "should be object",
 			params: {
@@ -708,7 +715,7 @@ test("kind: extension / type: project-shim", async (t) => {
 			}
 		},
 		{
-			dataPath: ".shims",
+			dataPath: "/shims",
 			keyword: "additionalProperties",
 			message: "should NOT have additional properties",
 			params: {
@@ -716,7 +723,7 @@ test("kind: extension / type: project-shim", async (t) => {
 			},
 		},
 		{
-			dataPath: ".shims.dependencies['my-dependency']",
+			dataPath: "/shims/dependencies/my-dependency",
 			keyword: "type",
 			message: "should be array",
 			params: {
@@ -724,7 +731,7 @@ test("kind: extension / type: project-shim", async (t) => {
 			},
 		},
 		{
-			dataPath: ".shims.collections['foo']",
+			dataPath: "/shims/collections/foo",
 			keyword: "additionalProperties",
 			message: "should NOT have additional properties",
 			params: {
@@ -732,7 +739,7 @@ test("kind: extension / type: project-shim", async (t) => {
 			},
 		},
 		{
-			dataPath: ".shims.collections['foo'].modules['lib-1']",
+			dataPath: "/shims/collections/foo/modules/lib-1",
 			keyword: "type",
 			message: "should be string",
 			params: {
@@ -801,7 +808,7 @@ test("framework configuration: Invalid", async (t) => {
 		}
 	}, [
 		{
-			dataPath: ".framework.name",
+			dataPath: "/framework/name",
 			keyword: "enum",
 			message: "should be equal to one of the allowed values",
 			params: {
@@ -812,7 +819,7 @@ test("framework configuration: Invalid", async (t) => {
 			},
 		},
 		{
-			dataPath: ".framework.version",
+			dataPath: "/framework/version",
 			keyword: "pattern",
 			message: "should match pattern \"^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$\"",
 			params: {
@@ -820,7 +827,7 @@ test("framework configuration: Invalid", async (t) => {
 			},
 		},
 		{
-			dataPath: ".framework.libraries[0]",
+			dataPath: "/framework/libraries/0",
 			keyword: "type",
 			message: "should be object",
 			params: {
@@ -828,7 +835,7 @@ test("framework configuration: Invalid", async (t) => {
 			}
 		},
 		{
-			dataPath: ".framework.libraries[1]",
+			dataPath: "/framework/libraries/1",
 			keyword: "additionalProperties",
 			message: "should NOT have additional properties",
 			params: {
@@ -836,7 +843,7 @@ test("framework configuration: Invalid", async (t) => {
 			}
 		},
 		{
-			dataPath: ".framework.libraries[1]",
+			dataPath: "/framework/libraries/1",
 			keyword: "required",
 			message: "should have required property 'name'",
 			params: {
@@ -844,7 +851,7 @@ test("framework configuration: Invalid", async (t) => {
 			}
 		},
 		{
-			dataPath: ".framework.libraries[2].optional",
+			dataPath: "/framework/libraries/2/optional",
 			keyword: "type",
 			message: "should be boolean",
 			params: {
@@ -852,7 +859,7 @@ test("framework configuration: Invalid", async (t) => {
 			},
 		},
 		{
-			dataPath: ".framework.libraries[3].development",
+			dataPath: "/framework/libraries/3/development",
 			keyword: "type",
 			message: "should be boolean",
 			params: {
