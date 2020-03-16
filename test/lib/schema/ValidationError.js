@@ -204,11 +204,11 @@ This is just an example for an error message with multiple lines.`
 		yaml: {
 			path: "/my-project/ui5.yaml",
 			source: dumpYaml({
-				property1: "property1",
-				property2: "property2",
-				property3: "property3",
-				property4: "property4",
-				property5: "property5",
+				property1: "value1",
+				property2: "value2",
+				property3: "value3",
+				property4: "value4",
+				property5: "value5",
 			}),
 			documentIndex: 0
 		}
@@ -218,15 +218,15 @@ This is just an example for an error message with multiple lines.`
 	getYamlExtractStub.onFirstCall().returns(
 		`/my-project/ui5.yaml:3
 
-2: property2: property2
-3: property3: property3
+2: property2: value2
+3: property3: value3
               ^
 `
 	).onSecondCall().returns(
 		`/my-project/ui5.yaml:5
 
-4: property4: property4
-5: property5: property5
+4: property4: value4
+5: property5: value5
               ^
 `
 	);
@@ -240,8 +240,8 @@ Error message for property3
 
 /my-project/ui5.yaml:3
 
-2: property2: property2
-3: property3: property3
+2: property2: value2
+3: property3: value3
               ^
 
 This is just an example for an error message with multiple lines.
@@ -250,8 +250,8 @@ Error message for property5
 
 /my-project/ui5.yaml:5
 
-4: property4: property4
-5: property5: property5
+4: property4: value4
+5: property5: value5
               ^
 
 This is just an example for an error message with multiple lines.`;
@@ -270,24 +270,89 @@ test.serial("ValidationError.getYamlExtract", (t) => {
 	const yaml = {
 		path: "/my-project/ui5.yaml",
 		source: dumpYaml({
-			property1: "property1",
-			property2: "property2",
-			property3: "property3",
-			property4: "property4",
-			property5: "property5",
+			property1: "value1",
+			property2: "value2",
+			property3: "value3",
+			property4: "value4",
+			property5: "value5",
 		}),
 		documentIndex: 0
 	};
 
+	const analyzeYamlErrorStub = sinon.stub(ValidationError, "analyzeYamlError");
+	analyzeYamlErrorStub.returns({line: 3, column: 12});
+
 	const expectedYamlExtract =
 		chalk.grey("/my-project/ui5.yaml:3") +
 		"\n\n" +
-		chalk.grey("1:") + " property1: property1\n" +
-		chalk.grey("2:") + " property2: property2\n" +
-		chalk.bgRed(chalk.grey("3:") + " property3: property3\n") +
+		chalk.grey("1:") + " property1: value1\n" +
+		chalk.grey("2:") + " property2: value2\n" +
+		chalk.bgRed(chalk.grey("3:") + " property3: value3\n") +
 		" ".repeat(14) + chalk.red("^");
 
 	const yamlExtract = ValidationError.getYamlExtract({error, yaml});
 
 	t.is(yamlExtract, expectedYamlExtract);
+});
+
+test.serial("ValidationError.analyzeYamlError: dataPath /property3", (t) => {
+	const error = {dataPath: "/property3"};
+	const yaml = {
+		path: "/my-project/ui5.yaml",
+		source: dumpYaml({
+			property1: "value1",
+			property2: "value2",
+			property3: "value3",
+			property4: "value4",
+			property5: "value5",
+		}),
+		documentIndex: 0
+	};
+
+	const info = ValidationError.analyzeYamlError({error, yaml});
+
+	t.deepEqual(info, {line: 3, column: 1},
+		"analyzeYamlError should return expected results");
+});
+
+test.serial("ValidationError.analyzeYamlError: dataPath /property2/property3", (t) => {
+	const error = {dataPath: "/property2/property3"};
+	const yaml = {
+		path: "/my-project/ui5.yaml",
+		source: dumpYaml({
+			property1: "value1",
+			property2: {
+				property3: "value3",
+			},
+			property3: "value3",
+		}),
+		documentIndex: 0
+	};
+
+	const info = ValidationError.analyzeYamlError({error, yaml});
+
+	t.deepEqual(info, {line: 3, column: 3},
+		"analyzeYamlError should return expected results");
+});
+
+test.serial("ValidationError.analyzeYamlError: dataPath /property/list/1/name", (t) => {
+	const error = {dataPath: "/property/list/1/name"};
+	const yaml = {
+		path: "/my-project/ui5.yaml",
+		source: dumpYaml({
+			property: {
+				list: [
+					{name: "name1"},
+					{name: "name2"},
+					{name: "name3"}
+				]
+			},
+		}),
+		documentIndex: 0
+	};
+
+	const info = ValidationError.analyzeYamlError({error, yaml});
+
+	t.deepEqual(info, {line: 3, column: 3},
+		"analyzeYamlError should return expected results");
 });
