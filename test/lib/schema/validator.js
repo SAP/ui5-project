@@ -1,8 +1,8 @@
 const test = require("ava");
 const sinon = require("sinon");
 const {safeDump: dumpYaml} = require("js-yaml");
-const validate = require("../../../lib/schema/validate");
-const {_Validator: Validator, ValidationError} = validate;
+const chalk = require("chalk");
+const {validate, _Validator: Validator, ValidationError} = require("../../../lib/schema/validator");
 
 test.afterEach.always((t) => {
 	sinon.restore();
@@ -277,4 +277,31 @@ This is just an example for an error message with multiple lines.`;
 		"ValidationError.getYamlExtract should be called with error and yaml");
 	t.deepEqual(getYamlExtractStub.getCall(1).args, [{error: options.errors[1], yaml: options.yaml}],
 		"ValidationError.getYamlExtract should be called with error and yaml");
+});
+
+test.serial("ValidationError.getYamlExtract", (t) => {
+	const error = {};
+	const yaml = {
+		path: "/my-project/ui5.yaml",
+		source: dumpYaml({
+			property1: "property1",
+			property2: "property2",
+			property3: "property3",
+			property4: "property4",
+			property5: "property5",
+		}),
+		documentIndex: 0
+	};
+
+	const expectedYamlExtract =
+		chalk.grey("/my-project/ui5.yaml:3") +
+		"\n\n" +
+		chalk.grey("1:") + " property1: property1\n" +
+		chalk.grey("2:") + " property2: property2\n" +
+		chalk.bgRed(chalk.grey("3:") + " property3: property3\n") +
+		" ".repeat(14) + chalk.red("^");
+
+	const yamlExtract = ValidationError.getYamlExtract({error, yaml});
+
+	t.is(yamlExtract, expectedYamlExtract);
 });

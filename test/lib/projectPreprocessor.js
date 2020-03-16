@@ -3,7 +3,8 @@ const sinon = require("sinon");
 const mock = require("mock-require");
 const path = require("path");
 const gracefulFs = require("graceful-fs");
-const {ValidationError} = require("../../lib/schema/validate");
+const validator = require("../../lib/schema/validator");
+const {ValidationError} = validator;
 const projectPreprocessor = require("../../lib/projectPreprocessor");
 const applicationAPath = path.join(__dirname, "..", "fixtures", "application.a");
 const applicationBPath = path.join(__dirname, "..", "fixtures", "application.b");
@@ -2046,9 +2047,7 @@ metadata:
   name: application.a
 `;
 
-	const validate = require("../../lib/schema/validate");
-	const validateSpy = sinon.spy(validate);
-	mock("../../lib/schema/validate", validateSpy);
+	const validateSpy = sinon.spy(validator, "validate");
 
 	sinon.stub(gracefulFs, "readFile")
 		.callsFake((path) => {
@@ -2096,9 +2095,7 @@ metadata:
   name: application.a
 `;
 
-	const validate = require("../../lib/schema/validate");
-	const validateSpy = sinon.spy(validate);
-	mock("../../lib/schema/validate", validateSpy);
+	const validateSpy = sinon.spy(validator, "validate");
 
 	sinon.stub(gracefulFs, "readFile")
 		.callsFake((path) => {
@@ -2152,9 +2149,7 @@ test.serial("loadProjectConfiguration: Runs validation if specVersion already ex
 		dependencies: []
 	};
 
-	const validate = require("../../lib/schema/validate");
-	const validateSpy = sinon.spy(validate);
-	mock("../../lib/schema/validate", validateSpy);
+	const validateSpy = sinon.spy(validator, "validate");
 
 	// Re-require tested module
 	const projectPreprocessor = mock.reRequire("../../lib/projectPreprocessor");
