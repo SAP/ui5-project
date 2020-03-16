@@ -1,6 +1,7 @@
 const test = require("ava");
 const AjvCoverage = require("../../utils/AjvCoverage");
-const {_Validator: Validator, ValidationError} = require("../../../lib/schema/validator");
+const {_Validator: Validator} = require("../../../lib/schema/validator");
+const ValidationError = require("../../../lib/schema/ValidationError");
 
 async function assertValidation(t, config, expectedErrors = undefined) {
 	const validation = t.context.validator.validate({config, project: {id: "my-project"}});
