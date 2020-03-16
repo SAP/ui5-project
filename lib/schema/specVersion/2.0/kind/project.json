@@ -1,6 +1,8 @@
 {
+	"$schema": "http://json-schema.org/draft-07/schema",
 	"$id": "http://ui5.sap/schema/specVersion/2.0/kind/project.json",
 
+	"type": "object",
 	"required": ["specVersion", "type", "metadata"],
 	"properties": {
 		"specVersion": { "enum": ["2.0"] },
@@ -59,6 +61,74 @@
 	},
 
 	"definitions": {
+		"resources-configuration-propertiesFileSourceEncoding": {
+			"enum": ["UTF-8", "ISO-8859-1"],
+			"default": "ISO-8859-1",
+			"title": "Encoding of *.properties files",
+			"description": "By default, the UI5 Tooling expects *.properties files to be ISO-8859-1 encoded."
+		},
+		"server": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"settings": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"httpPort": {
+							"type": "number"
+						},
+						"httpsPort": {
+							"type": "number"
+						}
+					}
+				},
+				"customMiddleware": {
+					"__comment": "TODO: not documented in general configuration page",
+					"type": "array",
+					"items": {
+						"oneOf": [
+							{
+								"type": "object",
+								"additionalProperties": false,
+								"required": ["name", "beforeMiddleware"],
+								"properties": {
+									"name": {
+										"type": "string"
+									},
+									"mountPath": {
+										"type": "string"
+									},
+									"beforeMiddleware": {
+										"type": "string",
+										"__comment": "TODO: enum?"
+									},
+									"configuration": {}
+								}
+							},
+							{
+								"type": "object",
+								"additionalProperties": false,
+								"required": ["name", "afterMiddleware"],
+								"properties": {
+									"name": {
+										"type": "string"
+									},
+									"mountPath": {
+										"type": "string"
+									},
+									"afterMiddleware": {
+										"type": "string",
+										"__comment": "TODO: enum?"
+									},
+									"configuration": {}
+								}
+							}
+						]
+					}
+				}
+			}
+		},
 		"framework": {
 			"type": "object",
 			"additionalProperties": false,
@@ -69,7 +139,9 @@
 				},
 				"version": {
 					"type": "string",
-					"pattern": "^(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)$"
+					"pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+					"title": "Version",
+					"description": "Framework version to use in this project. For example \"1.76.0\""
 				},
 				"libraries": {
 					"type": "array",

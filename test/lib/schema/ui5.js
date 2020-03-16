@@ -1,14 +1,16 @@
 const test = require("ava");
-const Ajv = require("ajv");
-const ajvCoverage = require("./_ajvCoverage");
+const AjvCoverage = require("./AjvCoverage");
 const {_Validator: Validator} = require("../../../lib/schema/validate");
 
 async function assertValidation(t, config, expectedErrors = undefined) {
 	let errors;
 	try {
-		await validator.validate({config});
-	} catch (validationError) {
-		errors = validationError.errors;
+		await t.context.validator.validate({config});
+	} catch (err) {
+		if (err.name !== "ValidationError") {
+			throw err; // Unexpected error
+		}
+		errors = err.errors || [];
 	}
 	if (expectedErrors) {
 		t.deepEqual(errors, expectedErrors);
@@ -18,29 +20,33 @@ async function assertValidation(t, config, expectedErrors = undefined) {
 	}
 }
 
-const coverage = false;
-
-let validator;
-let createReport;
-
-test.before(() => {
-	if (coverage) {
-		const {ajv, createReport: _createReport} = ajvCoverage(Ajv, {
-			allErrors: true
-		});
-		createReport = _createReport;
-		validator = new Validator(ajv);
-	} else {
-		validator = new Validator(new Ajv({
-			allErrors: true
-		}));
-	}
+test.before((t) => {
+	t.context.validator = new Validator();
+	t.context.ajvCoverage = new AjvCoverage(t.context.validator.ajv);
 });
 
-test.after.always(() => {
-	if (createReport) {
-		createReport(global.__coverage__);
-	}
+test.after.always((t) => {
+	t.context.ajvCoverage.createReport("html", {dir: "coverage/ajv"});
+	const thresholds = {
+		statements: 59,
+		branches: 50,
+		functions: 100,
+		lines: 58
+	};
+	t.context.ajvCoverage.verify(thresholds);
+});
+
+test("Undefined", async (t) => {
+	await assertValidation(t, undefined, [
+		{
+			dataPath: "",
+			keyword: "type",
+			message: "should be object",
+			params: {
+				type: "object",
+			}
+		}
+	]);
 });
 
 test("Missing specVersion, type, metadata", async (t) => {
@@ -97,7 +103,7 @@ test("Missing type, metadata", async (t) => {
 });
 
 test("Invalid specVersion", async (t) => {
-	assertValidation(t, {
+	await assertValidation(t, {
 		"specVersion": "0.0"
 	}, [
 		{
@@ -220,6 +226,24 @@ test("Additional metadata property", async (t) => {
 			}
 		}
 	]);
+});
+
+test("specVersion 0.1", async (t) => {
+	await assertValidation(t, {
+		"specVersion": "0.1"
+	});
+});
+
+test("specVersion 1.0", async (t) => {
+	await assertValidation(t, {
+		"specVersion": "1.0"
+	});
+});
+
+test("specVersion 1.1", async (t) => {
+	await assertValidation(t, {
+		"specVersion": "1.1"
+	});
 });
 
 test("type: application", async (t) => {
@@ -464,6 +488,14 @@ test("type: theme-library", async (t) => {
 		"type": "theme-library",
 		"metadata": {
 			"name": "my-theme-library"
+		},
+		"resources": {
+			"configuration": {
+				"paths": {
+					"src": "src/main/uilib",
+					"test": "src/test/uilib"
+				}
+			}
 		}
 	});
 	await assertValidation(t, {
@@ -508,6 +540,17 @@ test("type: module", async (t) => {
 	}]);
 });
 
+test("kind: project / type: application", async (t) => {
+	await assertValidation(t, {
+		"specVersion": "2.0",
+		"kind": "project",
+		"type": "application",
+		"metadata": {
+			"name": "my-application"
+		}
+	});
+});
+
 test("kind: extension / type: task", async (t) => {
 	await assertValidation(t, {
 		"specVersion": "2.0",
@@ -520,6 +563,25 @@ test("kind: extension / type: task", async (t) => {
 			"path": "/foo"
 		}
 	});
+	await assertValidation(t, {
+		"specVersion": "2.0",
+		"kind": "extension",
+		"type": "task",
+		"metadata": {
+			"name": "my-task"
+		},
+		"task": {
+			"path": "/foo"
+		},
+		"resources": {}
+	}, [{
+		dataPath: "",
+		keyword: "additionalProperties",
+		message: "should NOT have additional properties",
+		params: {
+			"additionalProperty": "resources"
+		}
+	}]);
 });
 
 test("kind: extension / type: server-middleware", async (t) => {
@@ -534,6 +596,27 @@ test("kind: extension / type: server-middleware", async (t) => {
 			"path": "/foo"
 		}
 	});
+	await assertValidation(t, {
+		"specVersion": "2.0",
+		"kind": "extension",
+		"type": "server-middleware",
+		"metadata": {
+			"name": "my-server-middleware"
+		},
+		"middleware": {
+			"path": "/foo"
+		},
+		"task": {
+			"path": "/bar"
+		}
+	}, [{
+		dataPath: "",
+		keyword: "additionalProperties",
+		message: "should NOT have additional properties",
+		params: {
+			"additionalProperty": "task"
+		}
+	}]);
 });
 
 test("kind: extension / type: project-shim", async (t) => {
@@ -544,8 +627,119 @@ test("kind: extension / type: project-shim", async (t) => {
 		"metadata": {
 			"name": "my-project-shim"
 		},
-		"shims": {}
+		"shims": {
+			"configurations": {
+				"my-dependency": {
+					"specVersion": "2.0",
+					"type": "application",
+					"metadata": {
+						"name": "my-application"
+					}
+				},
+				"my-other-dependency": {
+					"specVersion": "3.0",
+					"type": "does-not-exist",
+					"metadata": {
+						"name": "my-application"
+					}
+				}
+			},
+			"dependencies": {
+				"my-dependency": [
+					"my-other-dependency"
+				],
+				"my-other-dependency": [
+					"some-lib",
+					"some-other-lib"
+				]
+			},
+			"collections": {
+				"my-dependency": {
+					"modules": {
+						"lib-1": "src/lib1",
+						"lib-2": "src/lib2"
+					}
+				}
+			}
+		}
 	});
+	await assertValidation(t, {
+		"specVersion": "2.0",
+		"kind": "extension",
+		"type": "project-shim",
+		"metadata": {
+			"name": "my-project-shim"
+		},
+		"shims": {
+			"configurations": {
+				"invalid": {
+					"specVersion": "3.0",
+					"type": "does-not-exist",
+					"metadata": {
+						"name": "my-application"
+					}
+				}
+			},
+			"dependencies": {
+				"my-dependency": {
+					"foo": "bar"
+				}
+			},
+			"collections": {
+				"foo": {
+					"modules": {
+						"lib-1": {
+							"path": "src/lib1"
+						}
+					},
+					"notAllowed": true
+				}
+			},
+			"notAllowed": true
+		},
+		"middleware": {}
+	}, [
+		{
+			dataPath: "",
+			keyword: "additionalProperties",
+			message: "should NOT have additional properties",
+			params: {
+				"additionalProperty": "middleware"
+			}
+		},
+		{
+			dataPath: ".shims",
+			keyword: "additionalProperties",
+			message: "should NOT have additional properties",
+			params: {
+				additionalProperty: "notAllowed",
+			},
+		},
+		{
+			dataPath: ".shims.dependencies['my-dependency']",
+			keyword: "type",
+			message: "should be array",
+			params: {
+				type: "array",
+			},
+		},
+		{
+			dataPath: ".shims.collections['foo']",
+			keyword: "additionalProperties",
+			message: "should NOT have additional properties",
+			params: {
+				additionalProperty: "notAllowed",
+			},
+		},
+		{
+			dataPath: ".shims.collections['foo'].modules['lib-1']",
+			keyword: "type",
+			message: "should be string",
+			params: {
+				type: "string",
+			},
+		}
+	]);
 });
 
 test("framework configuration: OpenUI5", async (t) => {
@@ -601,7 +795,8 @@ test("framework configuration: Invalid", async (t) => {
 			"libraries": [
 				"sap.ui.core",
 				{"library": "sap.m"},
-				{"name": "sap.f", "optional": "yes"}
+				{"name": "sap.f", "optional": "x"},
+				{"name": "sap.f", "development": "no"}
 			]
 		}
 	}, [
@@ -619,9 +814,9 @@ test("framework configuration: Invalid", async (t) => {
 		{
 			dataPath: ".framework.version",
 			keyword: "pattern",
-			message: "should match pattern \"^(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)$\"",
+			message: "should match pattern \"^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$\"",
 			params: {
-				pattern: "^(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)$",
+				pattern: "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
 			},
 		},
 		{
@@ -650,6 +845,14 @@ test("framework configuration: Invalid", async (t) => {
 		},
 		{
 			dataPath: ".framework.libraries[2].optional",
+			keyword: "type",
+			message: "should be boolean",
+			params: {
+				type: "boolean"
+			},
+		},
+		{
+			dataPath: ".framework.libraries[3].development",
 			keyword: "type",
 			message: "should be boolean",
 			params: {

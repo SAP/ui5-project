@@ -1,6 +1,8 @@
 {
+	"$schema": "http://json-schema.org/draft-07/schema",
 	"$id": "http://ui5.sap/schema/specVersion/2.0/kind/project/theme-library.json",
 
+	"type": "object",
 	"additionalProperties": false,
 	"required": ["specVersion", "type", "metadata"],
 	"properties": {
@@ -18,48 +20,17 @@
 			"$ref": "../project.json#/definitions/framework"
 		},
 		"resources": {
-			"type": "object",
-			"additionalProperties": false,
-			"properties": {
-				"configuration": {
-					"type": "object",
-					"additionalProperties": false,
-					"properties": {
-						"propertiesFileSourceEncoding": {
-							"$ref": "#/definitions/resources-configuration-propertiesFileSourceEncoding"
-						},
-						"paths": {
-							"type": "object",
-							"additionalProperties": false,
-							"properties": {
-								"src": {
-									"type": "string"
-								},
-								"test": {
-									"type": "string"
-								}
-							}
-						}
-					}
-				}
-			}
+			"$ref": "library.json#/definitions/resources"
 		},
 		"builder": {
 			"$ref": "#/definitions/builder"
 		},
 		"server": {
-			"$ref": "#/definitions/server"
+			"$ref": "../project.json#/definitions/server"
 		}
 	},
 
 	"definitions": {
-		"resources-configuration-propertiesFileSourceEncoding": {
-			"enum": ["UTF-8", "ISO-8859-1"],
-			"default": "ISO-8859-1",
-			"title": "Encoding of *.properties files",
-			"description": "By default, the UI5 Tooling expects *.properties files to be ISO-8859-1 encoded."
-		},
-
 		"builder": {
 			"type": "object",
 			"additionalProperties": false,
@@ -75,32 +46,6 @@
 							}
 						}
 					}
-				},
-				"jsdoc": {
-					"type": "object",
-					"additionalProperties": false,
-					"properties": {
-						"excludes": {
-							"type": "array",
-							"items": {
-								"type": "string"
-							}
-						}
-					}
-				},
-				"cachebuster": {
-					"type": "object",
-					"additionalProperties": false,
-					"properties": {
-						"signatureType": {
-							"enum": ["time", "hash"]
-						}
-					}
-				},
-				"bundles": {
-					"type": "object",
-					"additionalProperties": false,
-					"__comment": "TODO"
 				},
 				"customTasks": {
 					"type": "array",
@@ -140,70 +85,6 @@
 					}
 				}
 			}
-		},
-
-		"server": {
-			"type": "object",
-			"additionalProperties": false,
-			"properties": {
-				"settings": {
-					"type": "object",
-					"additionalProperties": false,
-					"properties": {
-						"httpPort": {
-							"type": "number"
-						},
-						"httpsPort": {
-							"type": "number"
-						}
-					}
-				},
-				"customMiddleware": {
-					"__comment": "TODO: not documented in general configuration page",
-					"type": "array",
-					"items": {
-						"oneOf": [
-							{
-								"type": "object",
-								"additionalProperties": false,
-								"required": ["name", "beforeMiddleware"],
-								"properties": {
-									"name": {
-										"type": "string"
-									},
-									"mountPath": {
-										"type": "string"
-									},
-									"beforeMiddleware": {
-										"type": "string",
-										"__comment": "TODO: enum?"
-									},
-									"configuration": {}
-								}
-							},
-							{
-								"type": "object",
-								"additionalProperties": false,
-								"required": ["name", "afterMiddleware"],
-								"properties": {
-									"name": {
-										"type": "string"
-									},
-									"mountPath": {
-										"type": "string"
-									},
-									"afterMiddleware": {
-										"type": "string",
-										"__comment": "TODO: enum?"
-									},
-									"configuration": {}
-								}
-							}
-						]
-					}
-				}
-			}
 		}
 	}
-
 }
