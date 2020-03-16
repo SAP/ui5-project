@@ -38,7 +38,8 @@ test("Undefined", async (t) => {
 		message: "should be object",
 		params: {
 			type: "object",
-		}
+		},
+		schemaPath: "#/type",
 	}]);
 });
 
@@ -50,7 +51,8 @@ test("Missing specVersion, type, metadata", async (t) => {
 			message: "should have required property 'specVersion'",
 			params: {
 				missingProperty: "specVersion",
-			}
+			},
+			schemaPath: "#/required",
 		},
 		{
 			dataPath: "",
@@ -58,7 +60,8 @@ test("Missing specVersion, type, metadata", async (t) => {
 			message: "should have required property 'metadata'",
 			params: {
 				missingProperty: "metadata",
-			}
+			},
+			schemaPath: "#/required",
 		},
 		{
 			dataPath: "",
@@ -66,7 +69,8 @@ test("Missing specVersion, type, metadata", async (t) => {
 			message: "should have required property 'type'",
 			params: {
 				missingProperty: "type",
-			}
+			},
+			schemaPath: "#/required",
 		}
 
 	]);
@@ -82,7 +86,8 @@ test("Missing type, metadata", async (t) => {
 			message: "should have required property 'metadata'",
 			params: {
 				missingProperty: "metadata",
-			}
+			},
+			schemaPath: "#/required",
 		},
 		{
 			dataPath: "",
@@ -90,7 +95,8 @@ test("Missing type, metadata", async (t) => {
 			message: "should have required property 'type'",
 			params: {
 				missingProperty: "type",
-			}
+			},
+			schemaPath: "#/required",
 		}
 	]);
 });
@@ -124,7 +130,8 @@ For details see: https://sap.github.io/ui5-tooling/pages/Configuration/#specific
 						schemaPath: "#/properties/specVersion/enum",
 					},
 				],
-			}
+			},
+			schemaPath: "#/properties/specVersion/errorMessage",
 		}
 	]);
 });
@@ -148,7 +155,8 @@ test("Invalid type", async (t) => {
 					"theme-library",
 					"module"
 				]
-			}
+			},
+			schemaPath: "#/properties/type/enum",
 		}
 	]);
 });
@@ -171,7 +179,8 @@ test("Invalid kind", async (t) => {
 					"extension",
 					null
 				],
-			}
+			},
+			schemaPath: "#/properties/kind/enum",
 		}
 	]);
 });
@@ -190,7 +199,8 @@ test("Invalid metadata.name", async (t) => {
 			message: "should be string",
 			params: {
 				type: "string"
-			}
+			},
+			schemaPath: "../ui5.json#/definitions/metadata/properties/name/type",
 		}
 	]);
 });
@@ -210,7 +220,8 @@ test("Invalid metadata.copyright", async (t) => {
 			message: "should be string",
 			params: {
 				type: "string"
-			}
+			},
+			schemaPath: "../ui5.json#/definitions/metadata/properties/copyright/type",
 		}
 	]);
 });
@@ -230,7 +241,8 @@ test("Additional metadata property", async (t) => {
 			message: "should NOT have additional properties",
 			params: {
 				additionalProperty: "copyrihgt"
-			}
+			},
+			schemaPath: "../ui5.json#/definitions/metadata/additionalProperties",
 		}
 	]);
 });
@@ -344,7 +356,8 @@ test("type: application (invalid resources configuration)", async (t) => {
 			message: "should NOT have additional properties",
 			params: {
 				additionalProperty: "notAllowed",
-			}
+			},
+			schemaPath: "#/additionalProperties",
 		},
 		{
 			dataPath: "/resources/configuration",
@@ -352,7 +365,8 @@ test("type: application (invalid resources configuration)", async (t) => {
 			message: "should NOT have additional properties",
 			params: {
 				additionalProperty: "notAllowed",
-			}
+			},
+			schemaPath: "#/properties/configuration/additionalProperties",
 		},
 		{
 			dataPath: "/resources/configuration/propertiesFileSourceEncoding",
@@ -363,7 +377,8 @@ test("type: application (invalid resources configuration)", async (t) => {
 					"UTF-8",
 					"ISO-8859-1"
 				],
-			}
+			},
+			schemaPath: "../project.json#/definitions/resources-configuration-propertiesFileSourceEncoding/enum"
 		},
 		{
 			dataPath: "/resources/configuration/paths",
@@ -371,7 +386,8 @@ test("type: application (invalid resources configuration)", async (t) => {
 			message: "should NOT have additional properties",
 			params: {
 				additionalProperty: "app",
-			}
+			},
+			schemaPath: "#/properties/configuration/properties/paths/additionalProperties",
 		},
 		{
 			dataPath: "/resources/configuration/paths/webapp",
@@ -379,7 +395,8 @@ test("type: application (invalid resources configuration)", async (t) => {
 			message: "should be string",
 			params: {
 				type: "string"
-			}
+			},
+			schemaPath: "#/properties/configuration/properties/paths/properties/webapp/type"
 		}
 	]);
 	await assertValidation(t, {
@@ -400,7 +417,8 @@ test("type: application (invalid resources configuration)", async (t) => {
 			message: "should be object",
 			params: {
 				type: "object"
-			}
+			},
+			schemaPath: "#/properties/configuration/properties/paths/type",
 		}
 	]);
 });
@@ -485,7 +503,8 @@ test("type: library", async (t) => {
 		message: "should NOT have additional properties",
 		params: {
 			additionalProperty: "foo"
-		}
+		},
+		schemaPath: "#/additionalProperties"
 	}]);
 });
 
@@ -518,7 +537,8 @@ test("type: theme-library", async (t) => {
 		message: "should NOT have additional properties",
 		params: {
 			"additionalProperty": "foo"
-		}
+		},
+		schemaPath: "#/additionalProperties"
 	}]);
 });
 
@@ -543,7 +563,8 @@ test("type: module", async (t) => {
 		message: "should NOT have additional properties",
 		params: {
 			"additionalProperty": "foo"
-		}
+		},
+		schemaPath: "#/additionalProperties"
 	}]);
 });
 
@@ -587,7 +608,8 @@ test("kind: extension / type: task", async (t) => {
 		message: "should NOT have additional properties",
 		params: {
 			"additionalProperty": "resources"
-		}
+		},
+		schemaPath: "#/additionalProperties"
 	}]);
 });
 
@@ -622,7 +644,8 @@ test("kind: extension / type: server-middleware", async (t) => {
 		message: "should NOT have additional properties",
 		params: {
 			"additionalProperty": "task"
-		}
+		},
+		schemaPath: "#/additionalProperties"
 	}]);
 });
 
@@ -712,7 +735,8 @@ test("kind: extension / type: project-shim", async (t) => {
 			message: "should NOT have additional properties",
 			params: {
 				"additionalProperty": "middleware"
-			}
+			},
+			schemaPath: "#/additionalProperties",
 		},
 		{
 			dataPath: "/shims",
@@ -721,6 +745,7 @@ test("kind: extension / type: project-shim", async (t) => {
 			params: {
 				additionalProperty: "notAllowed",
 			},
+			schemaPath: "#/properties/shims/additionalProperties",
 		},
 		{
 			dataPath: "/shims/dependencies/my-dependency",
@@ -729,6 +754,7 @@ test("kind: extension / type: project-shim", async (t) => {
 			params: {
 				type: "array",
 			},
+			schemaPath: "#/properties/shims/properties/dependencies/patternProperties/.%2B/type",
 		},
 		{
 			dataPath: "/shims/collections/foo",
@@ -737,6 +763,7 @@ test("kind: extension / type: project-shim", async (t) => {
 			params: {
 				additionalProperty: "notAllowed",
 			},
+			schemaPath: "#/properties/shims/properties/collections/patternProperties/.%2B/additionalProperties"
 		},
 		{
 			dataPath: "/shims/collections/foo/modules/lib-1",
@@ -745,6 +772,7 @@ test("kind: extension / type: project-shim", async (t) => {
 			params: {
 				type: "string",
 			},
+			schemaPath: "#/properties/shims/properties/collections/patternProperties/.%2B/properties/modules/patternProperties/.%2B/type"
 		}
 	]);
 });
@@ -817,6 +845,7 @@ test("framework configuration: Invalid", async (t) => {
 					"SAPUI5",
 				],
 			},
+			schemaPath: "../project.json#/definitions/framework/properties/name/enum",
 		},
 		{
 			dataPath: "/framework/version",
@@ -825,6 +854,7 @@ test("framework configuration: Invalid", async (t) => {
 			params: {
 				pattern: "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
 			},
+			schemaPath: "../project.json#/definitions/framework/properties/version/pattern",
 		},
 		{
 			dataPath: "/framework/libraries/0",
@@ -832,7 +862,9 @@ test("framework configuration: Invalid", async (t) => {
 			message: "should be object",
 			params: {
 				type: "object",
-			}
+			},
+			schemaPath: "../project.json#/definitions/framework/properties/libraries/items/type"
+
 		},
 		{
 			dataPath: "/framework/libraries/1",
@@ -840,7 +872,8 @@ test("framework configuration: Invalid", async (t) => {
 			message: "should NOT have additional properties",
 			params: {
 				additionalProperty: "library",
-			}
+			},
+			schemaPath: "../project.json#/definitions/framework/properties/libraries/items/additionalProperties",
 		},
 		{
 			dataPath: "/framework/libraries/1",
@@ -848,7 +881,8 @@ test("framework configuration: Invalid", async (t) => {
 			message: "should have required property 'name'",
 			params: {
 				missingProperty: "name",
-			}
+			},
+			schemaPath: "../project.json#/definitions/framework/properties/libraries/items/required",
 		},
 		{
 			dataPath: "/framework/libraries/2/optional",
@@ -857,6 +891,8 @@ test("framework configuration: Invalid", async (t) => {
 			params: {
 				type: "boolean"
 			},
+
+			schemaPath: "../project.json#/definitions/framework/properties/libraries/items/properties/optional/type",
 		},
 		{
 			dataPath: "/framework/libraries/3/development",
@@ -865,6 +901,7 @@ test("framework configuration: Invalid", async (t) => {
 			params: {
 				type: "boolean"
 			},
+			schemaPath: "../project.json#/definitions/framework/properties/libraries/items/properties/development/type"
 		}
 	]);
 });
