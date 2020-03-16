@@ -3,6 +3,7 @@ const sinon = require("sinon");
 const mock = require("mock-require");
 const path = require("path");
 const gracefulFs = require("graceful-fs");
+const {ValidationError} = require("../../lib/schema/validate");
 const projectPreprocessor = require("../../lib/projectPreprocessor");
 const applicationAPath = path.join(__dirname, "..", "fixtures", "application.a");
 const applicationBPath = path.join(__dirname, "..", "fixtures", "application.b");
@@ -1616,10 +1617,14 @@ test("specVersion: Project with invalid version", async (t) => {
 		}
 	};
 	await t.throwsAsync(projectPreprocessor.processTree(tree),
-		"Unsupported specification version 0.9 defined for project application.a. " +
-		"Your UI5 CLI installation might be outdated. For details see " +
-		"https://sap.github.io/ui5-tooling/pages/Configuration/#specification-versions",
-		"Rejected with error");
+		`Invalid ui5.yaml configuration for project application.a
+
+Unsupported "specVersion":
+Your UI5 CLI installation might be outdated.
+Supported specification versions: "2.0", "1.1", "1.0", "0.1"
+For details see: https://sap.github.io/ui5-tooling/pages/Configuration/#specification-versions`,
+		"Rejected with error"
+	);
 });
 
 test("specVersion: Project with valid version 0.1", async (t) => {
@@ -2068,8 +2073,15 @@ metadata:
 				name: "application.a"
 			}
 		},
-		yamlDocument: ui5yaml,
-		yamlDocumentIdx: 0,
+		project: {
+			id: "TODO",
+		},
+		yaml: {
+			documentIndex: 0,
+			path: "/application/ui5.yaml",
+			source: ui5yaml
+		},
+
 	}],
 	"validate should be called with expected args");
 });
@@ -2098,32 +2110,12 @@ metadata:
 	const projectPreprocessor = mock.reRequire("../../lib/projectPreprocessor");
 	const preprocessor = new projectPreprocessor._ProjectPreprocessor({});
 
-	const validationError = await t.throwsAsync(async () => {
+	await t.throwsAsync(async () => {
 		await preprocessor.readConfigFile(configPath);
+	}, {
+		instanceOf: ValidationError,
+		name: "ValidationError"
 	});
-
-	t.deepEqual(validationError.errors, [
-		{
-			dataPath: "",
-			keyword: "required",
-			message: "should have required property 'type'",
-			params: {
-				missingProperty: "type",
-			},
-		},
-		{
-			dataPath: "",
-			keyword: "additionalProperties",
-			message: "should NOT have additional properties",
-			params: {
-				additionalProperty: "foo",
-			},
-		},
-	]);
-	t.deepEqual(validationError.message,
-		"should have required property 'type'\n" +
-		"should NOT have additional properties"
-	);
 
 	t.is(validateSpy.callCount, 1, "validate should be called once");
 	t.deepEqual(validateSpy.getCall(0).args, [{
@@ -2134,8 +2126,14 @@ metadata:
 				name: "application.a"
 			}
 		},
-		yamlDocument: ui5yaml,
-		yamlDocumentIdx: 0,
+		project: {
+			id: "TODO",
+		},
+		yaml: {
+			documentIndex: 0,
+			path: "/application/ui5.yaml",
+			source: ui5yaml,
+		},
 	}],
 	"validate should be called with expected args");
 });
@@ -2162,32 +2160,12 @@ test.serial("loadProjectConfiguration: Runs validation if specVersion already ex
 	const projectPreprocessor = mock.reRequire("../../lib/projectPreprocessor");
 	const preprocessor = new projectPreprocessor._ProjectPreprocessor({});
 
-	const validationError = await t.throwsAsync(async () => {
+	await t.throwsAsync(async () => {
 		await preprocessor.loadProjectConfiguration(config);
+	}, {
+		instanceOf: ValidationError,
+		name: "ValidationError"
 	});
-
-	t.deepEqual(validationError.errors, [
-		{
-			dataPath: "",
-			keyword: "required",
-			message: "should have required property 'type'",
-			params: {
-				missingProperty: "type",
-			},
-		},
-		{
-			dataPath: "",
-			keyword: "additionalProperties",
-			message: "should NOT have additional properties",
-			params: {
-				additionalProperty: "foo",
-			},
-		},
-	]);
-	t.deepEqual(validationError.message,
-		"should have required property 'type'\n" +
-		"should NOT have additional properties"
-	);
 
 	t.is(validateSpy.callCount, 1, "validate should be called once");
 	t.deepEqual(validateSpy.getCall(0).args, [{
@@ -2197,6 +2175,9 @@ test.serial("loadProjectConfiguration: Runs validation if specVersion already ex
 			metadata: {
 				name: "application.a"
 			}
+		},
+		project: {
+			id: "id"
 		}
 	}],
 	"validate should be called with expected args");
