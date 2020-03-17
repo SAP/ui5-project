@@ -141,7 +141,8 @@
 					"type": "string",
 					"pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
 					"title": "Version",
-					"description": "Framework version to use in this project. For example \"1.76.0\""
+					"description": "Framework version to use in this project",
+					"errorMessage":  "Not a valid version according to the SemVer 2.0 specification (https://semver.org/)"
 				},
 				"libraries": {
 					"type": "array",

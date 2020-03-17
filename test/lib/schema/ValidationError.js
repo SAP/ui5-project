@@ -1,13 +1,11 @@
 const test = require("ava");
 const sinon = require("sinon");
-const mock = require("mock-require");
 const chalk = require("chalk");
 
 const ValidationError = require("../../../lib/schema/ValidationError");
 
 test.afterEach.always((t) => {
 	sinon.restore();
-	mock.stopAll();
 });
 
 test.serial("ValidationError constructor", (t) => {
@@ -19,15 +17,6 @@ test.serial("ValidationError constructor", (t) => {
 	const schema = {schema: "schema"};
 	const data = {data: "data"};
 	const yaml = {path: "path", source: "source", documentIndex: 0};
-
-	const betterAjvErrors = [{error: "error1", path: "/path"}];
-
-	const betterAjvErrorsStub = sinon.stub();
-	mock("better-ajv-errors", betterAjvErrorsStub);
-	betterAjvErrorsStub.returns(betterAjvErrors);
-
-	// Re-require tested module
-	const ValidationError = mock.reRequire("../../../lib/schema/ValidationError");
 
 	const filteredErrors = [{dataPath: "", keyword: "", message: "error1", params: {}}];
 
@@ -48,10 +37,6 @@ test.serial("ValidationError constructor", (t) => {
 	t.deepEqual(validationError.project, project, "ValidationError should have 'project' property");
 	t.deepEqual(validationError.yaml, yaml, "≈ should have 'yaml' property");
 	t.is(validationError.message, "Formatted Message", "ValidationError should have 'message' property");
-
-	t.is(betterAjvErrorsStub.callCount, 1, "better-ajv-errors should be called once");
-	t.deepEqual(betterAjvErrorsStub.getCall(0).args, [schema, data, filteredErrors, {format: "js"}],
-		"better-ajv-errors should be called with expected args");
 
 	t.is(filterErrorsStub.callCount, 1, "ValidationError.filterErrors should be called once");
 	t.deepEqual(filterErrorsStub.getCall(0).args, [errors],
@@ -206,7 +191,6 @@ test.serial("ValidationError.filterErrors", (t) => {
 test.serial("ValidationError.formatErrors", (t) => {
 	const fakeValidationErrorInstance = {
 		errors: [{}, {}],
-		betterErrors: [{}, {}],
 		project: {id: "my-project"}
 	};
 
@@ -227,14 +211,12 @@ Error message 2`;
 	t.is(message, expectedMessage);
 
 	t.is(formatErrorStub.callCount, 2, "formatErrorStub should be called once");
-	t.deepEqual(formatErrorStub.getCall(0).args, [{
-		error: fakeValidationErrorInstance.errors[0],
-		betterError: fakeValidationErrorInstance.betterErrors[0]
-	}], "formatErrorStub should be called with first error and first betterError");
-	t.deepEqual(formatErrorStub.getCall(1).args, [{
-		error: fakeValidationErrorInstance.errors[1],
-		betterError: fakeValidationErrorInstance.betterErrors[1]
-	}], "formatErrorStub should be called with second error and second betterError");
+	t.deepEqual(formatErrorStub.getCall(0).args, [
+		fakeValidationErrorInstance.errors[0]
+	], "formatErrorStub should be called with first error");
+	t.deepEqual(formatErrorStub.getCall(1).args, [
+		fakeValidationErrorInstance.errors[1]
+	], "formatErrorStub should be called with second error");
 });
 
 test.todo("ValidationError.formatError");
@@ -495,14 +477,10 @@ test.serial("ValidationError.formatMessage: keyword=required w/o dataPath", (t) 
 		},
 		schemaPath: "#/required",
 	};
-	const betterError = {
-		error: " should have required property 'specVersion'",
-		path: ""
-	};
 
 	const expectedErrorMessage = "Configuration should have required property 'specVersion'";
 
-	const errorMessage = ValidationError.formatMessage(error, betterError);
+	const errorMessage = ValidationError.formatMessage(error);
 	t.is(errorMessage, expectedErrorMessage);
 });
 
@@ -514,14 +492,10 @@ test.serial("ValidationError.formatMessage: keyword=required", (t) => {
 		params: {missingProperty: "name"},
 		message: "should have required property 'name'"
 	};
-	const betterError = {
-		error: "/metadata should have required property 'name'",
-		path: "/metadata"
-	};
 
 	const expectedErrorMessage = "/metadata should have required property 'name'";
 
-	const errorMessage = ValidationError.formatMessage(error, betterError);
+	const errorMessage = ValidationError.formatMessage(error);
 	t.is(errorMessage, expectedErrorMessage);
 });
 
@@ -573,15 +547,13 @@ test.serial("ValidationError.formatMessage: keyword=additionalProperties", (t) =
 		params: {additionalProperty: "propertiesFileEncoding"},
 		message: "should NOT have additional properties"
 	};
-	const betterError = {
-		error: "/resources/configuration Property propertiesFileEncoding is not expected to be here",
-		path: "/resources/configuration"
-	};
 
 	const expectedErrorMessage =
 `/resources/configuration Property propertiesFileEncoding is not expected to be here`;
 
-	const errorMessage = ValidationError.formatMessage(error, betterError);
+	// TODO: suggest propertiesFileSourceEncoding?
+
+	const errorMessage = ValidationError.formatMessage(error);
 	t.is(errorMessage, expectedErrorMessage);
 });
 
@@ -595,41 +567,23 @@ test.serial("ValidationError.formatMessage: keyword=enum", (t) => {
 		},
 		message: "should be equal to one of the allowed values"
 	};
-	const betterError = {
-		error: "/type should be equal to one of the allowed values: application, library, theme-library, module",
-		path: "/type",
-		suggestion: "Did you mean library?"
-	};
 
 	const expectedErrorMessage =
 `/type should be equal to one of the allowed values
-Allowed values: application, library, theme-library, module
-Did you mean library?`;
+Allowed values: application, library, theme-library, module`;
 
-	const errorMessage = ValidationError.formatMessage(error, betterError);
+	// TODO: suggested library?
+
+	const errorMessage = ValidationError.formatMessage(error);
 	t.is(errorMessage, expectedErrorMessage);
 });
 
-test.serial.skip("ValidationError.formatMessage: keyword=pattern", (t) => {
-	const error = {};
-	const betterError = {};
+// test.serial.skip("ValidationError.formatMessage: keyword=pattern", (t) => {
+// 	const error = {};
 
-	const expectedErrorMessage =
-``;
+// 	const expectedErrorMessage =
+// ``;
 
-	const errorMessage = ValidationError.formatMessage(error, betterError);
-	t.is(errorMessage, expectedErrorMessage);
-});
-
-/*
-test.serial("ValidationError.formatMessage: keyword=pattern", (t) => {
-	const error = {};
-	const betterError = {};
-
-	const expectedErrorMessage =
-``;
-
-	const errorMessage = ValidationError.formatMessage(error, betterError);
-	t.is(errorMessage, expectedErrorMessage);
-});
-*/
+// 	const errorMessage = ValidationError.formatMessage(error);
+// 	t.is(errorMessage, expectedErrorMessage);
+// });

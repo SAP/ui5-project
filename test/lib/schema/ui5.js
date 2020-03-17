@@ -24,10 +24,10 @@ test.before((t) => {
 test.after.always((t) => {
 	t.context.ajvCoverage.createReport("html", {dir: "coverage/ajv"});
 	const thresholds = {
-		statements: 59,
+		statements: 58,
 		branches: 50,
 		functions: 100,
-		lines: 59
+		lines: 58
 	};
 	t.context.ajvCoverage.verify(thresholds);
 });
@@ -110,7 +110,7 @@ test("Invalid specVersion", async (t) => {
 			dataPath: "/specVersion",
 			keyword: "errorMessage",
 			message:
-`Unsupported "specVersion":
+`Unsupported "specVersion"
 Your UI5 CLI installation might be outdated.
 Supported specification versions: "2.0", "1.1", "1.0", "0.1"
 For details see: https://sap.github.io/ui5-tooling/pages/Configuration/#specification-versions`,
@@ -850,12 +850,27 @@ test("framework configuration: Invalid", async (t) => {
 		},
 		{
 			dataPath: "/framework/version",
-			keyword: "pattern",
-			message: "should match pattern \"^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$\"",
+			keyword: "errorMessage",
+			message: "Not a valid version according to the SemVer 2.0 specification (https://semver.org/)",
 			params: {
-				pattern: "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+				errors: [
+					{
+						dataPath: "/framework/version",
+						keyword: "pattern",
+						message:
+							"should match pattern \"^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*" +
+							"|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+(" +
+							"[0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$\"",
+						params: {
+							pattern: "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-]" +
+							"[0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(" +
+							"?:\\.[0-9a-zA-Z-]+)*))?$",
+						},
+						schemaPath: "../project.json#/definitions/framework/properties/version/pattern",
+					}
+				]
 			},
-			schemaPath: "../project.json#/definitions/framework/properties/version/pattern",
+			schemaPath: "../project.json#/definitions/framework/properties/version/errorMessage",
 		},
 		{
 			dataPath: "/framework/libraries/0",
