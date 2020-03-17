@@ -295,7 +295,25 @@ test.serial("ValidationError.getYamlExtract", (t) => {
 	t.is(yamlExtract, expectedYamlExtract);
 });
 
-test.serial("ValidationError.analyzeYamlError: dataPath /property3", (t) => {
+test.serial("ValidationError.getSourceExtract", (t) => {
+	const yamlSource = dumpYaml({
+		property1: "value1",
+		property2: "value2"
+	});
+	const line = 2;
+	const column = 1;
+
+	const expected =
+		chalk.grey("1:") + " property1: value1\n" +
+		chalk.bgRed(chalk.grey("2:") + " property2: value2\n") +
+		" ".repeat(3) + chalk.red("^");
+
+	const sourceExtract = ValidationError.getSourceExtract(yamlSource, line, column);
+
+	t.is(sourceExtract, expected, "getSourceExtract should return expected string");
+});
+
+test.serial("ValidationError.analyzeYamlError: Property", (t) => {
 	const error = {dataPath: "/property3"};
 	const yaml = {
 		path: "/my-project/ui5.yaml",
@@ -315,7 +333,7 @@ test.serial("ValidationError.analyzeYamlError: dataPath /property3", (t) => {
 		"analyzeYamlError should return expected results");
 });
 
-test.serial("ValidationError.analyzeYamlError: dataPath /property2/property3", (t) => {
+test.serial("ValidationError.analyzeYamlError: Nested property", (t) => {
 	const error = {dataPath: "/property2/property3"};
 	const yaml = {
 		path: "/my-project/ui5.yaml",
@@ -335,15 +353,15 @@ test.serial("ValidationError.analyzeYamlError: dataPath /property2/property3", (
 		"analyzeYamlError should return expected results");
 });
 
-test.serial("ValidationError.analyzeYamlError: dataPath /property/list/1/name", (t) => {
-	const error = {dataPath: "/property/list/1/name"};
+test.serial("ValidationError.analyzeYamlError: Array", (t) => {
+	const error = {dataPath: "/property/list/2/name"};
 	const yaml = {
 		path: "/my-project/ui5.yaml",
 		source: dumpYaml({
 			property: {
 				list: [
-					{name: "name1"},
-					{name: "name2"},
+					{name: " - -   -   -  -"},
+					{name: "other - name- with- hyphens"},
 					{name: "name3"}
 				]
 			},
@@ -353,6 +371,32 @@ test.serial("ValidationError.analyzeYamlError: dataPath /property/list/1/name", 
 
 	const info = ValidationError.analyzeYamlError({error, yaml});
 
-	t.deepEqual(info, {line: 3, column: 3},
+	t.deepEqual(info, {line: 5, column: 7},
+		"analyzeYamlError should return expected results");
+});
+
+
+test.serial.only("ValidationError.analyzeYamlError: Nested array", (t) => {
+	const error = {dataPath: "/items/2/subItems/1"};
+	const yaml = {
+		path: "/my-project/ui5.yaml",
+		source:
+`items:
+  - subItems:
+      - foo
+      - bar
+  - subItems:
+      - foo
+      - bar
+  - subItems:
+      - foo
+      - bar
+`,
+		documentIndex: 0
+	};
+
+	const info = ValidationError.analyzeYamlError({error, yaml});
+
+	t.deepEqual(info, {line: 10, column: 7},
 		"analyzeYamlError should return expected results");
 });
