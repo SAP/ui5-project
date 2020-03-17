@@ -1,6 +1,5 @@
 const test = require("ava");
 const sinon = require("sinon");
-const {safeDump: dumpYaml} = require("js-yaml");
 const chalk = require("chalk");
 
 const ValidationError = require("../../../lib/schema/ValidationError");
@@ -203,13 +202,13 @@ This is just an example for an error message with multiple lines.`
 		project: {id: "my-project"},
 		yaml: {
 			path: "/my-project/ui5.yaml",
-			source: dumpYaml({
-				property1: "value1",
-				property2: "value2",
-				property3: "value3",
-				property4: "value4",
-				property5: "value5",
-			}),
+			source:
+`property1: value1
+property2: value2
+property3: value3
+property4: value4
+property5: value5
+`,
 			documentIndex: 0
 		}
 	};
@@ -269,13 +268,13 @@ test.serial("ValidationError.getYamlExtract", (t) => {
 	const error = {};
 	const yaml = {
 		path: "/my-project/ui5.yaml",
-		source: dumpYaml({
-			property1: "value1",
-			property2: "value2",
-			property3: "value3",
-			property4: "value4",
-			property5: "value5",
-		}),
+		source:
+`property1: value1
+property2: value2
+property3: value3
+property4: value4
+property5: value5
+`,
 		documentIndex: 0
 	};
 
@@ -296,10 +295,10 @@ test.serial("ValidationError.getYamlExtract", (t) => {
 });
 
 test.serial("ValidationError.getSourceExtract", (t) => {
-	const yamlSource = dumpYaml({
-		property1: "value1",
-		property2: "value2"
-	});
+	const yamlSource =
+`property1: value1
+property2: value2
+`;
 	const line = 2;
 	const column = 1;
 
@@ -317,13 +316,13 @@ test.serial("ValidationError.analyzeYamlError: Property", (t) => {
 	const error = {dataPath: "/property3"};
 	const yaml = {
 		path: "/my-project/ui5.yaml",
-		source: dumpYaml({
-			property1: "value1",
-			property2: "value2",
-			property3: "value3",
-			property4: "value4",
-			property5: "value5",
-		}),
+		source:
+`property1: value1
+property2: value2
+property3: value3
+property4: value4
+property5: value5
+`,
 		documentIndex: 0
 	};
 
@@ -337,13 +336,12 @@ test.serial("ValidationError.analyzeYamlError: Nested property", (t) => {
 	const error = {dataPath: "/property2/property3"};
 	const yaml = {
 		path: "/my-project/ui5.yaml",
-		source: dumpYaml({
-			property1: "value1",
-			property2: {
-				property3: "value3",
-			},
-			property3: "value3",
-		}),
+		source:
+`property1: value1
+property2:
+  property3: value3
+property3: value3
+`,
 		documentIndex: 0
 	};
 
@@ -357,15 +355,13 @@ test.serial("ValidationError.analyzeYamlError: Array", (t) => {
 	const error = {dataPath: "/property/list/2/name"};
 	const yaml = {
 		path: "/my-project/ui5.yaml",
-		source: dumpYaml({
-			property: {
-				list: [
-					{name: " - -   -   -  -"},
-					{name: "other - name- with- hyphens"},
-					{name: "name3"}
-				]
-			},
-		}),
+		source:
+`property:
+  list:
+    - name: ' - -   -   -  -'
+    - name: other - name- with- hyphens
+    - name: name3
+`,
 		documentIndex: 0
 	};
 
@@ -376,7 +372,7 @@ test.serial("ValidationError.analyzeYamlError: Array", (t) => {
 });
 
 
-test.serial.only("ValidationError.analyzeYamlError: Nested array", (t) => {
+test.serial("ValidationError.analyzeYamlError: Nested array", (t) => {
 	const error = {dataPath: "/items/2/subItems/1"};
 	const yaml = {
 		path: "/my-project/ui5.yaml",
@@ -398,5 +394,45 @@ test.serial.only("ValidationError.analyzeYamlError: Nested array", (t) => {
 	const info = ValidationError.analyzeYamlError({error, yaml});
 
 	t.deepEqual(info, {line: 10, column: 7},
+		"analyzeYamlError should return expected results");
+});
+
+test.serial("ValidationError.analyzeYamlError: Nested property with comments", (t) => {
+	const error = {dataPath: "/property1/property2/property3/property4"};
+	const yaml = {
+		path: "/my-project/ui5.yaml",
+		source:
+`property1:
+  property2:
+    property3:
+      # property4: value4444
+      property4: value4
+`,
+		documentIndex: 0
+	};
+
+	const info = ValidationError.analyzeYamlError({error, yaml});
+
+	t.deepEqual(info, {line: 5, column: 7},
+		"analyzeYamlError should return expected results");
+});
+
+test.serial("ValidationError.analyzeYamlError: Nested properties with same name", (t) => {
+	const error = {dataPath: "/property/property/property/property"};
+	const yaml = {
+		path: "/my-project/ui5.yaml",
+		source:
+`property:
+  property:
+    property:
+      # property: foo
+      property: bar
+`,
+		documentIndex: 0
+	};
+
+	const info = ValidationError.analyzeYamlError({error, yaml});
+
+	t.deepEqual(info, {line: 5, column: 7},
 		"analyzeYamlError should return expected results");
 });
