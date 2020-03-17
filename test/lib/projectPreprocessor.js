@@ -2060,7 +2060,7 @@ metadata:
 	const preprocessor = new projectPreprocessor._ProjectPreprocessor({});
 
 	await t.notThrowsAsync(async () => {
-		await preprocessor.readConfigFile(configPath);
+		await preprocessor.readConfigFile({path: "/application", id: "id"});
 	});
 
 	t.is(validateSpy.callCount, 1, "validate should be called once");
@@ -2073,7 +2073,7 @@ metadata:
 			}
 		},
 		project: {
-			id: "TODO",
+			id: "id",
 		},
 		yaml: {
 			documentIndex: 0,
@@ -2108,7 +2108,7 @@ metadata:
 	const preprocessor = new projectPreprocessor._ProjectPreprocessor({});
 
 	await t.throwsAsync(async () => {
-		await preprocessor.readConfigFile(configPath);
+		await preprocessor.readConfigFile({path: "/application", id: "id"});
 	}, {
 		instanceOf: ValidationError,
 		name: "ValidationError"
@@ -2124,7 +2124,7 @@ metadata:
 			}
 		},
 		project: {
-			id: "TODO",
+			id: "id",
 		},
 		yaml: {
 			documentIndex: 0,
