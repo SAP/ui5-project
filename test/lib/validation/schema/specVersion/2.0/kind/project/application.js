@@ -26,10 +26,10 @@ test.before((t) => {
 test.after.always((t) => {
 	t.context.ajvCoverage.createReport("html", {dir: "coverage/ajv-project-application"});
 	const thresholds = {
-		statements: 60,
-		branches: 50,
+		statements: 75,
+		branches: 65,
 		functions: 100,
-		lines: 60
+		lines: 75
 	};
 	t.context.ajvCoverage.verify(thresholds);
 });
@@ -37,6 +37,7 @@ test.after.always((t) => {
 test("Valid configuration", async (t) => {
 	await assertValidation(t, {
 		"specVersion": "2.0",
+		"kind": "project",
 		"type": "application",
 		"metadata": {
 			"name": "com.sap.ui5.test",
@@ -58,6 +59,73 @@ test("Valid configuration", async (t) => {
 					"!/test-resources/some/project/name/demo-app/**"
 				]
 			},
+			"bundles": [
+				{
+					"bundleDefinition": {
+						"name": "sap-ui-custom.js",
+						"defaultFileTypes": [
+							".js"
+						],
+						"sections": [
+							{
+								"mode": "raw",
+								"filters": [
+									"ui5loader-autoconfig.js"
+								],
+								"resolve": true,
+								"resolveConditional": true,
+								"renderer": true,
+								"sort": true
+							},
+							{
+								"mode": "provided",
+								"filters": [
+									"ui5loader-autoconfig.js"
+								],
+								"resolve": false,
+								"resolveConditional": false,
+								"renderer": false,
+								"sort": false
+							}
+						]
+					},
+					"bundleOptions": {
+						"optimize": true,
+						"decorateBootstrapModule": true,
+						"addTryCatchRestartWrapper": true,
+						"usePredefineCalls": true
+					}
+				},
+				{
+					"bundleDefinition": {
+						"name": "app.js",
+						"defaultFileTypes": [
+							".js"
+						],
+						"sections": [
+							{
+								"mode": "preload",
+								"filters": [
+									"some/app/Component.js"
+								],
+								"resolve": true,
+								"sort": true
+							},
+							{
+								"mode": "provided",
+								"filters": [
+									"ui5loader-autoconfig.js"
+								],
+								"resolve": true
+							}
+						]
+					},
+					"bundleOptions": {
+						"optimize": true,
+						"numberOfParts": 3
+					}
+				}
+			],
 			"cachebuster": {
 				"signatureType": "hash"
 			},
@@ -87,7 +155,24 @@ test("Valid configuration", async (t) => {
 			"settings": {
 				"httpPort": 1337,
 				"httpsPort": 1443
-			}
+			},
+			"customMiddleware": [
+				{
+					"name": "myCustomMiddleware",
+					"mountPath": "/myapp",
+					"afterMiddleware": "compression",
+					"configuration": {
+						"debug": true
+					}
+				},
+				{
+					"name": "myCustomMiddleware-2",
+					"beforeMiddleware": "myCustomMiddleware",
+					"configuration": {
+						"debug": true
+					}
+				}
+			]
 		}
 	});
 });
@@ -219,17 +304,144 @@ test("Invalid builder configuration", async (t) => {
 				"excludes": [
 					"some/project/name/thirdparty/**"
 				]
-			}
+			},
+			"bundles": [
+				{
+					"bundleDefinition": {
+						"name": "sap-ui-custom.js",
+						"defaultFileTypes": [
+							".js"
+						],
+						"sections": [
+							{
+								"mode": "raw",
+								"filters": [
+									"ui5loader-autoconfig.js"
+								],
+								"resolve": true,
+								"sort": true
+							}
+						]
+					},
+					"bundleOptions": {
+						"optimize": true
+					}
+				},
+				{
+					"bundleDefinition": {
+						"defaultFileTypes": [
+							".js", true
+						],
+						"sections": [
+							{
+								"filters": [
+									"some/app/Component.js"
+								],
+								"resolve": true,
+								"sort": true
+							},
+							{
+								"mode": "provide",
+								"filters": "*",
+								"resolve": true
+							}
+						]
+					},
+					"bundleOptions": {
+						"optimize": "true",
+						"numberOfParts": "3",
+						"notAllowed": true
+					}
+				}
+			]
 		}
-	}, [{
-		dataPath: "/builder",
-		keyword: "additionalProperties",
-		message: "should NOT have additional properties",
-		params: {
-			additionalProperty: "cachebuster"
+	}, [
+		{
+			dataPath: "/builder",
+			keyword: "additionalProperties",
+			message: "should NOT have additional properties",
+			params: {
+				additionalProperty: "jsdoc"
+			},
+			schemaPath: "#/additionalProperties"
 		},
-		schemaPath: "#/additionalProperties"
-	}]);
+		{
+			dataPath: "/builder/bundles/1/bundleDefinition",
+			keyword: "required",
+			message: "should have required property 'name'",
+			params: {
+				missingProperty: "name",
+			},
+			schemaPath: "../project.json#/definitions/builder-bundles/items/properties/bundleDefinition/required",
+		},
+		{
+			dataPath: "/builder/bundles/1/bundleDefinition/defaultFileTypes/1",
+			keyword: "type",
+			message: "should be string",
+			params: {
+				type: "string",
+			},
+			schemaPath: "../project.json#/definitions/builder-bundles/items/properties/bundleDefinition/properties/defaultFileTypes/items/type",
+		},
+		{
+			dataPath: "/builder/bundles/1/bundleDefinition/sections/0",
+			keyword: "required",
+			message: "should have required property 'mode'",
+			params: {
+				missingProperty: "mode",
+			},
+			schemaPath: "../project.json#/definitions/builder-bundles/items/properties/bundleDefinition/properties/sections/items/required",
+		},
+		{
+			dataPath: "/builder/bundles/1/bundleDefinition/sections/1/mode",
+			keyword: "enum",
+			message: "should be equal to one of the allowed values",
+			params: {
+				allowedValues: [
+					"raw",
+					"preload",
+					"provided",
+				],
+			},
+			schemaPath: "../project.json#/definitions/builder-bundles/items/properties/bundleDefinition/properties/sections/items/properties/mode/enum",
+		},
+		{
+			dataPath: "/builder/bundles/1/bundleDefinition/sections/1/filters",
+			keyword: "type",
+			message: "should be array",
+			params: {
+				type: "array",
+			},
+			schemaPath: "../project.json#/definitions/builder-bundles/items/properties/bundleDefinition/properties/sections/items/properties/filters/type",
+		},
+		{
+			dataPath: "/builder/bundles/1/bundleOptions",
+			keyword: "additionalProperties",
+			message: "should NOT have additional properties",
+			params: {
+				additionalProperty: "notAllowed",
+			},
+			schemaPath: "../project.json#/definitions/builder-bundles/items/properties/bundleOptions/additionalProperties",
+		},
+		{
+			dataPath: "/builder/bundles/1/bundleOptions/optimize",
+			keyword: "type",
+			message: "should be boolean",
+			params: {
+				type: "boolean",
+			},
+			schemaPath: "../project.json#/definitions/builder-bundles/items/properties/bundleOptions/properties/optimize/type",
+		},
+		{
+			dataPath: "/builder/bundles/1/bundleOptions/numberOfParts",
+			keyword: "type",
+			message: "should be number",
+			params: {
+				type: "number",
+			},
+			schemaPath: "../project.json#/definitions/builder-bundles/items/properties/bundleOptions/properties/numberOfParts/type",
+		}
+	]);
 });
 
 test("framework configuration: OpenUI5", async (t) => {

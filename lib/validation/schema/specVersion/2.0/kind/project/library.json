@@ -78,9 +78,7 @@
 					}
 				},
 				"bundles": {
-					"type": "object",
-					"additionalProperties": false,
-					"__comment": "TODO"
+					"$ref": "../project.json#/definitions/builder-bundles"
 				},
 				"customTasks": {
 					"$ref": "../project.json#/definitions/customTasks"
