@@ -88,13 +88,13 @@ function defineTest(testName, {
 		}
 	};
 
-	function project({name, version, type, framework, _level, dependencies = []}) {
+	function project({name, version, type, specVersion = "2.0", framework, _level, dependencies = []}) {
 		const proj = {
 			_level,
 			id: name + "-id",
 			version,
 			path: path.join(fakeBaseDir, "project-" + name),
-			specVersion: "1.1",
+			specVersion,
 			kind: "project",
 			type,
 			metadata: {
@@ -156,6 +156,12 @@ function defineTest(testName, {
 					version: "7.8.9",
 					path: path.join(fakeBaseDir, "project-test-dependency-no-framework"),
 					dependencies: []
+				},
+				{
+					id: "test-dependency-framework-old-spec-version-id",
+					version: "10.11.12",
+					path: path.join(fakeBaseDir, "project-test-dependency-framework-old-spec-version"),
+					dependencies: []
 				}
 			]
 		};
@@ -168,7 +174,7 @@ function defineTest(testName, {
 			})
 			.withArgs(path.join(fakeBaseDir, "project-test-application", "ui5.yaml"))
 			.resolves([{
-				specVersion: "1.1",
+				specVersion: "2.0",
 				type: "application",
 				metadata: {
 					name: "test-application"
@@ -189,7 +195,7 @@ function defineTest(testName, {
 			}])
 			.withArgs(path.join(fakeBaseDir, "project-test-dependency", "ui5.yaml"))
 			.resolves([{
-				specVersion: "1.1",
+				specVersion: "2.0",
 				type: "library",
 				metadata: {
 					name: "test-dependency"
@@ -208,10 +214,25 @@ function defineTest(testName, {
 			}])
 			.withArgs(path.join(fakeBaseDir, "project-test-dependency-no-framework", "ui5.yaml"))
 			.resolves([{
-				specVersion: "1.1",
+				specVersion: "2.0",
 				type: "library",
 				metadata: {
 					name: "test-dependency-no-framework"
+				}
+			}])
+			.withArgs(path.join(fakeBaseDir, "project-test-dependency-framework-old-spec-version", "ui5.yaml"))
+			.resolves([{
+				specVersion: "1.1",
+				type: "library",
+				metadata: {
+					name: "test-dependency-framework-old-spec-version"
+				},
+				framework: {
+					libraries: [
+						{
+							name: "sap.ui.lib5"
+						}
+					]
 				}
 			}])
 			.withArgs(path.join(ui5PackagesBaseDir, npmScope, "sap.ui.lib1",
@@ -380,6 +401,20 @@ function defineTest(testName, {
 					name: "test-dependency-no-framework",
 					version: "7.8.9",
 					type: "library"
+				}),
+				project({
+					_level: 1,
+					name: "test-dependency-framework-old-spec-version",
+					specVersion: "1.1",
+					version: "10.11.12",
+					type: "library",
+					framework: {
+						libraries: [
+							{
+								name: "sap.ui.lib5"
+							}
+						]
+					},
 				}),
 				frameworkProject({
 					_level: 1,
