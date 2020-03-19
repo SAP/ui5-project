@@ -202,15 +202,17 @@ test.serial("ValidationError.formatErrors", (t) => {
 	const message = ValidationError.prototype.formatErrors.apply(fakeValidationErrorInstance);
 
 	const expectedMessage =
-`Invalid ui5.yaml configuration for project my-project
+`${chalk.red("Invalid ui5.yaml configuration for project my-project")}
 
 Error message 1
+
+${chalk.grey("─".repeat(100))}
 
 Error message 2`;
 
 	t.is(message, expectedMessage);
 
-	t.is(formatErrorStub.callCount, 2, "formatErrorStub should be called once");
+	t.is(formatErrorStub.callCount, 2, "formatErrorStub should be called twice");
 	t.deepEqual(formatErrorStub.getCall(0).args, [
 		fakeValidationErrorInstance.errors[0]
 	], "formatErrorStub should be called with first error");
@@ -219,7 +221,40 @@ Error message 2`;
 	], "formatErrorStub should be called with second error");
 });
 
-test.todo("ValidationError.formatError");
+test.serial("ValidationError.formatError (with yaml)", (t) => {
+	const fakeValidationErrorInstance = {
+		yaml: {
+			path: "/path",
+			source: "source"
+		}
+	};
+	const error = {"error": true};
+
+	const formatMessageStub = sinon.stub(ValidationError, "formatMessage");
+	formatMessageStub.returns("First line\nSecond line\nThird line");
+
+	const getYamlExtractStub = sinon.stub(ValidationError, "getYamlExtract");
+	getYamlExtractStub.returns("YAML");
+
+	const message = ValidationError.prototype.formatError.call(fakeValidationErrorInstance, error);
+
+	const expectedMessage =
+`First line
+
+YAML
+Second line
+Third line`;
+
+	t.is(message, expectedMessage);
+
+	t.is(formatMessageStub.callCount, 1, "formatMessageStub should be called once");
+	t.deepEqual(formatMessageStub.getCall(0).args, [error], "formatMessageStub should be called with error");
+
+	t.is(getYamlExtractStub.callCount, 1, "getYamlExtractStub should be called once");
+	t.deepEqual(getYamlExtractStub.getCall(0).args, [
+		{error, yaml: fakeValidationErrorInstance.yaml}],
+	"getYamlExtractStub should be called with error and yaml");
+});
 
 test.serial("ValidationError.getYamlExtract", (t) => {
 	const error = {};
@@ -467,6 +502,23 @@ test.serial("ValidationError.formatMessage: keyword=type dataPath=", (t) => {
 	t.is(errorMessage, expectedErrorMessage);
 });
 
+test.serial("ValidationError.formatMessage: keyword=type", (t) => {
+	const error = {
+		dataPath: "/foo",
+		keyword: "type",
+		message: "should be object",
+		params: {
+			type: "object",
+		},
+		schemaPath: "#/type",
+	};
+
+	const expectedErrorMessage = `Configuration ${chalk.underline(chalk.red("foo"))} should be of type 'object'`;
+
+	const errorMessage = ValidationError.formatMessage(error);
+	t.is(errorMessage, expectedErrorMessage);
+});
+
 test.serial("ValidationError.formatMessage: keyword=required w/o dataPath", (t) => {
 	const error = {
 		dataPath: "",
@@ -493,7 +545,7 @@ test.serial("ValidationError.formatMessage: keyword=required", (t) => {
 		message: "should have required property 'name'"
 	};
 
-	const expectedErrorMessage = "/metadata should have required property 'name'";
+	const expectedErrorMessage = `Configuration ${chalk.underline(chalk.red("metadata"))} should have required property 'name'`;
 
 	const errorMessage = ValidationError.formatMessage(error);
 	t.is(errorMessage, expectedErrorMessage);
@@ -549,9 +601,7 @@ test.serial("ValidationError.formatMessage: keyword=additionalProperties", (t) =
 	};
 
 	const expectedErrorMessage =
-`/resources/configuration Property propertiesFileEncoding is not expected to be here`;
-
-	// TODO: suggest propertiesFileSourceEncoding?
+`Configuration ${chalk.underline(chalk.red("resources/configuration"))} property propertiesFileEncoding is not expected to be here`;
 
 	const errorMessage = ValidationError.formatMessage(error);
 	t.is(errorMessage, expectedErrorMessage);
@@ -569,10 +619,8 @@ test.serial("ValidationError.formatMessage: keyword=enum", (t) => {
 	};
 
 	const expectedErrorMessage =
-`/type should be equal to one of the allowed values
+`Configuration ${chalk.underline(chalk.red("type"))} should be equal to one of the allowed values
 Allowed values: application, library, theme-library, module`;
-
-	// TODO: suggested library?
 
 	const errorMessage = ValidationError.formatMessage(error);
 	t.is(errorMessage, expectedErrorMessage);

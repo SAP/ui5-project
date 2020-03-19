@@ -113,8 +113,7 @@
 										"type": "string"
 									},
 									"beforeTask": {
-										"type": "string",
-										"__comment": "TODO: enum?"
+										"type": "string"
 									},
 									"configuration": {}
 								}
@@ -128,8 +127,7 @@
 										"type": "string"
 									},
 									"afterTask": {
-										"type": "string",
-										"__comment": "TODO: enum?"
+										"type": "string"
 									},
 									"configuration": {}
 								}

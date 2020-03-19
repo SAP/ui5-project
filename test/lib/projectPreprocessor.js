@@ -1617,15 +1617,13 @@ test("specVersion: Project with invalid version", async (t) => {
 			name: "xy"
 		}
 	};
-	await t.throwsAsync(projectPreprocessor.processTree(tree),
-		`Invalid ui5.yaml configuration for project application.a
+	const validationError = await t.throwsAsync(projectPreprocessor.processTree(tree), {
+		instanceOf: ValidationError
+	});
 
-Unsupported "specVersion"
-Your UI5 CLI installation might be outdated.
-Supported specification versions: "2.0", "1.1", "1.0", "0.1"
-For details see: https://sap.github.io/ui5-tooling/pages/Configuration/#specification-versions`,
-		"Rejected with error"
-	);
+	t.is(validationError.errors.length, 1, "ValidationError should have one error object");
+	t.is(validationError.errors.length, 1, "ValidationError should have one error object");
+	t.is(validationError.errors[0].dataPath, "/specVersion", "Error should be for the specVersion");
 });
 
 test("specVersion: Project with valid version 0.1", async (t) => {

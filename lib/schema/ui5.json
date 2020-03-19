@@ -44,8 +44,7 @@
 			"additionalProperties": false,
 			"properties": {
 				"name": {
-					"type": "string",
-					"title": "Unique name"
+					"type": "string"
 				},
 				"copyright": {
 					"type": "string"

@@ -851,7 +851,7 @@ test("framework configuration: Invalid", async (t) => {
 		{
 			dataPath: "/framework/version",
 			keyword: "errorMessage",
-			message: "Not a valid version according to the SemVer 2.0 specification (https://semver.org/)",
+			message: "Not a valid version according to the Semantic Versioning specification (https://semver.org/)",
 			params: {
 				errors: [
 					{

@@ -20,5 +20,5 @@
 			"$ref": "../project.json#/definitions/framework"
 		}
 	},
-	"__comment": "TBD"
+	"__comment": "TODO"
 }
