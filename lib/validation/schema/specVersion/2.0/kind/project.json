@@ -23,38 +23,46 @@
 	},
 	"if": {
 		"properties": {
-			"type": {"const": "application"}
+			"type": {"const": null}
 		}
 	},
-	"then": {
-		"$ref": "project/application.json"
-	},
+	"then": {},
 	"else": {
 		"if": {
 			"properties": {
-				"type": {"const": "library"}
+				"type": {"const": "application"}
 			}
 		},
 		"then": {
-			"$ref": "project/library.json"
+			"$ref": "project/application.json"
 		},
 		"else": {
 			"if": {
 				"properties": {
-					"type": {"const": "theme-library"}
+					"type": {"const": "library"}
 				}
 			},
 			"then": {
-				"$ref": "project/theme-library.json"
+				"$ref": "project/library.json"
 			},
 			"else": {
 				"if": {
 					"properties": {
-						"type": {"const": "module"}
+						"type": {"const": "theme-library"}
 					}
 				},
 				"then": {
-					"$ref": "project/module.json"
+					"$ref": "project/theme-library.json"
+				},
+				"else": {
+					"if": {
+						"properties": {
+							"type": {"const": "module"}
+						}
+					},
+					"then": {
+						"$ref": "project/module.json"
+					}
 				}
 			}
 		}

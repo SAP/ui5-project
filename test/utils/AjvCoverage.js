@@ -29,6 +29,7 @@ class AjvCoverage {
 			this.ajv._metaOpts.processCode = this._processCode.bind(this);
 		}
 		this._processFileName = options.processFileName;
+		this._includes = options.includes;
 		this._sources = {};
 		this._globalCoverageVar = options.globalCoverage === true ? "__coverage__" : randomCoverageVar();
 		this._instrumenter = createInstrumenter({
@@ -43,6 +44,7 @@ class AjvCoverage {
 		files.forEach(function(file) {
 			const fileCoverageSummary = coverageMap.fileCoverageFor(file).toSummary();
 			summary.merge(fileCoverageSummary);
+			return;
 		});
 
 		if (files.length === 0 || summary.lines.covered === 0) {
@@ -102,10 +104,8 @@ class AjvCoverage {
 		return libCoverage.createCoverageMap(global[this._globalCoverageVar]);
 	}
 	_processCode(originalCode) {
-		const code = AjvCoverage.insertIgnoreComments(beautify(originalCode, {indent_size: 2}));
-
 		let fileName;
-		const schemaNameMatch = rSchemaName.exec(code);
+		const schemaNameMatch = rSchemaName.exec(originalCode);
 		if (schemaNameMatch) {
 			fileName = schemaNameMatch[1];
 		} else {
@@ -126,6 +126,11 @@ class AjvCoverage {
 			fileName = this._processFileName.call(null, fileName);
 		}
 
+		if (this._includes && this._includes.every((pattern) => !fileName.includes(pattern))) {
+			return originalCode;
+		}
+
+		const code = AjvCoverage.insertIgnoreComments(beautify(originalCode, {indent_size: 2}));
 		const instrumentedCode = this._instrumenter.instrumentSync(code, fileName);
 		this._sources[fileName] = code;
 		return instrumentedCode;

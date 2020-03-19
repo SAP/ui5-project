@@ -22,29 +22,47 @@
 	},
 	"if": {
 		"properties": {
-			"type": {"const": "task"}
+			"type": {"const": null}
 		}
 	},
-	"then": {
-		"$ref": "extension/task.json"
-	},
+	"then": {},
 	"else": {
 		"if": {
 			"properties": {
-				"type": {"const": "server-middleware"}
+				"type": {"const": "task"}
 			}
 		},
 		"then": {
-			"$ref": "extension/server-middleware.json"
+			"$ref": "extension/task.json"
 		},
 		"else": {
 			"if": {
 				"properties": {
-					"type": {"const": "project-shim"}
+					"type": {"const": "server-middleware"}
 				}
 			},
 			"then": {
-				"$ref": "extension/project-shim.json"
+				"$ref": "extension/server-middleware.json"
+			},
+			"else": {
+				"if": {
+					"properties": {
+						"type": {"const": "project-shim"}
+					}
+				},
+				"then": {
+					"$ref": "extension/project-shim.json"
+				},
+				"else": {
+					"if": {
+						"properties": {
+							"type": {"const": null}
+						}
+					},
+					"then": {
+
+					}
+				}
 			}
 		}
 	}

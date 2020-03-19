@@ -1,7 +1,7 @@
 const test = require("ava");
-const AjvCoverage = require("../../../../utils/AjvCoverage");
-const {_Validator: Validator} = require("../../../../../lib/validation/validator");
-const ValidationError = require("../../../../../lib/validation/ValidationError");
+const AjvCoverage = require("../../../../../../../utils/AjvCoverage");
+const {_Validator: Validator} = require("../../../../../../../../lib/validation/validator");
+const ValidationError = require("../../../../../../../../lib/validation/ValidationError");
 
 async function assertValidation(t, config, expectedErrors = undefined) {
 	const validation = t.context.validator.validate({config, project: {id: "my-project"}});
@@ -18,44 +18,36 @@ async function assertValidation(t, config, expectedErrors = undefined) {
 
 test.before((t) => {
 	t.context.validator = new Validator();
-	t.context.ajvCoverage = new AjvCoverage(t.context.validator.ajv);
+	t.context.ajvCoverage = new AjvCoverage(t.context.validator.ajv, {
+		includes: ["schema/specVersion/2.0/kind/project/theme-library.json"]
+	});
 });
 
 test.after.always((t) => {
-	t.context.ajvCoverage.createReport("html", {dir: "coverage/ajv-project-application"});
-	// const thresholds = {
-	// 	statements: 58,
-	// 	branches: 50,
-	// 	functions: 100,
-	// 	lines: 58
-	// };
-	// t.context.ajvCoverage.verify(thresholds);
-});
-
-test("Kind project", async (t) => {
-	await assertValidation(t, {
-		"specVersion": "2.0",
-		"kind": "project",
-		"type": "application",
-		"metadata": {
-			"name": "my-application"
-		}
-	});
+	t.context.ajvCoverage.createReport("html", {dir: "coverage/ajv-project-theme-library"});
+	const thresholds = {
+		statements: 70,
+		branches: 60,
+		functions: 100,
+		lines: 70
+	};
+	t.context.ajvCoverage.verify(thresholds);
 });
 
 test("Valid configuration", async (t) => {
 	await assertValidation(t, {
 		"specVersion": "2.0",
-		"type": "application",
+		"type": "theme-library",
 		"metadata": {
-			"name": "com.sap.ui5.test",
-			"copyright": "okay"
+			"name": "my-theme-library",
+			"copyright": "Copyright goes here"
 		},
 		"resources": {
 			"configuration": {
 				"propertiesFileSourceEncoding": "UTF-8",
 				"paths": {
-					"webapp": "my/path"
+					"src": "src/main/uilib",
+					"test": "src/test/uilib"
 				}
 			}
 		},
@@ -66,14 +58,6 @@ test("Valid configuration", async (t) => {
 					"/test-resources/**",
 					"!/test-resources/some/project/name/demo-app/**"
 				]
-			},
-			"jsdoc": {
-				"excludes": [
-					"some/project/name/thirdparty/**"
-				]
-			},
-			"cachebuster": {
-				"signatureType": "hash"
 			},
 			"customTasks": [
 				{
@@ -89,11 +73,6 @@ test("Valid configuration", async (t) => {
 					"configuration": {
 						"color": "blue"
 					}
-				},
-				{
-					"name": "custom-task-2",
-					"beforeTask": "not-valid",
-					"configuration": false
 				}
 			]
 		},
@@ -101,7 +80,17 @@ test("Valid configuration", async (t) => {
 			"settings": {
 				"httpPort": 1337,
 				"httpsPort": 1443
-			}
+			},
+			"customMiddleware": [
+				{
+					"name": "myCustomMiddleware",
+					"mountPath": "/myapp",
+					"afterMiddleware": "compression",
+					"configuration": {
+						"debug": true
+					}
+				}
+			]
 		}
 	});
 });
@@ -109,124 +98,68 @@ test("Valid configuration", async (t) => {
 test("Additional property", async (t) => {
 	await assertValidation(t, {
 		"specVersion": "2.0",
-		"type": "application",
+		"type": "theme-library",
 		"metadata": {
-			"name": "my-application"
+			"name": "my-theme-library"
 		},
-		"notAllowed": true
+		"foo": true
 	}, [{
 		dataPath: "",
 		keyword: "additionalProperties",
 		message: "should NOT have additional properties",
 		params: {
-			additionalProperty: "notAllowed",
+			"additionalProperty": "foo"
 		},
-		schemaPath: "#/additionalProperties",
+		schemaPath: "#/additionalProperties"
 	}]);
 });
 
-test("Invalid resources configuration", async (t) => {
+test("Invalid builder configuration", async (t) => {
 	await assertValidation(t, {
 		"specVersion": "2.0",
-		"type": "application",
+		"type": "theme-library",
 		"metadata": {
-			"name": "com.sap.ui5.test"
+			"name": "com.sap.ui5.test",
+			"copyright": "yes"
 		},
-		"resources": {
-			"configuration": {
-				"propertiesFileSourceEncoding": "FOO",
-				"paths": {
-					"app": "webapp",
-					"webapp": {
-						"path": "invalid"
-					}
-				},
-				"notAllowed": true
+		"builder": {
+			// cachebuster is only supported for type application
+			"cachebuster": {
+				"signatureType": "time"
 			},
-			"notAllowed": true
-		}
-	}, [
-		{
-			dataPath: "/resources",
-			keyword: "additionalProperties",
-			message: "should NOT have additional properties",
-			params: {
-				additionalProperty: "notAllowed",
-			},
-			schemaPath: "#/additionalProperties",
-		},
-		{
-			dataPath: "/resources/configuration",
-			keyword: "additionalProperties",
-			message: "should NOT have additional properties",
-			params: {
-				additionalProperty: "notAllowed",
-			},
-			schemaPath: "#/properties/configuration/additionalProperties",
-		},
-		{
-			dataPath: "/resources/configuration/propertiesFileSourceEncoding",
-			keyword: "enum",
-			message: "should be equal to one of the allowed values",
-			params: {
-				allowedValues: [
-					"UTF-8",
-					"ISO-8859-1"
-				],
-			},
-			schemaPath: "../project.json#/definitions/resources-configuration-propertiesFileSourceEncoding/enum"
-		},
-		{
-			dataPath: "/resources/configuration/paths",
-			keyword: "additionalProperties",
-			message: "should NOT have additional properties",
-			params: {
-				additionalProperty: "app",
-			},
-			schemaPath: "#/properties/configuration/properties/paths/additionalProperties",
-		},
-		{
-			dataPath: "/resources/configuration/paths/webapp",
-			keyword: "type",
-			message: "should be string",
-			params: {
-				type: "string"
-			},
-			schemaPath: "#/properties/configuration/properties/paths/properties/webapp/type"
-		}
-	]);
-	await assertValidation(t, {
-		"specVersion": "2.0",
-		"type": "application",
-		"metadata": {
-			"name": "com.sap.ui5.test"
-		},
-		"resources": {
-			"configuration": {
-				"paths": "webapp"
+			// jsdoc is only supported for type library
+			"jsdoc": {
+				"excludes": [
+					"some/project/name/thirdparty/**"
+				]
 			}
 		}
-	}, [
-		{
-			dataPath: "/resources/configuration/paths",
-			keyword: "type",
-			message: "should be object",
-			params: {
-				type: "object"
-			},
-			schemaPath: "#/properties/configuration/properties/paths/type",
-		}
-	]);
+	}, [{
+		dataPath: "/builder",
+		keyword: "additionalProperties",
+		message: "should NOT have additional properties",
+		params: {
+			additionalProperty: "cachebuster"
+		},
+		schemaPath: "#/additionalProperties"
+	},
+	{
+		dataPath: "/builder",
+		keyword: "additionalProperties",
+		message: "should NOT have additional properties",
+		params: {
+			additionalProperty: "jsdoc"
+		},
+		schemaPath: "#/additionalProperties"
+	}]);
 });
-
-// framework
 
 test("framework configuration: OpenUI5", async (t) => {
 	await assertValidation(t, {
 		"specVersion": "2.0",
-		"type": "application",
+		"type": "theme-library",
 		"metadata": {
-			"name": "my-application"
+			"name": "my-theme-library"
 		},
 		"framework": {
 			"name": "OpenUI5",
@@ -244,9 +177,9 @@ test("framework configuration: OpenUI5", async (t) => {
 test("framework configuration: SAPUI5", async (t) => {
 	await assertValidation(t, {
 		"specVersion": "2.0",
-		"type": "application",
+		"type": "theme-library",
 		"metadata": {
-			"name": "my-application"
+			"name": "my-theme-library"
 		},
 		"framework": {
 			"name": "SAPUI5",
@@ -264,9 +197,9 @@ test("framework configuration: SAPUI5", async (t) => {
 test("framework configuration: Invalid", async (t) => {
 	await assertValidation(t, {
 		"specVersion": "2.0",
-		"type": "application",
+		"type": "theme-library",
 		"metadata": {
-			"name": "my-application"
+			"name": "my-theme-library"
 		},
 		"framework": {
 			"name": "FooUI5",
