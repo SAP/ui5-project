@@ -2,7 +2,7 @@ const test = require("ava");
 const sinon = require("sinon");
 const chalk = require("chalk");
 
-const ValidationError = require("../../../lib/schema/ValidationError");
+const ValidationError = require("../../../lib/validation/ValidationError");
 
 test.afterEach.always((t) => {
 	sinon.restore();

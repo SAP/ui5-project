@@ -48,39 +48,7 @@
 					}
 				},
 				"customTasks": {
-					"type": "array",
-					"items": {
-						"oneOf": [
-							{
-								"type": "object",
-								"additionalProperties": false,
-								"required": ["name", "beforeTask"],
-								"properties": {
-									"name": {
-										"type": "string"
-									},
-									"beforeTask": {
-										"type": "string"
-									},
-									"configuration": {}
-								}
-							},
-							{
-								"type": "object",
-								"additionalProperties": false,
-								"required": ["name", "afterTask"],
-								"properties": {
-									"name": {
-										"type": "string"
-									},
-									"afterTask": {
-										"type": "string"
-									},
-									"configuration": {}
-								}
-							}
-						]
-					}
+					"$ref": "../project.json#/definitions/customTasks"
 				}
 			}
 		}

@@ -50,7 +50,7 @@
 		],
 		"sources": [
 			"lib/**/*.js",
-			"lib/schema/**/*.json",
+			"lib/validation/schema/**/*.json",
 			"test/lib/**/*.js"
 		]
 	},

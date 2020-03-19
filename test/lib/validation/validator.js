@@ -1,6 +1,6 @@
 const test = require("ava");
 const sinon = require("sinon");
-const {validate, _Validator: Validator} = require("../../../lib/schema/validator");
+const {validate, _Validator: Validator} = require("../../../lib/validation/validator");
 
 test.afterEach.always((t) => {
 	sinon.restore();
