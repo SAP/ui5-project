@@ -476,7 +476,7 @@ function defineErrorTest(testName, {
 			})
 			.withArgs(path.join(fakeBaseDir, "application-project", "ui5.yaml"))
 			.resolves([{
-				specVersion: "1.1",
+				specVersion: "2.0",
 				type: "application",
 				metadata: {
 					name: "test-project"
@@ -784,7 +784,7 @@ test.serial("SAPUI5: ui5Framework translator should throw error when using a lib
 		dependencies: []
 	};
 	const projectPreprocessorTree = Object.assign({}, translatorTree, {
-		specVersion: "1.1",
+		specVersion: "2.0",
 		type: "application",
 		metadata: {
 			name: "test-project"
