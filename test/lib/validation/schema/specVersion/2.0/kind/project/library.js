@@ -192,7 +192,7 @@ test("Invalid configuration", async (t) => {
 			params: {
 				type: "array",
 			},
-			schemaPath: "#/properties/resources/properties/excludes/type",
+			schemaPath: "../project.json#/definitions/builder-resources/properties/excludes/type",
 		},
 		{
 			dataPath: "/builder/jsdoc/excludes",

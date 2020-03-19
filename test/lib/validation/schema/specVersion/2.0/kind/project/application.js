@@ -58,11 +58,6 @@ test("Valid configuration", async (t) => {
 					"!/test-resources/some/project/name/demo-app/**"
 				]
 			},
-			"jsdoc": {
-				"excludes": [
-					"some/project/name/thirdparty/**"
-				]
-			},
 			"cachebuster": {
 				"signatureType": "hash"
 			},
@@ -208,6 +203,33 @@ test("Invalid resources configuration", async (t) => {
 			schemaPath: "#/properties/configuration/properties/paths/type",
 		}
 	]);
+});
+
+test("Invalid builder configuration", async (t) => {
+	await assertValidation(t, {
+		"specVersion": "2.0",
+		"type": "application",
+		"metadata": {
+			"name": "com.sap.ui5.test",
+			"copyright": "yes"
+		},
+		"builder": {
+			// jsdoc is not supported for type application
+			"jsdoc": {
+				"excludes": [
+					"some/project/name/thirdparty/**"
+				]
+			}
+		}
+	}, [{
+		dataPath: "/builder",
+		keyword: "additionalProperties",
+		message: "should NOT have additional properties",
+		params: {
+			additionalProperty: "cachebuster"
+		},
+		schemaPath: "#/additionalProperties"
+	}]);
 });
 
 test("framework configuration: OpenUI5", async (t) => {

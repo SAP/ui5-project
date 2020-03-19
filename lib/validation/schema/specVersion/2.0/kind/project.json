@@ -75,6 +75,18 @@
 			"title": "Encoding of *.properties files",
 			"description": "By default, the UI5 Tooling expects *.properties files to be ISO-8859-1 encoded."
 		},
+		"builder-resources": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"excludes": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				}
+			}
+		},
 		"server": {
 			"type": "object",
 			"additionalProperties": false,

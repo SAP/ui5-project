@@ -26,10 +26,10 @@ test.before((t) => {
 test.after.always((t) => {
 	t.context.ajvCoverage.createReport("html", {dir: "coverage/ajv-project"});
 	const thresholds = {
-		statements: 80,
-		branches: 70,
+		statements: 90,
+		branches: 80,
 		functions: 100,
-		lines: 80
+		lines: 90
 	};
 	t.context.ajvCoverage.verify(thresholds);
 });
@@ -198,8 +198,7 @@ test("No specVersion", async (t) => {
 test("No metadata", async (t) => {
 	await assertValidation(t, {
 		"specVersion": "2.0",
-		"kind": "project",
-		"type": "library"
+		"type": "application"
 	}, [{
 		dataPath: "",
 		keyword: "required",
@@ -209,4 +208,98 @@ test("No metadata", async (t) => {
 		},
 		schemaPath: "#/required",
 	}]);
+});
+
+test("Metadata not type object", async (t) => {
+	await assertValidation(t, {
+		"specVersion": "2.0",
+		"type": "application",
+		"metadata": "foo"
+	}, [{
+		dataPath: "/metadata",
+		keyword: "type",
+		message: "should be object",
+		params: {
+			type: "object",
+		},
+		schemaPath: "../ui5.json#/definitions/metadata/type",
+	}]);
+});
+
+test("No metadata.name", async (t) => {
+	await assertValidation(t, {
+		"specVersion": "2.0",
+		"type": "application",
+		"metadata": {}
+	}, [{
+		dataPath: "/metadata",
+		keyword: "required",
+		message: "should have required property 'name'",
+		params: {
+			missingProperty: "name",
+		},
+		schemaPath: "../ui5.json#/definitions/metadata/required",
+	}]);
+});
+
+test("Invalid metadata.name", async (t) => {
+	await assertValidation(t, {
+		"specVersion": "2.0",
+		"type": "application",
+		"metadata": {
+			"name": {}
+		}
+	}, [
+		{
+			dataPath: "/metadata/name",
+			keyword: "type",
+			message: "should be string",
+			params: {
+				type: "string"
+			},
+			schemaPath: "../ui5.json#/definitions/metadata/properties/name/type",
+		}
+	]);
+});
+
+test("Invalid metadata.copyright", async (t) => {
+	await assertValidation(t, {
+		"specVersion": "2.0",
+		"type": "application",
+		"metadata": {
+			"name": "foo",
+			"copyright": 123
+		}
+	}, [
+		{
+			dataPath: "/metadata/copyright",
+			keyword: "type",
+			message: "should be string",
+			params: {
+				type: "string"
+			},
+			schemaPath: "../ui5.json#/definitions/metadata/properties/copyright/type",
+		}
+	]);
+});
+
+test("Additional metadata property", async (t) => {
+	await assertValidation(t, {
+		"specVersion": "2.0",
+		"type": "application",
+		"metadata": {
+			"name": "foo",
+			"copyrihgt": "typo"
+		}
+	}, [
+		{
+			dataPath: "/metadata",
+			keyword: "additionalProperties",
+			message: "should NOT have additional properties",
+			params: {
+				additionalProperty: "copyrihgt"
+			},
+			schemaPath: "../ui5.json#/definitions/metadata/additionalProperties",
+		}
+	]);
 });

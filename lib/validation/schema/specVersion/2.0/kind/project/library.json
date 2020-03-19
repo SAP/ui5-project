@@ -63,16 +63,7 @@
 			"additionalProperties": false,
 			"properties": {
 				"resources": {
-					"type": "object",
-					"additionalProperties": false,
-					"properties": {
-						"excludes": {
-							"type": "array",
-							"items": {
-								"type": "string"
-							}
-						}
-					}
+					"$ref": "../project.json#/definitions/builder-resources"
 				},
 				"jsdoc": {
 					"type": "object",
