@@ -2036,7 +2036,7 @@ test.serial("checkProjectMetadata: No warning logged for nested SAP internal lib
 
 
 test.serial("readConfigFile: No exception for valid config", async (t) => {
-	const configPath = "/application/ui5.yaml";
+	const configPath = path.join("/application", "ui5.yaml");
 	const ui5yaml = `
 ---
 specVersion: "2.0"
@@ -2084,7 +2084,7 @@ metadata:
 });
 
 test.serial("readConfigFile: Exception for invalid config", async (t) => {
-	const configPath = "/application/ui5.yaml";
+	const configPath = path.join("/application", "ui5.yaml");
 	const ui5yaml = `
 ---
 specVersion: "2.0"
