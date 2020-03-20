@@ -172,15 +172,16 @@ test("Project with ui5.yaml at default location and some configuration", (t) => 
 	});
 });
 
-test("Missing configuration for root project", (t) => {
+test("Missing configuration for root project", async (t) => {
 	const tree = {
 		id: "application.a",
 		path: "non-existent",
 		dependencies: []
 	};
-	return t.throwsAsync(projectPreprocessor.processTree(tree),
-		"No specification version defined for root project application.a",
-		"Rejected with error");
+	const exception = await t.throwsAsync(projectPreprocessor.processTree(tree));
+
+	t.true(exception.message.includes("Failed to read configuration for project application.a"),
+		"Error message should contain expected reason");
 });
 
 test("Missing id for root project", (t) => {
@@ -1589,7 +1590,7 @@ test("Library version in package.json data is missing", (t) => {
 	});
 });
 
-test("specVersion: Missing version", (t) => {
+test("specVersion: Missing version", async (t) => {
 	const tree = {
 		id: "application.a",
 		path: "non-existent",
@@ -1600,9 +1601,10 @@ test("specVersion: Missing version", (t) => {
 			name: "xy"
 		}
 	};
-	return t.throwsAsync(projectPreprocessor.processTree(tree),
-		"No specification version defined for root project application.a",
-		"Rejected with error");
+	const exception = await t.throwsAsync(projectPreprocessor.processTree(tree));
+
+	t.true(exception.message.includes("Failed to read configuration for project application.a"),
+		"Error message should contain expected reason");
 });
 
 test("specVersion: Project with invalid version", async (t) => {
