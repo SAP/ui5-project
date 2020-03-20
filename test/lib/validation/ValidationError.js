@@ -206,7 +206,7 @@ test.serial("ValidationError.formatErrors", (t) => {
 
 Error message 1
 
-${chalk.grey("─".repeat(100))}
+${process.stdout.isTTY ? chalk.grey.dim("─".repeat(process.stdout.columns || 80)) : ""}
 
 Error message 2`;
 
