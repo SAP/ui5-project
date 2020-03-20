@@ -34,27 +34,90 @@ test.after.always((t) => {
 	t.context.ajvCoverage.verify(thresholds);
 });
 
-test("type: module", async (t) => {
+test("Valid configuration", async (t) => {
 	await assertValidation(t, {
 		"specVersion": "2.0",
+		"kind": "project",
 		"type": "module",
 		"metadata": {
 			"name": "my-module"
+		},
+		"resources": {
+			"configuration": {
+				"paths": {
+					"/resources/my/library/module-xy/": "lib",
+					"/resources/my/library/module-xy-min/": "dist"
+				}
+			}
 		}
 	});
+});
+
+test("No framework configuration", async (t) => {
 	await assertValidation(t, {
 		"specVersion": "2.0",
 		"type": "module",
 		"metadata": {
 			"name": "my-module"
 		},
-		"foo": true
+		"framework": {}
 	}, [{
 		dataPath: "",
 		keyword: "additionalProperties",
 		message: "should NOT have additional properties",
 		params: {
-			"additionalProperty": "foo"
+			"additionalProperty": "framework"
+		},
+		schemaPath: "#/additionalProperties"
+	}]);
+});
+
+test("No propertiesFileSourceEncoding configuration", async (t) => {
+	await assertValidation(t, {
+		"specVersion": "2.0",
+		"type": "module",
+		"metadata": {
+			"name": "my-module"
+		},
+		"resources": {
+			"configuration": {
+				"propertiesFileSourceEncoding": "UTF-8"
+			}
+		}
+	}, [{
+		dataPath: "/resources/configuration",
+		keyword: "additionalProperties",
+		message: "should NOT have additional properties",
+		params: {
+			"additionalProperty": "propertiesFileSourceEncoding"
+		},
+		schemaPath: "#/properties/resources/properties/configuration/additionalProperties"
+	}]);
+});
+
+test("No builder, server configuration", async (t) => {
+	await assertValidation(t, {
+		"specVersion": "2.0",
+		"type": "module",
+		"metadata": {
+			"name": "my-module"
+		},
+		"builder": {},
+		"server": {}
+	}, [{
+		dataPath: "",
+		keyword: "additionalProperties",
+		message: "should NOT have additional properties",
+		params: {
+			"additionalProperty": "builder"
+		},
+		schemaPath: "#/additionalProperties"
+	}, {
+		dataPath: "",
+		keyword: "additionalProperties",
+		message: "should NOT have additional properties",
+		params: {
+			"additionalProperty": "server"
 		},
 		schemaPath: "#/additionalProperties"
 	}]);
