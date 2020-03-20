@@ -1624,7 +1624,6 @@ test("specVersion: Project with invalid version", async (t) => {
 	});
 
 	t.is(validationError.errors.length, 1, "ValidationError should have one error object");
-	t.is(validationError.errors.length, 1, "ValidationError should have one error object");
 	t.is(validationError.errors[0].dataPath, "/specVersion", "Error should be for the specVersion");
 });
 
