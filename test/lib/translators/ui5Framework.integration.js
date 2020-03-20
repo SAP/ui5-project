@@ -385,6 +385,7 @@ function defineTest(testName, {
 					type: "library",
 					framework: {
 						version: "1.99.0",
+						name: frameworkName,
 						libraries: [
 							{
 								name: "sap.ui.lib1"
