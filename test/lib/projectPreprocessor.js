@@ -39,6 +39,7 @@ test("Project with inline configuration", (t) => {
 			type: "application",
 			metadata: {
 				name: "xy",
+				namespace: "id1"
 			},
 			resources: {
 				configuration: {
@@ -74,7 +75,8 @@ test("Project with configPath", (t) => {
 			_level: 0,
 			type: "application",
 			metadata: {
-				name: "application.b"
+				name: "application.b",
+				namespace: "id1"
 			},
 			resources: {
 				configuration: {
@@ -110,7 +112,8 @@ test("Project with ui5.yaml at default location", (t) => {
 			_level: 0,
 			type: "application",
 			metadata: {
-				name: "application.a"
+				name: "application.a",
+				namespace: "id1"
 			},
 			resources: {
 				configuration: {
@@ -197,7 +200,8 @@ test("No type configured for root project", (t) => {
 		path: path.join(__dirname, "../fixtures/application.a"),
 		dependencies: [],
 		metadata: {
-			name: "application.a"
+			name: "application.a",
+			namespace: "id1"
 		}
 	};
 	return t.throwsAsync(projectPreprocessor.processTree(tree),
@@ -331,7 +335,8 @@ test("Ignores additional application-projects", (t) => {
 			_level: 0,
 			type: "application",
 			metadata: {
-				name: "application.a"
+				name: "application.a",
+				namespace: "id1"
 			},
 			resources: {
 				configuration: {
@@ -421,7 +426,8 @@ test("Inconsistent dependencies with same ID", (t) => {
 			_level: 0,
 			type: "application",
 			metadata: {
-				name: "application.a"
+				name: "application.a",
+				namespace: "id1"
 			},
 			resources: {
 				configuration: {
@@ -702,7 +708,8 @@ const expectedTreeWithInvalidModules = {
 	"specVersion": "1.0",
 	"type": "application",
 	"metadata": {
-		"name": "application.a"
+		"name": "application.a",
+		"namespace": "id1"
 	},
 	"_level": 0,
 	"kind": "project",
@@ -844,6 +851,7 @@ const expectedTreeAWithInlineConfigs = {
 	"type": "application",
 	"metadata": {
 		"name": "application.a",
+		"namespace": "id1"
 	},
 	"resources": {
 		"configuration": {
@@ -958,6 +966,7 @@ const expectedTreeAWithConfigPaths = {
 	"type": "application",
 	"metadata": {
 		"name": "application.a",
+		"namespace": "id1"
 	},
 	"resources": {
 		"configuration": {
@@ -1415,6 +1424,7 @@ const expectedTreeApplicationCycleA = {
 	"type": "application",
 	"metadata": {
 		"name": "application.cycle.a",
+		"namespace": "id1"
 	},
 	"dependencies": [
 		{
@@ -1437,6 +1447,7 @@ const expectedTreeApplicationCycleA = {
 					"type": "library",
 					"metadata": {
 						"name": "library.cycle.a",
+						"namespace": "cycle/a",
 						"copyright": "${copyright}"
 					},
 					"dependencies": [
@@ -1477,6 +1488,7 @@ const expectedTreeApplicationCycleA = {
 					"type": "library",
 					"metadata": {
 						"name": "library.cycle.b",
+						"namespace": "cycle/b",
 						"copyright": "${copyright}"
 					},
 					"dependencies": [
@@ -1632,6 +1644,7 @@ const expectedTreeApplicationCycleF = {
 							"type": "library",
 							"metadata": {
 								"name": "library.cycle.e",
+								"namespace": "cycle/e",
 								"copyright": ui5CopyrightString
 							},
 							"kind": "project",
@@ -1641,7 +1654,8 @@ const expectedTreeApplicationCycleF = {
 									"paths": {
 										"src": "src",
 										"test": "test"
-									}
+									},
+									"propertiesFileSourceEncoding": "ISO-8859-1"
 								},
 								"pathMappings": {
 									"/resources/": "src",
@@ -1654,6 +1668,7 @@ const expectedTreeApplicationCycleF = {
 					"type": "library",
 					"metadata": {
 						"name": "library.cycle.d",
+						"namespace": "cycle/d",
 						"copyright": ui5CopyrightString
 					},
 					"kind": "project",
@@ -1663,7 +1678,8 @@ const expectedTreeApplicationCycleF = {
 							"paths": {
 								"src": "src",
 								"test": "test"
-							}
+							},
+							"propertiesFileSourceEncoding": "ISO-8859-1"
 						},
 						"pathMappings": {
 							"/resources/": "src",
@@ -1676,6 +1692,7 @@ const expectedTreeApplicationCycleF = {
 			"type": "library",
 			"metadata": {
 				"name": "library.cycle.c",
+				"namespace": "cycle/c",
 				"copyright": ui5CopyrightString
 			},
 			"kind": "project",
@@ -1685,7 +1702,8 @@ const expectedTreeApplicationCycleF = {
 					"paths": {
 						"src": "src",
 						"test": "test"
-					}
+					},
+					"propertiesFileSourceEncoding": "ISO-8859-1"
 				},
 				"pathMappings": {
 					"/resources/": "src",
@@ -1707,6 +1725,7 @@ const expectedTreeApplicationCycleF = {
 					"type": "library",
 					"metadata": {
 						"name": "library.cycle.c",
+						"namespace": "cycle/c",
 						"copyright": ui5CopyrightString
 					},
 					"kind": "project",
@@ -1716,7 +1735,8 @@ const expectedTreeApplicationCycleF = {
 							"paths": {
 								"src": "src",
 								"test": "test"
-							}
+							},
+							"propertiesFileSourceEncoding": "ISO-8859-1"
 						},
 						"pathMappings": {
 							"/resources/": "src",
@@ -1738,6 +1758,7 @@ const expectedTreeApplicationCycleF = {
 							"type": "library",
 							"metadata": {
 								"name": "library.cycle.c",
+								"namespace": "cycle/c",
 								"copyright": ui5CopyrightString
 							},
 							"kind": "project",
@@ -1747,7 +1768,8 @@ const expectedTreeApplicationCycleF = {
 									"paths": {
 										"src": "src",
 										"test": "test"
-									}
+									},
+									"propertiesFileSourceEncoding": "ISO-8859-1"
 								},
 								"pathMappings": {
 									"/resources/": "src",
@@ -1760,6 +1782,7 @@ const expectedTreeApplicationCycleF = {
 					"type": "library",
 					"metadata": {
 						"name": "library.cycle.e",
+						"namespace": "cycle/e",
 						"copyright": ui5CopyrightString
 					},
 					"kind": "project",
@@ -1769,7 +1792,8 @@ const expectedTreeApplicationCycleF = {
 							"paths": {
 								"src": "src",
 								"test": "test"
-							}
+							},
+							"propertiesFileSourceEncoding": "ISO-8859-1"
 						},
 						"pathMappings": {
 							"/resources/": "src",
@@ -1782,6 +1806,7 @@ const expectedTreeApplicationCycleF = {
 			"type": "library",
 			"metadata": {
 				"name": "library.cycle.d",
+				"namespace": "cycle/d",
 				"copyright": ui5CopyrightString
 			},
 			"kind": "project",
@@ -1791,7 +1816,8 @@ const expectedTreeApplicationCycleF = {
 					"paths": {
 						"src": "src",
 						"test": "test"
-					}
+					},
+					"propertiesFileSourceEncoding": "ISO-8859-1"
 				},
 				"pathMappings": {
 					"/resources/": "src",
@@ -1804,14 +1830,16 @@ const expectedTreeApplicationCycleF = {
 	"specVersion": "0.1",
 	"type": "application",
 	"metadata": {
-		"name": "application.cycle.f"
+		"name": "application.cycle.f",
+		"namespace": "id1"
 	},
 	"kind": "project",
 	"resources": {
 		"configuration": {
 			"paths": {
 				"webapp": "webapp"
-			}
+			},
+			"propertiesFileSourceEncoding": "ISO-8859-1"
 		},
 		"pathMappings": {
 			"/": "webapp"
