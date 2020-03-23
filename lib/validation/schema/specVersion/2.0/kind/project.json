@@ -25,7 +25,8 @@
 	"if": {
 		"properties": {
 			"type": {"const": null}
-		}
+		},
+		"$comment": "Using 'if' with null and empty 'then' to ensure no other schemas are applied when the property is not set. Otherwise the first 'if' condition might still be met, causing unexpected errors."
 	},
 	"then": {},
 	"else": {

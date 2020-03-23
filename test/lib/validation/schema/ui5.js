@@ -18,18 +18,20 @@ async function assertValidation(t, config, expectedErrors = undefined) {
 
 test.before((t) => {
 	t.context.validator = new Validator();
-	t.context.ajvCoverage = new AjvCoverage(t.context.validator.ajv);
+	t.context.ajvCoverage = new AjvCoverage(t.context.validator.ajv, {
+		includes: ["schema/ui5.json"]
+	});
 });
 
 test.after.always((t) => {
 	t.context.ajvCoverage.createReport("html", {dir: "coverage/ajv-ui5"});
-	// const thresholds = {
-	// 	statements: 58,
-	// 	branches: 50,
-	// 	functions: 100,
-	// 	lines: 58
-	// };
-	// t.context.ajvCoverage.verify(thresholds);
+	const thresholds = {
+		statements: 58,
+		branches: 50,
+		functions: 100,
+		lines: 58
+	};
+	t.context.ajvCoverage.verify(thresholds);
 });
 
 test("Undefined", async (t) => {

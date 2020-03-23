@@ -363,7 +363,6 @@ test.serial("ValidationError.analyzeYamlError: Array", (t) => {
 		"analyzeYamlError should return expected results");
 });
 
-
 test.serial("ValidationError.analyzeYamlError: Nested array", (t) => {
 	const error = {dataPath: "/items/2/subItems/1"};
 	const yaml = {
@@ -386,6 +385,42 @@ test.serial("ValidationError.analyzeYamlError: Nested array", (t) => {
 	const info = ValidationError.analyzeYamlError({error, yaml});
 
 	t.deepEqual(info, {line: 10, column: 7},
+		"analyzeYamlError should return expected results");
+});
+
+test.serial("ValidationError.analyzeYamlError: Array with square brackets (not supported)", (t) => {
+	const error = {dataPath: "/items/2"};
+	const yaml = {
+		path: "/my-project/ui5.yaml",
+		source:
+`items: [1, 2, 3]
+`,
+		documentIndex: 0
+	};
+
+	const info = ValidationError.analyzeYamlError({error, yaml});
+
+	t.deepEqual(info, {line: -1, column: -1},
+		"analyzeYamlError should return expected results");
+});
+
+test.serial("ValidationError.analyzeYamlError: Multiline array with square brackets (not supported)", (t) => {
+	const error = {dataPath: "/items/2"};
+	const yaml = {
+		path: "/my-project/ui5.yaml",
+		source:
+`items: [
+  1,
+  2,
+  3
+]
+`,
+		documentIndex: 0
+	};
+
+	const info = ValidationError.analyzeYamlError({error, yaml});
+
+	t.deepEqual(info, {line: -1, column: -1},
 		"analyzeYamlError should return expected results");
 });
 
