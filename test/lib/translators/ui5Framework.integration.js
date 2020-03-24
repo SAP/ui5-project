@@ -194,6 +194,10 @@ function defineTest(testName, {
 								{
 									name: "sap.ui.lib4",
 									optional: true
+								},
+								{
+									name: "sap.ui.lib8",
+									development: true
 								}
 							]
 						}
@@ -222,6 +226,11 @@ function defineTest(testName, {
 								{
 									name: "sap.ui.lib6",
 									development: true
+								},
+								{
+									name: "sap.ui.lib8",
+									// optional dependency gets resolved by dev-dependency of root project
+									optional: true
 								}
 							]
 						}
@@ -286,6 +295,16 @@ function defineTest(testName, {
 						type: "library",
 						metadata: {
 							name: "sap.ui.lib4"
+						},
+						framework: {libraries: []}
+					}];
+				case path.join(ui5PackagesBaseDir, npmScope, "sap.ui.lib8",
+					frameworkName === "SAPUI5" ? "1.75.8" : "1.75.0"):
+					return [{
+						specVersion: "1.0",
+						type: "library",
+						metadata: {
+							name: "sap.ui.lib8"
 						},
 						framework: {libraries: []}
 					}];
