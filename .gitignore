@@ -61,3 +61,4 @@ deploy_key
 !test/fixtures/**/node_modules
 test/tmp/
 jsdocs/
+dist/
