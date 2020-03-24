@@ -520,6 +520,163 @@ property2:
 		"analyzeYamlError should return expected results");
 });
 
+test.serial("ValidationError.analyzeYamlError: documentIndex=0 (Without leading separator)", (t) => {
+	const error = {dataPath: "/property3"};
+	const yaml = {
+		path: "/my-project/ui5.yaml",
+		source:
+`property1: value1document1
+property2: value2document1
+property3: value3document1
+property4: value4document1
+property5: value5document1
+---
+property1: value1document2
+property2: value2document2
+property3: value3document2
+property4: value4document2
+property5: value5document2`,
+		documentIndex: 0
+	};
+
+	const info = ValidationError.analyzeYamlError({error, yaml});
+
+	t.deepEqual(info, {line: 3, column: 1},
+		"analyzeYamlError should return expected results");
+});
+
+test.serial("ValidationError.analyzeYamlError: documentIndex=0 (With leading separator)", (t) => {
+	const error = {dataPath: "/property3"};
+	const yaml = {
+		path: "/my-project/ui5.yaml",
+		source:
+`---
+property1: value1document1
+property2: value2document1
+property3: value3document1
+property4: value4document1
+property5: value5document1
+---
+property1: value1document2
+property2: value2document2
+property3: value3document2
+property4: value4document2
+property5: value5document2`,
+		documentIndex: 0
+	};
+
+	const info = ValidationError.analyzeYamlError({error, yaml});
+
+	t.deepEqual(info, {line: 4, column: 1},
+		"analyzeYamlError should return expected results");
+});
+
+test.serial("ValidationError.analyzeYamlError: documentIndex=2 (Without leading separator)", (t) => {
+	const error = {dataPath: "/property3"};
+	const yaml = {
+		path: "/my-project/ui5.yaml",
+		source:
+`property1: value1document1
+property2: value2document1
+property3: value3document1
+property4: value4document1
+property5: value5document1
+---
+property1: value1document2
+property2: value2document2
+property3: value3document2
+property4: value4document2
+property5: value5document2
+---
+property1: value1document3
+property2: value2document3
+property3: value3document3
+property4: value4document3
+property5: value5document3
+`,
+		documentIndex: 2
+	};
+
+	const info = ValidationError.analyzeYamlError({error, yaml});
+
+	t.deepEqual(info, {line: 15, column: 1},
+		"analyzeYamlError should return expected results");
+});
+
+test.serial("ValidationError.analyzeYamlError: documentIndex=2 (With leading separator)", (t) => {
+	const error = {dataPath: "/property3"};
+	const yaml = {
+		path: "/my-project/ui5.yaml",
+		source:
+`---
+property1: value1document1
+property2: value2document1
+property3: value3document1
+property4: value4document1
+property5: value5document1
+---
+property1: value1document2
+property2: value2document2
+property3: value3document2
+property4: value4document2
+property5: value5document2
+---
+property1: value1document3
+property2: value2document3
+property3: value3document3
+property4: value4document3
+property5: value5document3
+`,
+		documentIndex: 2
+	};
+
+	const info = ValidationError.analyzeYamlError({error, yaml});
+
+	t.deepEqual(info, {line: 16, column: 1},
+		"analyzeYamlError should return expected results");
+});
+
+test.serial("ValidationError.analyzeYamlError: Invalid documentIndex=1 (With leading separator)", (t) => {
+	const error = {dataPath: "/property3"};
+	const yaml = {
+		path: "/my-project/ui5.yaml",
+		source:
+`---
+property1: value1document1
+property2: value2document1
+property3: value3document1
+property4: value4document1
+property5: value5document1
+`,
+		documentIndex: 1
+	};
+
+	const info = ValidationError.analyzeYamlError({error, yaml});
+
+	t.deepEqual(info, {line: -1, column: -1},
+		"analyzeYamlError should return expected results");
+});
+
+test.serial("ValidationError.analyzeYamlError: Invalid documentIndex=1 (Without leading separator)", (t) => {
+	const error = {dataPath: "/property3"};
+	const yaml = {
+		path: "/my-project/ui5.yaml",
+		source:
+`property1: value1document1
+property2: value2document1
+property3: value3document1
+property4: value4document1
+property5: value5document1
+`,
+		documentIndex: 1
+	};
+
+	const info = ValidationError.analyzeYamlError({error, yaml});
+
+	t.deepEqual(info, {line: -1, column: -1},
+		"analyzeYamlError should return expected results");
+});
+
 test.serial("ValidationError.formatMessage: keyword=type dataPath=", (t) => {
 	const error = {
 		dataPath: "",
