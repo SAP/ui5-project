@@ -571,6 +571,36 @@ property5: value5document2`,
 		"analyzeYamlError should return expected results");
 });
 
+test.serial("ValidationError.analyzeYamlError: documentIndex=0 (With leading separator and empty lines)", (t) => {
+	const error = {dataPath: "/property3"};
+	const yaml = {
+		path: "/my-project/ui5.yaml",
+		source:
+`
+
+
+
+---
+property1: value1document1
+property2: value2document1
+property3: value3document1
+property4: value4document1
+property5: value5document1
+---
+property1: value1document2
+property2: value2document2
+property3: value3document2
+property4: value4document2
+property5: value5document2`,
+		documentIndex: 0
+	};
+
+	const info = ValidationError.analyzeYamlError({error, yaml});
+
+	t.deepEqual(info, {line: 8, column: 1},
+		"analyzeYamlError should return expected results");
+});
+
 test.serial("ValidationError.analyzeYamlError: documentIndex=2 (Without leading separator)", (t) => {
 	const error = {dataPath: "/property3"};
 	const yaml = {
@@ -633,6 +663,45 @@ property5: value5document3
 	const info = ValidationError.analyzeYamlError({error, yaml});
 
 	t.deepEqual(info, {line: 16, column: 1},
+		"analyzeYamlError should return expected results");
+});
+
+
+test.serial.only("ValidationError.analyzeYamlError: documentIndex=2 (With leading separator and empty lines)", (t) => {
+	const error = {dataPath: "/property3"};
+	const yaml = {
+		path: "/my-project/ui5.yaml",
+		source:
+`
+
+
+
+
+---
+property1: value1document1
+property2: value2document1
+property3: value3document1
+property4: value4document1
+property5: value5document1
+---
+property1: value1document2
+property2: value2document2
+property3: value3document2
+property4: value4document2
+property5: value5document2
+---
+property1: value1document3
+property2: value2document3
+property3: value3document3
+property4: value4document3
+property5: value5document3
+`,
+		documentIndex: 2
+	};
+
+	const info = ValidationError.analyzeYamlError({error, yaml});
+
+	t.deepEqual(info, {line: 21, column: 1},
 		"analyzeYamlError should return expected results");
 });
 
