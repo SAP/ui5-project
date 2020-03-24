@@ -26,10 +26,10 @@ test.before((t) => {
 test.after.always((t) => {
 	t.context.ajvCoverage.createReport("html", {dir: "coverage/ajv-ui5"});
 	const thresholds = {
-		statements: 58,
-		branches: 50,
+		statements: 95,
+		branches: 80,
 		functions: 100,
-		lines: 58
+		lines: 95
 	};
 	t.context.ajvCoverage.verify(thresholds);
 });
