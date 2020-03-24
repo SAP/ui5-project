@@ -304,6 +304,23 @@ property2: value2
 	t.is(sourceExtract, expected, "getSourceExtract should return expected string");
 });
 
+test.serial("ValidationError.getSourceExtract (Windows Line-Endings)", (t) => {
+	const yamlSource =
+"property1: value1\r\n" +
+"property2: value2\r\n";
+	const line = 2;
+	const column = 1;
+
+	const expected =
+		chalk.grey("1:") + " property1: value1\n" +
+		chalk.bgRed(chalk.grey("2:") + " property2: value2\n") +
+		" ".repeat(3) + chalk.red("^");
+
+	const sourceExtract = ValidationError.getSourceExtract(yamlSource, line, column);
+
+	t.is(sourceExtract, expected, "getSourceExtract should return expected string");
+});
+
 test.serial("ValidationError.analyzeYamlError: Property", (t) => {
 	const error = {dataPath: "/property3"};
 	const yaml = {
@@ -379,6 +396,30 @@ test.serial("ValidationError.analyzeYamlError: Nested array", (t) => {
       - foo
       - bar
 `,
+		documentIndex: 0
+	};
+
+	const info = ValidationError.analyzeYamlError({error, yaml});
+
+	t.deepEqual(info, {line: 10, column: 7},
+		"analyzeYamlError should return expected results");
+});
+
+test.serial("ValidationError.analyzeYamlError: Nested array (Windows Line-Endings)", (t) => {
+	const error = {dataPath: "/items/2/subItems/1"};
+	const yaml = {
+		path: "/my-project/ui5.yaml",
+		source:
+"items:\r\n" +
+"  - subItems:\r\n" +
+"      - foo\r\n" +
+"      - bar\r\n" +
+"  - subItems:\r\n" +
+"      - foo\r\n" +
+"      - bar\r\n" +
+"  - subItems:\r\n" +
+"      - foo\r\n" +
+"      - bar\r\n",
 		documentIndex: 0
 	};
 
@@ -666,8 +707,7 @@ property5: value5document3
 		"analyzeYamlError should return expected results");
 });
 
-
-test.serial.only("ValidationError.analyzeYamlError: documentIndex=2 (With leading separator and empty lines)", (t) => {
+test.serial("ValidationError.analyzeYamlError: documentIndex=2 (With leading separator and empty lines)", (t) => {
 	const error = {dataPath: "/property3"};
 	const yaml = {
 		path: "/my-project/ui5.yaml",
