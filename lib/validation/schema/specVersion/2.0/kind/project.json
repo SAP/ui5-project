@@ -118,7 +118,7 @@
 									"required": ["mode", "filters"],
 									"properties": {
 										"mode": {
-											"enum": ["raw", "preload", "provided"]
+											"enum": ["raw", "preload", "require", "provided"]
 										},
 										"filters": {
 											"type": "array",
@@ -172,6 +172,24 @@
 								"default": 1
 							}
 						}
+					}
+				}
+			}
+		},
+		"builder-componentPreload": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"paths": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"namespaces": {
+					"type": "array",
+					"items": {
+						"type": "string"
 					}
 				}
 			}

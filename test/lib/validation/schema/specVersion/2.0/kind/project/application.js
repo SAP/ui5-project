@@ -112,7 +112,7 @@ test("Valid configuration", async (t) => {
 								"sort": true
 							},
 							{
-								"mode": "provided",
+								"mode": "require",
 								"filters": [
 									"ui5loader-autoconfig.js"
 								],
@@ -126,6 +126,16 @@ test("Valid configuration", async (t) => {
 					}
 				}
 			],
+			"componentPreload": {
+				"paths": [
+					"some/glob/**/pattern/Component.js",
+					"some/other/glob/**/pattern/Component.js"
+				],
+				"namespaces": [
+					"some/namespace",
+					"some/other/namespace"
+				]
+			},
 			"cachebuster": {
 				"signatureType": "hash"
 			},
@@ -353,7 +363,12 @@ test("Invalid builder configuration", async (t) => {
 						"notAllowed": true
 					}
 				}
-			]
+			],
+			"componentPreload": {
+				"path": "some/invalid/path",
+				"paths": "some/invalid/glob/**/pattern/Component.js",
+				"namespaces": "some/invalid/namespace",
+			}
 		}
 	}, [
 		{
@@ -400,6 +415,7 @@ test("Invalid builder configuration", async (t) => {
 				allowedValues: [
 					"raw",
 					"preload",
+					"require",
 					"provided",
 				],
 			},
@@ -440,6 +456,33 @@ test("Invalid builder configuration", async (t) => {
 				type: "number",
 			},
 			schemaPath: "../project.json#/definitions/builder-bundles/items/properties/bundleOptions/properties/numberOfParts/type",
+		},
+		{
+			dataPath: "/builder/componentPreload",
+			keyword: "additionalProperties",
+			message: "should NOT have additional properties",
+			params: {
+				additionalProperty: "path",
+			},
+			schemaPath: "../project.json#/definitions/builder-componentPreload/additionalProperties",
+		},
+		{
+			dataPath: "/builder/componentPreload/paths",
+			keyword: "type",
+			message: "should be array",
+			params: {
+				type: "array",
+			},
+			schemaPath: "../project.json#/definitions/builder-componentPreload/properties/paths/type",
+		},
+		{
+			dataPath: "/builder/componentPreload/namespaces",
+			keyword: "type",
+			message: "should be array",
+			params: {
+				type: "array",
+			},
+			schemaPath: "../project.json#/definitions/builder-componentPreload/properties/namespaces/type",
 		}
 	]);
 });

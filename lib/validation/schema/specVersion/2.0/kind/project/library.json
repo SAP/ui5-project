@@ -80,6 +80,9 @@
 				"bundles": {
 					"$ref": "../project.json#/definitions/builder-bundles"
 				},
+				"componentPreload": {
+					"$ref": "../project.json#/definitions/builder-componentPreload"
+				},
 				"customTasks": {
 					"$ref": "../project.json#/definitions/customTasks"
 				}
