@@ -2076,7 +2076,7 @@ metadata:
 		},
 		yaml: {
 			documentIndex: 0,
-			path: "/application/ui5.yaml",
+			path: configPath,
 			source: ui5yaml
 		},
 
