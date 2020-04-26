@@ -114,7 +114,7 @@
 		"pretty-hrtime": "^1.0.3",
 		"read-pkg": "^5.2.0",
 		"read-pkg-up": "^7.0.1",
-		"resolve": "^1.16.1",
+		"resolve": "^1.17.0",
 		"semver": "^7.3.2",
 		"string.prototype.matchall": "^4.0.2"
 	},
