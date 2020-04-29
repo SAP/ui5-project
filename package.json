@@ -47,11 +47,6 @@
 	"ava": {
 		"files": [
 			"test/lib/**/*.js"
-		],
-		"sources": [
-			"lib/**/*.js",
-			"lib/validation/schema/**/*.json",
-			"test/lib/**/*.js"
 		]
 	},
 	"nyc": {
