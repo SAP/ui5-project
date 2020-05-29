@@ -565,6 +565,40 @@ test.serial(
 		t.is(error.message, `Could not resolve framework version latest`);
 	});
 
+test.serial(
+	"AbstractResolver: Static resolveVersion throws error when OpenUI5 version range cannot be resolved", async (t) => {
+		class Openui5Resolver extends AbstractResolver {
+			static async fetchAllVersions() {}
+		}
+
+		sinon.stub(Openui5Resolver, "fetchAllVersions")
+			.returns([]);
+
+		const error = await t.throwsAsync(Openui5Resolver.resolveVersion("1.99", {
+			cwd: "/cwd",
+			ui5HomeDir: "/ui5HomeDir"
+		}));
+
+		t.is(error.message, `Could not resolve framework version 1.99`);
+	});
+
+test.serial(
+	"AbstractResolver: Static resolveVersion throws error when SAPUI5 version range cannot be resolved", async (t) => {
+		class Sapui5Resolver extends AbstractResolver {
+			static async fetchAllVersions() {}
+		}
+
+		sinon.stub(Sapui5Resolver, "fetchAllVersions")
+			.returns([]);
+
+		const error = await t.throwsAsync(Sapui5Resolver.resolveVersion("1.99", {
+			cwd: "/cwd",
+			ui5HomeDir: "/ui5HomeDir"
+		}));
+
+		t.is(error.message, `Could not resolve framework version 1.99`);
+	});
+
 test.serial("AbstractResolver: SEMVER_VERSION_REGEXP should be aligned with JSON schema", async (t) => {
 	const projectSchema = require("../../../lib/validation/schema/specVersion/2.0/kind/project.json");
 	const schemaPattern = projectSchema.definitions.framework.properties.version.pattern;
