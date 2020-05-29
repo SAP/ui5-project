@@ -564,3 +564,9 @@ test.serial(
 
 		t.is(error.message, `Could not resolve framework version latest`);
 	});
+
+test.serial("AbstractResolver: SEMVER_VERSION_REGEXP should be aligned with JSON schema", async (t) => {
+	const projectSchema = require("../../../lib/validation/schema/specVersion/2.0/kind/project.json");
+	const schemaPattern = projectSchema.definitions.framework.properties.version.pattern;
+	t.is(schemaPattern, AbstractResolver._SEMVER_VERSION_REGEXP.source);
+});
