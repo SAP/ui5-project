@@ -570,6 +570,13 @@ test("Project tree Cycle A with inline configs", (t) => {
 	});
 });
 
+test("Project tree Cycle B with inline configs", (t) => {
+	return projectPreprocessor.processTree(treeApplicationCycleB).then((parsedTree) => {
+		// console.log(JSON.stringify(parsedTree, null, 2));
+		t.deepEqual(parsedTree, expectedTreeApplicationCycleB, "Parsed correctly");
+	});
+});
+
 test("Project with nested invalid dependencies", (t) => {
 	return projectPreprocessor.processTree(treeWithInvalidModules).then((parsedTree) => {
 		t.deepEqual(parsedTree, expectedTreeWithInvalidModules);
@@ -1563,6 +1570,196 @@ const expectedTreeApplicationCycleA = {
 			}
 		},
 		"pathMappings": {
+			"/": "webapp"
+		}
+	}
+};
+
+
+const treeApplicationCycleB = {
+	id: "application.cycle.b",
+	version: "1.0.0",
+	path: path.join(cycleDepsBasePath, "application.cycle.b"),
+	dependencies: [
+		{
+			id: "module.d",
+			version: "1.0.0",
+			path: path.join(cycleDepsBasePath, "module.d"),
+			dependencies: [
+				{
+					id: "module.e",
+					version: "1.0.0",
+					path: path.join(cycleDepsBasePath, "module.e"),
+					dependencies: [
+						{
+							id: "module.d",
+							version: "1.0.0",
+							path: path.join(cycleDepsBasePath, "module.d"),
+							dependencies: [],
+							deduped: true
+						}
+					]
+				}
+			]
+		},
+		{
+			id: "module.e",
+			version: "1.0.0",
+			path: path.join(cycleDepsBasePath, "module.e"),
+			dependencies: [
+				{
+					id: "module.d",
+					version: "1.0.0",
+					path: path.join(cycleDepsBasePath, "module.d"),
+					dependencies: [
+						{
+							id: "module.e",
+							version: "1.0.0",
+							path: path.join(cycleDepsBasePath, "module.e"),
+							dependencies: [],
+							deduped: true
+						}
+					]
+				}
+			]
+		}
+	]
+};
+
+const _treeApplicationCycleB = {
+	id: "application.cycle.b",
+	version: "1.0.0",
+	specVersion: "0.1",
+	type: "application",
+	metadata: {
+		name: "application.cycle.b",
+	},
+	path: path.join(cycleDepsBasePath, "application.cycle.b"),
+	dependencies: [
+		{
+			id: "module.d",
+			version: "1.0.0",
+			specVersion: "0.1",
+			type: "module",
+			metadata: {
+				name: "module.d",
+			},
+			path: path.join(cycleDepsBasePath, "module.d"),
+			dependencies: [
+				{
+					id: "module.e",
+					version: "1.0.0",
+					specVersion: "0.1",
+					type: "module",
+					metadata: {
+						name: "module.e",
+					},
+					path: path.join(cycleDepsBasePath, "module.e"),
+					dependencies: []
+				}
+			]
+		},
+		{
+			id: "module.e",
+			version: "1.0.0",
+			specVersion: "0.1",
+			type: "module",
+			metadata: {
+				name: "module.e",
+			},
+			path: path.join(cycleDepsBasePath, "module.e"),
+			dependencies: [
+				{
+					id: "module.d",
+					version: "1.0.0",
+					specVersion: "0.1",
+					type: "module",
+					metadata: {
+						name: "module.d",
+					},
+					path: path.join(cycleDepsBasePath, "module.d"),
+					dependencies: []
+				}
+			]
+		}
+	]
+};
+
+const expectedTreeModuleCycleD = {
+	id: "module.d",
+	version: "1.0.0",
+	specVersion: "2.2",
+	kind: "project",
+	type: "module",
+	metadata: {
+		name: "module.d",
+	},
+	path: path.join(cycleDepsBasePath, "module.d"),
+	resources: {
+		configuration: {
+			paths: {
+				"/": ""
+			}
+		},
+		pathMappings: {
+			"/": ""
+		}
+	},
+	_level: 1,
+	dependencies: []
+};
+
+const expectedTreeModuleCycleE = {
+	id: "module.e",
+	version: "1.0.0",
+	specVersion: "2.2",
+	kind: "project",
+	type: "module",
+	metadata: {
+		name: "module.e",
+	},
+	path: path.join(cycleDepsBasePath, "module.e"),
+	resources: {
+		configuration: {
+			paths: {
+				"/": ""
+			}
+		},
+		pathMappings: {
+			"/": ""
+		}
+	},
+	_level: 1,
+	dependencies: [expectedTreeModuleCycleD]
+};
+
+expectedTreeModuleCycleD.dependencies.push(expectedTreeModuleCycleE);
+
+const expectedTreeApplicationCycleB = {
+	id: "application.cycle.b",
+	version: "1.0.0",
+	specVersion: "2.2",
+	path: path.join(cycleDepsBasePath, "application.cycle.b"),
+	type: "application",
+	metadata: {
+		name: "application.cycle.b",
+		namespace: "id1"
+	},
+	dependencies: [
+		expectedTreeModuleCycleD,
+		expectedTreeModuleCycleE
+	],
+	_level: 0,
+	_isRoot: true,
+	kind: "project",
+	resources: {
+		configuration: {
+			propertiesFileSourceEncoding: "UTF-8",
+			paths: {
+				webapp: "webapp"
+			}
+		},
+		pathMappings: {
 			"/": "webapp"
 		}
 	}
