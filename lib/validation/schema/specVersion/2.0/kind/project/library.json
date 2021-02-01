@@ -133,6 +133,18 @@
 				}
 			}
 		},
+		"builder-jsdoc": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"excludes": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				}
+			}
+		},
 		"builder": {
 			"type": "object",
 			"additionalProperties": false,
@@ -141,16 +153,7 @@
 					"$ref": "../project.json#/definitions/builder-resources"
 				},
 				"jsdoc": {
-					"type": "object",
-					"additionalProperties": false,
-					"properties": {
-						"excludes": {
-							"type": "array",
-							"items": {
-								"type": "string"
-							}
-						}
-					}
+					"$ref": "#/definitions/builder-jsdoc"
 				},
 				"bundles": {
 					"$ref": "../project.json#/definitions/builder-bundles"
@@ -171,16 +174,7 @@
 					"$ref": "../project.json#/definitions/builder-resources"
 				},
 				"jsdoc": {
-					"type": "object",
-					"additionalProperties": false,
-					"properties": {
-						"excludes": {
-							"type": "array",
-							"items": {
-								"type": "string"
-							}
-						}
-					}
+					"$ref": "#/definitions/builder-jsdoc"
 				},
 				"bundles": {
 					"$ref": "../project.json#/definitions/builder-bundles"
