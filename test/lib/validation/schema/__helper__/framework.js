@@ -100,6 +100,7 @@ module.exports = {
 							errors: [
 								{
 									dataPath: "/framework/version",
+									emUsed: true,
 									keyword: "pattern",
 									message:
 										"should match pattern \"^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)" +
@@ -128,6 +129,15 @@ module.exports = {
 					},
 					{
 						dataPath: "/framework/libraries/1",
+						keyword: "required",
+						message: "should have required property 'name'",
+						params: {
+							missingProperty: "name",
+						},
+						schemaPath: "../project.json#/definitions/framework/properties/libraries/items/required",
+					},
+					{
+						dataPath: "/framework/libraries/1",
 						keyword: "additionalProperties",
 						message: "should NOT have additional properties",
 						params: {
@@ -135,15 +145,6 @@ module.exports = {
 						},
 						schemaPath:
 							"../project.json#/definitions/framework/properties/libraries/items/additionalProperties",
-					},
-					{
-						dataPath: "/framework/libraries/1",
-						keyword: "required",
-						message: "should have required property 'name'",
-						params: {
-							missingProperty: "name",
-						},
-						schemaPath: "../project.json#/definitions/framework/properties/libraries/items/required",
 					},
 					{
 						dataPath: "/framework/libraries/2/optional",
@@ -225,6 +226,7 @@ module.exports = {
 								errors: [
 									{
 										dataPath: "/framework/libraries/0",
+										emUsed: true,
 										keyword: "additionalProperties",
 										message: "should NOT have additional properties",
 										params: {
@@ -236,6 +238,7 @@ module.exports = {
 									},
 									{
 										dataPath: "/framework/libraries/0",
+										emUsed: true,
 										keyword: "additionalProperties",
 										message: "should NOT have additional properties",
 										params: {
