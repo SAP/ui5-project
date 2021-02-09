@@ -29,7 +29,7 @@ test.after.always((t) => {
 		statements: 85,
 		branches: 75,
 		functions: 100,
-		lines: 90
+		lines: 88
 	};
 	t.context.ajvCoverage.verify(thresholds);
 });
@@ -49,6 +49,16 @@ test("Type application (no kind)", async (t) => {
 	await assertValidation(t, {
 		"specVersion": "2.0",
 		"type": "application",
+		"metadata": {
+			"name": "my-application"
+		}
+	});
+});
+test("Type application (kind null)", async (t) => {
+	await assertValidation(t, {
+		"specVersion": "2.0",
+		"type": "application",
+		"kind": null,
 		"metadata": {
 			"name": "my-application"
 		}
@@ -174,6 +184,28 @@ test("Invalid type", async (t) => {
 			],
 		},
 		schemaPath: "#/properties/type/enum",
+	}]);
+});
+
+test("Invalid kind", async (t) => {
+	await assertValidation(t, {
+		"specVersion": "2.0",
+		"kind": "foo",
+		"metadata": {
+			"name": "my-project"
+		}
+	}, [{
+		dataPath: "/kind",
+		keyword: "enum",
+		message: "should be equal to one of the allowed values",
+		params: {
+			allowedValues: [
+				"project",
+				"extension",
+				null
+			],
+		},
+		schemaPath: "#/properties/kind/enum",
 	}]);
 });
 

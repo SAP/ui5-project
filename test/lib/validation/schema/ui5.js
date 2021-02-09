@@ -102,6 +102,7 @@ For details see: https://sap.github.io/ui5-tooling/pages/Configuration/#specific
 				errors: [
 					{
 						dataPath: "/specVersion",
+						emUsed: true,
 						keyword: "enum",
 						message: "should be equal to one of the allowed values",
 						params: {

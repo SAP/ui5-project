@@ -122,6 +122,26 @@ test.after.always((t) => {
 			}
 		]);
 	});
+	test(`kind: extension / type: project-shim (${specVersion}) - Missing required "shims"`, async (t) => {
+		await assertValidation(t, {
+			"specVersion": specVersion,
+			"kind": "extension",
+			"type": "project-shim",
+			"metadata": {
+				"name": "my-project-shim"
+			}
+		}, [
+			{
+				dataPath: "",
+				keyword: "required",
+				message: "should have required property 'shims'",
+				params: {
+					"missingProperty": "shims"
+				},
+				schemaPath: "#/required",
+			}
+		]);
+	});
 });
 
 
