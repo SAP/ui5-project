@@ -29,7 +29,7 @@ test.after.always((t) => {
 		statements: 85,
 		branches: 75,
 		functions: 100,
-		lines: 90
+		lines: 88
 	};
 	t.context.ajvCoverage.verify(thresholds);
 });
