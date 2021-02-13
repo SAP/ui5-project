@@ -1,15 +1,33 @@
 const test = require("ava");
-const sinonGlobal = require("sinon");
 const path = require("path");
-const projectGraphFromTree = require("../../../lib/graph/projectGraphFromTree.js");
+const sinonGlobal = require("sinon");
+const mock = require("mock-require");
+const logger = require("@ui5/logger");
 
 const applicationAPath = path.join(__dirname, "..", "..", "fixtures", "application.a");
 const applicationBPath = path.join(__dirname, "..", "..", "fixtures", "application.b");
 const applicationCPath = path.join(__dirname, "..", "..", "fixtures", "application.c");
+const libraryAPath = path.join(__dirname, "..", "..", "fixtures", "collection", "library.a");
+const libraryBPath = path.join(__dirname, "..", "..", "fixtures", "collection", "library.b");
+// const libraryCPath = path.join(__dirname, "..", "..", "fixtures", "collection", "library.c");
+const libraryDPath = path.join(__dirname, "..", "..", "fixtures", "library.d");
 const cycleDepsBasePath = path.join(__dirname, "..", "..", "fixtures", "cyclic-deps", "node_modules");
+const pathToInvalidModule = path.join(__dirname, "..", "..", "fixtures", "invalidModule");
 
 test.beforeEach((t) => {
-	t.context.sinon = sinonGlobal.createSandbox();
+	const sinon = t.context.sinon = sinonGlobal.createSandbox();
+
+	t.context.log = {
+		warn: sinon.stub(),
+		verbose: sinon.stub(),
+		error: sinon.stub(),
+		info: sinon.stub(),
+		isLevelEnabled: () => true
+	};
+	sinon.stub(logger, "getLogger").callThrough()
+		.withArgs("graph:projectGraphFromTree").returns(t.context.log);
+	t.context.projectGraphFromTree = mock.reRequire("../../../lib/graph/projectGraphFromTree.js");
+	logger.getLogger.restore(); // Immediately restore global stub for following tests
 });
 
 test.afterEach.always((t) => {
@@ -17,12 +35,14 @@ test.afterEach.always((t) => {
 });
 
 test("Application A", async (t) => {
+	const {projectGraphFromTree} = t.context;
 	const projectGraph = await projectGraphFromTree(applicationATree);
 	const rootProject = projectGraph.getRoot();
 	t.is(rootProject.getName(), "application.a", "Returned correct root project");
 });
 
 test("Application A: Traverse project graph breadth first", async (t) => {
+	const {projectGraphFromTree} = t.context;
 	const projectGraph = await projectGraphFromTree(applicationATree);
 	const callbackStub = t.context.sinon.stub().resolves();
 	await projectGraph.traverseBreadthFirst(callbackStub);
@@ -31,10 +51,6 @@ test("Application A: Traverse project graph breadth first", async (t) => {
 
 	const callbackCalls = callbackStub.getCalls().map((call) => call.args[0].project.getName());
 
-	// Since libraries a, b and c are processed in parallel, their callback order can vary
-	// Therefore we always sort the last three calls
-	// const lastThreeCalls = callbackCalls.splice(2, 3).sort();
-	// callbackCalls.push(...lastThreeCalls);
 	t.deepEqual(callbackCalls, [
 		"application.a",
 		"library.d",
@@ -45,6 +61,7 @@ test("Application A: Traverse project graph breadth first", async (t) => {
 });
 
 test("Application Cycle A: Traverse project graph breadth first with cycles", async (t) => {
+	const {projectGraphFromTree} = t.context;
 	const projectGraph = await projectGraphFromTree(applicationCycleATreeIncDeduped);
 	const callbackStub = t.context.sinon.stub().resolves();
 	const error = await t.throwsAsync(projectGraph.traverseBreadthFirst(callbackStub));
@@ -66,6 +83,7 @@ test("Application Cycle A: Traverse project graph breadth first with cycles", as
 });
 
 test("Application Cycle B: Traverse project graph breadth first with cycles", async (t) => {
+	const {projectGraphFromTree} = t.context;
 	const projectGraph = await projectGraphFromTree(applicationCycleBTreeIncDeduped);
 	const callbackStub = t.context.sinon.stub().resolves();
 	await projectGraph.traverseBreadthFirst(callbackStub);
@@ -84,6 +102,7 @@ test("Application Cycle B: Traverse project graph breadth first with cycles", as
 });
 
 test("Application A: Traverse project graph depth first", async (t) => {
+	const {projectGraphFromTree} = t.context;
 	const projectGraph = await projectGraphFromTree(applicationATree);
 	const callbackStub = t.context.sinon.stub().resolves();
 	await projectGraph.traverseDepthFirst(callbackStub);
@@ -92,10 +111,6 @@ test("Application A: Traverse project graph depth first", async (t) => {
 
 	const callbackCalls = callbackStub.getCalls().map((call) => call.args[0].project.getName());
 
-	// Since libraries a, b and c are processed in parallel, their callback order can vary
-	// Therefore we always sort the first three calls
-	// const firstThreeCalls = callbackCalls.splice(0, 3).sort();
-	// callbackCalls.unshift(...firstThreeCalls);
 	t.deepEqual(callbackCalls, [
 		"library.a",
 		"library.b",
@@ -108,6 +123,7 @@ test("Application A: Traverse project graph depth first", async (t) => {
 
 
 test("Application Cycle A: Traverse project graph depth first with cycles", async (t) => {
+	const {projectGraphFromTree} = t.context;
 	const projectGraph = await projectGraphFromTree(applicationCycleATreeIncDeduped);
 	const callbackStub = t.context.sinon.stub().resolves();
 	const error = await t.throwsAsync(projectGraph.traverseDepthFirst(callbackStub));
@@ -121,6 +137,7 @@ test("Application Cycle A: Traverse project graph depth first with cycles", asyn
 });
 
 test("Application Cycle B: Traverse project graph depth first with cycles", async (t) => {
+	const {projectGraphFromTree} = t.context;
 	const projectGraph = await projectGraphFromTree(applicationCycleBTreeIncDeduped);
 	const callbackStub = t.context.sinon.stub().resolves();
 	const error = await t.throwsAsync(projectGraph.traverseDepthFirst(callbackStub));
@@ -137,11 +154,23 @@ test("Application Cycle B: Traverse project graph depth first with cycles", asyn
 /* ================================================================================================= */
 /* ======= The following tests have been derived from the existing projectPreprocessor tests ======= */
 
-async function testBasicGraphCreation(t, tree, expectedOrder, bfs) {
+function testBasicGraphCreationBfs(...args) {
+	return _testBasicGraphCreation(...args, true);
+}
+
+function testBasicGraphCreationDfs(...args) {
+	return _testBasicGraphCreation(...args, false);
+}
+
+async function _testBasicGraphCreation(t, tree, expectedOrder, bfs) {
+	if (bfs === undefined) {
+		throw new Error("Test error: Parameter 'bfs' must be specified");
+	}
+	const {projectGraphFromTree} = t.context;
 	const projectGraph = await projectGraphFromTree(tree);
 	const callbackStub = t.context.sinon.stub().resolves();
 	if (bfs) {
-		await projectGraph.traverseBreathFirst(callbackStub);
+		await projectGraph.traverseBreadthFirst(callbackStub);
 	} else {
 		await projectGraph.traverseDepthFirst(callbackStub);
 	}
@@ -155,7 +184,7 @@ async function testBasicGraphCreation(t, tree, expectedOrder, bfs) {
 
 test("Project with inline configuration", async (t) => {
 	const tree = {
-		id: "application.a",
+		id: "application.a.id",
 		path: applicationAPath,
 		dependencies: [],
 		version: "1.0.0",
@@ -168,34 +197,34 @@ test("Project with inline configuration", async (t) => {
 		}
 	};
 
-	await testBasicGraphCreation(t, tree, [
+	await testBasicGraphCreationDfs(t, tree, [
 		"xy"
 	]);
 });
 
 test("Project with configPath", async (t) => {
 	const tree = {
-		id: "application.a",
+		id: "application.a.id",
 		path: applicationAPath,
 		configPath: path.join(applicationBPath, "ui5.yaml"), // B, not A - just to have something different
 		dependencies: [],
 		version: "1.0.0"
 	};
 
-	await testBasicGraphCreation(t, tree, [
+	await testBasicGraphCreationDfs(t, tree, [
 		"application.b"
 	]);
 });
 
 test("Project with ui5.yaml at default location", async (t) => {
 	const tree = {
-		id: "application.a",
+		id: "application.a.id",
 		version: "1.0.0",
 		path: applicationAPath,
 		dependencies: []
 	};
 
-	await testBasicGraphCreation(t, tree, [
+	await testBasicGraphCreationDfs(t, tree, [
 		"application.a"
 	]);
 });
@@ -208,34 +237,42 @@ test("Project with ui5.yaml at default location and some configuration", async (
 		dependencies: []
 	};
 
-	await testBasicGraphCreation(t, tree, [
+	await testBasicGraphCreationDfs(t, tree, [
 		"application.c"
 	]);
 });
 
 test("Missing configuration file for root project", async (t) => {
+	const {projectGraphFromTree} = t.context;
 	const tree = {
-		id: "application.a",
+		id: "application.a.id",
 		version: "1.0.0",
 		path: "non-existent",
 		dependencies: []
 	};
 	await t.throwsAsync(projectGraphFromTree(tree),
-		{message: "Failed to crate a project from root module application.a (non-existent)"}, "Rejected with error");
+		{
+			message:
+				"Failed to crate a UI5 project from module application.a.id at non-existent. " +
+				"Make sure the path is correct and a project configuration is present or supplied."
+		},
+		"Rejected with error");
 });
 
-test("Missing id for root project", (t) => {
+test("Missing id for root project", async (t) => {
+	const {projectGraphFromTree} = t.context;
 	const tree = {
 		path: path.join(__dirname, "../fixtures/application.a"),
 		dependencies: []
 	};
-	return t.throwsAsync(projectGraphFromTree(tree),
+	await t.throwsAsync(projectGraphFromTree(tree),
 		{message: "Could not create Module: Missing or empty id parameter"}, "Rejected with error");
 });
 
 test("No type configured for root project", async (t) => {
+	const {projectGraphFromTree} = t.context;
 	const tree = {
-		id: "application.a",
+		id: "application.a.id",
 		version: "1.0.0",
 		path: path.join(__dirname, "../fixtures/application.a"),
 		dependencies: [],
@@ -249,10 +286,318 @@ test("No type configured for root project", async (t) => {
 	};
 	const error = await t.throwsAsync(projectGraphFromTree(tree));
 
-	t.is(error.message, `Invalid ui5.yaml configuration for project application.a
+	t.is(error.message, `Invalid ui5.yaml configuration for project application.a.id
 
 Configuration must have required property 'type'`,
 	"Rejected with expected error");
+});
+
+test("Missing dependencies", async (t) => {
+	const {projectGraphFromTree} = t.context;
+	const tree = ({
+		id: "application.a.id",
+		version: "1.0.0",
+		path: applicationAPath
+	});
+	await t.notThrowsAsync(projectGraphFromTree(tree),
+		"Gracefully accepted project with no dependencies attribute");
+});
+
+test("Missing second-level dependencies", async (t) => {
+	const {projectGraphFromTree} = t.context;
+	const tree = ({
+		id: "application.a.id",
+		version: "1.0.0",
+		path: applicationAPath,
+		dependencies: [{
+			id: "library.d.id",
+			version: "1.0.0",
+			path: path.join(applicationAPath, "node_modules", "library.d")
+		}]
+	});
+	return t.notThrowsAsync(projectGraphFromTree(tree),
+		"Gracefully accepted project with no dependencies attribute");
+});
+
+test("Single non-root application-project", async (t) => {
+	const tree = ({
+		id: "library.a",
+		version: "1.0.0",
+		path: libraryAPath,
+		dependencies: [{
+			id: "application.a.id",
+			version: "1.0.0",
+			path: applicationAPath,
+			dependencies: []
+		}]
+	});
+
+	await testBasicGraphCreationDfs(t, tree, [
+		"application.a",
+		"library.a"
+	]);
+});
+
+test("Multiple non-root application-projects on same level", async (t) => {
+	const {log} = t.context;
+	const tree = ({
+		id: "library.a",
+		version: "1.0.0",
+		path: libraryAPath,
+		dependencies: [{
+			id: "application.a",
+			version: "1.0.0",
+			path: applicationAPath,
+			dependencies: []
+		}, {
+			id: "application.b",
+			version: "1.0.0",
+			path: applicationBPath,
+			dependencies: []
+		}]
+	});
+
+	await testBasicGraphCreationDfs(t, tree, [
+		"application.a",
+		"library.a"
+	]);
+
+	t.is(log.info.callCount, 1, "log.info should be called once");
+	t.is(log.info.getCall(0).args[0],
+		`Excluding additional application project application.b from graph. `+
+		`The project graph can only feature a single project of type application. ` +
+		`Project application.a has already qualified for that role.`,
+		"log.info should be called once with the expected argument");
+});
+
+test("Multiple non-root application-projects on different levels", async (t) => {
+	const {log} = t.context;
+	const tree = ({
+		id: "library.a",
+		version: "1.0.0",
+		path: libraryAPath,
+		dependencies: [{
+			id: "application.a",
+			version: "1.0.0",
+			path: applicationAPath,
+			dependencies: []
+		}, {
+			id: "library.b",
+			version: "1.0.0",
+			path: libraryBPath,
+			dependencies: [{
+				id: "application.b",
+				version: "1.0.0",
+				path: applicationBPath,
+				dependencies: []
+			}]
+		}]
+	});
+
+	await testBasicGraphCreationDfs(t, tree, [
+		"application.a",
+		"library.b",
+		"library.a"
+	]);
+
+	t.is(log.info.callCount, 1, "log.info should be called once");
+	t.is(log.info.getCall(0).args[0],
+		`Excluding additional application project application.b from graph. `+
+		`The project graph can only feature a single project of type application. ` +
+		`Project application.a has already qualified for that role.`,
+		"log.info should be called once with the expected argument");
+});
+
+test("Root- and non-root application-projects", async (t) => {
+	const {log} = t.context;
+	const tree = ({
+		id: "application.a",
+		version: "1.0.0",
+		path: applicationAPath,
+		dependencies: [{
+			id: "library.a",
+			version: "1.0.0",
+			path: libraryAPath,
+			dependencies: [{
+				id: "application.b",
+				version: "1.0.0",
+				path: applicationBPath,
+				dependencies: []
+			}]
+		}]
+	});
+	await testBasicGraphCreationDfs(t, tree, [
+		"library.a",
+		"application.a",
+	]);
+
+	t.is(log.info.callCount, 1, "log.info should be called once");
+	t.is(log.info.getCall(0).args[0],
+		`Excluding additional application project application.b from graph. `+
+		`The project graph can only feature a single project of type application. ` +
+		`Project application.a has already qualified for that role.`,
+		"log.info should be called once with the expected argument");
+});
+
+test("Ignores additional application-projects", async (t) => {
+	const {log} = t.context;
+	const tree = ({
+		id: "application.a",
+		version: "1.0.0",
+		path: applicationAPath,
+		dependencies: [{
+			id: "application.b",
+			version: "1.0.0",
+			path: applicationBPath,
+			dependencies: []
+		}]
+	});
+	await testBasicGraphCreationDfs(t, tree, [
+		"application.a",
+	]);
+
+	t.is(log.info.callCount, 1, "log.info should be called once");
+	t.is(log.info.getCall(0).args[0],
+		`Excluding additional application project application.b from graph. `+
+		`The project graph can only feature a single project of type application. ` +
+		`Project application.a has already qualified for that role.`,
+		"log.info should be called once with the expected argument");
+});
+
+test("Inconsistent dependencies with same ID", async (t) => {
+	// The one closer to the root should win
+	const tree = {
+		id: "application.a",
+		version: "1.0.0",
+		specVersion: "2.3",
+		path: applicationAPath,
+		type: "application",
+		metadata: {
+			name: "application.a"
+		},
+		dependencies: [
+			{
+				id: "library.d",
+				version: "1.0.0",
+				specVersion: "2.3",
+				path: libraryDPath,
+				type: "library",
+				metadata: {
+					name: "library.d",
+				},
+				resources: {
+					configuration: {
+						propertiesFileSourceEncoding: "UTF-8",
+						paths: {
+							src: "main/src",
+							test: "main/test"
+						}
+					}
+				},
+				dependencies: [
+					{
+						id: "library.a",
+						version: "1.0.0",
+						specVersion: "2.3",
+						path: libraryBPath, // B, not A - inconsistency!
+						configuration: {
+							specVersion: "2.3",
+							type: "library",
+							metadata: {
+								name: "library.XY",
+							}
+						},
+						dependencies: []
+					}
+				]
+			},
+			{
+				id: "library.a",
+				version: "1.0.0",
+				specVersion: "2.3",
+				path: libraryAPath,
+				type: "library",
+				metadata: {
+					name: "library.a",
+				},
+				dependencies: []
+			}
+		]
+	};
+	await testBasicGraphCreationDfs(t, tree, [
+		// "library.XY" is ignored since the ID has already been processed and resolved to library A
+		"library.a",
+		"library.d",
+		"application.a"
+	]);
+});
+
+test("Project tree A with inline configs depth first", async (t) => {
+	await testBasicGraphCreationDfs(t, applicationATreeWithInlineConfigs, [
+		"library.a",
+		"library.d",
+		"application.a"
+	]);
+});
+
+test("Project tree A with configPaths depth first", async (t) => {
+	await testBasicGraphCreationDfs(t, applicationATreeWithConfigPaths, [
+		"library.a",
+		"library.d",
+		"application.a"
+
+	]);
+});
+
+test("Project tree A with default YAMLs depth first", async (t) => {
+	await testBasicGraphCreationDfs(t, applicationATreeWithDefaultYamls, [
+		"library.a",
+		"library.d",
+		"application.a"
+	]);
+});
+
+test("Project tree A with inline configs breadth first", async (t) => {
+	await testBasicGraphCreationBfs(t, applicationATreeWithInlineConfigs, [
+		"application.a",
+		"library.d",
+		"library.a",
+	]);
+});
+
+test("Project tree A with configPaths breadth first", async (t) => {
+	await testBasicGraphCreationBfs(t, applicationATreeWithConfigPaths, [
+		"application.a",
+		"library.d",
+		"library.a"
+
+	]);
+});
+
+test("Project tree A with default YAMLs breadth first", async (t) => {
+	await testBasicGraphCreationBfs(t, applicationATreeWithDefaultYamls, [
+		"application.a",
+		"library.d",
+		"library.a"
+	]);
+});
+
+test("Project tree B with inline configs", async (t) => {
+	// Tree B depends on Library B which has a dependency to Library D
+	await testBasicGraphCreationDfs(t, applicationBTreeWithInlineConfigs, [
+		"library.a",
+		"library.d",
+		"library.b",
+		"application.b"
+	]);
+});
+
+test("Project with nested invalid dependencies", async (t) => {
+	await testBasicGraphCreationDfs(t, treeWithInvalidModules, [
+		"library.a",
+		"library.b",
+		"application.a"
+	]);
 });
 
 /* ========================= */
@@ -390,4 +735,300 @@ const applicationCycleBTreeIncDeduped = {
 			]
 		}
 	]
+};
+
+
+/* === Tree A === */
+const applicationATreeWithInlineConfigs = {
+	id: "application.a",
+	version: "1.0.0",
+	path: applicationAPath,
+	configuration: {
+		specVersion: "2.3",
+		type: "application",
+		metadata: {
+			name: "application.a",
+		},
+	},
+	dependencies: [
+		{
+			id: "library.d",
+			version: "1.0.0",
+			path: libraryDPath,
+			configuration: {
+				specVersion: "2.3",
+				type: "library",
+				metadata: {
+					name: "library.d",
+				},
+			},
+			resources: {
+				configuration: {
+					propertiesFileSourceEncoding: "UTF-8",
+					paths: {
+						src: "main/src",
+						test: "main/test"
+					}
+				}
+			},
+			dependencies: [
+				{
+					id: "library.a",
+					version: "1.0.0",
+					path: libraryAPath,
+					configuration: {
+						specVersion: "2.3",
+						type: "library",
+						metadata: {
+							name: "library.a",
+						},
+					},
+					dependencies: []
+				}
+			]
+		},
+		{
+			id: "library.a",
+			version: "1.0.0",
+			path: libraryAPath,
+			configuration: {
+				specVersion: "2.3",
+				type: "library",
+				metadata: {
+					name: "library.a"
+				},
+			},
+			dependencies: []
+		}
+	]
+};
+
+const applicationATreeWithConfigPaths = {
+	id: "application.a",
+	version: "1.0.0",
+	path: applicationAPath,
+	configPath: path.join(applicationAPath, "ui5.yaml"),
+	dependencies: [
+		{
+			id: "library.d",
+			version: "1.0.0",
+			path: libraryDPath,
+			configPath: path.join(libraryDPath, "ui5.yaml"),
+			dependencies: [
+				{
+					id: "library.a",
+					version: "1.0.0",
+					path: libraryAPath,
+					configPath: path.join(libraryAPath, "ui5.yaml"),
+					dependencies: []
+				}
+			]
+		},
+		{
+			id: "library.a",
+			version: "1.0.0",
+			path: libraryAPath,
+			configPath: path.join(libraryAPath, "ui5.yaml"),
+			dependencies: []
+		}
+	]
+};
+
+const applicationATreeWithDefaultYamls = {
+	id: "application.a",
+	version: "1.0.0",
+	path: applicationAPath,
+	dependencies: [
+		{
+			id: "library.d",
+			version: "1.0.0",
+			path: libraryDPath,
+			dependencies: [
+				{
+					id: "library.a",
+					version: "1.0.0",
+					path: libraryAPath,
+					dependencies: []
+				}
+			]
+		},
+		{
+			id: "library.a",
+			version: "1.0.0",
+			path: libraryAPath,
+			dependencies: []
+		}
+	]
+};
+
+/* === Tree B === */
+const applicationBTreeWithInlineConfigs = {
+	id: "application.b",
+	version: "1.0.0",
+	path: applicationBPath,
+	configuration: {
+		specVersion: "2.3",
+		type: "application",
+		metadata: {
+			name: "application.b"
+		}
+	},
+	dependencies: [
+		{
+			id: "library.b",
+			version: "1.0.0",
+			path: libraryBPath,
+			configuration: {
+				specVersion: "2.3",
+				type: "library",
+				metadata: {
+					name: "library.b",
+				}
+			},
+			dependencies: [
+				{
+					id: "library.d",
+					version: "1.0.0",
+					path: libraryDPath,
+					configuration: {
+						specVersion: "2.3",
+						type: "library",
+						metadata: {
+							name: "library.d",
+						},
+						resources: {
+							configuration: {
+								propertiesFileSourceEncoding: "UTF-8",
+								paths: {
+									src: "main/src",
+									test: "main/test"
+								}
+							}
+						}
+					},
+					dependencies: [
+						{
+							id: "library.a",
+							version: "1.0.0",
+							path: libraryAPath,
+							configuration: {
+								specVersion: "2.3",
+								type: "library",
+								metadata: {
+									name: "library.a"
+								}
+							},
+							dependencies: []
+						}
+					]
+				}
+			]
+		},
+		{
+			id: "library.d",
+			version: "1.0.0",
+			path: libraryDPath,
+			configuration: {
+				specVersion: "2.3",
+				type: "library",
+				metadata: {
+					name: "library.d",
+				},
+				resources: {
+					configuration: {
+						propertiesFileSourceEncoding: "UTF-8",
+						paths: {
+							src: "main/src",
+							test: "main/test"
+						}
+					}
+				}
+			},
+			dependencies: [
+				{
+					id: "library.a",
+					version: "1.0.0",
+					path: libraryAPath,
+					configuration: {
+						specVersion: "2.3",
+						type: "library",
+						metadata: {
+							name: "library.a"
+						}
+					},
+					dependencies: []
+				}
+			]
+		}
+	]
+};
+
+/* === Invalid Modules */
+const treeWithInvalidModules = {
+	id: "application.a",
+	path: applicationAPath,
+	dependencies: [
+		// A
+		{
+			id: "library.a",
+			path: libraryAPath,
+			dependencies: [
+				{
+					// C - invalid - should be missing in preprocessed tree
+					id: "module.c",
+					dependencies: [],
+					path: pathToInvalidModule,
+					version: "1.0.0"
+				},
+				{
+					// D - invalid - should be missing in preprocessed tree
+					id: "module.d",
+					dependencies: [],
+					path: pathToInvalidModule,
+					version: "1.0.0"
+				}
+			],
+			version: "1.0.0",
+			configuration: {
+				specVersion: "2.3",
+				type: "library",
+				metadata: {name: "library.a"}
+			}
+		},
+		// B
+		{
+			id: "library.b",
+			path: libraryBPath,
+			dependencies: [
+				{
+					// C - invalid - should be missing in preprocessed tree
+					id: "module.c",
+					dependencies: [],
+					path: pathToInvalidModule,
+					version: "1.0.0"
+				},
+				{
+					// D - invalid - should be missing in preprocessed tree
+					id: "module.d",
+					dependencies: [],
+					path: pathToInvalidModule,
+					version: "1.0.0"
+				}
+			],
+			version: "1.0.0",
+			configuration: {
+				specVersion: "2.3",
+				type: "library",
+				metadata: {name: "library.b"}
+			}
+		}
+	],
+	version: "1.0.0",
+	configuration: {
+		specVersion: "2.3",
+		type: "application",
+		metadata: {
+			name: "application.a"
+		}
+	}
 };
