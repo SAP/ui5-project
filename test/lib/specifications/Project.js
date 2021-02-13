@@ -2,11 +2,13 @@ const test = require("ava");
 const sinon = require("sinon");
 const path = require("path");
 const Project = require("../../../lib/specifications/Project");
-const ProjectConfiguration = require("../../../lib/configurations/ProjectConfiguration");
+const ProjectConfiguration = require("../../../lib/specifications/Configuration");
 
 const applicationAPath = path.join(__dirname, "..", "..", "fixtures", "application.a");
 
 const emptyConfiguration = new ProjectConfiguration({
+	specVersion: "2.3",
+	kind: "project",
 	metadata: {name: "application.a"}
 });
 const basicProjectInput = {
