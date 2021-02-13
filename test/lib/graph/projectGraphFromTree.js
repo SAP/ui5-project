@@ -31,8 +31,8 @@ test("Application A: Traverse project graph breadth first", async (t) => {
 
 	// Since libraries a, b and c are processed in parallel, their callback order can vary
 	// Therefore we always sort the last three calls
-	const lastThreeCalls = callbackCalls.splice(2, 3).sort();
-	callbackCalls.push(...lastThreeCalls);
+	// const lastThreeCalls = callbackCalls.splice(2, 3).sort();
+	// callbackCalls.push(...lastThreeCalls);
 	t.deepEqual(callbackCalls, [
 		"application.a",
 		"library.d",
@@ -92,8 +92,8 @@ test("Application A: Traverse project graph depth first", async (t) => {
 
 	// Since libraries a, b and c are processed in parallel, their callback order can vary
 	// Therefore we always sort the first three calls
-	const firstThreeCalls = callbackCalls.splice(0, 3).sort();
-	callbackCalls.unshift(...firstThreeCalls);
+	// const firstThreeCalls = callbackCalls.splice(0, 3).sort();
+	// callbackCalls.unshift(...firstThreeCalls);
 	t.deepEqual(callbackCalls, [
 		"library.a",
 		"library.b",
@@ -131,6 +131,41 @@ test("Application Cycle B: Traverse project graph depth first with cycles", asyn
 		"Threw with expected error message");
 });
 
+async function testBasicGraphCreation(t, tree, expectedOrder, bfs) {
+	const projectGraph = await projectGraphFromTree(tree);
+	const callbackStub = t.context.sinon.stub().resolves();
+	if (bfs) {
+		await projectGraph.traverseBreathFirst(callbackStub);
+	} else {
+		await projectGraph.traverseDepthFirst(callbackStub);
+	}
+
+	t.is(callbackStub.callCount, expectedOrder.length, "Correct number of projects have been visited");
+
+	const callbackCalls = callbackStub.getCalls().map((call) => call.args[0].project.getName());
+
+	t.deepEqual(callbackCalls, expectedOrder, "Traversed graph in correct order");
+}
+
+test("Project with inline configuration", async (t) => {
+	const tree = {
+		id: "application.a",
+		path: applicationAPath,
+		dependencies: [],
+		version: "1.0.0",
+		configuration: {
+			specVersion: "1.0",
+			type: "application",
+			metadata: {
+				name: "xy"
+			}
+		}
+	};
+
+	await testBasicGraphCreation(t, tree, [
+		"xy"
+	]);
+});
 
 /* ========================= */
 /* ======= Test data ======= */
