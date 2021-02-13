@@ -4,6 +4,8 @@ const path = require("path");
 const projectGraphFromTree = require("../../../lib/graph/projectGraphFromTree.js");
 
 const applicationAPath = path.join(__dirname, "..", "..", "fixtures", "application.a");
+const applicationBPath = path.join(__dirname, "..", "..", "fixtures", "application.b");
+const applicationCPath = path.join(__dirname, "..", "..", "fixtures", "application.c");
 const cycleDepsBasePath = path.join(__dirname, "..", "..", "fixtures", "cyclic-deps", "node_modules");
 
 test.beforeEach((t) => {
@@ -131,6 +133,10 @@ test("Application Cycle B: Traverse project graph depth first with cycles", asyn
 		"Threw with expected error message");
 });
 
+
+/* ================================================================================================= */
+/* ======= The following tests have been derived from the existing projectPreprocessor tests ======= */
+
 async function testBasicGraphCreation(t, tree, expectedOrder, bfs) {
 	const projectGraph = await projectGraphFromTree(tree);
 	const callbackStub = t.context.sinon.stub().resolves();
@@ -154,7 +160,7 @@ test("Project with inline configuration", async (t) => {
 		dependencies: [],
 		version: "1.0.0",
 		configuration: {
-			specVersion: "1.0",
+			specVersion: "2.3",
 			type: "application",
 			metadata: {
 				name: "xy"
@@ -165,6 +171,88 @@ test("Project with inline configuration", async (t) => {
 	await testBasicGraphCreation(t, tree, [
 		"xy"
 	]);
+});
+
+test("Project with configPath", async (t) => {
+	const tree = {
+		id: "application.a",
+		path: applicationAPath,
+		configPath: path.join(applicationBPath, "ui5.yaml"), // B, not A - just to have something different
+		dependencies: [],
+		version: "1.0.0"
+	};
+
+	await testBasicGraphCreation(t, tree, [
+		"application.b"
+	]);
+});
+
+test("Project with ui5.yaml at default location", async (t) => {
+	const tree = {
+		id: "application.a",
+		version: "1.0.0",
+		path: applicationAPath,
+		dependencies: []
+	};
+
+	await testBasicGraphCreation(t, tree, [
+		"application.a"
+	]);
+});
+
+test("Project with ui5.yaml at default location and some configuration", async (t) => {
+	const tree = {
+		id: "application.c",
+		version: "1.0.0",
+		path: applicationCPath,
+		dependencies: []
+	};
+
+	await testBasicGraphCreation(t, tree, [
+		"application.c"
+	]);
+});
+
+test("Missing configuration file for root project", async (t) => {
+	const tree = {
+		id: "application.a",
+		version: "1.0.0",
+		path: "non-existent",
+		dependencies: []
+	};
+	await t.throwsAsync(projectGraphFromTree(tree),
+		{message: "Failed to crate a project from root module application.a (non-existent)"}, "Rejected with error");
+});
+
+test("Missing id for root project", (t) => {
+	const tree = {
+		path: path.join(__dirname, "../fixtures/application.a"),
+		dependencies: []
+	};
+	return t.throwsAsync(projectGraphFromTree(tree),
+		{message: "Could not create Module: Missing or empty id parameter"}, "Rejected with error");
+});
+
+test("No type configured for root project", async (t) => {
+	const tree = {
+		id: "application.a",
+		version: "1.0.0",
+		path: path.join(__dirname, "../fixtures/application.a"),
+		dependencies: [],
+		configuration: {
+			specVersion: "2.1",
+			metadata: {
+				name: "application.a",
+				namespace: "id1"
+			}
+		}
+	};
+	const error = await t.throwsAsync(projectGraphFromTree(tree));
+
+	t.is(error.message, `Invalid ui5.yaml configuration for project application.a
+
+Configuration must have required property 'type'`,
+	"Rejected with expected error");
 });
 
 /* ========================= */
