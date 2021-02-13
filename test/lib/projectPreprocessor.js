@@ -27,7 +27,7 @@ test("Project with inline configuration", (t) => {
 		path: applicationAPath,
 		dependencies: [],
 		version: "1.0.0",
-		specVersion: "1.0",
+		specVersion: "2.3",
 		type: "application",
 		metadata: {
 			name: "xy"
@@ -44,7 +44,7 @@ test("Project with inline configuration", (t) => {
 			},
 			resources: {
 				configuration: {
-					propertiesFileSourceEncoding: "ISO-8859-1",
+					propertiesFileSourceEncoding: "UTF-8",
 					paths: {
 						webapp: "webapp"
 					}
@@ -57,7 +57,7 @@ test("Project with inline configuration", (t) => {
 			id: "application.a",
 			kind: "project",
 			version: "1.0.0",
-			specVersion: "1.0",
+			specVersion: "2.3",
 			path: applicationAPath
 		}, "Parsed correctly");
 	});
@@ -82,7 +82,7 @@ test("Project with configPath", (t) => {
 			},
 			resources: {
 				configuration: {
-					propertiesFileSourceEncoding: "ISO-8859-1",
+					propertiesFileSourceEncoding: "UTF-8",
 					paths: {
 						webapp: "webapp"
 					}
@@ -95,7 +95,7 @@ test("Project with configPath", (t) => {
 			id: "application.a",
 			kind: "project",
 			version: "1.0.0",
-			specVersion: "0.1",
+			specVersion: "2.3",
 			path: applicationAPath,
 			configPath: path.join(applicationBPath, "ui5.yaml")
 		}, "Parsed correctly");
@@ -120,7 +120,7 @@ test("Project with ui5.yaml at default location", (t) => {
 			},
 			resources: {
 				configuration: {
-					propertiesFileSourceEncoding: "ISO-8859-1",
+					propertiesFileSourceEncoding: "UTF-8",
 					paths: {
 						webapp: "webapp"
 					}
@@ -133,7 +133,7 @@ test("Project with ui5.yaml at default location", (t) => {
 			id: "application.a",
 			kind: "project",
 			version: "1.0.0",
-			specVersion: "1.0",
+			specVersion: "2.3",
 			path: applicationAPath
 		}, "Parsed correctly");
 	});
@@ -157,7 +157,7 @@ test("Project with ui5.yaml at default location and some configuration", (t) => 
 			},
 			resources: {
 				configuration: {
-					propertiesFileSourceEncoding: "ISO-8859-1",
+					propertiesFileSourceEncoding: "UTF-8",
 					paths: {
 						webapp: "src"
 					}
@@ -170,7 +170,7 @@ test("Project with ui5.yaml at default location and some configuration", (t) => 
 			id: "application.c",
 			kind: "project",
 			version: "1.0.0",
-			specVersion: "0.1",
+			specVersion: "2.3",
 			path: applicationCPath
 		}, "Parsed correctly");
 	});
@@ -180,6 +180,7 @@ test("Missing configuration for root project", async (t) => {
 	const tree = {
 		id: "application.a",
 		path: "non-existent",
+		version: "1.0.0",
 		dependencies: []
 	};
 	const exception = await t.throwsAsync(projectPreprocessor.processTree(tree));
@@ -197,11 +198,11 @@ test("Missing id for root project", (t) => {
 		{message: "Encountered project with missing id (root project)"}, "Rejected with error");
 });
 
-test("No type configured for root project", (t) => {
+test("No type configured for root project", async (t) => {
 	const tree = {
 		id: "application.a",
 		version: "1.0.0",
-		specVersion: "0.1",
+		specVersion: "2.3",
 		path: path.join(__dirname, "../fixtures/application.a"),
 		dependencies: [],
 		metadata: {
@@ -209,17 +210,19 @@ test("No type configured for root project", (t) => {
 			namespace: "id1"
 		}
 	};
-	return t.throwsAsync(projectPreprocessor.processTree(tree),
-		{message: "No type configured for root project application.a"},
-		"Rejected with error");
+	const error = await t.throwsAsync(projectPreprocessor.processTree(tree));
+
+	t.is(error.message, `Invalid ui5.yaml configuration for project application.a
+
+Configuration must have required property 'type'`,
+	"Rejected with expected error");
 });
 
 test("Missing dependencies", (t) => {
 	const tree = ({
 		id: "application.a",
 		version: "1.0.0",
-		path: applicationAPath,
-		dependencies: []
+		path: applicationAPath
 	});
 	return t.notThrowsAsync(projectPreprocessor.processTree(tree),
 		"Gracefully accepted project with no dependency attribute");
@@ -346,7 +349,7 @@ test("Ignores additional application-projects", (t) => {
 			},
 			resources: {
 				configuration: {
-					propertiesFileSourceEncoding: "ISO-8859-1",
+					propertiesFileSourceEncoding: "UTF-8",
 					paths: {
 						webapp: "webapp"
 					}
@@ -359,7 +362,7 @@ test("Ignores additional application-projects", (t) => {
 			id: "application.a",
 			kind: "project",
 			version: "1.0.0",
-			specVersion: "1.0",
+			specVersion: "2.3",
 			path: applicationAPath
 		}, "Parsed correctly");
 	});
@@ -370,7 +373,7 @@ test("Inconsistent dependencies with same ID", (t) => {
 	const tree = {
 		id: "application.a",
 		version: "1.0.0",
-		specVersion: "0.1",
+		specVersion: "2.3",
 		path: applicationAPath,
 		type: "application",
 		metadata: {
@@ -380,7 +383,7 @@ test("Inconsistent dependencies with same ID", (t) => {
 			{
 				id: "library.d",
 				version: "1.0.0",
-				specVersion: "0.1",
+				specVersion: "2.3",
 				path: libraryDPath,
 				type: "library",
 				metadata: {
@@ -388,7 +391,7 @@ test("Inconsistent dependencies with same ID", (t) => {
 				},
 				resources: {
 					configuration: {
-						propertiesFileSourceEncoding: "ISO-8859-1",
+						propertiesFileSourceEncoding: "UTF-8",
 						paths: {
 							src: "main/src",
 							test: "main/test"
@@ -399,7 +402,7 @@ test("Inconsistent dependencies with same ID", (t) => {
 					{
 						id: "library.a",
 						version: "1.0.0",
-						specVersion: "0.1",
+						specVersion: "2.3",
 						path: libraryBPath, // B, not A - inconsistency!
 						type: "library",
 						metadata: {
@@ -412,7 +415,7 @@ test("Inconsistent dependencies with same ID", (t) => {
 			{
 				id: "library.a",
 				version: "1.0.0",
-				specVersion: "0.1",
+				specVersion: "2.3",
 				path: libraryAPath,
 				type: "library",
 				metadata: {
@@ -427,7 +430,7 @@ test("Inconsistent dependencies with same ID", (t) => {
 			id: "application.a",
 			kind: "project",
 			version: "1.0.0",
-			specVersion: "0.1",
+			specVersion: "2.3",
 			path: applicationAPath,
 			_level: 0,
 			_isRoot: true,
@@ -438,7 +441,7 @@ test("Inconsistent dependencies with same ID", (t) => {
 			},
 			resources: {
 				configuration: {
-					propertiesFileSourceEncoding: "ISO-8859-1",
+					propertiesFileSourceEncoding: "UTF-8",
 					paths: {
 						webapp: "webapp"
 					}
@@ -452,7 +455,7 @@ test("Inconsistent dependencies with same ID", (t) => {
 					id: "library.d",
 					kind: "project",
 					version: "1.0.0",
-					specVersion: "0.1",
+					specVersion: "2.3",
 					path: libraryDPath,
 					_level: 1,
 					type: "library",
@@ -463,7 +466,7 @@ test("Inconsistent dependencies with same ID", (t) => {
 					},
 					resources: {
 						configuration: {
-							propertiesFileSourceEncoding: "ISO-8859-1",
+							propertiesFileSourceEncoding: "UTF-8",
 							paths: {
 								src: "main/src",
 								test: "main/test"
@@ -479,7 +482,7 @@ test("Inconsistent dependencies with same ID", (t) => {
 							id: "library.a",
 							kind: "project",
 							version: "1.0.0",
-							specVersion: "0.1",
+							specVersion: "2.3",
 							path: libraryAPath,
 							_level: 1,
 							type: "library",
@@ -490,7 +493,7 @@ test("Inconsistent dependencies with same ID", (t) => {
 							},
 							resources: {
 								configuration: {
-									propertiesFileSourceEncoding: "ISO-8859-1",
+									propertiesFileSourceEncoding: "UTF-8",
 									paths: {
 										src: "src",
 										test: "test"
@@ -509,7 +512,7 @@ test("Inconsistent dependencies with same ID", (t) => {
 					id: "library.a",
 					kind: "project",
 					version: "1.0.0",
-					specVersion: "0.1",
+					specVersion: "2.3",
 					path: libraryAPath,
 					_level: 1,
 					type: "library",
@@ -520,7 +523,7 @@ test("Inconsistent dependencies with same ID", (t) => {
 					},
 					resources: {
 						configuration: {
-							propertiesFileSourceEncoding: "ISO-8859-1",
+							propertiesFileSourceEncoding: "UTF-8",
 							paths: {
 								src: "src",
 								test: "test"
@@ -611,7 +614,7 @@ const treeWithInvalidModules = {
 				}
 			],
 			version: "1.0.0",
-			specVersion: "1.0",
+			specVersion: "2.3",
 			type: "library",
 			metadata: {name: "library.a"}
 		},
@@ -636,13 +639,13 @@ const treeWithInvalidModules = {
 				}
 			],
 			version: "1.0.0",
-			specVersion: "1.0",
+			specVersion: "2.3",
 			type: "library",
 			metadata: {name: "library.b"}
 		}
 	],
 	version: "1.0.0",
-	specVersion: "1.0",
+	specVersion: "2.3",
 	type: "application",
 	metadata: {
 		name: "application.a"
@@ -657,7 +660,7 @@ const expectedTreeWithInvalidModules = {
 		"path": libraryAPath,
 		"dependencies": [],
 		"version": "1.0.0",
-		"specVersion": "1.0",
+		"specVersion": "2.3",
 		"type": "library",
 		"metadata": {
 			"name": "library.a",
@@ -668,7 +671,7 @@ const expectedTreeWithInvalidModules = {
 		"_level": 1,
 		"resources": {
 			"configuration": {
-				"propertiesFileSourceEncoding": "ISO-8859-1",
+				"propertiesFileSourceEncoding": "UTF-8",
 				"paths": {
 					"src": "src",
 					"test": "test"
@@ -684,7 +687,7 @@ const expectedTreeWithInvalidModules = {
 		"path": libraryBPath,
 		"dependencies": [],
 		"version": "1.0.0",
-		"specVersion": "1.0",
+		"specVersion": "2.3",
 		"type": "library",
 		"metadata": {
 			"name": "library.b",
@@ -695,7 +698,7 @@ const expectedTreeWithInvalidModules = {
 		"_level": 1,
 		"resources": {
 			"configuration": {
-				"propertiesFileSourceEncoding": "ISO-8859-1",
+				"propertiesFileSourceEncoding": "UTF-8",
 				"paths": {
 					"src": "src",
 					"test": "test"
@@ -708,7 +711,7 @@ const expectedTreeWithInvalidModules = {
 		}
 	}],
 	"version": "1.0.0",
-	"specVersion": "1.0",
+	"specVersion": "2.3",
 	"type": "application",
 	"metadata": {
 		"name": "application.a",
@@ -719,7 +722,7 @@ const expectedTreeWithInvalidModules = {
 	"kind": "project",
 	"resources": {
 		"configuration": {
-			"propertiesFileSourceEncoding": "ISO-8859-1",
+			"propertiesFileSourceEncoding": "UTF-8",
 			"paths": {
 				"webapp": "webapp"
 			}
@@ -734,7 +737,7 @@ const expectedTreeWithInvalidModules = {
 const treeAWithInlineConfigs = {
 	id: "application.a",
 	version: "1.0.0",
-	specVersion: "1.0",
+	specVersion: "2.3",
 	path: applicationAPath,
 	type: "application",
 	metadata: {
@@ -744,7 +747,7 @@ const treeAWithInlineConfigs = {
 		{
 			id: "library.d",
 			version: "1.0.0",
-			specVersion: "0.1",
+			specVersion: "2.3",
 			path: libraryDPath,
 			type: "library",
 			metadata: {
@@ -752,7 +755,7 @@ const treeAWithInlineConfigs = {
 			},
 			resources: {
 				configuration: {
-					propertiesFileSourceEncoding: "ISO-8859-1",
+					propertiesFileSourceEncoding: "UTF-8",
 					paths: {
 						src: "main/src",
 						test: "main/test"
@@ -763,7 +766,7 @@ const treeAWithInlineConfigs = {
 				{
 					id: "library.a",
 					version: "1.0.0",
-					specVersion: "0.1",
+					specVersion: "2.3",
 					path: libraryAPath,
 					type: "library",
 					metadata: {
@@ -776,7 +779,7 @@ const treeAWithInlineConfigs = {
 		{
 			id: "library.a",
 			version: "1.0.0",
-			specVersion: "0.1",
+			specVersion: "2.3",
 			path: libraryAPath,
 			type: "library",
 			metadata: {
@@ -849,7 +852,7 @@ const expectedTreeAWithInlineConfigs = {
 	"id": "application.a",
 	"kind": "project",
 	"version": "1.0.0",
-	"specVersion": "1.0",
+	"specVersion": "2.3",
 	"path": applicationAPath,
 	"_level": 0,
 	"_isRoot": true,
@@ -860,7 +863,7 @@ const expectedTreeAWithInlineConfigs = {
 	},
 	"resources": {
 		"configuration": {
-			"propertiesFileSourceEncoding": "ISO-8859-1",
+			"propertiesFileSourceEncoding": "UTF-8",
 			"paths": {
 				"webapp": "webapp"
 			}
@@ -874,7 +877,7 @@ const expectedTreeAWithInlineConfigs = {
 			"id": "library.d",
 			"kind": "project",
 			"version": "1.0.0",
-			"specVersion": "0.1",
+			"specVersion": "2.3",
 			"path": libraryDPath,
 			"_level": 1,
 			"type": "library",
@@ -885,7 +888,7 @@ const expectedTreeAWithInlineConfigs = {
 			},
 			"resources": {
 				"configuration": {
-					"propertiesFileSourceEncoding": "ISO-8859-1",
+					"propertiesFileSourceEncoding": "UTF-8",
 					"paths": {
 						"src": "main/src",
 						"test": "main/test"
@@ -901,7 +904,7 @@ const expectedTreeAWithInlineConfigs = {
 					"id": "library.a",
 					"kind": "project",
 					"version": "1.0.0",
-					"specVersion": "0.1",
+					"specVersion": "2.3",
 					"path": libraryAPath,
 					"_level": 1,
 					"type": "library",
@@ -912,7 +915,7 @@ const expectedTreeAWithInlineConfigs = {
 					},
 					"resources": {
 						"configuration": {
-							"propertiesFileSourceEncoding": "ISO-8859-1",
+							"propertiesFileSourceEncoding": "UTF-8",
 							"paths": {
 								"src": "src",
 								"test": "test"
@@ -931,7 +934,7 @@ const expectedTreeAWithInlineConfigs = {
 			"id": "library.a",
 			"kind": "project",
 			"version": "1.0.0",
-			"specVersion": "0.1",
+			"specVersion": "2.3",
 			"path": libraryAPath,
 			"_level": 1,
 			"type": "library",
@@ -942,7 +945,7 @@ const expectedTreeAWithInlineConfigs = {
 			},
 			"resources": {
 				"configuration": {
-					"propertiesFileSourceEncoding": "ISO-8859-1",
+					"propertiesFileSourceEncoding": "UTF-8",
 					"paths": {
 						"src": "src",
 						"test": "test"
@@ -964,7 +967,7 @@ const expectedTreeAWithConfigPaths = {
 	"id": "application.a",
 	"kind": "project",
 	"version": "1.0.0",
-	"specVersion": "1.0",
+	"specVersion": "2.3",
 	"path": applicationAPath,
 	"configPath": path.join(applicationAPath, "ui5.yaml"),
 	"_level": 0,
@@ -976,7 +979,7 @@ const expectedTreeAWithConfigPaths = {
 	},
 	"resources": {
 		"configuration": {
-			"propertiesFileSourceEncoding": "ISO-8859-1",
+			"propertiesFileSourceEncoding": "UTF-8",
 			"paths": {
 				"webapp": "webapp"
 			}
@@ -990,7 +993,7 @@ const expectedTreeAWithConfigPaths = {
 			"id": "library.d",
 			"kind": "project",
 			"version": "1.0.0",
-			"specVersion": "0.1",
+			"specVersion": "2.3",
 			"path": libraryDPath,
 			"configPath": path.join(libraryDPath, "ui5.yaml"),
 			"_level": 1,
@@ -1002,7 +1005,7 @@ const expectedTreeAWithConfigPaths = {
 			},
 			"resources": {
 				"configuration": {
-					"propertiesFileSourceEncoding": "ISO-8859-1",
+					"propertiesFileSourceEncoding": "UTF-8",
 					"paths": {
 						"src": "main/src",
 						"test": "main/test"
@@ -1018,7 +1021,7 @@ const expectedTreeAWithConfigPaths = {
 					"id": "library.a",
 					"kind": "project",
 					"version": "1.0.0",
-					"specVersion": "0.1",
+					"specVersion": "2.3",
 					"path": libraryAPath,
 					"configPath": path.join(libraryAPath, "ui5.yaml"),
 					"_level": 1,
@@ -1030,7 +1033,7 @@ const expectedTreeAWithConfigPaths = {
 					},
 					"resources": {
 						"configuration": {
-							"propertiesFileSourceEncoding": "ISO-8859-1",
+							"propertiesFileSourceEncoding": "UTF-8",
 							"paths": {
 								"src": "src",
 								"test": "test"
@@ -1049,7 +1052,7 @@ const expectedTreeAWithConfigPaths = {
 			"id": "library.a",
 			"kind": "project",
 			"version": "1.0.0",
-			"specVersion": "0.1",
+			"specVersion": "2.3",
 			"path": libraryAPath,
 			"configPath": path.join(libraryAPath, "ui5.yaml"),
 			"_level": 1,
@@ -1061,7 +1064,7 @@ const expectedTreeAWithConfigPaths = {
 			},
 			"resources": {
 				"configuration": {
-					"propertiesFileSourceEncoding": "ISO-8859-1",
+					"propertiesFileSourceEncoding": "UTF-8",
 					"paths": {
 						"src": "src",
 						"test": "test"
@@ -1081,7 +1084,7 @@ const expectedTreeAWithConfigPaths = {
 const treeBWithInlineConfigs = {
 	id: "application.b",
 	version: "1.0.0",
-	specVersion: "0.1",
+	specVersion: "2.3",
 	path: applicationBPath,
 	type: "application",
 	metadata: {
@@ -1091,7 +1094,7 @@ const treeBWithInlineConfigs = {
 		{
 			id: "library.b",
 			version: "1.0.0",
-			specVersion: "0.1",
+			specVersion: "2.3",
 			path: libraryBPath,
 			type: "library",
 			metadata: {
@@ -1101,7 +1104,7 @@ const treeBWithInlineConfigs = {
 				{
 					id: "library.d",
 					version: "1.0.0",
-					specVersion: "0.1",
+					specVersion: "2.3",
 					path: libraryDPath,
 					type: "library",
 					metadata: {
@@ -1109,7 +1112,7 @@ const treeBWithInlineConfigs = {
 					},
 					resources: {
 						configuration: {
-							propertiesFileSourceEncoding: "ISO-8859-1",
+							propertiesFileSourceEncoding: "UTF-8",
 							paths: {
 								src: "main/src",
 								test: "main/test"
@@ -1120,7 +1123,7 @@ const treeBWithInlineConfigs = {
 						{
 							id: "library.a",
 							version: "1.0.0",
-							specVersion: "0.1",
+							specVersion: "2.3",
 							path: libraryAPath,
 							type: "library",
 							metadata: {
@@ -1135,7 +1138,7 @@ const treeBWithInlineConfigs = {
 		{
 			id: "library.d",
 			version: "1.0.0",
-			specVersion: "0.1",
+			specVersion: "2.3",
 			path: libraryDPath,
 			type: "library",
 			metadata: {
@@ -1143,7 +1146,7 @@ const treeBWithInlineConfigs = {
 			},
 			resources: {
 				configuration: {
-					propertiesFileSourceEncoding: "ISO-8859-1",
+					propertiesFileSourceEncoding: "UTF-8",
 					paths: {
 						src: "main/src",
 						test: "main/test"
@@ -1154,7 +1157,7 @@ const treeBWithInlineConfigs = {
 				{
 					id: "library.a",
 					version: "1.0.0",
-					specVersion: "0.1",
+					specVersion: "2.3",
 					path: libraryAPath,
 					type: "library",
 					metadata: {
@@ -1171,7 +1174,7 @@ const expectedTreeBWithInlineConfigs = {
 	"id": "application.b",
 	"kind": "project",
 	"version": "1.0.0",
-	"specVersion": "0.1",
+	"specVersion": "2.3",
 	"path": applicationBPath,
 	"_level": 0,
 	"_isRoot": true,
@@ -1182,7 +1185,7 @@ const expectedTreeBWithInlineConfigs = {
 	},
 	"resources": {
 		"configuration": {
-			"propertiesFileSourceEncoding": "ISO-8859-1",
+			"propertiesFileSourceEncoding": "UTF-8",
 			"paths": {
 				"webapp": "webapp"
 			}
@@ -1196,7 +1199,7 @@ const expectedTreeBWithInlineConfigs = {
 			"id": "library.b",
 			"kind": "project",
 			"version": "1.0.0",
-			"specVersion": "0.1",
+			"specVersion": "2.3",
 			"path": libraryBPath,
 			"_level": 1,
 			"type": "library",
@@ -1207,7 +1210,7 @@ const expectedTreeBWithInlineConfigs = {
 			},
 			"resources": {
 				"configuration": {
-					"propertiesFileSourceEncoding": "ISO-8859-1",
+					"propertiesFileSourceEncoding": "UTF-8",
 					"paths": {
 						"src": "src",
 						"test": "test"
@@ -1223,7 +1226,7 @@ const expectedTreeBWithInlineConfigs = {
 					"id": "library.d",
 					"kind": "project",
 					"version": "1.0.0",
-					"specVersion": "0.1",
+					"specVersion": "2.3",
 					"path": libraryDPath,
 					"_level": 1,
 					"type": "library",
@@ -1234,7 +1237,7 @@ const expectedTreeBWithInlineConfigs = {
 					},
 					"resources": {
 						"configuration": {
-							"propertiesFileSourceEncoding": "ISO-8859-1",
+							"propertiesFileSourceEncoding": "UTF-8",
 							"paths": {
 								"src": "main/src",
 								"test": "main/test"
@@ -1250,7 +1253,7 @@ const expectedTreeBWithInlineConfigs = {
 							"id": "library.a",
 							"kind": "project",
 							"version": "1.0.0",
-							"specVersion": "0.1",
+							"specVersion": "2.3",
 							"path": libraryAPath,
 							"_level": 2,
 							"type": "library",
@@ -1261,7 +1264,7 @@ const expectedTreeBWithInlineConfigs = {
 							},
 							"resources": {
 								"configuration": {
-									"propertiesFileSourceEncoding": "ISO-8859-1",
+									"propertiesFileSourceEncoding": "UTF-8",
 									"paths": {
 										"src": "src",
 										"test": "test"
@@ -1282,7 +1285,7 @@ const expectedTreeBWithInlineConfigs = {
 			"id": "library.d",
 			"kind": "project",
 			"version": "1.0.0",
-			"specVersion": "0.1",
+			"specVersion": "2.3",
 			"path": libraryDPath,
 			"_level": 1,
 			"type": "library",
@@ -1293,7 +1296,7 @@ const expectedTreeBWithInlineConfigs = {
 			},
 			"resources": {
 				"configuration": {
-					"propertiesFileSourceEncoding": "ISO-8859-1",
+					"propertiesFileSourceEncoding": "UTF-8",
 					"paths": {
 						"src": "main/src",
 						"test": "main/test"
@@ -1309,7 +1312,7 @@ const expectedTreeBWithInlineConfigs = {
 					"id": "library.a",
 					"kind": "project",
 					"version": "1.0.0",
-					"specVersion": "0.1",
+					"specVersion": "2.3",
 					"path": libraryAPath,
 					"_level": 2,
 					"type": "library",
@@ -1320,7 +1323,7 @@ const expectedTreeBWithInlineConfigs = {
 					},
 					"resources": {
 						"configuration": {
-							"propertiesFileSourceEncoding": "ISO-8859-1",
+							"propertiesFileSourceEncoding": "UTF-8",
 							"paths": {
 								"src": "src",
 								"test": "test"
@@ -1341,7 +1344,7 @@ const expectedTreeBWithInlineConfigs = {
 const treeApplicationCycleA = {
 	id: "application.cycle.a",
 	version: "1.0.0",
-	specVersion: "0.1",
+	specVersion: "2.3",
 	path: path.join(cycleDepsBasePath, "application.cycle.a"),
 	type: "application",
 	metadata: {
@@ -1351,7 +1354,7 @@ const treeApplicationCycleA = {
 		{
 			id: "component.cycle.a",
 			version: "1.0.0",
-			specVersion: "0.1",
+			specVersion: "2.3",
 			path: path.join(cycleDepsBasePath, "component.cycle.a"),
 			type: "library",
 			metadata: {
@@ -1361,7 +1364,7 @@ const treeApplicationCycleA = {
 				{
 					id: "library.cycle.a",
 					version: "1.0.0",
-					specVersion: "0.1",
+					specVersion: "2.3",
 					path: path.join(cycleDepsBasePath, "library.cycle.a"),
 					type: "library",
 					metadata: {
@@ -1371,7 +1374,7 @@ const treeApplicationCycleA = {
 						{
 							id: "component.cycle.a",
 							version: "1.0.0",
-							specVersion: "0.1",
+							specVersion: "2.3",
 							path: path.join(cycleDepsBasePath, "component.cycle.a"),
 							type: "library",
 							metadata: {
@@ -1385,7 +1388,7 @@ const treeApplicationCycleA = {
 				{
 					id: "library.cycle.b",
 					version: "1.0.0",
-					specVersion: "0.1",
+					specVersion: "2.3",
 					path: path.join(cycleDepsBasePath, "library.cycle.b"),
 					type: "library",
 					metadata: {
@@ -1395,7 +1398,7 @@ const treeApplicationCycleA = {
 						{
 							id: "component.cycle.a",
 							version: "1.0.0",
-							specVersion: "0.1",
+							specVersion: "2.3",
 							path: path.join(cycleDepsBasePath, "component.cycle.a"),
 							type: "library",
 							metadata: {
@@ -1409,7 +1412,7 @@ const treeApplicationCycleA = {
 				{
 					id: "application.cycle.a",
 					version: "1.0.0",
-					specVersion: "0.1",
+					specVersion: "2.3",
 					path: path.join(cycleDepsBasePath, "application.cycle.a"),
 					type: "application",
 					metadata: {
@@ -1426,7 +1429,7 @@ const treeApplicationCycleA = {
 const expectedTreeApplicationCycleA = {
 	"id": "application.cycle.a",
 	"version": "1.0.0",
-	"specVersion": "0.1",
+	"specVersion": "2.3",
 	"path": path.join(cycleDepsBasePath, "application.cycle.a"),
 	"type": "application",
 	"metadata": {
@@ -1437,7 +1440,7 @@ const expectedTreeApplicationCycleA = {
 		{
 			"id": "component.cycle.a",
 			"version": "1.0.0",
-			"specVersion": "0.1",
+			"specVersion": "2.3",
 			"path": path.join(cycleDepsBasePath, "component.cycle.a"),
 			"type": "library",
 			"metadata": {
@@ -1449,7 +1452,7 @@ const expectedTreeApplicationCycleA = {
 				{
 					"id": "library.cycle.a",
 					"version": "1.0.0",
-					"specVersion": "0.1",
+					"specVersion": "2.3",
 					"path": path.join(cycleDepsBasePath, "library.cycle.a"),
 					"type": "library",
 					"metadata": {
@@ -1461,7 +1464,7 @@ const expectedTreeApplicationCycleA = {
 						{
 							"id": "component.cycle.a",
 							"version": "1.0.0",
-							"specVersion": "0.1",
+							"specVersion": "2.3",
 							"path": path.join(cycleDepsBasePath, "component.cycle.a"),
 							"type": "library",
 							"metadata": {
@@ -1475,7 +1478,7 @@ const expectedTreeApplicationCycleA = {
 					"_level": 2,
 					"resources": {
 						"configuration": {
-							"propertiesFileSourceEncoding": "ISO-8859-1",
+							"propertiesFileSourceEncoding": "UTF-8",
 							"paths": {
 								"src": "src",
 								"test": "test"
@@ -1490,7 +1493,7 @@ const expectedTreeApplicationCycleA = {
 				{
 					"id": "library.cycle.b",
 					"version": "1.0.0",
-					"specVersion": "0.1",
+					"specVersion": "2.3",
 					"path": path.join(cycleDepsBasePath, "library.cycle.b"),
 					"type": "library",
 					"metadata": {
@@ -1502,7 +1505,7 @@ const expectedTreeApplicationCycleA = {
 						{
 							"id": "component.cycle.a",
 							"version": "1.0.0",
-							"specVersion": "0.1",
+							"specVersion": "2.3",
 							"path": path.join(cycleDepsBasePath, "component.cycle.a"),
 							"type": "library",
 							"metadata": {
@@ -1516,7 +1519,7 @@ const expectedTreeApplicationCycleA = {
 					"_level": 2,
 					"resources": {
 						"configuration": {
-							"propertiesFileSourceEncoding": "ISO-8859-1",
+							"propertiesFileSourceEncoding": "UTF-8",
 							"paths": {
 								"src": "src",
 								"test": "test"
@@ -1531,7 +1534,7 @@ const expectedTreeApplicationCycleA = {
 				{
 					"id": "application.cycle.a",
 					"version": "1.0.0",
-					"specVersion": "0.1",
+					"specVersion": "2.3",
 					"path": path.join(cycleDepsBasePath, "application.cycle.a"),
 					"type": "application",
 					"metadata": {
@@ -1545,7 +1548,7 @@ const expectedTreeApplicationCycleA = {
 			"_level": 1,
 			"resources": {
 				"configuration": {
-					"propertiesFileSourceEncoding": "ISO-8859-1",
+					"propertiesFileSourceEncoding": "UTF-8",
 					"paths": {
 						"src": "src",
 						"test": "test"
@@ -1563,7 +1566,7 @@ const expectedTreeApplicationCycleA = {
 	"kind": "project",
 	"resources": {
 		"configuration": {
-			"propertiesFileSourceEncoding": "ISO-8859-1",
+			"propertiesFileSourceEncoding": "UTF-8",
 			"paths": {
 				"webapp": "webapp"
 			}
@@ -1781,14 +1784,14 @@ test("specVersion: Project with valid version 0.1", async (t) => {
 		path: applicationAPath,
 		dependencies: [],
 		version: "1.0.0",
-		specVersion: "0.1",
+		specVersion: "2.3",
 		type: "application",
 		metadata: {
 			name: "xy"
 		}
 	};
 	const res = await projectPreprocessor.processTree(tree);
-	t.deepEqual(res.specVersion, "0.1", "Correct spec version");
+	t.deepEqual(res.specVersion, "2.3", "Correct spec version");
 });
 
 test("specVersion: Project with valid version 1.0", async (t) => {
@@ -1797,14 +1800,14 @@ test("specVersion: Project with valid version 1.0", async (t) => {
 		path: applicationAPath,
 		dependencies: [],
 		version: "1.0.0",
-		specVersion: "1.0",
+		specVersion: "2.3",
 		type: "application",
 		metadata: {
 			name: "xy"
 		}
 	};
 	const res = await projectPreprocessor.processTree(tree);
-	t.deepEqual(res.specVersion, "1.0", "Correct spec version");
+	t.deepEqual(res.specVersion, "2.3", "Correct spec version");
 });
 
 test("specVersion: Project with valid version 1.1", async (t) => {
