@@ -26,7 +26,7 @@ test.beforeEach((t) => {
 	};
 	sinon.stub(logger, "getLogger").callThrough()
 		.withArgs("graph:projectGraphFromTree").returns(t.context.log);
-	t.context.projectGraphFromTree = mock.reRequire("../../../lib/graph/projectGraphFromTree.js");
+	t.context.projectGraphFromTree = mock.reRequire("../../../lib/graph/projectGraphFromTree");
 	logger.getLogger.restore(); // Immediately restore global stub for following tests
 });
 
@@ -266,7 +266,7 @@ test("Missing id for root project", async (t) => {
 		dependencies: []
 	};
 	await t.throwsAsync(projectGraphFromTree(tree),
-		{message: "Could not create Module: Missing or empty id parameter"}, "Rejected with error");
+		{message: "Could not create Module: Missing or empty parameter 'id'"}, "Rejected with error");
 });
 
 test("No type configured for root project", async (t) => {

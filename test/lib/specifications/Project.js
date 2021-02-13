@@ -1,12 +1,11 @@
 const test = require("ava");
-const sinon = require("sinon");
 const path = require("path");
 const Project = require("../../../lib/specifications/Project");
 const Configuration = require("../../../lib/specifications/Configuration");
 
 const applicationAPath = path.join(__dirname, "..", "..", "fixtures", "application.a");
 
-const emptyConfiguration = new Configuration({
+const basicConfiguration = new Configuration({
 	specVersion: "2.3",
 	kind: "project",
 	metadata: {name: "application.a"}
@@ -15,15 +14,8 @@ const basicProjectInput = {
 	id: "application.a.id",
 	version: "1.0.0",
 	modulePath: applicationAPath,
-	configuration: emptyConfiguration
+	configuration: basicConfiguration
 };
-
-// test.beforeEach((t) => {
-// });
-
-test.afterEach.always(() => {
-	sinon.restore();
-});
 
 test("Instantiate a basic project", async (t) => {
 	const project = new Project(basicProjectInput);
@@ -34,7 +26,7 @@ test("Instantiate a basic project", async (t) => {
 
 test("_getConfiguration", async (t) => {
 	const project = new Project(basicProjectInput);
-	t.is(await project._getConfiguration(), emptyConfiguration, "Returned correct configuration instance");
+	t.is(await project._getConfiguration(), basicConfiguration, "Returned correct configuration instance");
 });
 
 test("Access project root resources via reader", async (t) => {
