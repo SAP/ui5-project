@@ -572,7 +572,6 @@ test("Project tree Cycle A with inline configs", (t) => {
 
 test("Project tree Cycle B with inline configs", (t) => {
 	return projectPreprocessor.processTree(treeApplicationCycleB).then((parsedTree) => {
-		// console.log(JSON.stringify(parsedTree, null, 2));
 		t.deepEqual(parsedTree, expectedTreeApplicationCycleB, "Parsed correctly");
 	});
 });
@@ -1620,65 +1619,6 @@ const treeApplicationCycleB = {
 							deduped: true
 						}
 					]
-				}
-			]
-		}
-	]
-};
-
-const _treeApplicationCycleB = {
-	id: "application.cycle.b",
-	version: "1.0.0",
-	specVersion: "0.1",
-	type: "application",
-	metadata: {
-		name: "application.cycle.b",
-	},
-	path: path.join(cycleDepsBasePath, "application.cycle.b"),
-	dependencies: [
-		{
-			id: "module.d",
-			version: "1.0.0",
-			specVersion: "0.1",
-			type: "module",
-			metadata: {
-				name: "module.d",
-			},
-			path: path.join(cycleDepsBasePath, "module.d"),
-			dependencies: [
-				{
-					id: "module.e",
-					version: "1.0.0",
-					specVersion: "0.1",
-					type: "module",
-					metadata: {
-						name: "module.e",
-					},
-					path: path.join(cycleDepsBasePath, "module.e"),
-					dependencies: []
-				}
-			]
-		},
-		{
-			id: "module.e",
-			version: "1.0.0",
-			specVersion: "0.1",
-			type: "module",
-			metadata: {
-				name: "module.e",
-			},
-			path: path.join(cycleDepsBasePath, "module.e"),
-			dependencies: [
-				{
-					id: "module.d",
-					version: "1.0.0",
-					specVersion: "0.1",
-					type: "module",
-					metadata: {
-						name: "module.d",
-					},
-					path: path.join(cycleDepsBasePath, "module.d"),
-					dependencies: []
 				}
 			]
 		}
