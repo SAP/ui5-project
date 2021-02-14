@@ -21,6 +21,7 @@ function createProject(name) {
 		configuration: basicConfiguration
 	});
 }
+
 function createExtension(name) {
 	const basicConfiguration = new Configuration({
 		specVersion: "2.3",
@@ -290,7 +291,7 @@ test("declareDependency: Unknown source", async (t) => {
 	});
 	t.is(error.message,
 		"Failed to declare dependency from project library.a to library.b: Unable " +
-		"to find project with name library.a in graph",
+		"to find depending project with name library.a in graph",
 		"Should throw with expected error message");
 });
 
@@ -306,7 +307,7 @@ test("declareDependency: Unknown target", async (t) => {
 	});
 	t.is(error.message,
 		"Failed to declare dependency from project library.a to library.b: Unable " +
-		"to find project with name library.b in graph",
+		"to find dependency project with name library.b in graph",
 		"Should throw with expected error message");
 });
 
