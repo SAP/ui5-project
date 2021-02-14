@@ -3,7 +3,6 @@ const path = require("path");
 const sinonGlobal = require("sinon");
 const mock = require("mock-require");
 const logger = require("@ui5/logger");
-const ProjectGraph = require("../../../lib/graph/ProjectGraph");
 const ValidationError = require("../../../lib/validation/ValidationError");
 
 const applicationAPath = path.join(__dirname, "..", "..", "fixtures", "application.a");
@@ -42,17 +41,6 @@ test.afterEach.always((t) => {
 test("Application A", async (t) => {
 	const {projectGraphFromTree} = t.context;
 	const projectGraph = await projectGraphFromTree(applicationATree);
-	const rootProject = projectGraph.getRoot();
-	t.is(rootProject.getName(), "application.a", "Should return correct root project");
-});
-
-test("Application A with supplied graph", async (t) => {
-	const {projectGraphFromTree} = t.context;
-	const projectGraph = new ProjectGraph({
-		rootProjectName: "application.a"
-	});
-	const res = await projectGraphFromTree(applicationATree, projectGraph);
-	t.is(res, projectGraph, "Should return correct project graph");
 	const rootProject = projectGraph.getRoot();
 	t.is(rootProject.getName(), "application.a", "Returned correct root project");
 });
