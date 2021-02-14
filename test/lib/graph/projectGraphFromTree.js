@@ -10,7 +10,6 @@ const applicationBPath = path.join(__dirname, "..", "..", "fixtures", "applicati
 const applicationCPath = path.join(__dirname, "..", "..", "fixtures", "application.c");
 const libraryAPath = path.join(__dirname, "..", "..", "fixtures", "collection", "library.a");
 const libraryBPath = path.join(__dirname, "..", "..", "fixtures", "collection", "library.b");
-// const libraryCPath = path.join(__dirname, "..", "..", "fixtures", "collection", "library.c");
 const libraryDPath = path.join(__dirname, "..", "..", "fixtures", "library.d");
 const cycleDepsBasePath = path.join(__dirname, "..", "..", "fixtures", "cyclic-deps", "node_modules");
 const pathToInvalidModule = path.join(__dirname, "..", "..", "fixtures", "invalidModule");
@@ -18,10 +17,6 @@ const pathToInvalidModule = path.join(__dirname, "..", "..", "fixtures", "invali
 const legacyLibraryAPath = path.join(__dirname, "..", "fixtures", "legacy.library.a");
 const legacyLibraryBPath = path.join(__dirname, "..", "fixtures", "legacy.library.b");
 const legacyCollectionAPath = path.join(__dirname, "..", "fixtures", "legacy.collection.a");
-const legacyCollectionLibraryX = path.join(__dirname, "..", "fixtures", "legacy.collection.a",
-	"src", "legacy.library.x");
-const legacyCollectionLibraryY = path.join(__dirname, "..", "fixtures", "legacy.collection.a",
-	"src", "legacy.library.y");
 
 test.beforeEach((t) => {
 	const sinon = t.context.sinon = sinonGlobal.createSandbox();

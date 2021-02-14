@@ -55,7 +55,22 @@ module.exports = {
 		 * @type {import('./lib/translators/static')}
 		 */
 		static: "./lib/translators/static"
-	}
+	},
+	/**
+	 * @public
+	 * @alias module:@ui5/project.graph
+	 * @namespace
+	 */
+	graph: {
+		/**
+		 * @type {typeof import('./lib/graph/ProjectGraph')}
+		 */
+		ProjectGraph: "./lib/graph/ProjectGraph",
+		/**
+		 * @type {typeof import('./lib/graph/projectGraphFromTree')}
+		 */
+		projectGraphFromTree: "./lib/graph/projectGraphFromTree"
+	},
 };
 
 function exportModules(exportRoot, modulePaths) {
