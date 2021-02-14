@@ -254,6 +254,23 @@ test("getExtension: Project is not in graph", async (t) => {
 	t.is(res, undefined, "Should return undefined");
 });
 
+test("getAllExtensions", async (t) => {
+	const {ProjectGraph} = t.context;
+	const graph = new ProjectGraph({
+		rootProjectName: "my root project"
+	});
+	const extension1 = createExtension("extension.a");
+	graph.addExtension(extension1);
+
+	const extension2 = createExtension("extension.b");
+	graph.addExtension(extension2);
+	const res = graph.getAllExtensions();
+	t.deepEqual(res, {
+		"extension.a": extension1,
+		"extension.b": extension2
+	}, "Should return all extensions");
+});
+
 test("declareDependency / getDependencies", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
@@ -705,4 +722,95 @@ test("traverseDepthFirst: Dependency declaration order is followed", async (t) =
 		"library.b",
 		"library.a",
 	]);
+});
+
+test("join", async (t) => {
+	const {ProjectGraph} = t.context;
+	const graph1 = new ProjectGraph({
+		rootProjectName: "library.a"
+	});
+	const graph2 = new ProjectGraph({
+		rootProjectName: "theme.a"
+	});
+	graph1.addProject(createProject("library.a"));
+	graph1.addProject(createProject("library.b"));
+	graph1.addProject(createProject("library.c"));
+	graph1.addProject(createProject("library.d"));
+
+	graph1.declareDependency("library.a", "library.b");
+	graph1.declareDependency("library.a", "library.c");
+	graph1.declareDependency("library.a", "library.d");
+
+	const extensionA = createExtension("extension.a");
+	graph1.addExtension(extensionA);
+
+	graph2.addProject(createProject("theme.a"));
+	graph2.addProject(createProject("theme.b"));
+	graph2.addProject(createProject("theme.c"));
+	graph2.addProject(createProject("theme.d"));
+
+	graph2.declareDependency("theme.a", "theme.d");
+	graph2.declareDependency("theme.a", "theme.c");
+	graph2.declareDependency("theme.b", "theme.a"); // This causes theme.b to not appear
+
+	const extensionB = createExtension("extension.b");
+	graph2.addExtension(extensionB);
+
+	graph1.join(graph2);
+	graph1.declareDependency("library.d", "theme.a");
+
+	await traverseDepthFirst(t, graph1, [
+		"library.b",
+		"library.c",
+		"theme.d",
+		"theme.c",
+		"theme.a",
+		"library.d",
+		"library.a",
+	]);
+
+	t.is(graph1.getExtension("extension.a"), extensionA, "Should return correct extension");
+	t.is(graph1.getExtension("extension.b"), extensionB, "Should return correct joined extension");
+});
+
+test("join: Unexpected project intersection", async (t) => {
+	const {ProjectGraph} = t.context;
+	const graph1 = new ProjectGraph({
+		rootProjectName: "😹"
+	});
+	const graph2 = new ProjectGraph({
+		rootProjectName: "😼"
+	});
+	graph1.addProject(createProject("library.a"));
+	graph2.addProject(createProject("library.a"));
+
+
+	const error = t.throws(() => {
+		graph1.join(graph2);
+	});
+	t.is(error.message,
+		"Failed to join graph with root project 😼 into 😹: Failed to merge map: " +
+		"Key 'library.a' already present in target set",
+		"Should throw with expected error message");
+});
+
+test("join: Unexpected extension intersection", async (t) => {
+	const {ProjectGraph} = t.context;
+	const graph1 = new ProjectGraph({
+		rootProjectName: "😹"
+	});
+	const graph2 = new ProjectGraph({
+		rootProjectName: "😼"
+	});
+	graph1.addExtension(createExtension("extension.a"));
+	graph2.addExtension(createExtension("extension.a"));
+
+
+	const error = t.throws(() => {
+		graph1.join(graph2);
+	});
+	t.is(error.message,
+		"Failed to join graph with root project 😼 into 😹: Failed to merge map: " +
+		"Key 'extension.a' already present in target set",
+		"Should throw with expected error message");
 });
