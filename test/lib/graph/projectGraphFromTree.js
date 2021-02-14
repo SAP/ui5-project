@@ -3,6 +3,7 @@ const path = require("path");
 const sinonGlobal = require("sinon");
 const mock = require("mock-require");
 const logger = require("@ui5/logger");
+const ValidationError = require("../../../lib/validation/ValidationError");
 
 const applicationAPath = path.join(__dirname, "..", "..", "fixtures", "application.a");
 const applicationBPath = path.join(__dirname, "..", "..", "fixtures", "application.b");
@@ -13,6 +14,14 @@ const libraryBPath = path.join(__dirname, "..", "..", "fixtures", "collection", 
 const libraryDPath = path.join(__dirname, "..", "..", "fixtures", "library.d");
 const cycleDepsBasePath = path.join(__dirname, "..", "..", "fixtures", "cyclic-deps", "node_modules");
 const pathToInvalidModule = path.join(__dirname, "..", "..", "fixtures", "invalidModule");
+
+const legacyLibraryAPath = path.join(__dirname, "..", "fixtures", "legacy.library.a");
+const legacyLibraryBPath = path.join(__dirname, "..", "fixtures", "legacy.library.b");
+const legacyCollectionAPath = path.join(__dirname, "..", "fixtures", "legacy.collection.a");
+const legacyCollectionLibraryX = path.join(__dirname, "..", "fixtures", "legacy.collection.a",
+	"src", "legacy.library.x");
+const legacyCollectionLibraryY = path.join(__dirname, "..", "fixtures", "legacy.collection.a",
+	"src", "legacy.library.y");
 
 test.beforeEach((t) => {
 	const sinon = t.context.sinon = sinonGlobal.createSandbox();
@@ -180,6 +189,7 @@ async function _testBasicGraphCreation(t, tree, expectedOrder, bfs) {
 	const callbackCalls = callbackStub.getCalls().map((call) => call.args[0].project.getName());
 
 	t.deepEqual(callbackCalls, expectedOrder, "Traversed graph in correct order");
+	return projectGraph;
 }
 
 test("Project with inline configuration", async (t) => {
@@ -200,6 +210,58 @@ test("Project with inline configuration", async (t) => {
 	await testBasicGraphCreationDfs(t, tree, [
 		"xy"
 	]);
+});
+
+
+test("Project with inline configuration as array", async (t) => {
+	const tree = {
+		id: "application.a.id",
+		path: applicationAPath,
+		dependencies: [],
+		version: "1.0.0",
+		configuration: [{
+			specVersion: "2.3",
+			type: "application",
+			metadata: {
+				name: "xy"
+			}
+		}]
+	};
+
+	await testBasicGraphCreationDfs(t, tree, [
+		"xy"
+	]);
+});
+
+test("Project with inline configuration for two projects", async (t) => {
+	const tree = {
+		id: "application.a.id",
+		path: applicationAPath,
+		dependencies: [],
+		version: "1.0.0",
+		configuration: [{
+			specVersion: "2.3",
+			type: "application",
+			metadata: {
+				name: "xy"
+			}
+		}, {
+			specVersion: "2.3",
+			type: "library",
+			metadata: {
+				name: "yz"
+			}
+		}]
+	};
+
+	const {projectGraphFromTree} = t.context;
+	await t.throwsAsync(projectGraphFromTree(tree),
+		{
+			message:
+				"Invalid configuration for module application.a.id: Per module there " +
+				"must be no more than one configuration of kind 'project'"
+		},
+		"Rejected with error");
 });
 
 test("Project with configPath", async (t) => {
@@ -1032,3 +1094,356 @@ const treeWithInvalidModules = {
 		}
 	}
 };
+
+/* ======================================================================================= */
+/* ======= The following tests have been derived from the existing extension tests ======= */
+
+/* The following scenario is supported by the projectPreprocessor but not by projectGraphFromTree
+ * A shim extension located in a project's dependencies can't influence other dependencies of that project anymore
+ * TODO: Check whether the above is fine for us
+
+test.only("Legacy: Project with project-shim extension with dependency configuration", async (t) => {
+	const tree = {
+		id: "application.a.id",
+		path: applicationAPath,
+		version: "1.0.0",
+		configuration: {
+			specVersion: "2.3",
+			type: "application",
+			metadata: {
+				name: "application.a"
+			}
+		},
+		dependencies: [{
+			id: "extension.a.id",
+			path: applicationAPath,
+			version: "1.0.0",
+			dependencies: [],
+			configuration: {
+				specVersion: "2.3",
+				kind: "extension",
+				type: "project-shim",
+				metadata: {
+					name: "shim.a"
+				},
+				shims: {
+					configurations: {
+						"legacy.library.a.id": {
+							specVersion: "2.3",
+							type: "library",
+							metadata: {
+								name: "legacy.library.a",
+							}
+						}
+					}
+				}
+			}
+		}, {
+			id: "legacy.library.a.id",
+			version: "1.0.0",
+			path: legacyLibraryAPath,
+			dependencies: []
+		}]
+	};
+	await testBasicGraphCreationDfs(t, tree, [
+		"legacy.library.a",
+		"application.a",
+	]);
+});*/
+
+test("Project with project-shim extension with dependency configuration", async (t) => {
+	const tree = {
+		id: "application.a.id",
+		path: applicationAPath,
+		version: "1.0.0",
+		configuration: [{
+			specVersion: "2.3",
+			type: "application",
+			metadata: {
+				name: "application.a"
+			}
+		}, {
+			specVersion: "2.3",
+			kind: "extension",
+			type: "project-shim",
+			metadata: {
+				name: "shim.a"
+			},
+			shims: {
+				configurations: {
+					"legacy.library.a.id": {
+						specVersion: "2.3",
+						type: "library",
+						metadata: {
+							name: "legacy.library.a",
+						}
+					}
+				}
+			}
+		}],
+		dependencies: [{
+			id: "legacy.library.a.id",
+			version: "1.0.0",
+			path: legacyLibraryAPath,
+			dependencies: []
+		}]
+	};
+	await testBasicGraphCreationDfs(t, tree, [
+		"legacy.library.a",
+		"application.a",
+	]);
+});
+
+test("Project with project-shim extension dependency with dependency configuration", async (t) => {
+	const tree = {
+		id: "application.a.id",
+		path: applicationAPath,
+		version: "1.0.0",
+		configuration: {
+			specVersion: "2.3",
+			type: "application",
+			metadata: {
+				name: "application.a"
+			}
+		},
+		dependencies: [{
+			id: "extension.a.id",
+			path: applicationAPath,
+			version: "1.0.0",
+			configuration: {
+				specVersion: "2.3",
+				kind: "extension",
+				type: "project-shim",
+				metadata: {
+					name: "shim.a"
+				},
+				shims: {
+					configurations: {
+						"legacy.library.a.id": {
+							specVersion: "2.3",
+							type: "library",
+							metadata: {
+								name: "legacy.library.a",
+							}
+						}
+					}
+				}
+			},
+			dependencies: [{
+				id: "legacy.library.a.id",
+				version: "1.0.0",
+				path: legacyLibraryAPath,
+				dependencies: []
+			}],
+		}]
+	};
+	await testBasicGraphCreationDfs(t, tree, [
+		"legacy.library.a",
+		"application.a",
+	]);
+
+	const {log} = t.context;
+	t.is(log.warn.callCount, 0, "log.warn should not have been called");
+	t.is(log.info.callCount, 0, "log.info should not have been called");
+});
+
+test("Project with project-shim extension with invalid dependency configuration", async (t) => {
+	const tree = {
+		id: "application.a.id",
+		path: applicationAPath,
+		version: "1.0.0",
+		configuration: [{
+			specVersion: "2.3",
+			type: "application",
+			metadata: {
+				name: "xy"
+			}
+		}, {
+			specVersion: "2.3",
+			kind: "extension",
+			type: "project-shim",
+			metadata: {
+				name: "shims.a"
+			},
+			shims: {
+				configurations: {
+					"legacy.library.a.id": {
+						specVersion: "2.3",
+						type: "library"
+					}
+				}
+			}
+		}],
+		dependencies: [{
+			id: "legacy.library.a.id",
+			version: "1.0.0",
+			path: legacyLibraryAPath,
+			dependencies: []
+		}]
+	};
+	const {projectGraphFromTree} = t.context;
+	const validationError = await t.throwsAsync(projectGraphFromTree(tree), {
+		instanceOf: ValidationError
+	});
+	t.true(validationError.message.includes("Configuration must have required property 'metadata'"),
+		"ValidationError should contain error about missing metadata configuration");
+});
+
+test("Project with project-shim extension with dependency declaration and configuration", async (t) => {
+	const tree = {
+		id: "application.a.id",
+		path: applicationAPath,
+		version: "1.0.0",
+		configuration: {
+			specVersion: "2.3",
+			type: "application",
+			metadata: {
+				name: "application.a"
+			}
+		},
+		dependencies: [{
+			id: "extension.a.id",
+			path: applicationAPath,
+			version: "1.0.0",
+			configuration: {
+				specVersion: "2.3",
+				kind: "extension",
+				type: "project-shim",
+				metadata: {
+					name: "shims.a"
+				},
+				shims: {
+					configurations: {
+						"legacy.library.a.id": {
+							specVersion: "2.3",
+							type: "library",
+							metadata: {
+								name: "legacy.library.a",
+							}
+						},
+						"legacy.library.b.id": {
+							specVersion: "2.3",
+							type: "library",
+							metadata: {
+								name: "legacy.library.b",
+							}
+						}
+					},
+					dependencies: {
+						"legacy.library.a.id": [
+							"legacy.library.b.id"
+						]
+					}
+				}
+			},
+			dependencies: [{
+				id: "legacy.library.a.id",
+				version: "1.0.0",
+				path: legacyLibraryAPath,
+				dependencies: []
+			}, {
+				id: "legacy.library.b.id",
+				version: "1.0.0",
+				path: legacyLibraryBPath,
+				dependencies: []
+			}],
+		}]
+	};
+	// application.a and legacy.library.a will both have a dependency to legacy.library.b
+	//	(one because it's the actual dependency and one because it's a shimmed dependency)
+	const graph = await testBasicGraphCreationDfs(t, tree, [
+		"legacy.library.b",
+		"legacy.library.a",
+		"application.a",
+	]);
+	t.deepEqual(graph.getDependencies("legacy.library.a"), [
+		"legacy.library.b"
+	], "Shimmed dependencies should be applied");
+
+	const {log} = t.context;
+	t.is(log.warn.callCount, 0, "log.warn should not have been called");
+	t.is(log.info.callCount, 0, "log.info should not have been called");
+});
+
+test("Project with project-shim extension with collection", async (t) => {
+	const tree = {
+		id: "application.a.id",
+		path: applicationAPath,
+		version: "1.0.0",
+		configuration: {
+			specVersion: "2.3",
+			type: "application",
+			metadata: {
+				name: "application.a"
+			}
+		},
+		dependencies: [{
+			id: "extension.a.id",
+			path: applicationAPath,
+			version: "1.0.0",
+			configuration: {
+				specVersion: "2.3",
+				kind: "extension",
+				type: "project-shim",
+				metadata: {
+					name: "shims.a"
+				},
+				shims: {
+					configurations: {
+						"legacy.library.x.id": {
+							specVersion: "2.3",
+							type: "library",
+							metadata: {
+								name: "legacy.library.x",
+							}
+						},
+						"legacy.library.y.id": {
+							specVersion: "2.3",
+							type: "library",
+							metadata: {
+								name: "legacy.library.y",
+							}
+						}
+					},
+					dependencies: {
+						"application.a.id": [
+							"legacy.library.x.id",
+							"legacy.library.y.id"
+						],
+						"legacy.library.x.id": [
+							"legacy.library.y.id"
+						]
+					},
+					collections: {
+						"legacy.collection.a": {
+							modules: {
+								"legacy.library.x.id": "src/legacy.library.x",
+								"legacy.library.y.id": "src/legacy.library.y"
+							}
+						}
+					}
+				}
+			},
+			dependencies: [{
+				id: "legacy.collection.a",
+				version: "1.0.0",
+				path: legacyCollectionAPath,
+				dependencies: []
+			}]
+		}]
+	};
+
+	const graph = await testBasicGraphCreationDfs(t, tree, [
+		"legacy.library.y",
+		"legacy.library.x",
+		"application.a",
+	]);
+	t.deepEqual(graph.getDependencies("application.a"), [
+		"legacy.library.x",
+		"legacy.library.y"
+	], "Shimmed dependencies should be applied");
+
+	const {log} = t.context;
+	t.is(log.warn.callCount, 0, "log.warn should not have been called");
+	t.is(log.info.callCount, 0, "log.info should not have been called");
+});

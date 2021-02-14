@@ -189,7 +189,7 @@ test("getProject: Project is not in graph", async (t) => {
 	t.is(res, undefined, "Should return undefined");
 });
 
-test("declareDependency", async (t) => {
+test("declareDependency / getDependencies", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
 		rootProjectName: "my root project"
@@ -198,22 +198,20 @@ test("declareDependency", async (t) => {
 	graph.addProject(createProject("library.b"));
 
 	graph.declareDependency("library.a", "library.b");
-	t.deepEqual(graph._adjList, {
-		"library.a": {
-			"library.b": {}
-		},
-		"library.b": {}
-	}, "Should store dependency correctly in internal structure");
+	t.deepEqual(graph.getDependencies("library.a"), [
+		"library.b"
+	], "Should store and return correct dependencies for library.a");
+	t.deepEqual(graph.getDependencies("library.b"), [],
+		"Should store and return correct dependencies for library.b");
 
 	graph.declareDependency("library.b", "library.a");
-	t.deepEqual(graph._adjList, {
-		"library.a": {
-			"library.b": {}
-		},
-		"library.b": {
-			"library.a": {}
-		}
-	}, "Should store additional dependency correctly in internal structure");
+
+	t.deepEqual(graph.getDependencies("library.a"), [
+		"library.b"
+	], "Should store and return correct dependencies for library.a");
+	t.deepEqual(graph.getDependencies("library.b"), [
+		"library.a"
+	], "Should store and return correct dependencies for library.b");
 });
 
 test("declareDependency: Unknown source", async (t) => {

@@ -1,9 +1,9 @@
 const test = require("ava");
 const sinon = require("sinon");
 const path = require("path");
-const Module = require("../../lib/Module");
+const Module = require("../../../lib/graph/Module");
 
-const applicationAPath = path.join(__dirname, "..", "fixtures", "application.a");
+const applicationAPath = path.join(__dirname, "..", "..", "fixtures", "application.a");
 
 const basicModuleInput = {
 	id: "application.a.id",
@@ -20,9 +20,9 @@ test.afterEach.always(() => {
 
 test("Instantiate a basic module", async (t) => {
 	const ui5Module = new Module(basicModuleInput);
-	t.is(ui5Module.getId(), "application.a.id", "Returned correct ID");
-	t.is(ui5Module.getVersion(), "1.0.0", "Returned correct version");
-	t.is(ui5Module.getPath(), applicationAPath, "Returned correct module path");
+	t.is(ui5Module.getId(), "application.a.id", "Should return correct ID");
+	t.is(ui5Module.getVersion(), "1.0.0", "Should return correct version");
+	t.is(ui5Module.getPath(), applicationAPath, "Should return correct module path");
 });
 
 test("Access module root resources via reader", async (t) => {
@@ -32,8 +32,9 @@ test("Access module root resources via reader", async (t) => {
 	t.is(packageJsonResource.getPath(), "/package.json", "Successfully retrieved root resource");
 });
 
-test("Get projects from module", async (t) => {
+test("Get specifications from module", async (t) => {
 	const ui5Module = new Module(basicModuleInput);
-	const project = await ui5Module.getProject();
-	t.is(project.getName(), "application.a", "Returned correct project");
+	const {project, extensions} = await ui5Module.getSpecifications();
+	t.is(project.getName(), "application.a", "Should return correct project");
+	t.is(extensions.length, 0, "Should return no extensions");
 });
