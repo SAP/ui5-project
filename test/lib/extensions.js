@@ -583,7 +583,6 @@ test("Project with unknown extension dependency inline configuration", (t) => {
 });
 
 test("Project with task extension dependency", (t) => {
-	// "project-type" extension handling not yet implemented => test currently checks for error
 	const tree = {
 		id: "application.a",
 		path: applicationAPath,
@@ -617,7 +616,6 @@ test("Project with task extension dependency", (t) => {
 });
 
 test("Project with task extension dependency - does not throw for invalid task path", async (t) => {
-	// "project-type" extension handling not yet implemented => test currently checks for error
 	const tree = {
 		id: "application.a",
 		path: applicationAPath,
@@ -648,7 +646,6 @@ test("Project with task extension dependency - does not throw for invalid task p
 
 
 test("Project with middleware extension dependency", (t) => {
-	// "project-type" extension handling not yet implemented => test currently checks for error
 	const tree = {
 		id: "application.a",
 		path: applicationAPath,
@@ -683,7 +680,6 @@ test("Project with middleware extension dependency", (t) => {
 });
 
 test("Project with middleware extension dependency - middleware is missing configuration", async (t) => {
-	// "project-type" extension handling not yet implemented => test currently checks for error
 	const tree = {
 		id: "application.a",
 		path: applicationAPath,

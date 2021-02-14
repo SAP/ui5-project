@@ -1447,3 +1447,110 @@ test("Project with project-shim extension with collection", async (t) => {
 	t.is(log.warn.callCount, 0, "log.warn should not have been called");
 	t.is(log.info.callCount, 0, "log.info should not have been called");
 });
+
+test("Project with unknown extension dependency inline configuration", async (t) => {
+	const tree = {
+		id: "application.a",
+		path: applicationAPath,
+		version: "1.0.0",
+		configuration: {
+			specVersion: "2.3",
+			type: "application",
+			metadata: {
+				name: "xy"
+			}
+		},
+		dependencies: [{
+			id: "extension.a",
+			path: applicationAPath,
+			version: "1.0.0",
+			configuration: {
+				specVersion: "2.3",
+				kind: "extension",
+				type: "phony-pony",
+				metadata: {
+					name: "pinky.pie"
+				}
+			},
+			dependencies: [],
+		}],
+	};
+	const {projectGraphFromTree} = t.context;
+	const validationError = await t.throwsAsync(projectGraphFromTree(tree), {
+		instanceOf: ValidationError
+	});
+	t.true(validationError.message.includes("Configuration type must be equal to one of the allowed value"),
+		"ValidationError should contain error about missing metadata configuration");
+});
+
+test("Project with task extension dependency", async (t) => {
+	const tree = {
+		id: "application.a.id",
+		path: applicationAPath,
+		version: "1.0.0",
+		configuration: {
+			specVersion: "2.3",
+			type: "application",
+			metadata: {
+				name: "application.a"
+			}
+		},
+		dependencies: [{
+			id: "ext.task.a",
+			path: applicationAPath,
+			version: "1.0.0",
+			configuration: {
+				specVersion: "2.3",
+				kind: "extension",
+				type: "task",
+				metadata: {
+					name: "task.a"
+				},
+				task: {
+					path: "task.a.js"
+				}
+			},
+			dependencies: [],
+		}]
+	};
+	const graph = await testBasicGraphCreationDfs(t, tree, [
+		"application.a"
+	]);
+	t.truthy(graph.getExtension("task.a"), "Extension should be added to the graph");
+});
+
+test("Project with middleware extension dependency", async (t) => {
+	const tree = {
+		id: "application.a.id",
+		path: applicationAPath,
+		version: "1.0.0",
+		configuration: {
+			specVersion: "2.3",
+			type: "application",
+			metadata: {
+				name: "application.a"
+			}
+		},
+		dependencies: [{
+			id: "ext.middleware.a",
+			path: applicationAPath,
+			version: "1.0.0",
+			configuration: {
+				specVersion: "2.3",
+				kind: "extension",
+				type: "server-middleware",
+				metadata: {
+					name: "middleware.a"
+				},
+				middleware: {
+					path: "middleware.a.js"
+				}
+			},
+			dependencies: [],
+		}],
+	};
+	const graph = await testBasicGraphCreationDfs(t, tree, [
+		"application.a"
+	]);
+	t.truthy(graph.getExtension("middleware.a"), "Extension should be added to the graph");
+});

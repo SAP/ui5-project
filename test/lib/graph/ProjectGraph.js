@@ -4,16 +4,32 @@ const mock = require("mock-require");
 const logger = require("@ui5/logger");
 const Configuration = require("../../../lib/specifications/Configuration");
 const Project = require("../../../lib/specifications/Project");
-// const Extension = require("../../../lib/specifications/Extension");
+const Extension = require("../../../lib/specifications/Extension");
 
 function createProject(name) {
 	const basicConfiguration = new Configuration({
 		specVersion: "2.3",
 		kind: "project",
+		type: "application",
 		metadata: {name}
 	});
 
 	return new Project({
+		id: "application.a.id",
+		version: "1.0.0",
+		modulePath: "some path",
+		configuration: basicConfiguration
+	});
+}
+function createExtension(name) {
+	const basicConfiguration = new Configuration({
+		specVersion: "2.3",
+		kind: "extension",
+		type: "task",
+		metadata: {name}
+	});
+
+	return new Extension({
 		id: "application.a.id",
 		version: "1.0.0",
 		modulePath: "some path",
@@ -71,10 +87,7 @@ test("Instantiate a basic project graph", async (t) => {
 	const {ProjectGraph} = t.context;
 	t.notThrows(() => {
 		new ProjectGraph({
-			rootProjectName: "my root project",
-			extensions: [
-				"some extension"
-			]
+			rootProjectName: "my root project"
 		});
 	}, "Should not throw");
 });
@@ -82,11 +95,7 @@ test("Instantiate a basic project graph", async (t) => {
 test("Instantiate a basic project with missing parameter rootProjectName", async (t) => {
 	const {ProjectGraph} = t.context;
 	const error = t.throws(() => {
-		new ProjectGraph({
-			extensions: [
-				"some extension"
-			]
-		});
+		new ProjectGraph({});
 	});
 	t.is(error.message, "Could not create ProjectGraph: Missing or empty parameter 'rootProjectName'",
 		"Should throw with expected error message");
@@ -141,7 +150,7 @@ test("addProject: Add duplicate", async (t) => {
 		graph.addProject(project2);
 	});
 	t.is(error.message,
-		"Failed to add project application.a to the graph: A project with that name has already been added",
+		"Failed to add project application.a to graph: A project with that name has already been added",
 		"Should throw with expected error message");
 
 	const res = graph.getProject("application.a");
@@ -186,6 +195,61 @@ test("getProject: Project is not in graph", async (t) => {
 		rootProjectName: "my root project"
 	});
 	const res = graph.getProject("application.a");
+	t.is(res, undefined, "Should return undefined");
+});
+
+test("add-/getExtension", async (t) => {
+	const {ProjectGraph} = t.context;
+	const graph = new ProjectGraph({
+		rootProjectName: "my root project"
+	});
+	const extension = createExtension("extension.a");
+	graph.addExtension(extension);
+	const res = graph.getExtension("extension.a");
+	t.is(res, extension, "Should return correct extension");
+});
+
+test("addExtension: Add duplicate", async (t) => {
+	const {ProjectGraph} = t.context;
+	const graph = new ProjectGraph({
+		rootProjectName: "my root project"
+	});
+	const extension1 = createExtension("extension.a");
+	graph.addExtension(extension1);
+
+	const extension2 = createExtension("extension.a");
+	const error = t.throws(() => {
+		graph.addExtension(extension2);
+	});
+	t.is(error.message,
+		"Failed to add extension extension.a to graph: An extension with that name has already been added",
+		"Should throw with expected error message");
+
+	const res = graph.getExtension("extension.a");
+	t.is(res, extension1, "Should return correct extension");
+});
+
+test("addExtension: Add extension with integer-like name", async (t) => {
+	const {ProjectGraph} = t.context;
+	const graph = new ProjectGraph({
+		rootProjectName: "my root project"
+	});
+	const extension = createExtension("1337");
+
+	const error = t.throws(() => {
+		graph.addExtension(extension);
+	});
+	t.is(error.message,
+		"Failed to add extension 1337 to graph: Extension name must not be integer-like",
+		"Should throw with expected error message");
+});
+
+test("getExtension: Project is not in graph", async (t) => {
+	const {ProjectGraph} = t.context;
+	const graph = new ProjectGraph({
+		rootProjectName: "my root project"
+	});
+	const res = graph.getExtension("extension.a");
 	t.is(res, undefined, "Should return undefined");
 });
 
