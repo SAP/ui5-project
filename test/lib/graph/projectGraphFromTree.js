@@ -1443,6 +1443,94 @@ test("Project with project-shim extension with collection", async (t) => {
 	t.is(log.info.callCount, 0, "log.info should not have been called");
 });
 
+test("Project with project-shim extension with self-containing collection shim", async (t) => {
+	const tree = {
+		id: "application.a.id",
+		path: applicationAPath,
+		version: "1.0.0",
+		configuration: {
+			specVersion: "2.3",
+			type: "application",
+			metadata: {
+				name: "application.a"
+			}
+		},
+		dependencies: [{
+			id: "legacy.collection.a",
+			path: legacyCollectionAPath,
+			version: "1.0.0",
+			configuration: [{
+				specVersion: "2.3",
+				type: "library",
+				metadata: {
+					name: "my.fe"
+				},
+				framework: {
+					name: "OpenUI5"
+				}
+			}, {
+				specVersion: "2.3",
+				kind: "extension",
+				type: "project-shim",
+				metadata: {
+					name: "shims.a"
+				},
+				shims: {
+					configurations: {
+						"legacy.library.x.id": {
+							specVersion: "2.3",
+							type: "library",
+							metadata: {
+								name: "legacy.library.x",
+							}
+						},
+						"legacy.library.y.id": {
+							specVersion: "2.3",
+							type: "library",
+							metadata: {
+								name: "legacy.library.y",
+							}
+						}
+					},
+					dependencies: {
+						"legacy.library.x.id": [
+							"legacy.library.y.id"
+						]
+					},
+					collections: {
+						"legacy.collection.a": {
+							modules: {
+								"legacy.library.x.id": "src/legacy.library.x",
+								"legacy.library.y.id": "src/legacy.library.y"
+							}
+						}
+					}
+				}
+			}],
+			dependencies: []
+		}]
+	};
+
+	const graph = await testBasicGraphCreationDfs(t, tree, [
+		"legacy.library.y",
+		"legacy.library.x",
+		"application.a",
+	]);
+	t.deepEqual(graph.getDependencies("application.a"), [
+		"legacy.library.x",
+		"legacy.library.y"
+	], "Shimmed dependencies should be applied");
+
+	const {log} = t.context;
+	t.is(log.warn.callCount, 0, "log.warn should not have been called");
+	t.is(log.info.callCount, 0, "log.info should not have been called");
+
+	const libraryY = graph.getProject("legacy.library.y");
+	t.deepEqual(libraryY.getConfigurationObject().framework, {
+		name: "OpenUI5"
+	}, "Configuration from collection project should be taken over into shimmed project");
+});
+
 test("Project with unknown extension dependency inline configuration", async (t) => {
 	const tree = {
 		id: "application.a",
