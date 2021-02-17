@@ -345,6 +345,23 @@ test("declareDependency: Already declared", async (t) => {
 		"log.warn should be called once with the expected argument");
 });
 
+test("declareDependency: Same target as source", async (t) => {
+	const {ProjectGraph} = t.context;
+	const graph = new ProjectGraph({
+		rootProjectName: "my root project"
+	});
+	graph.addProject(createProject("library.a"));
+	graph.addProject(createProject("library.b"));
+
+	const error = t.throws(() => {
+		graph.declareDependency("library.a", "library.a");
+	});
+	t.is(error.message,
+		"Failed to declare dependency from project library.a to library.a: " +
+		"A project can't depend on itself",
+		"Should throw with expected error message");
+});
+
 test("traverseBreadthFirst", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
