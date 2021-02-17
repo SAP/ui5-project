@@ -789,8 +789,8 @@ test("join: Unexpected project intersection", async (t) => {
 		graph1.join(graph2);
 	});
 	t.is(error.message,
-		"Failed to join graph with root project 😼 into 😹: Failed to merge map: " +
-		"Key 'library.a' already present in target set",
+		`Failed to join project graph with root project 😼 into project graph with root ` +
+		`project 😹: Failed to merge map: Key 'library.a' already present in target set`,
 		"Should throw with expected error message");
 });
 
@@ -810,7 +810,74 @@ test("join: Unexpected extension intersection", async (t) => {
 		graph1.join(graph2);
 	});
 	t.is(error.message,
-		"Failed to join graph with root project 😼 into 😹: Failed to merge map: " +
-		"Key 'extension.a' already present in target set",
+		`Failed to join project graph with root project 😼 into project graph with root ` +
+		`project 😹: Failed to merge map: Key 'extension.a' already present in target set`,
 		"Should throw with expected error message");
+});
+
+
+test("Seal", async (t) => {
+	const {ProjectGraph} = t.context;
+	const graph = new ProjectGraph({
+		rootProjectName: "library.a"
+	});
+	graph.addProject(createProject("library.a"));
+	graph.addProject(createProject("library.b"));
+	graph.addProject(createProject("library.c"));
+
+	graph.declareDependency("library.a", "library.b");
+	graph.declareDependency("library.a", "library.c");
+	graph.declareDependency("library.b", "library.c");
+
+	graph.addExtension(createExtension("extension.a"));
+
+	// Seal it
+	graph.seal();
+
+	const expectedSealMsg = "Project graph with root node library.a has been sealed";
+
+	t.throws(() => {
+		graph.addProject(createProject("library.x"));
+	}, {
+		message: expectedSealMsg
+	});
+	t.throws(() => {
+		graph.declareDependency("library.c", "library.b");
+	}, {
+		message: expectedSealMsg
+	});
+	t.throws(() => {
+		graph.addExtension(createExtension("extension.b"));
+	}, {
+		message: expectedSealMsg
+	});
+
+
+	const graph2 = new ProjectGraph({
+		rootProjectName: "library.x"
+	});
+	t.throws(() => {
+		graph.join(graph2);
+	}, {
+		message:
+			`Failed to join project graph with root project library.x into project graph ` +
+			`with root project library.a: ${expectedSealMsg}`
+	});
+	await traverseBreadthFirst(t, graph, [
+		"library.a",
+		"library.b",
+		"library.c"
+	]);
+
+	await traverseDepthFirst(t, graph, [
+		"library.c",
+		"library.b",
+		"library.a",
+	]);
+
+	const project = graph.getProject("library.x");
+	t.is(project, undefined, "library.x has not been added");
+
+	const extension = graph.getExtension("extension.b");
+	t.is(extension, undefined, "extension.b has not been added");
 });
