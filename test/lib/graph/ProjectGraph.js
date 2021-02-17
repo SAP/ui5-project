@@ -123,7 +123,7 @@ test("getRoot: Root not added to graph", async (t) => {
 		graph.getRoot();
 	});
 	t.is(error.message,
-		"Unable to find root project with name application.a in graph",
+		"Unable to find root project with name application.a in project graph",
 		"Should throw with expected error message");
 });
 
@@ -294,6 +294,12 @@ test("declareDependency / getDependencies", async (t) => {
 	t.deepEqual(graph.getDependencies("library.b"), [
 		"library.a"
 	], "Should store and return correct dependencies for library.b");
+
+	t.is(graph.hasOptionalDependency("library.a", "library.b"), false,
+		"Should declare dependency as non-optional");
+
+	t.is(graph.hasOptionalDependency("library.b", "library.a"), false,
+		"Should declare dependency as non-optional");
 });
 
 test("declareDependency: Unknown source", async (t) => {
@@ -308,7 +314,7 @@ test("declareDependency: Unknown source", async (t) => {
 	});
 	t.is(error.message,
 		"Failed to declare dependency from project library.a to library.b: Unable " +
-		"to find depending project with name library.a in graph",
+		"to find depending project with name library.a in project graph",
 		"Should throw with expected error message");
 });
 
@@ -324,7 +330,24 @@ test("declareDependency: Unknown target", async (t) => {
 	});
 	t.is(error.message,
 		"Failed to declare dependency from project library.a to library.b: Unable " +
-		"to find dependency project with name library.b in graph",
+		"to find dependency project with name library.b in project graph",
+		"Should throw with expected error message");
+});
+
+test("declareDependency: Same target as source", async (t) => {
+	const {ProjectGraph} = t.context;
+	const graph = new ProjectGraph({
+		rootProjectName: "my root project"
+	});
+	graph.addProject(createProject("library.a"));
+	graph.addProject(createProject("library.b"));
+
+	const error = t.throws(() => {
+		graph.declareDependency("library.a", "library.a");
+	});
+	t.is(error.message,
+		"Failed to declare dependency from project library.a to library.a: " +
+		"A project can't depend on itself",
 		"Should throw with expected error message");
 });
 
@@ -345,22 +368,148 @@ test("declareDependency: Already declared", async (t) => {
 		"log.warn should be called once with the expected argument");
 });
 
-test("declareDependency: Same target as source", async (t) => {
-	const {ProjectGraph} = t.context;
+test("declareDependency: Already declared as optional", async (t) => {
+	const {ProjectGraph, log} = t.context;
 	const graph = new ProjectGraph({
 		rootProjectName: "my root project"
 	});
 	graph.addProject(createProject("library.a"));
 	graph.addProject(createProject("library.b"));
 
+	graph.declareOptionalDependency("library.a", "library.b");
+	graph.declareOptionalDependency("library.a", "library.b");
+
+	t.is(log.warn.callCount, 1, "log.warn should be called once");
+	t.is(log.warn.getCall(0).args[0],
+		`Dependency has already been declared: library.a depends on library.b`,
+		"log.warn should be called once with the expected argument");
+
+	t.is(graph.hasOptionalDependency("library.a", "library.b"), true,
+		"Should declare dependency as optional");
+});
+
+test("declareDependency: Already declared as non-optional", async (t) => {
+	const {ProjectGraph, log} = t.context;
+	const graph = new ProjectGraph({
+		rootProjectName: "my root project"
+	});
+	graph.addProject(createProject("library.a"));
+	graph.addProject(createProject("library.b"));
+
+	graph.declareDependency("library.a", "library.b");
+
+	graph.declareOptionalDependency("library.a", "library.b");
+
+	t.is(log.warn.callCount, 0, "log.warn should not be called");
+
+	t.is(graph.hasOptionalDependency("library.a", "library.b"), false,
+		"Should declare dependency as non-optional");
+});
+
+test("declareDependency: Already declared as optional, now non-optional", async (t) => {
+	const {ProjectGraph, log} = t.context;
+	const graph = new ProjectGraph({
+		rootProjectName: "my root project"
+	});
+	graph.addProject(createProject("library.a"));
+	graph.addProject(createProject("library.b"));
+
+	graph.declareOptionalDependency("library.a", "library.b");
+	graph.declareDependency("library.a", "library.b");
+
+	t.is(log.warn.callCount, 0, "log.warn should not be called");
+
+	t.is(graph.hasOptionalDependency("library.a", "library.b"), false,
+		"Should declare dependency as non-optional");
+});
+
+
+test("getDependencies: Project without dependencies", async (t) => {
+	const {ProjectGraph} = t.context;
+	const graph = new ProjectGraph({
+		rootProjectName: "my root project"
+	});
+
+	graph.addProject(createProject("library.a"));
+
+	t.deepEqual(graph.getDependencies("library.a"), [],
+		"Should return an empty array for project without dependencies");
+});
+
+test("getDependencies: Unknown project", async (t) => {
+	const {ProjectGraph} = t.context;
+	const graph = new ProjectGraph({
+		rootProjectName: "my root project"
+	});
+
 	const error = t.throws(() => {
-		graph.declareDependency("library.a", "library.a");
+		graph.getDependencies("library.x");
 	});
 	t.is(error.message,
-		"Failed to declare dependency from project library.a to library.a: " +
-		"A project can't depend on itself",
+		"Failed to get dependencies for project library.x: Unable to find project in project graph",
 		"Should throw with expected error message");
 });
+
+test("resolveOptionalDependencies", async (t) => {
+	const {ProjectGraph} = t.context;
+	const graph = new ProjectGraph({
+		rootProjectName: "library.a"
+	});
+	graph.addProject(createProject("library.a"));
+	graph.addProject(createProject("library.b"));
+	graph.addProject(createProject("library.c"));
+	graph.addProject(createProject("library.d"));
+
+	graph.declareOptionalDependency("library.a", "library.b");
+	graph.declareOptionalDependency("library.a", "library.c");
+	graph.declareDependency("library.a", "library.d");
+	graph.declareDependency("library.d", "library.b");
+	graph.declareDependency("library.d", "library.c");
+
+	graph.resolveOptionalDependencies();
+
+	t.is(graph.hasOptionalDependency("library.a", "library.b"), false,
+		"library.a should have no optional dependency to library.b anymore");
+	t.is(graph.hasOptionalDependency("library.a", "library.c"), false,
+		"library.a should have no optional dependency to library.c anymore");
+
+	await traverseDepthFirst(t, graph, [
+		"library.b",
+		"library.c",
+		"library.d",
+		"library.a"
+	]);
+});
+
+
+test("resolveOptionalDependencies: Optional dependency has not been resolved", async (t) => {
+	const {ProjectGraph} = t.context;
+	const graph = new ProjectGraph({
+		rootProjectName: "library.a"
+	});
+	graph.addProject(createProject("library.a"));
+	graph.addProject(createProject("library.b"));
+	graph.addProject(createProject("library.c"));
+	graph.addProject(createProject("library.d"));
+
+	graph.declareOptionalDependency("library.a", "library.b");
+	graph.declareOptionalDependency("library.a", "library.c");
+	graph.declareDependency("library.a", "library.d");
+
+	graph.resolveOptionalDependencies();
+
+	t.is(graph.hasOptionalDependency("library.a", "library.b"), true,
+		"Dependency from library.a to library.b should still be optional");
+
+	t.is(graph.hasOptionalDependency("library.a", "library.c"), true,
+		"Dependency from library.a to library.c should still be optional");
+
+	await traverseDepthFirst(t, graph, [
+		"library.d",
+		"library.a"
+	]);
+});
+
 
 test("traverseBreadthFirst", async (t) => {
 	const {ProjectGraph} = t.context;
@@ -444,7 +593,7 @@ test("traverseBreadthFirst: Can't find start node", async (t) => {
 
 	const error = await t.throwsAsync(graph.traverseBreadthFirst(() => {}));
 	t.is(error.message,
-		"Failed to start graph traversal: Could not find project library.a in graph",
+		"Failed to start graph traversal: Could not find project library.a in project graph",
 		"Should throw with expected error message");
 });
 
@@ -633,7 +782,7 @@ test("traverseDepthFirst: Can't find start node", async (t) => {
 
 	const error = await t.throwsAsync(graph.traverseDepthFirst(() => {}));
 	t.is(error.message,
-		"Failed to start graph traversal: Could not find project library.a in graph",
+		"Failed to start graph traversal: Could not find project library.a in project graph",
 		"Should throw with expected error message");
 });
 
@@ -790,6 +939,38 @@ test("join", async (t) => {
 	t.is(graph1.getExtension("extension.b"), extensionB, "Should return correct joined extension");
 });
 
+test("join: Seals incoming graph", async (t) => {
+	const {ProjectGraph} = t.context;
+	const graph1 = new ProjectGraph({
+		rootProjectName: "library.a"
+	});
+	const graph2 = new ProjectGraph({
+		rootProjectName: "theme.a"
+	});
+
+
+	const sealSpy = t.context.sinon.spy(graph2, "seal");
+	graph1.join(graph2);
+
+	t.is(sealSpy.callCount, 1, "Should call seal() on incoming graph once");
+});
+
+test("join: Incoming graph already sealed", async (t) => {
+	const {ProjectGraph} = t.context;
+	const graph1 = new ProjectGraph({
+		rootProjectName: "library.a"
+	});
+	const graph2 = new ProjectGraph({
+		rootProjectName: "theme.a"
+	});
+
+	graph2.seal();
+	const sealSpy = t.context.sinon.spy(graph2, "seal");
+	graph1.join(graph2);
+
+	t.is(sealSpy.callCount, 0, "Should not call seal() on incoming graph");
+});
+
 test("join: Unexpected project intersection", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph1 = new ProjectGraph({
@@ -833,7 +1014,7 @@ test("join: Unexpected extension intersection", async (t) => {
 });
 
 
-test("Seal", async (t) => {
+test("Seal/isSealed", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
 		rootProjectName: "library.a"
@@ -845,11 +1026,14 @@ test("Seal", async (t) => {
 	graph.declareDependency("library.a", "library.b");
 	graph.declareDependency("library.a", "library.c");
 	graph.declareDependency("library.b", "library.c");
+	graph.declareOptionalDependency("library.c", "library.a");
 
 	graph.addExtension(createExtension("extension.a"));
 
+	t.is(graph.isSealed(), false, "Graph should not be sealed");
 	// Seal it
 	graph.seal();
+	t.is(graph.isSealed(), true, "Graph should be sealed");
 
 	const expectedSealMsg = "Project graph with root node library.a has been sealed";
 
@@ -860,6 +1044,11 @@ test("Seal", async (t) => {
 	});
 	t.throws(() => {
 		graph.declareDependency("library.c", "library.b");
+	}, {
+		message: expectedSealMsg
+	});
+	t.throws(() => {
+		graph.declareOptionalDependency("library.b", "library.a");
 	}, {
 		message: expectedSealMsg
 	});
@@ -893,8 +1082,8 @@ test("Seal", async (t) => {
 	]);
 
 	const project = graph.getProject("library.x");
-	t.is(project, undefined, "library.x has not been added");
+	t.is(project, undefined, "library.x should not be added");
 
 	const extension = graph.getExtension("extension.b");
-	t.is(extension, undefined, "extension.b has not been added");
+	t.is(extension, undefined, "extension.b should not be added");
 });

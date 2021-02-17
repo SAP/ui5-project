@@ -29,7 +29,8 @@ test.beforeEach((t) => {
 		isLevelEnabled: () => true
 	};
 	sinon.stub(logger, "getLogger").callThrough()
-		.withArgs("graph:projectGraphFromTree").returns(t.context.log);
+		.withArgs("graph:projectGraphBuilder").returns(t.context.log);
+	mock.reRequire("../../../lib/graph/projectGraphBuilder");
 	t.context.projectGraphFromTree = mock.reRequire("../../../lib/graph/projectGraphFromTree");
 	logger.getLogger.restore(); // Immediately restore global stub for following tests
 });

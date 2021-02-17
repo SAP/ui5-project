@@ -9,9 +9,10 @@ const pacote = require("pacote");
 const libnpmconfig = require("libnpmconfig");
 const lockfile = require("lockfile");
 const logger = require("@ui5/logger");
-const normalizer = require("../../../../lib/normalizer");
 const Module = require("../../../../lib/graph/Module");
-// let ui5Framework;
+const DependencyTreeProvider = require("../../../../lib/graph/providers/DependencyTree");
+const projectGraphBuilder = require("../../../../lib/graph/projectGraphBuilder");
+let ui5Framework;
 let Installer;
 
 // Use path within project as mocking base directory to reduce chance of side effects
@@ -46,7 +47,7 @@ test.beforeEach((t) => {
 	mock("mkdirp", sinon.stub().resolves());
 
 	// Re-require to ensure that mocked modules are used
-	// ui5Framework = mock.reRequire("../../../../lib/graph/providers/ui5Framework");
+	ui5Framework = mock.reRequire("../../../../lib/graph/providers/ui5Framework");
 	Installer = require("../../../../lib/ui5Framework/npm/Installer");
 });
 
@@ -195,8 +196,6 @@ function defineTest(testName, {
 			]
 		};
 
-		sinon.stub(normalizer, "generateDependencyTree").resolves(translatorTree);
-
 		sinon.stub(Module.prototype, "_readConfigFile")
 			.callsFake(async function() {
 				switch (this.getPath()) {
@@ -313,7 +312,11 @@ function defineTest(testName, {
 				.resolves(distributionMetadata);
 		}
 
-		const projectGraph = await normalizer.generateProjectGraph();
+		const provider = new DependencyTreeProvider(translatorTree);
+
+		const projectGraph = await projectGraphBuilder(provider);
+
+		await ui5Framework.enrichProjectGraph(projectGraph);
 
 		const callbackStub = sinon.stub().resolves();
 		await projectGraph.traverseDepthFirst(callbackStub);
