@@ -209,12 +209,12 @@ test("Error: missing package.json", async (t) => {
 	t.is(error.message, `Failed to locate package.json for directory ${dir}`);
 });
 
-test.skip("Error: missing dependency", async (t) => {
+test("Error: missing dependency", async (t) => {
 	const npmProvider = new NpmProvider({
 		cwd: errApplicationAPath
 	});
 	const error = await t.throwsAsync(testGraphCreationDfs(t, npmProvider, []));
-	t.is(error.message, "[npm translator] Could not locate " +
-		"module library.xx via resolve logic (error: Cannot find module 'library.xx/package.json' from '" +
-		errApplicationAPath + "') or in a collection");
+	t.is(error.message,
+		`Unable to locate module library.xx via resolve logic: Cannot find module 'library.xx/package.json' from ` +
+		`'${errApplicationAPath}'`);
 });
