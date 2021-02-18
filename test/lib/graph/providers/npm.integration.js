@@ -23,9 +23,9 @@ test.afterEach.always((t) => {
 	t.context.sinon.restore();
 });
 
-// function testGraphCreationBfs(...args) {
-// 	return _testGraphCreation(...args, true);
-// }
+function testGraphCreationBfs(...args) {
+	return _testGraphCreation(...args, true);
+}
 
 function testGraphCreationDfs(...args) {
 	return _testGraphCreation(...args, false);
@@ -134,53 +134,30 @@ test("AppG: project with npm 'optionalDependencies' should not fail if optional 
 		]);
 	});
 
-test.skip("AppCycleA: cyclic dev deps", async (t) => {
+test("AppCycleA: cyclic dev deps", async (t) => {
 	const applicationCycleAPath = path.join(cycleDepsBasePath, "application.cycle.a");
 
 	const npmProvider = new NpmProvider({
 		cwd: applicationCycleAPath
 	});
 	await testGraphCreationDfs(t, npmProvider, [
-		"", "", ""
+		"library.cycle.a",
+		"library.cycle.b",
+		"component.cycle.a",
+		"application.cycle.a"
 	]);
-	// => applicationCycleATree
 });
 
-test.skip("AppCycleA: cyclic dev deps - include deduped", async (t) => {
-	const applicationCycleAPath = path.join(cycleDepsBasePath, "application.cycle.a");
-
-	const npmProvider = new NpmProvider({
-		cwd: applicationCycleAPath
-	});
-	await testGraphCreationDfs(t, npmProvider, [
-		"", "", ""
-	]);
-	// {includeDeduped: true})
-	// => applicationCycleATreeIncDeduped
-});
-
-test.skip("AppCycleB: cyclic npm deps - Cycle via devDependency on second level - include deduped", async (t) => {
+test("AppCycleB: cyclic npm deps - Cycle via devDependency on second level", async (t) => {
 	const applicationCycleBPath = path.join(cycleDepsBasePath, "application.cycle.b");
 	const npmProvider = new NpmProvider({
 		cwd: applicationCycleBPath
 	});
 	await testGraphCreationDfs(t, npmProvider, [
-		"", "", ""
+		"module.e",
+		"module.d",
+		"application.cycle.b"
 	]);
-	// {includeDeduped: true})
-	// => applicationCycleBTreeIncDeduped
-});
-
-test.skip("AppCycleB: cyclic npm deps - Cycle via devDependency on second level", async (t) => {
-	const applicationCycleBPath = path.join(cycleDepsBasePath, "application.cycle.b");
-	const npmProvider = new NpmProvider({
-		cwd: applicationCycleBPath
-	});
-	await testGraphCreationDfs(t, npmProvider, [
-		"", "", ""
-	]);
-	// {includeDeduped: false})
-	// => pplicationCycleBTree
 });
 
 test("AppCycleC: cyclic npm deps - Cycle on third level (one indirection)", async (t) => {
@@ -193,56 +170,34 @@ test("AppCycleC: cyclic npm deps - Cycle on third level (one indirection)", asyn
 		"module.g",
 		"application.cycle.c"
 	]);
-	// {includeDeduped: false})
-	// => applicationCycleCTree
-});
-
-test.skip("AppCycleC: cyclic npm deps - Cycle on third level (one indirection) - include deduped", async (t) => {
-	const applicationCycleCPath = path.join(cycleDepsBasePath, "application.cycle.c");
-	const npmProvider = new NpmProvider({
-		cwd: applicationCycleCPath
-	});
-	await testGraphCreationDfs(t, npmProvider, [
-		"", "", ""
+	await testGraphCreationBfs(t, npmProvider, [
+		"application.cycle.c",
+		"module.f",
+		"module.g",
 	]);
-	// {includeDeduped: true})
-	// => applicationCycleCTreeIncDeduped
 });
 
-test.skip("AppCycleD: cyclic npm deps - Cycles everywhere", async (t) => {
+test("AppCycleD: cyclic npm deps - Cycles everywhere", async (t) => {
 	const applicationCycleDPath = path.join(cycleDepsBasePath, "application.cycle.d");
 	const npmProvider = new NpmProvider({
 		cwd: applicationCycleDPath
 	});
-	await testGraphCreationDfs(t, npmProvider, [
-		"", "", ""
-	]);
-	// {includeDeduped: true})
-	// => applicationCycleDTree
+
+	const error = await t.throwsAsync(testGraphCreationDfs(t, npmProvider, []));
+	t.is(error.message,
+		`Detected cyclic dependency chain: application.cycle.d -> module.h* -> module.i -> module.k -> module.h*`);
 });
 
-test.skip("AppCycleE: cyclic npm deps - Cycle via devDependency - include deduped", async (t) => {
+test("AppCycleE: cyclic npm deps - Cycle via devDependency", async (t) => {
 	const applicationCycleEPath = path.join(cycleDepsBasePath, "application.cycle.e");
 	const npmProvider = new NpmProvider({
 		cwd: applicationCycleEPath
 	});
 	await testGraphCreationDfs(t, npmProvider, [
-		"", "", ""
+		"module.l",
+		"module.m",
+		"application.cycle.e"
 	]);
-	// {includeDeduped: true})
-	// => applicationCycleETreeIncDeduped
-});
-
-test.skip("AppCycleE: cyclic npm deps - Cycle via devDependency", async (t) => {
-	const applicationCycleEPath = path.join(cycleDepsBasePath, "application.cycle.e");
-	const npmProvider = new NpmProvider({
-		cwd: applicationCycleEPath
-	});
-	await testGraphCreationDfs(t, npmProvider, [
-		"", "", ""
-	]);
-	// {includeDeduped: false})
-	// => pplicationCycleETree
 });
 
 test("Error: missing package.json", async (t) => {

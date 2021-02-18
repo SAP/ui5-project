@@ -295,10 +295,10 @@ test("declareDependency / getDependencies", async (t) => {
 		"library.a"
 	], "Should store and return correct dependencies for library.b");
 
-	t.is(graph.hasOptionalDependency("library.a", "library.b"), false,
+	t.is(graph.isOptionalDependency("library.a", "library.b"), false,
 		"Should declare dependency as non-optional");
 
-	t.is(graph.hasOptionalDependency("library.b", "library.a"), false,
+	t.is(graph.isOptionalDependency("library.b", "library.a"), false,
 		"Should declare dependency as non-optional");
 });
 
@@ -384,7 +384,7 @@ test("declareDependency: Already declared as optional", async (t) => {
 		`Dependency has already been declared: library.a depends on library.b`,
 		"log.warn should be called once with the expected argument");
 
-	t.is(graph.hasOptionalDependency("library.a", "library.b"), true,
+	t.is(graph.isOptionalDependency("library.a", "library.b"), true,
 		"Should declare dependency as optional");
 });
 
@@ -402,7 +402,7 @@ test("declareDependency: Already declared as non-optional", async (t) => {
 
 	t.is(log.warn.callCount, 0, "log.warn should not be called");
 
-	t.is(graph.hasOptionalDependency("library.a", "library.b"), false,
+	t.is(graph.isOptionalDependency("library.a", "library.b"), false,
 		"Should declare dependency as non-optional");
 });
 
@@ -419,7 +419,7 @@ test("declareDependency: Already declared as optional, now non-optional", async 
 
 	t.is(log.warn.callCount, 0, "log.warn should not be called");
 
-	t.is(graph.hasOptionalDependency("library.a", "library.b"), false,
+	t.is(graph.isOptionalDependency("library.a", "library.b"), false,
 		"Should declare dependency as non-optional");
 });
 
@@ -468,9 +468,9 @@ test("resolveOptionalDependencies", async (t) => {
 
 	graph.resolveOptionalDependencies();
 
-	t.is(graph.hasOptionalDependency("library.a", "library.b"), false,
+	t.is(graph.isOptionalDependency("library.a", "library.b"), false,
 		"library.a should have no optional dependency to library.b anymore");
-	t.is(graph.hasOptionalDependency("library.a", "library.c"), false,
+	t.is(graph.isOptionalDependency("library.a", "library.c"), false,
 		"library.a should have no optional dependency to library.c anymore");
 
 	await traverseDepthFirst(t, graph, [
@@ -498,10 +498,10 @@ test("resolveOptionalDependencies: Optional dependency has not been resolved", a
 
 	graph.resolveOptionalDependencies();
 
-	t.is(graph.hasOptionalDependency("library.a", "library.b"), true,
+	t.is(graph.isOptionalDependency("library.a", "library.b"), true,
 		"Dependency from library.a to library.b should still be optional");
 
-	t.is(graph.hasOptionalDependency("library.a", "library.c"), true,
+	t.is(graph.isOptionalDependency("library.a", "library.c"), true,
 		"Dependency from library.a to library.c should still be optional");
 
 	await traverseDepthFirst(t, graph, [
