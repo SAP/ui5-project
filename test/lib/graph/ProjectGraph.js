@@ -1,40 +1,37 @@
+const path = require("path");
 const test = require("ava");
 const sinonGlobal = require("sinon");
 const mock = require("mock-require");
 const logger = require("@ui5/logger");
-const Configuration = require("../../../lib/specifications/Configuration");
-const Project = require("../../../lib/specifications/Project");
-const Extension = require("../../../lib/specifications/Extension");
+const Specification = require("../../../lib/specifications/Specification");
+const applicationAPath = path.join(__dirname, "..", "..", "fixtures", "application.a");
 
-function createProject(name) {
-	const basicConfiguration = new Configuration({
-		specVersion: "2.3",
-		kind: "project",
-		type: "application",
-		metadata: {name}
-	});
-
-	return new Project({
+async function createProject(name) {
+	return await Specification.create({
 		id: "application.a.id",
 		version: "1.0.0",
-		modulePath: "some path",
-		configuration: basicConfiguration
+		modulePath: applicationAPath,
+		configuration: {
+			specVersion: "2.3",
+			kind: "project",
+			type: "application",
+			metadata: {name}
+		}
 	});
 }
 
-function createExtension(name) {
-	const basicConfiguration = new Configuration({
-		specVersion: "2.3",
-		kind: "extension",
-		type: "task",
-		metadata: {name}
-	});
-
-	return new Extension({
-		id: "application.a.id",
+async function createExtension(name) {
+	return await Specification.create({
+		id: "extension.a.id",
 		version: "1.0.0",
-		modulePath: "some path",
-		configuration: basicConfiguration
+		modulePath: applicationAPath,
+		configuration: {
+			specVersion: "2.3",
+			kind: "extension",
+			type: "task",
+			task: {},
+			metadata: {name}
+		}
 	});
 }
 
@@ -107,7 +104,7 @@ test("getRoot", async (t) => {
 	const graph = new ProjectGraph({
 		rootProjectName: "application.a"
 	});
-	const project = createProject("application.a");
+	const project = await createProject("application.a");
 	graph.addProject(project);
 	const res = graph.getRoot();
 	t.is(res, project, "Should return correct root project");
@@ -132,7 +129,7 @@ test("add-/getProject", async (t) => {
 	const graph = new ProjectGraph({
 		rootProjectName: "my root project"
 	});
-	const project = createProject("application.a");
+	const project = await createProject("application.a");
 	graph.addProject(project);
 	const res = graph.getProject("application.a");
 	t.is(res, project, "Should return correct project");
@@ -143,10 +140,10 @@ test("addProject: Add duplicate", async (t) => {
 	const graph = new ProjectGraph({
 		rootProjectName: "my root project"
 	});
-	const project1 = createProject("application.a");
+	const project1 = await createProject("application.a");
 	graph.addProject(project1);
 
-	const project2 = createProject("application.a");
+	const project2 = await createProject("application.a");
 	const error = t.throws(() => {
 		graph.addProject(project2);
 	});
@@ -163,10 +160,10 @@ test("addProject: Add duplicate with ignoreDuplicates", async (t) => {
 	const graph = new ProjectGraph({
 		rootProjectName: "my root project"
 	});
-	const project1 = createProject("application.a");
+	const project1 = await createProject("application.a");
 	graph.addProject(project1);
 
-	const project2 = createProject("application.a");
+	const project2 = await createProject("application.a");
 	t.notThrows(() => {
 		graph.addProject(project2, true);
 	}, "Should not throw when adding duplicates");
@@ -180,7 +177,7 @@ test("addProject: Add project with integer-like name", async (t) => {
 	const graph = new ProjectGraph({
 		rootProjectName: "my root project"
 	});
-	const project = createProject("1337");
+	const project = await createProject("1337");
 
 	const error = t.throws(() => {
 		graph.addProject(project);
@@ -204,7 +201,7 @@ test("add-/getExtension", async (t) => {
 	const graph = new ProjectGraph({
 		rootProjectName: "my root project"
 	});
-	const extension = createExtension("extension.a");
+	const extension = await createExtension("extension.a");
 	graph.addExtension(extension);
 	const res = graph.getExtension("extension.a");
 	t.is(res, extension, "Should return correct extension");
@@ -215,10 +212,10 @@ test("addExtension: Add duplicate", async (t) => {
 	const graph = new ProjectGraph({
 		rootProjectName: "my root project"
 	});
-	const extension1 = createExtension("extension.a");
+	const extension1 = await createExtension("extension.a");
 	graph.addExtension(extension1);
 
-	const extension2 = createExtension("extension.a");
+	const extension2 = await createExtension("extension.a");
 	const error = t.throws(() => {
 		graph.addExtension(extension2);
 	});
@@ -235,7 +232,7 @@ test("addExtension: Add extension with integer-like name", async (t) => {
 	const graph = new ProjectGraph({
 		rootProjectName: "my root project"
 	});
-	const extension = createExtension("1337");
+	const extension = await createExtension("1337");
 
 	const error = t.throws(() => {
 		graph.addExtension(extension);
@@ -259,10 +256,10 @@ test("getAllExtensions", async (t) => {
 	const graph = new ProjectGraph({
 		rootProjectName: "my root project"
 	});
-	const extension1 = createExtension("extension.a");
+	const extension1 = await createExtension("extension.a");
 	graph.addExtension(extension1);
 
-	const extension2 = createExtension("extension.b");
+	const extension2 = await createExtension("extension.b");
 	graph.addExtension(extension2);
 	const res = graph.getAllExtensions();
 	t.deepEqual(res, {
@@ -276,8 +273,8 @@ test("declareDependency / getDependencies", async (t) => {
 	const graph = new ProjectGraph({
 		rootProjectName: "my root project"
 	});
-	graph.addProject(createProject("library.a"));
-	graph.addProject(createProject("library.b"));
+	graph.addProject(await createProject("library.a"));
+	graph.addProject(await createProject("library.b"));
 
 	graph.declareDependency("library.a", "library.b");
 	t.deepEqual(graph.getDependencies("library.a"), [
@@ -307,7 +304,7 @@ test("declareDependency: Unknown source", async (t) => {
 	const graph = new ProjectGraph({
 		rootProjectName: "my root project"
 	});
-	graph.addProject(createProject("library.b"));
+	graph.addProject(await createProject("library.b"));
 
 	const error = t.throws(() => {
 		graph.declareDependency("library.a", "library.b");
@@ -323,7 +320,7 @@ test("declareDependency: Unknown target", async (t) => {
 	const graph = new ProjectGraph({
 		rootProjectName: "my root project"
 	});
-	graph.addProject(createProject("library.a"));
+	graph.addProject(await createProject("library.a"));
 
 	const error = t.throws(() => {
 		graph.declareDependency("library.a", "library.b");
@@ -339,8 +336,8 @@ test("declareDependency: Same target as source", async (t) => {
 	const graph = new ProjectGraph({
 		rootProjectName: "my root project"
 	});
-	graph.addProject(createProject("library.a"));
-	graph.addProject(createProject("library.b"));
+	graph.addProject(await createProject("library.a"));
+	graph.addProject(await createProject("library.b"));
 
 	const error = t.throws(() => {
 		graph.declareDependency("library.a", "library.a");
@@ -356,8 +353,8 @@ test("declareDependency: Already declared", async (t) => {
 	const graph = new ProjectGraph({
 		rootProjectName: "my root project"
 	});
-	graph.addProject(createProject("library.a"));
-	graph.addProject(createProject("library.b"));
+	graph.addProject(await createProject("library.a"));
+	graph.addProject(await createProject("library.b"));
 
 	graph.declareDependency("library.a", "library.b");
 	graph.declareDependency("library.a", "library.b");
@@ -373,8 +370,8 @@ test("declareDependency: Already declared as optional", async (t) => {
 	const graph = new ProjectGraph({
 		rootProjectName: "my root project"
 	});
-	graph.addProject(createProject("library.a"));
-	graph.addProject(createProject("library.b"));
+	graph.addProject(await createProject("library.a"));
+	graph.addProject(await createProject("library.b"));
 
 	graph.declareOptionalDependency("library.a", "library.b");
 	graph.declareOptionalDependency("library.a", "library.b");
@@ -393,8 +390,8 @@ test("declareDependency: Already declared as non-optional", async (t) => {
 	const graph = new ProjectGraph({
 		rootProjectName: "my root project"
 	});
-	graph.addProject(createProject("library.a"));
-	graph.addProject(createProject("library.b"));
+	graph.addProject(await createProject("library.a"));
+	graph.addProject(await createProject("library.b"));
 
 	graph.declareDependency("library.a", "library.b");
 
@@ -411,8 +408,8 @@ test("declareDependency: Already declared as optional, now non-optional", async 
 	const graph = new ProjectGraph({
 		rootProjectName: "my root project"
 	});
-	graph.addProject(createProject("library.a"));
-	graph.addProject(createProject("library.b"));
+	graph.addProject(await createProject("library.a"));
+	graph.addProject(await createProject("library.b"));
 
 	graph.declareOptionalDependency("library.a", "library.b");
 	graph.declareDependency("library.a", "library.b");
@@ -430,7 +427,7 @@ test("getDependencies: Project without dependencies", async (t) => {
 		rootProjectName: "my root project"
 	});
 
-	graph.addProject(createProject("library.a"));
+	graph.addProject(await createProject("library.a"));
 
 	t.deepEqual(graph.getDependencies("library.a"), [],
 		"Should return an empty array for project without dependencies");
@@ -455,10 +452,10 @@ test("resolveOptionalDependencies", async (t) => {
 	const graph = new ProjectGraph({
 		rootProjectName: "library.a"
 	});
-	graph.addProject(createProject("library.a"));
-	graph.addProject(createProject("library.b"));
-	graph.addProject(createProject("library.c"));
-	graph.addProject(createProject("library.d"));
+	graph.addProject(await createProject("library.a"));
+	graph.addProject(await createProject("library.b"));
+	graph.addProject(await createProject("library.c"));
+	graph.addProject(await createProject("library.d"));
 
 	graph.declareOptionalDependency("library.a", "library.b");
 	graph.declareOptionalDependency("library.a", "library.c");
@@ -487,10 +484,10 @@ test("resolveOptionalDependencies: Optional dependency has not been resolved", a
 	const graph = new ProjectGraph({
 		rootProjectName: "library.a"
 	});
-	graph.addProject(createProject("library.a"));
-	graph.addProject(createProject("library.b"));
-	graph.addProject(createProject("library.c"));
-	graph.addProject(createProject("library.d"));
+	graph.addProject(await createProject("library.a"));
+	graph.addProject(await createProject("library.b"));
+	graph.addProject(await createProject("library.c"));
+	graph.addProject(await createProject("library.d"));
 
 	graph.declareOptionalDependency("library.a", "library.b");
 	graph.declareOptionalDependency("library.a", "library.c");
@@ -516,8 +513,8 @@ test("traverseBreadthFirst", async (t) => {
 	const graph = new ProjectGraph({
 		rootProjectName: "library.a"
 	});
-	graph.addProject(createProject("library.a"));
-	graph.addProject(createProject("library.b"));
+	graph.addProject(await createProject("library.a"));
+	graph.addProject(await createProject("library.b"));
 
 	graph.declareDependency("library.a", "library.b");
 
@@ -532,9 +529,9 @@ test("traverseBreadthFirst: No project visited twice", async (t) => {
 	const graph = new ProjectGraph({
 		rootProjectName: "library.a"
 	});
-	graph.addProject(createProject("library.a"));
-	graph.addProject(createProject("library.b"));
-	graph.addProject(createProject("library.c"));
+	graph.addProject(await createProject("library.a"));
+	graph.addProject(await createProject("library.b"));
+	graph.addProject(await createProject("library.c"));
 
 	graph.declareDependency("library.a", "library.b");
 	graph.declareDependency("library.a", "library.c");
@@ -552,8 +549,8 @@ test("traverseBreadthFirst: Detect cycle", async (t) => {
 	const graph = new ProjectGraph({
 		rootProjectName: "library.a"
 	});
-	graph.addProject(createProject("library.a"));
-	graph.addProject(createProject("library.b"));
+	graph.addProject(await createProject("library.a"));
+	graph.addProject(await createProject("library.b"));
 
 	graph.declareDependency("library.a", "library.b");
 	graph.declareDependency("library.b", "library.a");
@@ -569,9 +566,9 @@ test("traverseBreadthFirst: No cycle when visited breadth first", async (t) => {
 	const graph = new ProjectGraph({
 		rootProjectName: "library.a"
 	});
-	graph.addProject(createProject("library.a"));
-	graph.addProject(createProject("library.b"));
-	graph.addProject(createProject("library.c"));
+	graph.addProject(await createProject("library.a"));
+	graph.addProject(await createProject("library.b"));
+	graph.addProject(await createProject("library.c"));
 
 	graph.declareDependency("library.a", "library.b");
 	graph.declareDependency("library.a", "library.c");
@@ -602,9 +599,9 @@ test("traverseBreadthFirst: Custom start node", async (t) => {
 	const graph = new ProjectGraph({
 		rootProjectName: "library.a"
 	});
-	graph.addProject(createProject("library.a"));
-	graph.addProject(createProject("library.b"));
-	graph.addProject(createProject("library.c"));
+	graph.addProject(await createProject("library.a"));
+	graph.addProject(await createProject("library.b"));
+	graph.addProject(await createProject("library.c"));
 
 	graph.declareDependency("library.a", "library.b");
 	graph.declareDependency("library.b", "library.c");
@@ -627,9 +624,9 @@ test("traverseBreadthFirst: getDependencies callback", async (t) => {
 	const graph = new ProjectGraph({
 		rootProjectName: "library.a"
 	});
-	graph.addProject(createProject("library.a"));
-	graph.addProject(createProject("library.b"));
-	graph.addProject(createProject("library.c"));
+	graph.addProject(await createProject("library.a"));
+	graph.addProject(await createProject("library.b"));
+	graph.addProject(await createProject("library.c"));
 
 	graph.declareDependency("library.a", "library.b");
 	graph.declareDependency("library.a", "library.c");
@@ -665,10 +662,10 @@ test("traverseBreadthFirst: Dependency declaration order is followed", async (t)
 	const graph1 = new ProjectGraph({
 		rootProjectName: "library.a"
 	});
-	graph1.addProject(createProject("library.a"));
-	graph1.addProject(createProject("library.b"));
-	graph1.addProject(createProject("library.c"));
-	graph1.addProject(createProject("library.d"));
+	graph1.addProject(await createProject("library.a"));
+	graph1.addProject(await createProject("library.b"));
+	graph1.addProject(await createProject("library.c"));
+	graph1.addProject(await createProject("library.d"));
 
 	graph1.declareDependency("library.a", "library.b");
 	graph1.declareDependency("library.a", "library.c");
@@ -684,10 +681,10 @@ test("traverseBreadthFirst: Dependency declaration order is followed", async (t)
 	const graph2 = new ProjectGraph({
 		rootProjectName: "library.a"
 	});
-	graph2.addProject(createProject("library.a"));
-	graph2.addProject(createProject("library.b"));
-	graph2.addProject(createProject("library.c"));
-	graph2.addProject(createProject("library.d"));
+	graph2.addProject(await createProject("library.a"));
+	graph2.addProject(await createProject("library.b"));
+	graph2.addProject(await createProject("library.c"));
+	graph2.addProject(await createProject("library.d"));
 
 	graph2.declareDependency("library.a", "library.d");
 	graph2.declareDependency("library.a", "library.c");
@@ -706,8 +703,8 @@ test("traverseDepthFirst", async (t) => {
 	const graph = new ProjectGraph({
 		rootProjectName: "library.a"
 	});
-	graph.addProject(createProject("library.a"));
-	graph.addProject(createProject("library.b"));
+	graph.addProject(await createProject("library.a"));
+	graph.addProject(await createProject("library.b"));
 
 	graph.declareDependency("library.a", "library.b");
 
@@ -722,9 +719,9 @@ test("traverseDepthFirst: No project visited twice", async (t) => {
 	const graph = new ProjectGraph({
 		rootProjectName: "library.a"
 	});
-	graph.addProject(createProject("library.a"));
-	graph.addProject(createProject("library.b"));
-	graph.addProject(createProject("library.c"));
+	graph.addProject(await createProject("library.a"));
+	graph.addProject(await createProject("library.b"));
+	graph.addProject(await createProject("library.c"));
 
 	graph.declareDependency("library.a", "library.b");
 	graph.declareDependency("library.a", "library.c");
@@ -742,8 +739,8 @@ test("traverseDepthFirst: Detect cycle", async (t) => {
 	const graph = new ProjectGraph({
 		rootProjectName: "library.a"
 	});
-	graph.addProject(createProject("library.a"));
-	graph.addProject(createProject("library.b"));
+	graph.addProject(await createProject("library.a"));
+	graph.addProject(await createProject("library.b"));
 
 	graph.declareDependency("library.a", "library.b");
 	graph.declareDependency("library.b", "library.a");
@@ -759,9 +756,9 @@ test("traverseDepthFirst: Cycle which does not occur in BFS", async (t) => {
 	const graph = new ProjectGraph({
 		rootProjectName: "library.a"
 	});
-	graph.addProject(createProject("library.a"));
-	graph.addProject(createProject("library.b"));
-	graph.addProject(createProject("library.c"));
+	graph.addProject(await createProject("library.a"));
+	graph.addProject(await createProject("library.b"));
+	graph.addProject(await createProject("library.c"));
 
 	graph.declareDependency("library.a", "library.b");
 	graph.declareDependency("library.a", "library.c");
@@ -791,9 +788,9 @@ test("traverseDepthFirst: Custom start node", async (t) => {
 	const graph = new ProjectGraph({
 		rootProjectName: "library.a"
 	});
-	graph.addProject(createProject("library.a"));
-	graph.addProject(createProject("library.b"));
-	graph.addProject(createProject("library.c"));
+	graph.addProject(await createProject("library.a"));
+	graph.addProject(await createProject("library.b"));
+	graph.addProject(await createProject("library.c"));
 
 	graph.declareDependency("library.a", "library.b");
 	graph.declareDependency("library.b", "library.c");
@@ -816,9 +813,9 @@ test("traverseDepthFirst: getDependencies callback", async (t) => {
 	const graph = new ProjectGraph({
 		rootProjectName: "library.a"
 	});
-	graph.addProject(createProject("library.a"));
-	graph.addProject(createProject("library.b"));
-	graph.addProject(createProject("library.c"));
+	graph.addProject(await createProject("library.a"));
+	graph.addProject(await createProject("library.b"));
+	graph.addProject(await createProject("library.c"));
 
 	graph.declareDependency("library.a", "library.b");
 	graph.declareDependency("library.a", "library.c");
@@ -854,10 +851,10 @@ test("traverseDepthFirst: Dependency declaration order is followed", async (t) =
 	const graph1 = new ProjectGraph({
 		rootProjectName: "library.a"
 	});
-	graph1.addProject(createProject("library.a"));
-	graph1.addProject(createProject("library.b"));
-	graph1.addProject(createProject("library.c"));
-	graph1.addProject(createProject("library.d"));
+	graph1.addProject(await createProject("library.a"));
+	graph1.addProject(await createProject("library.b"));
+	graph1.addProject(await createProject("library.c"));
+	graph1.addProject(await createProject("library.d"));
 
 	graph1.declareDependency("library.a", "library.b");
 	graph1.declareDependency("library.a", "library.c");
@@ -873,10 +870,10 @@ test("traverseDepthFirst: Dependency declaration order is followed", async (t) =
 	const graph2 = new ProjectGraph({
 		rootProjectName: "library.a"
 	});
-	graph2.addProject(createProject("library.a"));
-	graph2.addProject(createProject("library.b"));
-	graph2.addProject(createProject("library.c"));
-	graph2.addProject(createProject("library.d"));
+	graph2.addProject(await createProject("library.a"));
+	graph2.addProject(await createProject("library.b"));
+	graph2.addProject(await createProject("library.c"));
+	graph2.addProject(await createProject("library.d"));
 
 	graph2.declareDependency("library.a", "library.d");
 	graph2.declareDependency("library.a", "library.c");
@@ -898,28 +895,28 @@ test("join", async (t) => {
 	const graph2 = new ProjectGraph({
 		rootProjectName: "theme.a"
 	});
-	graph1.addProject(createProject("library.a"));
-	graph1.addProject(createProject("library.b"));
-	graph1.addProject(createProject("library.c"));
-	graph1.addProject(createProject("library.d"));
+	graph1.addProject(await createProject("library.a"));
+	graph1.addProject(await createProject("library.b"));
+	graph1.addProject(await createProject("library.c"));
+	graph1.addProject(await createProject("library.d"));
 
 	graph1.declareDependency("library.a", "library.b");
 	graph1.declareDependency("library.a", "library.c");
 	graph1.declareDependency("library.a", "library.d");
 
-	const extensionA = createExtension("extension.a");
+	const extensionA = await createExtension("extension.a");
 	graph1.addExtension(extensionA);
 
-	graph2.addProject(createProject("theme.a"));
-	graph2.addProject(createProject("theme.b"));
-	graph2.addProject(createProject("theme.c"));
-	graph2.addProject(createProject("theme.d"));
+	graph2.addProject(await createProject("theme.a"));
+	graph2.addProject(await createProject("theme.b"));
+	graph2.addProject(await createProject("theme.c"));
+	graph2.addProject(await createProject("theme.d"));
 
 	graph2.declareDependency("theme.a", "theme.d");
 	graph2.declareDependency("theme.a", "theme.c");
 	graph2.declareDependency("theme.b", "theme.a"); // This causes theme.b to not appear
 
-	const extensionB = createExtension("extension.b");
+	const extensionB = await createExtension("extension.b");
 	graph2.addExtension(extensionB);
 
 	graph1.join(graph2);
@@ -979,8 +976,8 @@ test("join: Unexpected project intersection", async (t) => {
 	const graph2 = new ProjectGraph({
 		rootProjectName: "😼"
 	});
-	graph1.addProject(createProject("library.a"));
-	graph2.addProject(createProject("library.a"));
+	graph1.addProject(await createProject("library.a"));
+	graph2.addProject(await createProject("library.a"));
 
 
 	const error = t.throws(() => {
@@ -1000,8 +997,8 @@ test("join: Unexpected extension intersection", async (t) => {
 	const graph2 = new ProjectGraph({
 		rootProjectName: "😼"
 	});
-	graph1.addExtension(createExtension("extension.a"));
-	graph2.addExtension(createExtension("extension.a"));
+	graph1.addExtension(await createExtension("extension.a"));
+	graph2.addExtension(await createExtension("extension.a"));
 
 
 	const error = t.throws(() => {
@@ -1019,16 +1016,16 @@ test("Seal/isSealed", async (t) => {
 	const graph = new ProjectGraph({
 		rootProjectName: "library.a"
 	});
-	graph.addProject(createProject("library.a"));
-	graph.addProject(createProject("library.b"));
-	graph.addProject(createProject("library.c"));
+	graph.addProject(await createProject("library.a"));
+	graph.addProject(await createProject("library.b"));
+	graph.addProject(await createProject("library.c"));
 
 	graph.declareDependency("library.a", "library.b");
 	graph.declareDependency("library.a", "library.c");
 	graph.declareDependency("library.b", "library.c");
 	graph.declareOptionalDependency("library.c", "library.a");
 
-	graph.addExtension(createExtension("extension.a"));
+	graph.addExtension(await createExtension("extension.a"));
 
 	t.is(graph.isSealed(), false, "Graph should not be sealed");
 	// Seal it
@@ -1037,8 +1034,9 @@ test("Seal/isSealed", async (t) => {
 
 	const expectedSealMsg = "Project graph with root node library.a has been sealed";
 
+	const libX = await createProject("library.x");
 	t.throws(() => {
-		graph.addProject(createProject("library.x"));
+		graph.addProject(libX);
 	}, {
 		message: expectedSealMsg
 	});
@@ -1052,8 +1050,9 @@ test("Seal/isSealed", async (t) => {
 	}, {
 		message: expectedSealMsg
 	});
+	const extB = await createExtension("extension.b");
 	t.throws(() => {
-		graph.addExtension(createExtension("extension.b"));
+		graph.addExtension(extB);
 	}, {
 		message: expectedSealMsg
 	});

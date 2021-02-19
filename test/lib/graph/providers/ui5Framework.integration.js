@@ -104,7 +104,7 @@ function defineTest(testName, {
 		}
 	};
 
-	test.serial(`${frameworkName}: ${verbose ? "(verbose) " : ""}${testName}`, async (t) => {
+	test.serial.skip(`${frameworkName}: ${verbose ? "(verbose) " : ""}${testName}`, async (t) => {
 		// Enable verbose logging
 		if (verbose) {
 			logger.setLevel("verbose");

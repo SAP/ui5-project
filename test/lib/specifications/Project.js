@@ -1,6 +1,6 @@
 const test = require("ava");
 const path = require("path");
-const Specification = require("../../../lib/Specification");
+const Specification = require("../../../lib/specifications/Specification");
 
 const applicationAPath = path.join(__dirname, "..", "..", "fixtures", "application.a");
 const basicProjectInput = {
