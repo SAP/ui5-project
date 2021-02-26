@@ -463,7 +463,7 @@ test("resolveOptionalDependencies", async (t) => {
 	graph.declareDependency("library.d", "library.b");
 	graph.declareDependency("library.d", "library.c");
 
-	graph.resolveOptionalDependencies();
+	await graph.resolveOptionalDependencies();
 
 	t.is(graph.isOptionalDependency("library.a", "library.b"), false,
 		"library.a should have no optional dependency to library.b anymore");
@@ -477,7 +477,6 @@ test("resolveOptionalDependencies", async (t) => {
 		"library.a"
 	]);
 });
-
 
 test("resolveOptionalDependencies: Optional dependency has not been resolved", async (t) => {
 	const {ProjectGraph} = t.context;
@@ -493,7 +492,7 @@ test("resolveOptionalDependencies: Optional dependency has not been resolved", a
 	graph.declareOptionalDependency("library.a", "library.c");
 	graph.declareDependency("library.a", "library.d");
 
-	graph.resolveOptionalDependencies();
+	await graph.resolveOptionalDependencies();
 
 	t.is(graph.isOptionalDependency("library.a", "library.b"), true,
 		"Dependency from library.a to library.b should still be optional");
@@ -507,6 +506,90 @@ test("resolveOptionalDependencies: Optional dependency has not been resolved", a
 	]);
 });
 
+test("resolveOptionalDependencies: Dependency of optional dependency has not been resolved", async (t) => {
+	const {ProjectGraph} = t.context;
+	const graph = new ProjectGraph({
+		rootProjectName: "library.a"
+	});
+	graph.addProject(await createProject("library.a"));
+	graph.addProject(await createProject("library.b"));
+	graph.addProject(await createProject("library.c"));
+	graph.addProject(await createProject("library.d"));
+
+	graph.declareOptionalDependency("library.a", "library.b");
+	graph.declareOptionalDependency("library.a", "library.c");
+	graph.declareDependency("library.b", "library.c");
+
+	await graph.resolveOptionalDependencies();
+
+	t.is(graph.isOptionalDependency("library.a", "library.b"), true,
+		"Dependency from library.a to library.b should still be optional");
+
+	t.is(graph.isOptionalDependency("library.a", "library.c"), true,
+		"Dependency from library.a to library.c should still be optional");
+
+	await traverseDepthFirst(t, graph, [
+		"library.a"
+	]);
+});
+
+test("resolveOptionalDependencies: Cyclic optional dependency is not resolved", async (t) => {
+	const {ProjectGraph} = t.context;
+	const graph = new ProjectGraph({
+		rootProjectName: "library.a"
+	});
+	graph.addProject(await createProject("library.a"));
+	graph.addProject(await createProject("library.b"));
+	graph.addProject(await createProject("library.c"));
+
+	graph.declareDependency("library.a", "library.b");
+	graph.declareDependency("library.a", "library.c");
+	graph.declareDependency("library.c", "library.b");
+	graph.declareOptionalDependency("library.b", "library.c");
+
+	await graph.resolveOptionalDependencies();
+
+	t.is(graph.isOptionalDependency("library.b", "library.c"), true,
+		"Dependency from library.b to library.c should still be optional");
+
+	await traverseDepthFirst(t, graph, [
+		"library.b",
+		"library.c",
+		"library.a"
+	]);
+});
+
+test("resolveOptionalDependencies: Resolves transitive optional dependencies", async (t) => {
+	const {ProjectGraph} = t.context;
+	const graph = new ProjectGraph({
+		rootProjectName: "library.a"
+	});
+	graph.addProject(await createProject("library.a"));
+	graph.addProject(await createProject("library.b"));
+	graph.addProject(await createProject("library.c"));
+	graph.addProject(await createProject("library.d"));
+
+	graph.declareDependency("library.a", "library.b");
+	graph.declareOptionalDependency("library.a", "library.c");
+	graph.declareDependency("library.b", "library.c");
+	graph.declareDependency("library.c", "library.d");
+	graph.declareOptionalDependency("library.a", "library.d");
+
+	await graph.resolveOptionalDependencies();
+
+	t.is(graph.isOptionalDependency("library.a", "library.c"), false,
+		"Dependency from library.a to library.c should not be optional anymore");
+
+	t.is(graph.isOptionalDependency("library.a", "library.d"), false,
+		"Dependency from library.a to library.d should not be optional anymore");
+
+	await traverseDepthFirst(t, graph, [
+		"library.d",
+		"library.c",
+		"library.b",
+		"library.a"
+	]);
+});
 
 test("traverseBreadthFirst", async (t) => {
 	const {ProjectGraph} = t.context;
