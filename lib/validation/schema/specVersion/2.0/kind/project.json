@@ -113,7 +113,6 @@
 		},
 		"builder-bundles": {
 			"type": "array",
-			"additionalProperties": false,
 			"items": {
 				"type": "object",
 				"additionalProperties": false,
@@ -184,7 +183,6 @@
 		},
 		"builder-bundles-2.4": {
 			"type": "array",
-			"additionalProperties": false,
 			"items": {
 				"type": "object",
 				"additionalProperties": false,

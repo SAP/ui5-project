@@ -85,9 +85,9 @@ test.after.always((t) => {
 				"name": "my-project"
 			}
 		}, [{
-			dataPath: "",
+			instancePath: "",
 			keyword: "required",
-			message: "should have required property 'type'",
+			message: "must have required property 'type'",
 			params: {
 				missingProperty: "type",
 			}
@@ -103,9 +103,9 @@ test.after.always((t) => {
 				"name": "my-project"
 			}
 		}, [{
-			dataPath: "/type",
+			instancePath: "/type",
 			keyword: "enum",
-			message: "should be equal to one of the allowed values",
+			message: "must be equal to one of the allowed values",
 			params: {
 				allowedValues: [
 					"task",
@@ -125,9 +125,9 @@ test.after.always((t) => {
 			},
 			"shims": {}
 		}, [{
-			dataPath: "",
+			instancePath: "",
 			keyword: "required",
-			message: "should have required property 'specVersion'",
+			message: "must have required property 'specVersion'",
 			params: {
 				missingProperty: "specVersion",
 			}
@@ -141,9 +141,9 @@ test.after.always((t) => {
 			"type": "project-shim",
 			"shims": {}
 		}, [{
-			dataPath: "",
+			instancePath: "",
 			keyword: "required",
-			message: "should have required property 'metadata'",
+			message: "must have required property 'metadata'",
 			params: {
 				missingProperty: "metadata",
 			}

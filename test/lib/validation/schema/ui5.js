@@ -44,9 +44,9 @@ test.after.always((t) => {
 
 test("Undefined", async (t) => {
 	await assertValidation(t, undefined, [{
-		dataPath: "",
+		instancePath: "",
 		keyword: "type",
-		message: "should be object",
+		message: "must be object",
 		params: {
 			type: "object",
 		}
@@ -56,17 +56,17 @@ test("Undefined", async (t) => {
 test("Missing specVersion, type", async (t) => {
 	await assertValidation(t, {}, [
 		{
-			dataPath: "",
+			instancePath: "",
 			keyword: "required",
-			message: "should have required property 'specVersion'",
+			message: "must have required property 'specVersion'",
 			params: {
 				missingProperty: "specVersion",
 			}
 		},
 		{
-			dataPath: "",
+			instancePath: "",
 			keyword: "required",
-			message: "should have required property 'type'",
+			message: "must have required property 'type'",
 			params: {
 				missingProperty: "type",
 			}
@@ -80,9 +80,9 @@ test("Missing type", async (t) => {
 		"specVersion": "2.0"
 	}, [
 		{
-			dataPath: "",
+			instancePath: "",
 			keyword: "required",
-			message: "should have required property 'type'",
+			message: "must have required property 'type'",
 			params: {
 				missingProperty: "type",
 			}
@@ -95,7 +95,7 @@ test("Invalid specVersion", async (t) => {
 		"specVersion": "0.0"
 	}, [
 		{
-			dataPath: "/specVersion",
+			instancePath: "/specVersion",
 			keyword: "errorMessage",
 			message:
 `Unsupported "specVersion"
@@ -105,9 +105,10 @@ For details see: https://sap.github.io/ui5-tooling/pages/Configuration/#specific
 			params: {
 				errors: [
 					{
-						dataPath: "/specVersion",
+						emUsed: true,
+						instancePath: "/specVersion",
 						keyword: "enum",
-						message: "should be equal to one of the allowed values",
+						message: "must be equal to one of the allowed values",
 						params: {
 							allowedValues: [
 								"2.5",
@@ -134,9 +135,9 @@ test("Invalid type", async (t) => {
 		"type": "foo"
 	}, [
 		{
-			dataPath: "/type",
+			instancePath: "/type",
 			keyword: "enum",
-			message: "should be equal to one of the allowed values",
+			message: "must be equal to one of the allowed values",
 			params: {
 				allowedValues: [
 					"application",
@@ -155,9 +156,9 @@ test("Invalid kind", async (t) => {
 		"kind": "foo"
 	}, [
 		{
-			dataPath: "/kind",
+			instancePath: "/kind",
 			keyword: "enum",
-			message: "should be equal to one of the allowed values",
+			message: "must be equal to one of the allowed values",
 			params: {
 				allowedValues: [
 					"project",

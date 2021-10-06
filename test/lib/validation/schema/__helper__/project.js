@@ -30,9 +30,9 @@ module.exports = {
 					"specVersion": specVersion,
 					"type": type
 				}, [{
-					dataPath: "",
+					instancePath: "",
 					keyword: "required",
-					message: "should have required property 'metadata'",
+					message: "must have required property 'metadata'",
 					params: {
 						missingProperty: "metadata",
 					}
@@ -45,9 +45,9 @@ module.exports = {
 					"type": type,
 					"metadata": "foo"
 				}, [{
-					dataPath: "/metadata",
+					instancePath: "/metadata",
 					keyword: "type",
-					message: "should be object",
+					message: "must be object",
 					params: {
 						type: "object",
 					}
@@ -60,9 +60,9 @@ module.exports = {
 					"type": type,
 					"metadata": {}
 				}, [{
-					dataPath: "/metadata",
+					instancePath: "/metadata",
 					keyword: "required",
-					message: "should have required property 'name'",
+					message: "must have required property 'name'",
 					params: {
 						missingProperty: "name",
 					}
@@ -78,9 +78,9 @@ module.exports = {
 					}
 				}, [
 					{
-						dataPath: "/metadata/name",
+						instancePath: "/metadata/name",
 						keyword: "type",
-						message: "should be string",
+						message: "must be string",
 						params: {
 							type: "string"
 						}
@@ -98,9 +98,9 @@ module.exports = {
 					}
 				}, [
 					{
-						dataPath: "/metadata/copyright",
+						instancePath: "/metadata/copyright",
 						keyword: "type",
-						message: "should be string",
+						message: "must be string",
 						params: {
 							type: "string"
 						}
@@ -118,9 +118,9 @@ module.exports = {
 					}
 				}, [
 					{
-						dataPath: "/metadata",
+						instancePath: "/metadata",
 						keyword: "additionalProperties",
-						message: "should NOT have additional properties",
+						message: "must NOT have additional properties",
 						params: {
 							additionalProperty: "copyrihgt"
 						}
@@ -160,9 +160,9 @@ module.exports = {
 					}
 				}, [
 					{
-						dataPath: "/metadata/deprecated",
+						instancePath: "/metadata/deprecated",
 						keyword: "type",
-						message: "should be boolean",
+						message: "must be boolean",
 						params: {
 							type: "boolean",
 						}
@@ -202,9 +202,9 @@ module.exports = {
 					}
 				}, [
 					{
-						dataPath: "/metadata/sapInternal",
+						instancePath: "/metadata/sapInternal",
 						keyword: "type",
-						message: "should be boolean",
+						message: "must be boolean",
 						params: {
 							type: "boolean",
 						}
@@ -244,9 +244,9 @@ module.exports = {
 					}
 				}, [
 					{
-						dataPath: "/metadata/allowSapInternal",
+						instancePath: "/metadata/allowSapInternal",
 						keyword: "type",
-						message: "should be boolean",
+						message: "must be boolean",
 						params: {
 							type: "boolean",
 						}
@@ -263,9 +263,9 @@ module.exports = {
 					},
 					"notAllowed": true
 				}, [{
-					dataPath: "",
+					instancePath: "",
 					keyword: "additionalProperties",
-					message: "should NOT have additional properties",
+					message: "must NOT have additional properties",
 					params: {
 						additionalProperty: "notAllowed",
 					},

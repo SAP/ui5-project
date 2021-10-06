@@ -131,33 +131,33 @@ test.after.always((t) => {
 				"libraryPreload": {},
 			}
 		}, [{
-			dataPath: "/builder",
+			instancePath: "/builder",
 			keyword: "additionalProperties",
-			message: "should NOT have additional properties",
+			message: "must NOT have additional properties",
 			params: {
 				additionalProperty: "cachebuster"
 			}
 		},
 		{
-			dataPath: "/builder",
+			instancePath: "/builder",
 			keyword: "additionalProperties",
-			message: "should NOT have additional properties",
+			message: "must NOT have additional properties",
 			params: {
 				additionalProperty: "jsdoc"
 			}
 		},
 		{
-			dataPath: "/builder",
+			instancePath: "/builder",
 			keyword: "additionalProperties",
-			message: "should NOT have additional properties",
+			message: "must NOT have additional properties",
 			params: {
 				additionalProperty: "componentPreload"
 			}
 		},
 		{
-			dataPath: "/builder",
+			instancePath: "/builder",
 			keyword: "additionalProperties",
-			message: "should NOT have additional properties",
+			message: "must NOT have additional properties",
 			params: {
 				additionalProperty: "libraryPreload"
 			}
@@ -210,25 +210,25 @@ test.after.always((t) => {
 			}
 		}, [
 			{
-				dataPath: "/builder/settings/includeDependency",
+				instancePath: "/builder/settings/includeDependency",
 				keyword: "type",
-				message: "should be array",
+				message: "must be array",
 				params: {
 					type: "array",
 				},
 			},
 			{
-				dataPath: "/builder/settings/includeDependencyRegExp",
+				instancePath: "/builder/settings/includeDependencyRegExp",
 				keyword: "type",
-				message: "should be array",
+				message: "must be array",
 				params: {
 					type: "array",
 				},
 			},
 			{
-				dataPath: "/builder/settings/includeDependencyTree",
+				instancePath: "/builder/settings/includeDependencyTree",
 				keyword: "type",
-				message: "should be array",
+				message: "must be array",
 				params: {
 					type: "array",
 				},
@@ -263,81 +263,81 @@ test.after.always((t) => {
 			}
 		}, [
 			{
-				dataPath: "/builder/settings",
+				instancePath: "/builder/settings",
 				keyword: "additionalProperties",
-				message: "should NOT have additional properties",
+				message: "must NOT have additional properties",
 				params: {
 					additionalProperty: "notAllowed",
 				},
 			},
 			{
-				dataPath: "/builder/settings/includeDependency/0",
+				instancePath: "/builder/settings/includeDependency/0",
 				keyword: "type",
-				message: "should be string",
+				message: "must be string",
 				params: {
 					type: "string",
 				},
 			},
 			{
-				dataPath: "/builder/settings/includeDependency/1",
+				instancePath: "/builder/settings/includeDependency/1",
 				keyword: "type",
-				message: "should be string",
+				message: "must be string",
 				params: {
 					type: "string",
 				},
 			},
 			{
-				dataPath: "/builder/settings/includeDependency/2",
+				instancePath: "/builder/settings/includeDependency/2",
 				keyword: "type",
-				message: "should be string",
+				message: "must be string",
 				params: {
 					type: "string",
 				},
 			},
 			{
-				dataPath: "/builder/settings/includeDependencyRegExp/0",
+				instancePath: "/builder/settings/includeDependencyRegExp/0",
 				keyword: "type",
-				message: "should be string",
+				message: "must be string",
 				params: {
 					type: "string",
 				},
 			},
 			{
-				dataPath: "/builder/settings/includeDependencyRegExp/1",
+				instancePath: "/builder/settings/includeDependencyRegExp/1",
 				keyword: "type",
-				message: "should be string",
+				message: "must be string",
 				params: {
 					type: "string",
 				},
 			},
 			{
-				dataPath: "/builder/settings/includeDependencyRegExp/2",
+				instancePath: "/builder/settings/includeDependencyRegExp/2",
 				keyword: "type",
-				message: "should be string",
+				message: "must be string",
 				params: {
 					type: "string",
 				},
 			},
 			{
-				dataPath: "/builder/settings/includeDependencyTree/0",
+				instancePath: "/builder/settings/includeDependencyTree/0",
 				keyword: "type",
-				message: "should be string",
+				message: "must be string",
 				params: {
 					type: "string",
 				},
 			},
 			{
-				dataPath: "/builder/settings/includeDependencyTree/1",
+				instancePath: "/builder/settings/includeDependencyTree/1",
 				keyword: "type",
-				message: "should be string",
+				message: "must be string",
 				params: {
 					type: "string",
 				},
 			},
 			{
-				dataPath: "/builder/settings/includeDependencyTree/2",
+				instancePath: "/builder/settings/includeDependencyTree/2",
 				keyword: "type",
-				message: "should be string",
+				message: "must be string",
 				params: {
 					type: "string",
 				},
