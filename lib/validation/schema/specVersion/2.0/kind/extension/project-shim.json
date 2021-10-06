@@ -28,8 +28,7 @@
 				"$ref": "#/definitions/shims"
 			},
 			"customConfiguration": {
-				"type": "object",
-				"additionalProperties": true
+				"$ref": "../../../2.0.json#/definitions/customConfiguration"
 			}
 		}
 	},

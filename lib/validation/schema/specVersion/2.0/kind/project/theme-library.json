@@ -35,8 +35,7 @@
 				"$ref": "../project.json#/definitions/server"
 			},
 			"customConfiguration": {
-				"type": "object",
-				"additionalProperties": true
+				"$ref": "../../../2.0.json#/definitions/customConfiguration"
 			}
 		}
 	},
@@ -72,8 +71,7 @@
 					"$ref": "../project.json#/definitions/server"
 				},
 				"customConfiguration": {
-					"type": "object",
-					"additionalProperties": true
+					"$ref": "../../../2.0.json#/definitions/customConfiguration"
 				}
 			}
 		},
