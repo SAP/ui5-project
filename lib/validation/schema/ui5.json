@@ -19,7 +19,7 @@
 
 	"if": {
 		"properties": {
-			"specVersion": { "enum": ["2.5", "2.4", "2.3", "2.2", "2.1", "2.0"] }
+			"specVersion": { "$ref": "specVersion/2.0.json#/definitions/specVersions-2.x" }
 		}
 	},
 	"then": {

@@ -77,41 +77,41 @@ test.after.always((t) => {
 			"middleware": {}
 		}, [
 			{
-				dataPath: "",
+				instancePath: "",
 				keyword: "additionalProperties",
-				message: "should NOT have additional properties",
+				message: "must NOT have additional properties",
 				params: {
 					"additionalProperty": "middleware"
 				}
 			},
 			{
-				dataPath: "/shims",
+				instancePath: "/shims",
 				keyword: "additionalProperties",
-				message: "should NOT have additional properties",
+				message: "must NOT have additional properties",
 				params: {
 					additionalProperty: "notAllowed",
 				}
 			},
 			{
-				dataPath: "/shims/dependencies/my-dependency",
+				instancePath: "/shims/dependencies/my-dependency",
 				keyword: "type",
-				message: "should be array",
+				message: "must be array",
 				params: {
 					type: "array",
 				}
 			},
 			{
-				dataPath: "/shims/collections/foo",
+				instancePath: "/shims/collections/foo",
 				keyword: "additionalProperties",
-				message: "should NOT have additional properties",
+				message: "must NOT have additional properties",
 				params: {
 					additionalProperty: "notAllowed",
 				}
 			},
 			{
-				dataPath: "/shims/collections/foo/modules/lib-1",
+				instancePath: "/shims/collections/foo/modules/lib-1",
 				keyword: "type",
-				message: "should be string",
+				message: "must be string",
 				params: {
 					type: "string",
 				}

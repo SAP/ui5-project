@@ -38,9 +38,9 @@ module.exports = {
 					},
 					"resources": {}
 				}, additionalConfiguration), [{
-					dataPath: "",
+					instancePath: "",
 					keyword: "additionalProperties",
-					message: "should NOT have additional properties",
+					message: "must NOT have additional properties",
 					params: {
 						"additionalProperty": "resources"
 					}
@@ -57,9 +57,9 @@ module.exports = {
 						},
 						"notAllowed": true
 					}, additionalConfiguration), [{
-						dataPath: "",
+						instancePath: "",
 						keyword: "additionalProperties",
-						message: "should NOT have additional properties",
+						message: "must NOT have additional properties",
 						params: {
 							additionalProperty: "notAllowed",
 						}
