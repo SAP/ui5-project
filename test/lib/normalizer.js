@@ -68,3 +68,34 @@ test.serial("Error: Throws if unknown translator should be used as strategy", as
 		t.is(error.message, `Unknown translator ${translatorName}`);
 	});
 });
+
+test.serial("Parse translator options correctly (unix path)", async (t) => {
+	normalizer.generateDependencyTree({
+		translatorName: "static:/mypath/myfile"
+	});
+	const args = t.context.staticTranslatorStub.generateDependencyTree.args[0];
+	t.truthy(args[1], "The translator is called correctly with arguments");
+	t.is(args[1].parameters.length, 1, "The number of parameters are correct.");
+	t.is(args[1].parameters[0], "/mypath/myfile", "The parameters entry is correct '/mypath/myfile'");
+});
+
+test.serial("Parse translator options correctly (windows path)", async (t) => {
+	normalizer.generateDependencyTree({
+		translatorName: "static:C:/mypath/myfile"
+	});
+	const args = t.context.staticTranslatorStub.generateDependencyTree.args[0];
+	t.truthy(args[1], "The translator is called correctly with arguments");
+	t.is(args[1].parameters.length, 1, "The number of parameters are correct.");
+	t.is(args[1].parameters[0], "C:/mypath/myfile", "The parameters entry is correct '/mypath/myfile'");
+});
+
+test.serial("Parse translator options correctly (multiple parameters)", async (t) => {
+	normalizer.generateDependencyTree({
+		translatorName: "static:mypath/myfile,mypath2/myfile2"
+	});
+	const args = t.context.staticTranslatorStub.generateDependencyTree.args[0];
+	t.truthy(args[1], "The translator is called correctly with arguments");
+	t.is(args[1].parameters.length, 2, "The number of parameters are correct.");
+	t.is(args[1].parameters[0], "mypath/myfile", "The parameters entry is correct '/mypath/myfile'");
+	t.is(args[1].parameters[1], "mypath2/myfile2", "The parameters entry is correct '/mypath2/myfile2'");
+});
