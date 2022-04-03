@@ -134,7 +134,7 @@
 		"istanbul-lib-instrument": "^4.0.3",
 		"istanbul-lib-report": "^3.0.0",
 		"istanbul-reports": "^3.1.4",
-		"js-beautify": "^1.14.0",
+		"js-beautify": "^1.14.2",
 		"jsdoc": "^3.6.10",
 		"mock-require": "^3.0.3",
 		"nyc": "^15.1.0",
