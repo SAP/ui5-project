@@ -1526,7 +1526,7 @@ test.skip("Project with project-shim extension with self-containing collection s
 	t.is(log.info.callCount, 0, "log.info should not have been called");
 
 	const libraryY = graph.getProject("legacy.library.y");
-	t.deepEqual(libraryY.getConfigurationObject().framework, {
+	t.deepEqual(libraryY.getFrameworkName(), {
 		name: "OpenUI5"
 	}, "Configuration from collection project should be taken over into shimmed project");
 });

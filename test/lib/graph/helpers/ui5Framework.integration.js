@@ -312,7 +312,7 @@ function defineTest(testName, {
 				.resolves(distributionMetadata);
 		}
 
-		const provider = new DependencyTreeProvider(translatorTree);
+		const provider = new DependencyTreeProvider({dependencyTree: translatorTree});
 
 		const projectGraph = await projectGraphBuilder(provider);
 
