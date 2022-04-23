@@ -3,20 +3,20 @@ const path = require("path");
 const sinonGlobal = require("sinon");
 const mock = require("mock-require");
 const logger = require("@ui5/logger");
-const ValidationError = require("../../../lib/validation/ValidationError");
+const ValidationError = require("../../lib/validation/ValidationError");
 
-const applicationAPath = path.join(__dirname, "..", "..", "fixtures", "application.a");
-const applicationBPath = path.join(__dirname, "..", "..", "fixtures", "application.b");
-const applicationCPath = path.join(__dirname, "..", "..", "fixtures", "application.c");
-const libraryAPath = path.join(__dirname, "..", "..", "fixtures", "collection", "library.a");
-const libraryBPath = path.join(__dirname, "..", "..", "fixtures", "collection", "library.b");
-const libraryDPath = path.join(__dirname, "..", "..", "fixtures", "library.d");
-const cycleDepsBasePath = path.join(__dirname, "..", "..", "fixtures", "cyclic-deps", "node_modules");
-const pathToInvalidModule = path.join(__dirname, "..", "..", "fixtures", "invalidModule");
+const applicationAPath = path.join(__dirname, "..", "fixtures", "application.a");
+const applicationBPath = path.join(__dirname, "..", "fixtures", "application.b");
+const applicationCPath = path.join(__dirname, "..", "fixtures", "application.c");
+const libraryAPath = path.join(__dirname, "..", "fixtures", "collection", "library.a");
+const libraryBPath = path.join(__dirname, "..", "fixtures", "collection", "library.b");
+const libraryDPath = path.join(__dirname, "..", "fixtures", "library.d");
+const cycleDepsBasePath = path.join(__dirname, "..", "fixtures", "cyclic-deps", "node_modules");
+const pathToInvalidModule = path.join(__dirname, "..", "fixtures", "invalidModule");
 
-const legacyLibraryAPath = path.join(__dirname, "..", "..", "fixtures", "legacy.library.a");
-const legacyLibraryBPath = path.join(__dirname, "..", "..", "fixtures", "legacy.library.b");
-const legacyCollectionAPath = path.join(__dirname, "..", "..", "fixtures", "legacy.collection.a");
+const legacyLibraryAPath = path.join(__dirname, "..", "fixtures", "legacy.library.a");
+const legacyLibraryBPath = path.join(__dirname, "..", "fixtures", "legacy.library.b");
+const legacyCollectionAPath = path.join(__dirname, "..", "fixtures", "legacy.collection.a");
 
 test.beforeEach((t) => {
 	const sinon = t.context.sinon = sinonGlobal.createSandbox();
@@ -29,9 +29,10 @@ test.beforeEach((t) => {
 		isLevelEnabled: () => true
 	};
 	sinon.stub(logger, "getLogger").callThrough()
-		.withArgs("graph:projectGraphBuilder").returns(t.context.log);
-	mock.reRequire("../../../lib/graph/projectGraphBuilder");
-	t.context.projectGraphFromTree = mock.reRequire("../../../lib/graph/projectGraphFromTree");
+		.withArgs("graph:providers:projectGraphBuilder").returns(t.context.log);
+	mock.reRequire("../../lib/graph/providers/projectGraphBuilder");
+
+	t.context.projectGraphFromTree = mock.reRequire("../../lib/generateProjectGraph").usingObject;
 	logger.getLogger.restore(); // Immediately restore global stub for following tests
 });
 
@@ -41,14 +42,14 @@ test.afterEach.always((t) => {
 
 test("Application A", async (t) => {
 	const {projectGraphFromTree} = t.context;
-	const projectGraph = await projectGraphFromTree(applicationATree);
+	const projectGraph = await projectGraphFromTree({dependencyTree: applicationATree});
 	const rootProject = projectGraph.getRoot();
 	t.is(rootProject.getName(), "application.a", "Returned correct root project");
 });
 
 test("Application A: Traverse project graph breadth first", async (t) => {
 	const {projectGraphFromTree} = t.context;
-	const projectGraph = await projectGraphFromTree(applicationATree);
+	const projectGraph = await projectGraphFromTree({dependencyTree: applicationATree});
 	const callbackStub = t.context.sinon.stub().resolves();
 	await projectGraph.traverseBreadthFirst(callbackStub);
 
@@ -67,7 +68,7 @@ test("Application A: Traverse project graph breadth first", async (t) => {
 
 test("Application Cycle A: Traverse project graph breadth first with cycles", async (t) => {
 	const {projectGraphFromTree} = t.context;
-	const projectGraph = await projectGraphFromTree(applicationCycleATreeIncDeduped);
+	const projectGraph = await projectGraphFromTree({dependencyTree: applicationCycleATreeIncDeduped});
 	const callbackStub = t.context.sinon.stub().resolves();
 	const error = await t.throwsAsync(projectGraph.traverseBreadthFirst(callbackStub));
 
@@ -89,7 +90,7 @@ test("Application Cycle A: Traverse project graph breadth first with cycles", as
 
 test("Application Cycle B: Traverse project graph breadth first with cycles", async (t) => {
 	const {projectGraphFromTree} = t.context;
-	const projectGraph = await projectGraphFromTree(applicationCycleBTreeIncDeduped);
+	const projectGraph = await projectGraphFromTree({dependencyTree: applicationCycleBTreeIncDeduped});
 	const callbackStub = t.context.sinon.stub().resolves();
 	await projectGraph.traverseBreadthFirst(callbackStub);
 
@@ -108,7 +109,7 @@ test("Application Cycle B: Traverse project graph breadth first with cycles", as
 
 test("Application A: Traverse project graph depth first", async (t) => {
 	const {projectGraphFromTree} = t.context;
-	const projectGraph = await projectGraphFromTree(applicationATree);
+	const projectGraph = await projectGraphFromTree({dependencyTree: applicationATree});
 	const callbackStub = t.context.sinon.stub().resolves();
 	await projectGraph.traverseDepthFirst(callbackStub);
 
@@ -129,7 +130,7 @@ test("Application A: Traverse project graph depth first", async (t) => {
 
 test("Application Cycle A: Traverse project graph depth first with cycles", async (t) => {
 	const {projectGraphFromTree} = t.context;
-	const projectGraph = await projectGraphFromTree(applicationCycleATreeIncDeduped);
+	const projectGraph = await projectGraphFromTree({dependencyTree: applicationCycleATreeIncDeduped});
 	const callbackStub = t.context.sinon.stub().resolves();
 	const error = await t.throwsAsync(projectGraph.traverseDepthFirst(callbackStub));
 
@@ -143,7 +144,7 @@ test("Application Cycle A: Traverse project graph depth first with cycles", asyn
 
 test("Application Cycle B: Traverse project graph depth first with cycles", async (t) => {
 	const {projectGraphFromTree} = t.context;
-	const projectGraph = await projectGraphFromTree(applicationCycleBTreeIncDeduped);
+	const projectGraph = await projectGraphFromTree({dependencyTree: applicationCycleBTreeIncDeduped});
 	const callbackStub = t.context.sinon.stub().resolves();
 	const error = await t.throwsAsync(projectGraph.traverseDepthFirst(callbackStub));
 
@@ -172,7 +173,7 @@ async function _testBasicGraphCreation(t, tree, expectedOrder, bfs) {
 		throw new Error("Test error: Parameter 'bfs' must be specified");
 	}
 	const {projectGraphFromTree} = t.context;
-	const projectGraph = await projectGraphFromTree(tree);
+	const projectGraph = await projectGraphFromTree({dependencyTree: tree});
 	const callbackStub = t.context.sinon.stub().resolves();
 	if (bfs) {
 		await projectGraph.traverseBreadthFirst(callbackStub);
@@ -251,7 +252,7 @@ test("Project with inline configuration for two projects", async (t) => {
 	};
 
 	const {projectGraphFromTree} = t.context;
-	await t.throwsAsync(projectGraphFromTree(tree),
+	await t.throwsAsync(projectGraphFromTree({dependencyTree: tree}),
 		{
 			message:
 				`Found 2 configurations of kind 'project' for module application.a.id. ` +
@@ -308,7 +309,7 @@ test("Missing configuration file for root project", async (t) => {
 		path: "non-existent",
 		dependencies: []
 	};
-	await t.throwsAsync(projectGraphFromTree(tree),
+	await t.throwsAsync(projectGraphFromTree({dependencyTree: tree}),
 		{
 			message:
 				"Failed to crate a UI5 project from module application.a.id at non-existent. " +
@@ -320,10 +321,10 @@ test("Missing configuration file for root project", async (t) => {
 test("Missing id for root project", async (t) => {
 	const {projectGraphFromTree} = t.context;
 	const tree = {
-		path: path.join(__dirname, "../fixtures/application.a"),
+		path: path.join(__dirname, "fixtures/application.a"),
 		dependencies: []
 	};
-	await t.throwsAsync(projectGraphFromTree(tree),
+	await t.throwsAsync(projectGraphFromTree({dependencyTree: tree}),
 		{message: "Could not create Module: Missing or empty parameter 'id'"}, "Rejected with error");
 });
 
@@ -332,7 +333,7 @@ test("No type configured for root project", async (t) => {
 	const tree = {
 		id: "application.a.id",
 		version: "1.0.0",
-		path: path.join(__dirname, "../fixtures/application.a"),
+		path: path.join(__dirname, "fixtures/application.a"),
 		dependencies: [],
 		configuration: {
 			specVersion: "2.1",
@@ -342,7 +343,7 @@ test("No type configured for root project", async (t) => {
 			}
 		}
 	};
-	const error = await t.throwsAsync(projectGraphFromTree(tree));
+	const error = await t.throwsAsync(projectGraphFromTree({dependencyTree: tree}));
 
 	t.is(error.message, `Unable to create Specification instance: Unknown specification type 'undefined'`);
 });
@@ -354,7 +355,7 @@ test("Missing dependencies", async (t) => {
 		version: "1.0.0",
 		path: applicationAPath
 	});
-	await t.notThrowsAsync(projectGraphFromTree(tree),
+	await t.notThrowsAsync(projectGraphFromTree({dependencyTree: tree}),
 		"Gracefully accepted project with no dependencies attribute");
 });
 
@@ -370,7 +371,7 @@ test("Missing second-level dependencies", async (t) => {
 			path: path.join(applicationAPath, "node_modules", "library.d")
 		}]
 	});
-	return t.notThrowsAsync(projectGraphFromTree(tree),
+	return t.notThrowsAsync(projectGraphFromTree({dependencyTree: tree}),
 		"Gracefully accepted project with no dependencies attribute");
 });
 
@@ -1275,7 +1276,7 @@ test("Project with project-shim extension with invalid dependency configuration"
 		}]
 	};
 	const {projectGraphFromTree} = t.context;
-	const validationError = await t.throwsAsync(projectGraphFromTree(tree), {
+	const validationError = await t.throwsAsync(projectGraphFromTree({dependencyTree: tree}), {
 		instanceOf: ValidationError
 	});
 	t.true(validationError.message.includes("Configuration must have required property 'metadata'"),
@@ -1558,7 +1559,7 @@ test("Project with unknown extension dependency inline configuration", async (t)
 		}],
 	};
 	const {projectGraphFromTree} = t.context;
-	const validationError = await t.throwsAsync(projectGraphFromTree(tree));
+	const validationError = await t.throwsAsync(projectGraphFromTree({dependencyTree: tree}));
 	t.is(validationError.message,
 		`Unable to create Specification instance: Unknown specification type 'phony-pony'`,
 		"Should throw with expected error message");

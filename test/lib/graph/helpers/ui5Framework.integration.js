@@ -11,7 +11,7 @@ const lockfile = require("lockfile");
 const logger = require("@ui5/logger");
 const Module = require("../../../../lib/graph/Module");
 const DependencyTreeProvider = require("../../../../lib/graph/providers/DependencyTree");
-const projectGraphBuilder = require("../../../../lib/graph/projectGraphBuilder");
+const projectGraphBuilder = require("../../../../lib/graph/providers/projectGraphBuilder");
 let ui5Framework;
 let Installer;
 
@@ -47,7 +47,7 @@ test.beforeEach((t) => {
 	mock("mkdirp", sinon.stub().resolves());
 
 	// Re-require to ensure that mocked modules are used
-	ui5Framework = mock.reRequire("../../../../lib/graph/providers/ui5Framework");
+	ui5Framework = mock.reRequire("../../../../lib/graph/helpers/ui5Framework");
 	Installer = require("../../../../lib/ui5Framework/npm/Installer");
 });
 

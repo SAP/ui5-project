@@ -12,6 +12,10 @@ module.exports = {
 	 */
 	projectPreprocessor: "./lib/projectPreprocessor",
 	/**
+	 * @type {import('./lib/generateProjectGraph')}
+	 */
+	generateProjectGraph: "./lib/generateProjectGraph",
+	/**
 	 * @public
 	 * @alias module:@ui5/project.ui5Framework
 	 * @namespace
@@ -66,10 +70,6 @@ module.exports = {
 		 * @type {typeof import('./lib/graph/ProjectGraph')}
 		 */
 		ProjectGraph: "./lib/graph/ProjectGraph",
-		/**
-		 * @type {typeof import('./lib/graph/projectGraphFromTree')}
-		 */
-		projectGraphFromTree: "./lib/graph/projectGraphFromTree"
 	},
 };
 
