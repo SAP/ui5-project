@@ -43,7 +43,7 @@ test("getPropertiesFileSourceEncoding: Configuration", async (t) => {
 		"Returned correct default propertiesFileSourceEncoding configuration");
 });
 
-test("Access project resources via reader: namespace style, no test resources", async (t) => {
+test("Access project resources via reader: buildtime style, no test resources", async (t) => {
 	const project = await Specification.create(basicProjectInput);
 	const reader = await project.getReader();
 	const resource = await reader.byPath("/resources/id1/manifest.json");
@@ -59,18 +59,10 @@ test("Access project resources via reader: flat style, no test resources", async
 	t.is(resource.getPath(), "/manifest.json", "Resource has correct path");
 });
 
-// test("Access project resources via reader: namespace style, including test resources", async (t) => {
-// 	const project = await Specification.create(basicProjectInput);
-// 	const reader = await project.getReader({style: "namespace", includeTestResources: true});
-// 	const resource = await reader.byPath("/test-resources/library/d/Test.html");
-// 	t.truthy(resource, "Found the requested resource");
-// 	t.is(resource.getPath(), "/test-resources/library/d/Test.html", "Resource has correct path");
-// });
-
-// test("Access project resources via reader: flat style, including test resources", async (t) => {
-// 	const project = await Specification.create(basicProjectInput);
-// 	const reader = await project.getReader({style: "flat", includeTestResources: true});
-// 	const resource = await reader.byPath("/test/Test.html");
-// 	t.truthy(resource, "Found the requested resource");
-// 	t.is(resource.getPath(), "/test/Test.html", "Resource has correct path");
-// });
+test("Access project resources via reader: flat style, including test resources", async (t) => {
+	const project = await Specification.create(basicProjectInput);
+	const error = t.throws(() => {
+		project.getReader({style: "flat", includeTestResources: true});
+	});
+	t.is(error.message, `Readers of style "flat" can't include test resources`, "Correct error message");
+});
