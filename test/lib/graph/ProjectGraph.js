@@ -196,6 +196,25 @@ test("getProject: Project is not in graph", async (t) => {
 	t.is(res, undefined, "Should return undefined");
 });
 
+test("getAllProjects", async (t) => {
+	const {ProjectGraph} = t.context;
+	const graph = new ProjectGraph({
+		rootProjectName: "my root project"
+	});
+	const project1 = await createProject("application.a");
+	graph.addProject(project1);
+
+	const project2 = await createProject("application.b");
+	graph.addProject(project2);
+
+	const res = graph.getAllProjects();
+	t.deepEqual(res, [[
+		"application.a", project1
+	], [
+		"application.b", project2
+	]], "Should return all projects in a nested array");
+});
+
 test("add-/getExtension", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
@@ -262,10 +281,11 @@ test("getAllExtensions", async (t) => {
 	const extension2 = await createExtension("extension.b");
 	graph.addExtension(extension2);
 	const res = graph.getAllExtensions();
-	t.deepEqual(res, {
-		"extension.a": extension1,
-		"extension.b": extension2
-	}, "Should return all extensions");
+	t.deepEqual(res, [[
+		"extension.a", extension1
+	], [
+		"extension.b", extension2
+	]], "Should return all extensions in a nested array");
 });
 
 test("declareDependency / getDependencies", async (t) => {

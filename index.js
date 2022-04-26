@@ -16,6 +16,10 @@ module.exports = {
 	 */
 	generateProjectGraph: "./lib/generateProjectGraph",
 	/**
+	 * @type {import('./lib/builder')}
+	 */
+	builder: "./lib/builder",
+	/**
 	 * @public
 	 * @alias module:@ui5/project.ui5Framework
 	 * @namespace
