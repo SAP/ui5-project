@@ -43,7 +43,7 @@ test("getPropertiesFileSourceEncoding: Configuration", async (t) => {
 		"Returned correct default propertiesFileSourceEncoding configuration");
 });
 
-test("Access project resources via reader: buildtime style, no test resources", async (t) => {
+test("Access project resources via reader: buildtime style", async (t) => {
 	const project = await Specification.create(basicProjectInput);
 	const reader = await project.getReader();
 	const resource = await reader.byPath("/resources/id1/manifest.json");
@@ -51,18 +51,10 @@ test("Access project resources via reader: buildtime style, no test resources", 
 	t.is(resource.getPath(), "/resources/id1/manifest.json", "Resource has correct path");
 });
 
-test("Access project resources via reader: flat style, no test resources", async (t) => {
+test("Access project resources via reader: flat style", async (t) => {
 	const project = await Specification.create(basicProjectInput);
 	const reader = await project.getReader({style: "flat"});
 	const resource = await reader.byPath("/manifest.json");
 	t.truthy(resource, "Found the requested resource");
 	t.is(resource.getPath(), "/manifest.json", "Resource has correct path");
-});
-
-test("Access project resources via reader: flat style, including test resources", async (t) => {
-	const project = await Specification.create(basicProjectInput);
-	const error = t.throws(() => {
-		project.getReader({style: "flat", includeTestResources: true});
-	});
-	t.is(error.message, `Readers of style "flat" can't include test resources`, "Correct error message");
 });

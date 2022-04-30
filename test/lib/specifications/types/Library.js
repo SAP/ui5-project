@@ -55,7 +55,7 @@ test("getPropertiesFileSourceEncoding: Configuration", async (t) => {
 		"Returned correct default propertiesFileSourceEncoding configuration");
 });
 
-test("Access project resources via reader: buildtime style, no test resources", async (t) => {
+test("Access project resources via reader: buildtime style", async (t) => {
 	const project = await Specification.create(basicProjectInput);
 	const reader = await project.getReader();
 	const resource = await reader.byPath("/resources/library/d/.library");
@@ -63,7 +63,7 @@ test("Access project resources via reader: buildtime style, no test resources", 
 	t.is(resource.getPath(), "/resources/library/d/.library", "Resource has correct path");
 });
 
-test("Access project resources via reader: flat style, no test resources", async (t) => {
+test("Access project resources via reader: flat style", async (t) => {
 	const project = await Specification.create(basicProjectInput);
 	const reader = await project.getReader({style: "flat"});
 	const resource = await reader.byPath("/.library");
@@ -71,32 +71,24 @@ test("Access project resources via reader: flat style, no test resources", async
 	t.is(resource.getPath(), "/.library", "Resource has correct path");
 });
 
-test("Access project resources via reader: buildtime style, including test resources", async (t) => {
+test("Access project test-resources via reader: buildtime style, including test resources", async (t) => {
 	const project = await Specification.create(basicProjectInput);
-	const reader = await project.getReader({style: "buildtime", includeTestResources: true});
+	const reader = await project.getReader({style: "buildtime"});
 	const resource = await reader.byPath("/test-resources/library/d/Test.html");
 	t.truthy(resource, "Found the requested resource");
 	t.is(resource.getPath(), "/test-resources/library/d/Test.html", "Resource has correct path");
 });
 
-test("Access project resources via reader: flat style, including test resources", async (t) => {
-	const project = await Specification.create(basicProjectInput);
-	const error = t.throws(() => {
-		project.getReader({style: "flat", includeTestResources: true});
-	});
-	t.is(error.message, `Readers of style "flat" can't include test resources`, "Correct error message");
-});
-
 test("Modify project resources via workspace and access via flat reader", async (t) => {
 	const project = await Specification.create(basicProjectInput);
-	const workspace = await project.getWorkspace({includeTestResources: true});
+	const workspace = await project.getWorkspace();
 	const workspaceResource = await workspace.byPath("/resources/library/d/.library");
 
 	const newContent = (await workspaceResource.getString()).replace("fancy", "fancy dancy");
 	workspaceResource.setString(newContent);
 	await workspace.write(workspaceResource);
 
-	const reader = await project.getReader({style: "flat", includeTestResources: false});
+	const reader = await project.getReader({style: "flat"});
 	const readerResource = await reader.byPath("/.library");
 	t.truthy(readerResource, "Found the requested resource byPath");
 	t.is(readerResource.getPath(), "/.library", "Resource (byPath) has correct path");

@@ -710,7 +710,7 @@ test("traverseBreadthFirst: Custom start node", async (t) => {
 	graph.declareDependency("library.b", "library.c");
 
 	const callbackStub = t.context.sinon.stub().resolves();
-	await graph.traverseBreadthFirst(callbackStub, "library.b");
+	await graph.traverseBreadthFirst("library.b", callbackStub);
 
 	t.is(callbackStub.callCount, 2, "Correct number of projects have been visited");
 
@@ -899,7 +899,7 @@ test("traverseDepthFirst: Custom start node", async (t) => {
 	graph.declareDependency("library.b", "library.c");
 
 	const callbackStub = t.context.sinon.stub().resolves();
-	await graph.traverseDepthFirst(callbackStub, "library.b");
+	await graph.traverseDepthFirst("library.b", callbackStub);
 
 	t.is(callbackStub.callCount, 2, "Correct number of projects have been visited");
 
