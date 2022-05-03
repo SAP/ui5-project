@@ -212,6 +212,22 @@ test.serial("createDependencyLists: include all + excludes", async (t) => {
 	});
 });
 
+test.serial("createDependencyLists: include all", async (t) => {
+	await assertCreateDependencyLists(t, {
+		includeAllDependencies: true,
+		includeDependency: [],
+		excludeDependency: [],
+		excludeDependencyRegExp: [],
+		excludeDependencyTree: [],
+		expectedIncludedDependencies: [
+			"library.d", "library.b", "library.c",
+			"library.d-depender", "library.a", "library.g",
+			"library.e", "library.f"
+		],
+		expectedExcludedDependencies: []
+	});
+});
+
 test.serial("createDependencyLists: includeDependencyTree has lower priority than excludes", async (t) => {
 	await assertCreateDependencyLists(t, {
 		includeAllDependencies: false,
