@@ -4,11 +4,17 @@ const path = require("path");
 const Module = require("../../../lib/graph/Module");
 
 const applicationAPath = path.join(__dirname, "..", "..", "fixtures", "application.a");
+const archiveApplicationAPath = path.join(__dirname, "..", "..", "fixtures", "archives", "application.a");
 
 const basicModuleInput = {
 	id: "application.a.id",
 	version: "1.0.0",
 	modulePath: applicationAPath
+};
+const archiveProjectInput = {
+	id: "application.a.id",
+	version: "1.0.0",
+	modulePath: archiveApplicationAPath
 };
 
 // test.beforeEach((t) => {
@@ -34,6 +40,13 @@ test("Access module root resources via reader", async (t) => {
 
 test("Get specifications from module", async (t) => {
 	const ui5Module = new Module(basicModuleInput);
+	const {project, extensions} = await ui5Module.getSpecifications();
+	t.is(project.getName(), "application.a", "Should return correct project");
+	t.is(extensions.length, 0, "Should return no extensions");
+});
+
+test.only("Get specifications from archive project", async (t) => {
+	const ui5Module = new Module(archiveProjectInput);
 	const {project, extensions} = await ui5Module.getSpecifications();
 	t.is(project.getName(), "application.a", "Should return correct project");
 	t.is(extensions.length, 0, "Should return no extensions");
