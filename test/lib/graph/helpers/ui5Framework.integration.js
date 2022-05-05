@@ -10,10 +10,10 @@ const libnpmconfig = require("libnpmconfig");
 const lockfile = require("lockfile");
 const logger = require("@ui5/logger");
 const Module = require("../../../../lib/graph/Module");
+const ApplicationType = require("../../../../lib/specifications/types/Application");
+const LibraryType = require("../../../../lib/specifications/types/Library");
 const DependencyTreeProvider = require("../../../../lib/graph/providers/DependencyTree");
-const projectGraphBuilder = require("../../../../lib/graph/providers/projectGraphBuilder");
-let ui5Framework;
-let Installer;
+const projectGraphBuilder = require("../../../../lib/graph/projectGraphBuilder");
 
 // Use path within project as mocking base directory to reduce chance of side effects
 // in case mocks/stubs do not work and real fs is used
@@ -46,9 +46,16 @@ test.beforeEach((t) => {
 
 	mock("mkdirp", sinon.stub().resolves());
 
+	// Stub specification internal checks since none of the projects actually exist on disk
+	sinon.stub(ApplicationType.prototype, "_configureAndValidatePaths").resolves();
+	sinon.stub(LibraryType.prototype, "_configureAndValidatePaths").resolves();
+	sinon.stub(ApplicationType.prototype, "_parseConfiguration").resolves();
+	sinon.stub(LibraryType.prototype, "_parseConfiguration").resolves();
+
+
 	// Re-require to ensure that mocked modules are used
-	ui5Framework = mock.reRequire("../../../../lib/graph/helpers/ui5Framework");
-	Installer = require("../../../../lib/ui5Framework/npm/Installer");
+	t.context.ui5Framework = mock.reRequire("../../../../lib/graph/helpers/ui5Framework");
+	t.context.Installer = require("../../../../lib/ui5Framework/npm/Installer");
 });
 
 test.afterEach.always((t) => {
@@ -104,11 +111,12 @@ function defineTest(testName, {
 		}
 	};
 
-	test.serial.skip(`${frameworkName}: ${verbose ? "(verbose) " : ""}${testName}`, async (t) => {
+	test.serial(`${frameworkName}: ${verbose ? "(verbose) " : ""}${testName}`, async (t) => {
 		// Enable verbose logging
 		if (verbose) {
 			logger.setLevel("verbose");
 		}
+		const {ui5Framework, Installer, logInfoSpy} = t.context;
 
 		const testDependency = {
 			id: "test-dependency-id",
@@ -148,7 +156,7 @@ function defineTest(testName, {
 				}
 			}
 		};
-		const translatorTree = {
+		const dependencyTree = {
 			id: "test-application-id",
 			version: "1.2.3",
 			path: path.join(fakeBaseDir, "project-test-application"),
@@ -312,8 +320,7 @@ function defineTest(testName, {
 				.resolves(distributionMetadata);
 		}
 
-		const provider = new DependencyTreeProvider({dependencyTree: translatorTree});
-
+		const provider = new DependencyTreeProvider({dependencyTree});
 		const projectGraph = await projectGraphBuilder(provider);
 
 		await ui5Framework.enrichProjectGraph(projectGraph);
@@ -335,29 +342,374 @@ function defineTest(testName, {
 			"test-application",
 		], "Traversed graph in correct order");
 
-		const frameworkLibAlreadyAddedInfoLogged = (t.context.logInfoSpy.getCalls()
+		const frameworkLibAlreadyAddedInfoLogged = (logInfoSpy.getCalls()
 			.map(($) => $.firstArg)
 			.findIndex(($) => $.includes("defines a dependency to the UI5 framework library")) !== -1);
 		t.false(frameworkLibAlreadyAddedInfoLogged, "No info regarding already added UI5 framework libraries logged");
 	});
 }
 
-defineTest("ui5Framework translator should enhance project graph with UI5 framework libraries", {
+defineTest("ui5Framework helper should enhance project graph with UI5 framework libraries", {
 	frameworkName: "SAPUI5"
 });
-defineTest("ui5Framework translator should enhance project graph with UI5 framework libraries", {
+defineTest("ui5Framework helper should enhance project graph with UI5 framework libraries", {
 	frameworkName: "SAPUI5",
 	verbose: true
 });
-defineTest("ui5Framework translator should enhance project graph with UI5 framework libraries", {
+defineTest("ui5Framework helper should enhance project graph with UI5 framework libraries", {
 	frameworkName: "OpenUI5"
 });
-defineTest("ui5Framework translator should enhance project graph with UI5 framework libraries", {
+defineTest("ui5Framework helper should enhance project graph with UI5 framework libraries", {
 	frameworkName: "OpenUI5",
 	verbose: true
 });
 
-// TODO missing tests from non-graph ui5Framework.integration.js
+function defineErrorTest(testName, {
+	frameworkName,
+	failExtract = false,
+	failMetadata = false,
+	expectedErrorMessage
+}) {
+	test.serial(testName, async (t) => {
+		const {ui5Framework, Installer, logInfoSpy} = t.context;
+
+		const dependencyTree = {
+			id: "test-id",
+			version: "1.2.3",
+			path: path.join(fakeBaseDir, "application-project"),
+			dependencies: [],
+			configuration: {
+				specVersion: "2.0",
+				type: "application",
+				metadata: {
+					name: "test-project"
+				},
+				framework: {
+					name: frameworkName,
+					version: "1.75.0",
+					libraries: [
+						{
+							name: "sap.ui.lib1"
+						},
+						{
+							name: "sap.ui.lib4",
+							optional: true
+						}
+					]
+				}
+			}
+		};
+
+		const extractStub = sinon.stub(pacote, "extract");
+		extractStub.callsFake(async (spec) => {
+			throw new Error("pacote.extract stub called with unknown spec: " + spec);
+		});
+
+		const manifestStub = sinon.stub(pacote, "manifest");
+		manifestStub.callsFake(async (spec) => {
+			throw new Error("pacote.manifest stub called with unknown spec: " + spec);
+		});
+
+		if (frameworkName === "SAPUI5") {
+			if (failExtract) {
+				extractStub
+					.withArgs("@sapui5/sap.ui.lib1@1.75.1")
+					.rejects(new Error("404 - @sapui5/sap.ui.lib1"))
+					.withArgs("@openui5/sap.ui.lib4@1.75.4")
+					.rejects(new Error("404 - @openui5/sap.ui.lib4"));
+			} else {
+				extractStub
+					.withArgs("@sapui5/sap.ui.lib1@1.75.1").resolves()
+					.withArgs("@openui5/sap.ui.lib4@1.75.4").resolves();
+			}
+			if (failMetadata) {
+				extractStub
+					.withArgs("@sapui5/distribution-metadata@1.75.0")
+					.rejects(new Error("404 - @sapui5/distribution-metadata"));
+			} else {
+				extractStub
+					.withArgs("@sapui5/distribution-metadata@1.75.0")
+					.resolves();
+				sinon.stub(Installer.prototype, "readJson")
+					.callThrough()
+					.withArgs(path.join(fakeBaseDir,
+						"homedir", ".ui5", "framework", "packages",
+						"@sapui5", "distribution-metadata", "1.75.0",
+						"metadata.json"))
+					.resolves({
+						libraries: {
+							"sap.ui.lib1": {
+								npmPackageName: "@sapui5/sap.ui.lib1",
+								version: "1.75.1",
+								dependencies: [],
+								optionalDependencies: []
+							},
+							"sap.ui.lib2": {
+								npmPackageName: "@sapui5/sap.ui.lib2",
+								version: "1.75.2",
+								dependencies: [
+									"sap.ui.lib3"
+								],
+								optionalDependencies: []
+							},
+							"sap.ui.lib3": {
+								npmPackageName: "@sapui5/sap.ui.lib3",
+								version: "1.75.3",
+								dependencies: [],
+								optionalDependencies: [
+									"sap.ui.lib4"
+								]
+							},
+							"sap.ui.lib4": {
+								npmPackageName: "@openui5/sap.ui.lib4",
+								version: "1.75.4",
+								dependencies: [
+									"sap.ui.lib1"
+								],
+								optionalDependencies: []
+							}
+						}
+					});
+			}
+		} else if (frameworkName === "OpenUI5") {
+			if (failExtract) {
+				extractStub
+					.withArgs("@openui5/sap.ui.lib1@1.75.0")
+					.rejects(new Error("404 - @openui5/sap.ui.lib1"))
+					.withArgs("@openui5/sap.ui.lib4@1.75.0")
+					.rejects(new Error("404 - @openui5/sap.ui.lib4"));
+			} else {
+				extractStub
+					.withArgs("@openui5/sap.ui.lib1@1.75.0")
+					.resolves()
+					.withArgs("@openui5/sap.ui.lib4@1.75.0")
+					.resolves();
+			}
+			if (failMetadata) {
+				manifestStub
+					.withArgs("@openui5/sap.ui.lib1@1.75.0")
+					.rejects(new Error("Failed to read manifest of @openui5/sap.ui.lib1@1.75.0"))
+					.withArgs("@openui5/sap.ui.lib4@1.75.0")
+					.rejects(new Error("Failed to read manifest of @openui5/sap.ui.lib4@1.75.0"));
+			} else {
+				manifestStub
+					.withArgs("@openui5/sap.ui.lib1@1.75.0")
+					.resolves({
+						name: "@openui5/sap.ui.lib1",
+						version: "1.75.0",
+						dependencies: {}
+					})
+					.withArgs("@openui5/sap.ui.lib4@1.75.0")
+					.resolves({
+						name: "@openui5/sap.ui.lib4",
+						version: "1.75.0"
+					});
+			}
+		}
+
+		const provider = new DependencyTreeProvider({dependencyTree});
+		const projectGraph = await projectGraphBuilder(provider);
+		await t.throwsAsync(async () => {
+			await ui5Framework.enrichProjectGraph(projectGraph);
+		}, {message: expectedErrorMessage});
+	});
+}
+
+defineErrorTest("SAPUI5: ui5Framework helper should throw a proper error when metadata request fails", {
+	frameworkName: "SAPUI5",
+	failMetadata: true,
+	expectedErrorMessage: `Resolution of framework libraries failed with errors:
+Failed to resolve library sap.ui.lib1: Failed to extract package @sapui5/distribution-metadata@1.75.0: ` +
+`404 - @sapui5/distribution-metadata
+Failed to resolve library sap.ui.lib4: Failed to extract package @sapui5/distribution-metadata@1.75.0: ` +
+`404 - @sapui5/distribution-metadata` // TODO: should only be returned once?
+});
+defineErrorTest("SAPUI5: ui5Framework helper should throw a proper error when package extraction fails", {
+	frameworkName: "SAPUI5",
+	failExtract: true,
+	expectedErrorMessage: `Resolution of framework libraries failed with errors:
+Failed to resolve library sap.ui.lib1: Failed to extract package @sapui5/sap.ui.lib1@1.75.1: ` +
+`404 - @sapui5/sap.ui.lib1
+Failed to resolve library sap.ui.lib4: Failed to extract package @openui5/sap.ui.lib4@1.75.4: ` +
+`404 - @openui5/sap.ui.lib4`
+});
+defineErrorTest(
+	"SAPUI5: ui5Framework helper should throw a proper error when metadata request and package extraction fails", {
+		frameworkName: "SAPUI5",
+		failMetadata: true,
+		failExtract: true,
+		expectedErrorMessage: `Resolution of framework libraries failed with errors:
+Failed to resolve library sap.ui.lib1: Failed to extract package @sapui5/distribution-metadata@1.75.0: ` +
+`404 - @sapui5/distribution-metadata
+Failed to resolve library sap.ui.lib4: Failed to extract package @sapui5/distribution-metadata@1.75.0: ` +
+`404 - @sapui5/distribution-metadata`
+	});
+
+
+defineErrorTest("OpenUI5: ui5Framework helper should throw a proper error when metadata request fails", {
+	frameworkName: "OpenUI5",
+	failMetadata: true,
+	expectedErrorMessage: `Resolution of framework libraries failed with errors:
+Failed to resolve library sap.ui.lib1: Failed to read manifest of @openui5/sap.ui.lib1@1.75.0
+Failed to resolve library sap.ui.lib4: Failed to read manifest of @openui5/sap.ui.lib4@1.75.0`
+});
+defineErrorTest("OpenUI5: ui5Framework helper should throw a proper error when package extraction fails", {
+	frameworkName: "OpenUI5",
+	failExtract: true,
+	expectedErrorMessage: `Resolution of framework libraries failed with errors:
+Failed to resolve library sap.ui.lib1: Failed to extract package @openui5/sap.ui.lib1@1.75.0: ` +
+`404 - @openui5/sap.ui.lib1
+Failed to resolve library sap.ui.lib4: Failed to extract package @openui5/sap.ui.lib4@1.75.0: ` +
+`404 - @openui5/sap.ui.lib4`
+});
+defineErrorTest(
+	"OpenUI5: ui5Framework helper should throw a proper error when metadata request and package extraction fails", {
+		frameworkName: "OpenUI5",
+		failMetadata: true,
+		failExtract: true,
+		expectedErrorMessage: `Resolution of framework libraries failed with errors:
+Failed to resolve library sap.ui.lib1: Failed to read manifest of @openui5/sap.ui.lib1@1.75.0
+Failed to resolve library sap.ui.lib4: Failed to read manifest of @openui5/sap.ui.lib4@1.75.0`
+	});
+
+test.serial("ui5Framework helper should not fail when no framework configuration is given", async (t) => {
+	const dependencyTree = {
+		id: "test-id",
+		version: "1.2.3",
+		path: path.join(fakeBaseDir, "application-project"),
+		dependencies: [],
+		configuration: {
+			specVersion: "2.0",
+			type: "application",
+			metadata: {
+				name: "test-project"
+			}
+		}
+	};
+	const provider = new DependencyTreeProvider({dependencyTree});
+	const projectGraph = await projectGraphBuilder(provider);
+	await t.context.ui5Framework.enrichProjectGraph(projectGraph);
+
+	t.is(projectGraph, projectGraph, "Returned same graph without error");
+});
+
+test.serial("ui5Framework translator should not try to install anything when no library is referenced", async (t) => {
+	const dependencyTree = {
+		id: "test-id",
+		version: "1.2.3",
+		path: path.join(fakeBaseDir, "application-project"),
+		dependencies: [],
+		configuration: {
+			specVersion: "2.1",
+			type: "application",
+			metadata: {
+				name: "test-project"
+			},
+			framework: {
+				name: "SAPUI5",
+				version: "1.75.0"
+			}
+		}
+	};
+	const provider = new DependencyTreeProvider({dependencyTree});
+	const projectGraph = await projectGraphBuilder(provider);
+
+	const extractStub = sinon.stub(pacote, "extract");
+	const manifestStub = sinon.stub(pacote, "manifest");
+
+	await t.context.ui5Framework.enrichProjectGraph(projectGraph);
+
+	t.is(extractStub.callCount, 0, "No package should be extracted");
+	t.is(manifestStub.callCount, 0, "No manifest should be requested");
+});
+
+test.serial("ui5Framework translator should throw an error when framework version is not defined", async (t) => {
+	const dependencyTree = {
+		id: "test-id",
+		version: "1.2.3",
+		path: path.join(fakeBaseDir, "application-project"),
+		dependencies: [],
+		configuration: {
+			specVersion: "2.1",
+			type: "application",
+			metadata: {
+				name: "test-project"
+			},
+			framework: {
+				name: "SAPUI5"
+			}
+		}
+	};
+	const provider = new DependencyTreeProvider({dependencyTree});
+	const projectGraph = await projectGraphBuilder(provider);
+
+	await t.throwsAsync(async () => {
+		await t.context.ui5Framework.enrichProjectGraph(projectGraph);
+	}, {message: `No framework version defined for root project test-project`}, "Correct error message");
+});
+
+test.serial(
+	"SAPUI5: ui5Framework translator should throw error when using a library that is not part of the dist metadata",
+	async (t) => {
+		const dependencyTree = {
+			id: "test-id",
+			version: "1.2.3",
+			path: path.join(fakeBaseDir, "application-project"),
+			dependencies: [],
+			configuration: {
+				specVersion: "2.0",
+				type: "application",
+				metadata: {
+					name: "test-project"
+				},
+				framework: {
+					name: "SAPUI5",
+					version: "1.75.0",
+					libraries: [
+						{name: "sap.ui.lib1"},
+						{name: "does.not.exist"},
+						{name: "sap.ui.lib4"},
+					]
+				}
+			}
+		};
+
+		const provider = new DependencyTreeProvider({dependencyTree});
+		const projectGraph = await projectGraphBuilder(provider);
+
+		sinon.stub(pacote, "extract").resolves();
+
+		sinon.stub(t.context.Installer.prototype, "readJson")
+			.callThrough()
+			.withArgs(path.join(fakeBaseDir,
+				"homedir", ".ui5", "framework", "packages",
+				"@sapui5", "distribution-metadata", "1.75.0",
+				"metadata.json"))
+			.resolves({
+				libraries: {
+					"sap.ui.lib1": {
+						npmPackageName: "@sapui5/sap.ui.lib1",
+						version: "1.75.1",
+						dependencies: [],
+						optionalDependencies: []
+					},
+					"sap.ui.lib4": {
+						npmPackageName: "@openui5/sap.ui.lib4",
+						version: "1.75.4",
+						dependencies: [
+							"sap.ui.lib1"
+						],
+						optionalDependencies: []
+					}
+				}
+			});
+
+		await t.throwsAsync(async () => {
+			await t.context.ui5Framework.enrichProjectGraph(projectGraph);
+		}, {
+			message: `Resolution of framework libraries failed with errors:
+Failed to resolve library does.not.exist: Could not find library "does.not.exist"`});
+	});
 
 // TODO test: Should not download packages again in case they are already installed
 

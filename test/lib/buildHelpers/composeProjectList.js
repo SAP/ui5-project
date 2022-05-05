@@ -161,8 +161,7 @@ async function assertCreateDependencyLists(t, {
 
 	const graph = await generateProjectGraph.usingObject({dependencyTree: tree});
 
-	const {includedDependencies, excludedDependencies} = await t.context.composeProjectList({
-		graph,
+	const {includedDependencies, excludedDependencies} = await t.context.composeProjectList(graph, {
 		includeAllDependencies,
 		includeDependency,
 		includeDependencyRegExp,

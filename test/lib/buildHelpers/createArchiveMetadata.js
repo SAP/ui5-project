@@ -4,7 +4,7 @@ const createArchiveMetadata = require("../../../lib/buildHelpers/createArchiveMe
 const Specification = require("../../../lib/specifications/Specification");
 
 const applicationAPath = path.join(__dirname, "..", "..", "fixtures", "application.a");
-const basicProjectInput = {
+const applicationProjectInput = {
 	id: "application.a.id",
 	version: "1.0.0",
 	modulePath: applicationAPath,
@@ -16,8 +16,31 @@ const basicProjectInput = {
 	}
 };
 
-test("Create archive from project", async (t) => {
-	const project = await Specification.create(basicProjectInput);
+const libraryDPath = path.join(__dirname, "..", "..", "fixtures", "library.d");
+const libraryProjectInput = {
+	id: "library.d.id",
+	version: "1.0.0",
+	modulePath: libraryDPath,
+	configuration: {
+		specVersion: "2.3",
+		kind: "project",
+		type: "library",
+		metadata: {
+			name: "library.d",
+		},
+		resources: {
+			configuration: {
+				paths: {
+					src: "main/src",
+					test: "main/test"
+				}
+			}
+		},
+	}
+};
+
+test("Create application archive from project", async (t) => {
+	const project = await Specification.create(applicationProjectInput);
 	project.getResourceTagCollection().setTag("/resources/id1/foo.js", "ui5:HasDebugVariant");
 
 	const metadata = await createArchiveMetadata(project, "buildConfig");
@@ -53,6 +76,50 @@ test("Create archive from project", async (t) => {
 			configuration: {
 				paths: {
 					webapp: "resources/id1",
+				},
+			},
+		}
+	}, "Returned correct metadata");
+});
+
+test("Create library archive from project", async (t) => {
+	const project = await Specification.create(libraryProjectInput);
+	project.getResourceTagCollection().setTag("/resources/library/d/foo.js", "ui5:HasDebugVariant");
+
+	const metadata = await createArchiveMetadata(project, "buildConfig");
+	t.truthy(new Date(metadata.customConfiguration._archive.timestamp), "Timestamp is valid");
+	metadata.customConfiguration._archive.timestamp = "<timestamp>";
+
+	t.deepEqual(metadata, {
+		specVersion: "2.3",
+		type: "library",
+		metadata: {
+			name: "library.d",
+		},
+		customConfiguration: {
+			_archive: {
+				archiveSpecVersion: "0.1",
+				buildConfig: "buildConfig",
+				namespace: "library/d",
+				timestamp: "<timestamp>",
+				version: "1.0.0",
+				versions: {
+					builderVersion: require("@ui5/builder/package.json").version,
+					fsVersion: require("@ui5/fs/package.json").version,
+					projectVersion: require("@ui5/project/package.json").version,
+				},
+				tags: {
+					"/resources/library/d/foo.js": {
+						"ui5:HasDebugVariant": true,
+					},
+				}
+			},
+		},
+		resources: {
+			configuration: {
+				paths: {
+					src: "resources/library/d",
+					test: "test-resources/library/d",
 				},
 			},
 		}

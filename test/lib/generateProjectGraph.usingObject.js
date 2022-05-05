@@ -28,10 +28,8 @@ test.beforeEach((t) => {
 		info: sinon.stub(),
 		isLevelEnabled: () => true
 	};
-	sinon.stub(logger, "getLogger").callThrough()
-		.withArgs("graph:providers:projectGraphBuilder").returns(t.context.log);
-	mock.reRequire("../../lib/graph/providers/projectGraphBuilder");
-
+	sinon.stub(logger, "getLogger").callThrough().withArgs("graph:projectGraphBuilder").returns(t.context.log);
+	mock.reRequire("../../lib/graph/projectGraphBuilder");
 	t.context.projectGraphFromTree = mock.reRequire("../../lib/generateProjectGraph").usingObject;
 	logger.getLogger.restore(); // Immediately restore global stub for following tests
 });
@@ -67,9 +65,9 @@ test("Application A: Traverse project graph breadth first", async (t) => {
 });
 
 test("Application Cycle A: Traverse project graph breadth first with cycles", async (t) => {
-	const {projectGraphFromTree} = t.context;
+	const {projectGraphFromTree, sinon} = t.context;
 	const projectGraph = await projectGraphFromTree({dependencyTree: applicationCycleATreeIncDeduped});
-	const callbackStub = t.context.sinon.stub().resolves();
+	const callbackStub = sinon.stub().resolves();
 	const error = await t.throwsAsync(projectGraph.traverseBreadthFirst(callbackStub));
 
 	t.is(callbackStub.callCount, 4, "Four projects have been visited");
@@ -89,9 +87,9 @@ test("Application Cycle A: Traverse project graph breadth first with cycles", as
 });
 
 test("Application Cycle B: Traverse project graph breadth first with cycles", async (t) => {
-	const {projectGraphFromTree} = t.context;
+	const {projectGraphFromTree, sinon} = t.context;
 	const projectGraph = await projectGraphFromTree({dependencyTree: applicationCycleBTreeIncDeduped});
-	const callbackStub = t.context.sinon.stub().resolves();
+	const callbackStub = sinon.stub().resolves();
 	await projectGraph.traverseBreadthFirst(callbackStub);
 
 	// TODO: Confirm this behavior with FW. BFS works fine since all modules have already been visited
@@ -108,9 +106,9 @@ test("Application Cycle B: Traverse project graph breadth first with cycles", as
 });
 
 test("Application A: Traverse project graph depth first", async (t) => {
-	const {projectGraphFromTree} = t.context;
+	const {projectGraphFromTree, sinon} = t.context;
 	const projectGraph = await projectGraphFromTree({dependencyTree: applicationATree});
-	const callbackStub = t.context.sinon.stub().resolves();
+	const callbackStub = sinon.stub().resolves();
 	await projectGraph.traverseDepthFirst(callbackStub);
 
 	t.is(callbackStub.callCount, 5, "Five projects have been visited");
@@ -129,9 +127,9 @@ test("Application A: Traverse project graph depth first", async (t) => {
 
 
 test("Application Cycle A: Traverse project graph depth first with cycles", async (t) => {
-	const {projectGraphFromTree} = t.context;
+	const {projectGraphFromTree, sinon} = t.context;
 	const projectGraph = await projectGraphFromTree({dependencyTree: applicationCycleATreeIncDeduped});
-	const callbackStub = t.context.sinon.stub().resolves();
+	const callbackStub = sinon.stub().resolves();
 	const error = await t.throwsAsync(projectGraph.traverseDepthFirst(callbackStub));
 
 	t.is(callbackStub.callCount, 0, "Zero projects have been visited");
@@ -143,9 +141,9 @@ test("Application Cycle A: Traverse project graph depth first with cycles", asyn
 });
 
 test("Application Cycle B: Traverse project graph depth first with cycles", async (t) => {
-	const {projectGraphFromTree} = t.context;
+	const {projectGraphFromTree, sinon} = t.context;
 	const projectGraph = await projectGraphFromTree({dependencyTree: applicationCycleBTreeIncDeduped});
-	const callbackStub = t.context.sinon.stub().resolves();
+	const callbackStub = sinon.stub().resolves();
 	const error = await t.throwsAsync(projectGraph.traverseDepthFirst(callbackStub));
 
 	t.is(callbackStub.callCount, 0, "Zero projects have been visited");
@@ -172,9 +170,9 @@ async function _testBasicGraphCreation(t, tree, expectedOrder, bfs) {
 	if (bfs === undefined) {
 		throw new Error("Test error: Parameter 'bfs' must be specified");
 	}
-	const {projectGraphFromTree} = t.context;
+	const {projectGraphFromTree, sinon} = t.context;
 	const projectGraph = await projectGraphFromTree({dependencyTree: tree});
-	const callbackStub = t.context.sinon.stub().resolves();
+	const callbackStub = sinon.stub().resolves();
 	if (bfs) {
 		await projectGraph.traverseBreadthFirst(callbackStub);
 	} else {
@@ -231,6 +229,7 @@ test("Project with inline configuration as array", async (t) => {
 });
 
 test("Project with inline configuration for two projects", async (t) => {
+	const {projectGraphFromTree} = t.context;
 	const tree = {
 		id: "application.a.id",
 		path: applicationAPath,
@@ -251,7 +250,6 @@ test("Project with inline configuration for two projects", async (t) => {
 		}]
 	};
 
-	const {projectGraphFromTree} = t.context;
 	await t.throwsAsync(projectGraphFromTree({dependencyTree: tree}),
 		{
 			message:
@@ -1242,6 +1240,7 @@ test("Project with project-shim extension dependency with dependency configurati
 });
 
 test("Project with project-shim extension with invalid dependency configuration", async (t) => {
+	const {projectGraphFromTree} = t.context;
 	const tree = {
 		id: "application.a.id",
 		path: applicationAPath,
@@ -1275,7 +1274,6 @@ test("Project with project-shim extension with invalid dependency configuration"
 			dependencies: []
 		}]
 	};
-	const {projectGraphFromTree} = t.context;
 	const validationError = await t.throwsAsync(projectGraphFromTree({dependencyTree: tree}), {
 		instanceOf: ValidationError
 	});
@@ -1532,6 +1530,7 @@ test.skip("Project with project-shim extension with self-containing collection s
 });
 
 test("Project with unknown extension dependency inline configuration", async (t) => {
+	const {projectGraphFromTree} = t.context;
 	const tree = {
 		id: "application.a",
 		path: applicationAPath,
@@ -1558,7 +1557,6 @@ test("Project with unknown extension dependency inline configuration", async (t)
 			dependencies: [],
 		}],
 	};
-	const {projectGraphFromTree} = t.context;
 	const validationError = await t.throwsAsync(projectGraphFromTree({dependencyTree: tree}));
 	t.is(validationError.message,
 		`Unable to create Specification instance: Unknown specification type 'phony-pony'`,

@@ -2,7 +2,6 @@ const test = require("ava");
 const path = require("path");
 const sinonGlobal = require("sinon");
 const applicationAPath = path.join(__dirname, "..", "..", "..", "fixtures", "application.a");
-// const applicationBPath = path.join(__dirname, "..", "..", "..", "fixtures", "application.b");
 const applicationCPath = path.join(__dirname, "..", "..", "..", "fixtures", "application.c");
 const applicationC2Path = path.join(__dirname, "..", "..", "..", "fixtures", "application.c2");
 const applicationC3Path = path.join(__dirname, "..", "..", "..", "fixtures", "application.c3");
@@ -12,7 +11,7 @@ const applicationGPath = path.join(__dirname, "..", "..", "..", "fixtures", "app
 const errApplicationAPath = path.join(__dirname, "..", "..", "..", "fixtures", "err.application.a");
 const cycleDepsBasePath = path.join(__dirname, "..", "..", "..", "fixtures", "cyclic-deps", "node_modules");
 
-const projectGraphBuilder = require("../../../../lib/graph/providers/projectGraphBuilder");
+const projectGraphBuilder = require("../../../../lib/graph/projectGraphBuilder");
 const NodePackageDependenciesProvider = require("../../../../lib/graph/providers/NodePackageDependencies");
 
 test.beforeEach((t) => {

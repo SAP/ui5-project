@@ -4,21 +4,13 @@
  */
 module.exports = {
 	/**
-	 * @type {import('./lib/normalizer')}
+	 * @type {import('./lib/builder')}
 	 */
-	normalizer: "./lib/normalizer",
-	/**
-	 * @type {import('./lib/projectPreprocessor')}
-	 */
-	projectPreprocessor: "./lib/projectPreprocessor",
+	builder: "./lib/builder",
 	/**
 	 * @type {import('./lib/generateProjectGraph')}
 	 */
 	generateProjectGraph: "./lib/generateProjectGraph",
-	/**
-	 * @type {import('./lib/builder')}
-	 */
-	builder: "./lib/builder",
 	/**
 	 * @public
 	 * @alias module:@ui5/project.ui5Framework
@@ -50,21 +42,6 @@ module.exports = {
 		ValidationError: "./lib/validation/ValidationError"
 	},
 	/**
-	 * @private
-	 * @alias module:@ui5/project.translators
-	 * @namespace
-	 */
-	translators: {
-		/**
-		 * @type {import('./lib/translators/npm')}
-		 */
-		npm: "./lib/translators/npm",
-		/**
-		 * @type {import('./lib/translators/static')}
-		 */
-		static: "./lib/translators/static"
-	},
-	/**
 	 * @public
 	 * @alias module:@ui5/project.graph
 	 * @namespace
@@ -74,6 +51,10 @@ module.exports = {
 		 * @type {typeof import('./lib/graph/ProjectGraph')}
 		 */
 		ProjectGraph: "./lib/graph/ProjectGraph",
+		/**
+		 * @type {typeof import('./lib/graph/projectGraphBuilder')}
+		 */
+		projectGraphBuilder: "./lib/graph/projectGraphBuilder",
 	},
 };
 
