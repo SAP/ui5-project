@@ -1,13 +1,13 @@
 {
 	"specVersion": "2.3",
-	"type": "application",
+	"type": "library",
 	"metadata": {
-		"name": "application.a"
+		"name": "library.e"
 	},
 	"customConfiguration": {
 		"_archive": {
 			"archiveSpecVersion": "0.1",
-			"timestamp": "2022-05-04T12:45:30.024Z",
+			"timestamp": "2022-05-06T09:54:29.051Z",
 			"versions": {
 				"builderVersion": "3.0.0",
 				"projectVersion": "3.0.0",
@@ -19,14 +19,14 @@
 				"includedTasks": [],
 				"excludedTasks": []
 			},
-			"id": "application.a",
-			"version": "0.2.0",
-			"namespace": "id1",
+			"id": "library.e",
+			"version": "1.0.0",
+			"namespace": "library/e",
 			"tags": {
-				"/resources/id1/test.js": {
+				"/resources/library/e/some.js": {
 					"ui5:HasDebugVariant": true
 				},
-				"/resources/id1/test-dbg.js": {
+				"/resources/library/e/some-dbg.js": {
 					"ui5:IsDebugVariant": true
 				}
 			}
@@ -35,7 +35,8 @@
 	"resources": {
 		"configuration": {
 			"paths": {
-				"webapp": "resources/id1"
+				"src": "resources",
+				"test": "test-resources",
 			}
 		}
 	}

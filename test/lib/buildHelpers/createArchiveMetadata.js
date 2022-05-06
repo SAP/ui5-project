@@ -118,8 +118,8 @@ test("Create library archive from project", async (t) => {
 		resources: {
 			configuration: {
 				paths: {
-					src: "resources/library/d",
-					test: "test-resources/library/d",
+					src: "resources",
+					test: "test-resources",
 				},
 			},
 		}
