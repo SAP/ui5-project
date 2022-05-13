@@ -371,7 +371,7 @@ function defineErrorTest(testName, {
 	expectedErrorMessage
 }) {
 	test.serial(testName, async (t) => {
-		const {ui5Framework, Installer, logInfoSpy} = t.context;
+		const {ui5Framework, Installer} = t.context;
 
 		const dependencyTree = {
 			id: "test-id",
