@@ -71,7 +71,7 @@ test("Access project resources via reader: flat style", async (t) => {
 	t.is(resource.getPath(), "/.library", "Resource has correct path");
 });
 
-test("Access project test-resources via reader: buildtime style, including test resources", async (t) => {
+test("Access project test-resources via reader: buildtime style", async (t) => {
 	const project = await Specification.create(basicProjectInput);
 	const reader = await project.getReader({style: "buildtime"});
 	const resource = await reader.byPath("/test-resources/library/d/Test.html");
@@ -79,23 +79,50 @@ test("Access project test-resources via reader: buildtime style, including test 
 	t.is(resource.getPath(), "/test-resources/library/d/Test.html", "Resource has correct path");
 });
 
-test("Modify project resources via workspace and access via flat reader", async (t) => {
+
+test("Access project test-resources via reader: runtime style", async (t) => {
+	const project = await Specification.create(basicProjectInput);
+	const reader = await project.getReader({style: "runtime"});
+	const resource = await reader.byPath("/test-resources/library/d/Test.html");
+	t.truthy(resource, "Found the requested resource");
+	t.is(resource.getPath(), "/test-resources/library/d/Test.html", "Resource has correct path");
+});
+
+test("Modify project resources via workspace and access via flat and runtime reader", async (t) => {
 	const project = await Specification.create(basicProjectInput);
 	const workspace = await project.getWorkspace();
 	const workspaceResource = await workspace.byPath("/resources/library/d/.library");
+	t.truthy(workspaceResource, "Found resource in workspace");
 
 	const newContent = (await workspaceResource.getString()).replace("fancy", "fancy dancy");
 	workspaceResource.setString(newContent);
 	await workspace.write(workspaceResource);
 
-	const reader = await project.getReader({style: "flat"});
-	const readerResource = await reader.byPath("/.library");
-	t.truthy(readerResource, "Found the requested resource byPath");
-	t.is(readerResource.getPath(), "/.library", "Resource (byPath) has correct path");
-	t.is(await readerResource.getString(), newContent, "Found resource (byPath) has expected (changed) content");
+	const flatReader = await project.getReader({style: "flat"});
+	const flatReaderResource = await flatReader.byPath("/.library");
+	t.truthy(flatReaderResource, "Found the requested resource byPath (flat)");
+	t.is(flatReaderResource.getPath(), "/.library", "Resource (byPath) has correct path (flat)");
+	t.is(await flatReaderResource.getString(), newContent,
+		"Found resource (byPath) has expected (changed) content (flat)");
 
-	const globResult = await reader.byGlob("**/.library");
-	t.is(globResult.length, 1, "Found the requested resource byGlob");
-	t.is(globResult[0].getPath(), "/.library", "Resource (byGlob) has correct path");
-	t.is(await globResult[0].getString(), newContent, "Found resource (byGlob) has expected (changed) content");
+	const flatGlobResult = await flatReader.byGlob("**/.library");
+	t.is(flatGlobResult.length, 1, "Found the requested resource byGlob (flat)");
+	t.is(flatGlobResult[0].getPath(), "/.library", "Resource (byGlob) has correct path (flat)");
+	t.is(await flatGlobResult[0].getString(), newContent,
+		"Found resource (byGlob) has expected (changed) content (flat)");
+
+	const runtimeReader = await project.getReader({style: "runtime"});
+	const runtimeReaderResource = await runtimeReader.byPath("/resources/library/d/.library");
+	t.truthy(runtimeReaderResource, "Found the requested resource byPath (runtime)");
+	t.is(runtimeReaderResource.getPath(), "/resources/library/d/.library",
+		"Resource (byPath) has correct path (runtime)");
+	t.is(await runtimeReaderResource.getString(), newContent,
+		"Found resource (byPath) has expected (changed) content (runtime)");
+
+	const runtimeGlobResult = await runtimeReader.byGlob("**/.library");
+	t.is(runtimeGlobResult.length, 1, "Found the requested resource byGlob (runtime)");
+	t.is(runtimeGlobResult[0].getPath(), "/resources/library/d/.library",
+		"Resource (byGlob) has correct path (runtime)");
+	t.is(await runtimeGlobResult[0].getString(), newContent,
+		"Found resource (byGlob) has expected (changed) content (runtime)");
 });
