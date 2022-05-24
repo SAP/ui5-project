@@ -523,22 +523,12 @@ test("Inconsistent dependencies with same ID", async (t) => {
 	const tree = {
 		id: "application.a",
 		version: "1.0.0",
-		specVersion: "2.3",
 		path: applicationAPath,
-		type: "application",
-		metadata: {
-			name: "application.a"
-		},
 		dependencies: [
 			{
 				id: "library.d",
 				version: "1.0.0",
-				specVersion: "2.3",
 				path: libraryDPath,
-				type: "library",
-				metadata: {
-					name: "library.d",
-				},
 				resources: {
 					configuration: {
 						propertiesFileSourceEncoding: "UTF-8",
@@ -552,7 +542,6 @@ test("Inconsistent dependencies with same ID", async (t) => {
 					{
 						id: "library.a",
 						version: "1.0.0",
-						specVersion: "2.3",
 						path: libraryBPath, // B, not A - inconsistency!
 						configuration: {
 							specVersion: "2.3",
@@ -568,12 +557,7 @@ test("Inconsistent dependencies with same ID", async (t) => {
 			{
 				id: "library.a",
 				version: "1.0.0",
-				specVersion: "2.3",
 				path: libraryAPath,
-				type: "library",
-				metadata: {
-					name: "library.a",
-				},
 				dependencies: []
 			}
 		]
