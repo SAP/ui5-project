@@ -133,6 +133,48 @@ test("Modify project resources via workspace and access via flat and runtime rea
 		"Found resource (byGlob) has expected (changed) content (runtime)");
 });
 
+test("_configureAndValidatePaths: Default paths", async (t) => {
+	const libraryEPath = path.join(__dirname, "..", "..", "..", "fixtures", "library.e");
+	const projectInput = {
+		id: "library.e.id",
+		version: "1.0.0",
+		modulePath: libraryEPath,
+		configuration: {
+			specVersion: "2.6",
+			kind: "project",
+			type: "library",
+			metadata: {
+				name: "library.e",
+			}
+		}
+	};
+
+	const project = await Specification.create(projectInput);
+
+	t.is(project._srcPath, "src", "Correct default path for src");
+	t.is(project._testPath, "test", "Correct default path for test");
+	t.true(project._testPathExists, "Test path detected as existing");
+});
+
+test("_configureAndValidatePaths: Test directory does not exist", async (t) => {
+	const projectInput = clone(basicProjectInput);
+	projectInput.configuration.resources.configuration.paths.test = "does/not/exist";
+	const project = await Specification.create(projectInput);
+
+	t.is(project._srcPath, "main/src", "Correct path for src");
+	t.is(project._testPath, "does/not/exist", "Correct path for test");
+	t.false(project._testPathExists, "Test path detected as non-existent");
+});
+
+
+test("_configureAndValidatePaths: Source directory does not exist", async (t) => {
+	const projectInput = clone(basicProjectInput);
+	projectInput.configuration.resources.configuration.paths.src = "does/not/exist";
+	const err = await t.throwsAsync(Specification.create(projectInput));
+
+	t.is(err.message, "Unable to find directory 'does/not/exist' in library project library.d");
+});
+
 test("_parseConfiguration: Get copyright", async (t) => {
 	const project = await Specification.create(basicProjectInput);
 
