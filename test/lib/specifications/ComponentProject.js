@@ -24,6 +24,24 @@ test.afterEach.always((t) => {
 	sinon.restore();
 });
 
+test("getPropertiesFileSourceEncoding: Default", async (t) => {
+	const project = await Specification.create(basicProjectInput);
+	t.is(project.getPropertiesFileSourceEncoding(), "UTF-8",
+		"Returned correct default propertiesFileSourceEncoding configuration");
+});
+
+test("getPropertiesFileSourceEncoding: Configuration", async (t) => {
+	const customProjectInput = clone(basicProjectInput);
+	customProjectInput.configuration.resources = {
+		configuration: {
+			propertiesFileSourceEncoding: "ISO-8859-1"
+		}
+	};
+	const project = await Specification.create(customProjectInput);
+	t.is(project.getPropertiesFileSourceEncoding(), "ISO-8859-1",
+		"Returned correct default propertiesFileSourceEncoding configuration");
+});
+
 test("hasMavenPlaceholder: has maven placeholder", async (t) => {
 	const project = await Specification.create(basicProjectInput);
 	const res = project._hasMavenPlaceholder("${mvn-pony}");

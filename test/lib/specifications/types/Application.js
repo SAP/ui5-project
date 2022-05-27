@@ -30,22 +30,22 @@ test("Correct class", async (t) => {
 	t.true(project instanceof Application, `Is an instance of the Application class`);
 });
 
-test("getPropertiesFileSourceEncoding: Default", async (t) => {
+test("getCachebusterSignatureType: Default", async (t) => {
 	const project = await Specification.create(basicProjectInput);
-	t.is(project.getPropertiesFileSourceEncoding(), "UTF-8",
-		"Returned correct default propertiesFileSourceEncoding configuration");
+	t.is(project.getCachebusterSignatureType(), "time",
+		"Returned correct default cachebuster signature type configuration");
 });
 
-test("getPropertiesFileSourceEncoding: Configuration", async (t) => {
+test("getCachebusterSignatureType: Configuration", async (t) => {
 	const customProjectInput = clone(basicProjectInput);
-	customProjectInput.configuration.resources = {
-		configuration: {
-			propertiesFileSourceEncoding: "ISO-8859-1"
+	customProjectInput.configuration.builder = {
+		cachebuster: {
+			signatureType: "hash"
 		}
 	};
 	const project = await Specification.create(customProjectInput);
-	t.is(project.getPropertiesFileSourceEncoding(), "ISO-8859-1",
-		"Returned correct default propertiesFileSourceEncoding configuration");
+	t.is(project.getCachebusterSignatureType(), "hash",
+		"Returned correct default cachebuster signature type configuration");
 });
 
 test("Access project resources via reader: buildtime style", async (t) => {
@@ -103,6 +103,52 @@ test("Modify project resources via workspace and access via flat and runtime rea
 	t.is(runtimeGlobResult.length, 1, "Found the requested resource byGlob");
 	t.is(runtimeGlobResult[0].getPath(), "/index.html", "Resource (byGlob) has correct path");
 	t.is(await runtimeGlobResult[0].getString(), newContent, "Found resource (byGlob) has expected (changed) content");
+});
+
+test("_configureAndValidatePaths: Default paths", async (t) => {
+	const project = await Specification.create(basicProjectInput);
+
+	t.is(project._webappPath, "webapp", "Correct default path");
+});
+
+test("_configureAndValidatePaths: Custom webapp directory", async (t) => {
+	const applicationHPath = path.join(__dirname, "..", "..", "..", "fixtures", "application.h");
+	const projectInput = {
+		id: "application.h.id",
+		version: "1.0.0",
+		modulePath: applicationHPath,
+		configuration: {
+			specVersion: "2.3",
+			kind: "project",
+			type: "application",
+			metadata: {name: "application.h"},
+			resources: {
+				configuration: {
+					paths: {
+						webapp: "webapp-properties.componentName"
+					}
+				}
+			}
+		}
+	};
+
+	const project = await Specification.create(projectInput);
+
+	t.is(project._webappPath, "webapp-properties.componentName", "Correct path for src");
+});
+
+test("_configureAndValidatePaths: Webapp directory does not exist", async (t) => {
+	const projectInput = clone(basicProjectInput);
+	projectInput.configuration.resources = {
+		configuration: {
+			paths: {
+				webapp: "does/not/exist"
+			}
+		}
+	};
+	const err = await t.throwsAsync(Specification.create(projectInput));
+
+	t.is(err.message, "Unable to find directory 'does/not/exist' in application project application.a");
 });
 
 test("_getNamespaceFromManifestJson: No 'sap.app' configuration found", async (t) => {
