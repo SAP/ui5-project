@@ -761,6 +761,7 @@ test.serial("_getNamespace: from manifest.json without sap.app id", async (t) =>
 
 
 	t.is(loggerSpy.getCall(0).args[0],
+		`Namespace resolution from manifest.json failed for project library.d: ` +
 		`No sap.app/id configuration found in manifest.json of project library.d at ${manifestPath}`,
 		"correct verbose message");
 });
@@ -1055,6 +1056,41 @@ test("_getPreloadExcludesFromDotLibrary: Propagates exception", async (t) => {
 	const err = await t.throwsAsync(project._getPreloadExcludesFromDotLibrary());
 	t.is(err.message, "because shark",
 		"Threw with excepted error message");
+});
+
+test("_getNamespaceFromManifest", async (t) => {
+	const project = await Specification.create(basicProjectInput);
+	sinon.stub(project, "_getManifest").resolves({
+		content: {
+			"sap.app": {
+				id: "library namespace"
+			}
+		},
+		filePath: "some path"
+	});
+	const {namespace, filePath} = await project._getNamespaceFromManifest();
+	t.is(namespace, "library namespace", "Returned correct namespace");
+	t.is(filePath, "some path", "Returned correct file path");
+});
+
+test("_getNamespaceFromManifest: No ID in manifest.json file", async (t) => {
+	const project = await Specification.create(basicProjectInput);
+	sinon.stub(project, "_getManifest").resolves({
+		content: {
+			"sap.app": {}
+		},
+		filePath: "some path"
+	});
+	const res = await project._getNamespaceFromManifest();
+	t.deepEqual(res, {}, "Empty object returned");
+});
+
+test("_getNamespaceFromManifest: Does not propagate exception", async (t) => {
+	const project = await Specification.create(basicProjectInput);
+
+	sinon.stub(project, "_getManifest").rejects(new Error("because shark"));
+	const res = await project._getNamespaceFromManifest();
+	t.deepEqual(res, {}, "Empty object returned");
 });
 
 test("_getNamespaceFromDotLibrary", async (t) => {
