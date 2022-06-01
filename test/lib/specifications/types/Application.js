@@ -1,6 +1,7 @@
 const test = require("ava");
 const path = require("path");
 const sinon = require("sinon");
+const {createResource} = require("@ui5/fs").resourceFactory;
 const Specification = require("../../../../lib/specifications/Specification");
 const Application = require("../../../../lib/specifications/types/Application");
 
@@ -103,6 +104,45 @@ test("Modify project resources via workspace and access via flat and runtime rea
 	t.is(runtimeGlobResult.length, 1, "Found the requested resource byGlob");
 	t.is(runtimeGlobResult[0].getPath(), "/index.html", "Resource (byGlob) has correct path");
 	t.is(await runtimeGlobResult[0].getString(), newContent, "Found resource (byGlob) has expected (changed) content");
+});
+
+
+test("Read and write resources outside of app namespace", async (t) => {
+	const project = await Specification.create(basicProjectInput);
+	const workspace = await project.getWorkspace();
+
+	await workspace.write(createResource({
+		path: "/resources/my-custom-bundle.js"
+	}));
+
+	const buildtimeReader = await project.getReader({style: "buildtime"});
+	const buildtimeReaderResource = await buildtimeReader.byPath("/resources/my-custom-bundle.js");
+	t.truthy(buildtimeReaderResource, "Found the requested resource byPath (buildtime)");
+	t.is(buildtimeReaderResource.getPath(), "/resources/my-custom-bundle.js",
+		"Resource (byPath) has correct path (buildtime)");
+
+	const buildtimeGlobResult = await buildtimeReader.byGlob("**/my-custom-bundle.js");
+	t.is(buildtimeGlobResult.length, 1, "Found the requested resource byGlob (buildtime)");
+	t.is(buildtimeGlobResult[0].getPath(), "/resources/my-custom-bundle.js",
+		"Resource (byGlob) has correct path (buildtime)");
+
+	const flatReader = await project.getReader({style: "flat"});
+	const flatReaderResource = await flatReader.byPath("/resources/my-custom-bundle.js");
+	t.falsy(flatReaderResource, "Resource outside of app namespace can't be read using flat reader");
+
+	const flatGlobResult = await flatReader.byGlob("**/my-custom-bundle.js");
+	t.is(flatGlobResult.length, 0, "Resource outside of app namespace can't be found using flat reader");
+
+	const runtimeReader = await project.getReader({style: "runtime"});
+	const runtimeReaderResource = await runtimeReader.byPath("/resources/my-custom-bundle.js");
+	t.truthy(runtimeReaderResource, "Found the requested resource byPath (runtime)");
+	t.is(runtimeReaderResource.getPath(), "/resources/my-custom-bundle.js",
+		"Resource (byPath) has correct path (runtime)");
+
+	const runtimeGlobResult = await runtimeReader.byGlob("**/my-custom-bundle.js");
+	t.is(runtimeGlobResult.length, 1, "Found the requested resource byGlob (runtime)");
+	t.is(runtimeGlobResult[0].getPath(), "/resources/my-custom-bundle.js",
+		"Resource (byGlob) has correct path (runtime)");
 });
 
 test("_configureAndValidatePaths: Default paths", async (t) => {
@@ -267,7 +307,7 @@ test("_getManifest: invalid JSON", async (t) => {
 		getString: async () => "no json"
 	});
 
-	project._getSourceReader = () => {
+	project._getRawSourceReader = () => {
 		return {
 			byPath: byPathStub
 		};
@@ -299,7 +339,7 @@ test.serial("_getManifest: result is cached", async (t) => {
 		getString: async () => `{"pony": "no unicorn"}`
 	});
 
-	project._getSourceReader = () => {
+	project._getRawSourceReader = () => {
 		return {
 			byPath: byPathStub
 		};
@@ -324,7 +364,7 @@ test.serial("_getManifest: Caches successes and failures", async (t) => {
 		getString: getStringStub
 	});
 
-	project._getSourceReader = () => {
+	project._getRawSourceReader = () => {
 		return {
 			byPath: byPathStub
 		};

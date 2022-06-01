@@ -31,6 +31,21 @@ const basicProjectInput = {
 	}
 };
 
+const libraryHPath = path.join(__dirname, "..", "..", "..", "fixtures", "library.h");
+const flatProjectInput = {
+	id: "library.d.id",
+	version: "1.0.0",
+	modulePath: libraryHPath,
+	configuration: {
+		specVersion: "2.6",
+		kind: "project",
+		type: "library",
+		metadata: {
+			name: "library.h",
+		}
+	}
+};
+
 test.afterEach.always((t) => {
 	sinon.restore();
 	mock.stopAll();
@@ -133,6 +148,14 @@ test("Modify project resources via workspace and access via flat and runtime rea
 		"Found resource (byGlob) has expected (changed) content (runtime)");
 });
 
+test("Access flat project resources via reader: buildtime style", async (t) => {
+	const project = await Specification.create(flatProjectInput);
+	const reader = await project.getReader({style: "buildtime"});
+	const resource = await reader.byPath("/resources/library/h/some.js");
+	t.truthy(resource, "Found the requested resource");
+	t.is(resource.getPath(), "/resources/library/h/some.js", "Resource has correct path");
+});
+
 test("_configureAndValidatePaths: Default paths", async (t) => {
 	const libraryEPath = path.join(__dirname, "..", "..", "..", "fixtures", "library.e");
 	const projectInput = {
@@ -165,7 +188,6 @@ test("_configureAndValidatePaths: Test directory does not exist", async (t) => {
 	t.is(project._testPath, "does/not/exist", "Correct path for test");
 	t.false(project._testPathExists, "Test path detected as non-existent");
 });
-
 
 test("_configureAndValidatePaths: Source directory does not exist", async (t) => {
 	const projectInput = clone(basicProjectInput);
@@ -340,7 +362,7 @@ test("_getManifest: Reads correctly", async (t) => {
 		getPath: () => "some path"
 	}]);
 
-	project._getSourceReader = () => {
+	project._getRawSourceReader = () => {
 		return {
 			byGlob: byGlobStub
 		};
@@ -357,7 +379,7 @@ test("_getManifest: No manifest.json", async (t) => {
 	const project = await Specification.create(basicProjectInput);
 	const byGlobStub = sinon.stub().resolves([]);
 
-	project._getSourceReader = () => {
+	project._getRawSourceReader = () => {
 		return {
 			byGlob: byGlobStub
 		};
@@ -376,7 +398,7 @@ test("_getManifest: Invalid JSON", async (t) => {
 		getPath: () => "some path"
 	}]);
 
-	project._getSourceReader = () => {
+	project._getRawSourceReader = () => {
 		return {
 			byGlob: byGlobStub
 		};
@@ -395,7 +417,7 @@ test("_getManifest: Propagates exception", async (t) => {
 	const project = await Specification.create(basicProjectInput);
 	const byGlobStub = sinon.stub().rejects(new Error("because shark"));
 
-	project._getSourceReader = () => {
+	project._getRawSourceReader = () => {
 		return {
 			byGlob: byGlobStub
 		};
@@ -417,7 +439,7 @@ test("_getManifest: Multiple manifest.json files", async (t) => {
 		getPath: () => "some other path"
 	}]);
 
-	project._getSourceReader = () => {
+	project._getRawSourceReader = () => {
 		return {
 			byGlob: byGlobStub
 		};
@@ -435,7 +457,7 @@ test("_getManifest: Result is cached", async (t) => {
 		getPath: () => "some path"
 	}]);
 
-	project._getSourceReader = () => {
+	project._getRawSourceReader = () => {
 		return {
 			byGlob: byGlobStub
 		};
@@ -461,7 +483,7 @@ test("_getDotLibrary: Reads correctly", async (t) => {
 		getPath: () => "some path"
 	}]);
 
-	project._getSourceReader = () => {
+	project._getRawSourceReader = () => {
 		return {
 			byGlob: byGlobStub
 		};
@@ -478,7 +500,7 @@ test("_getDotLibrary: No .library file", async (t) => {
 	const project = await Specification.create(basicProjectInput);
 	const byGlobStub = sinon.stub().resolves([]);
 
-	project._getSourceReader = () => {
+	project._getRawSourceReader = () => {
 		return {
 			byGlob: byGlobStub
 		};
@@ -497,7 +519,7 @@ test("_getDotLibrary: Invalid XML", async (t) => {
 		getPath: () => "some path"
 	}]);
 
-	project._getSourceReader = () => {
+	project._getRawSourceReader = () => {
 		return {
 			byGlob: byGlobStub
 		};
@@ -516,7 +538,7 @@ test("_getDotLibrary: Propagates exception", async (t) => {
 	const project = await Specification.create(basicProjectInput);
 	const byGlobStub = sinon.stub().rejects(new Error("because shark"));
 
-	project._getSourceReader = () => {
+	project._getRawSourceReader = () => {
 		return {
 			byGlob: byGlobStub
 		};
@@ -538,7 +560,7 @@ test("_getDotLibrary: Multiple .library files", async (t) => {
 		getPath: () => "some other path"
 	}]);
 
-	project._getSourceReader = () => {
+	project._getRawSourceReader = () => {
 		return {
 			byGlob: byGlobStub
 		};
@@ -556,7 +578,7 @@ test("_getDotLibrary: Result is cached", async (t) => {
 		getPath: () => "some path"
 	}]);
 
-	project._getSourceReader = () => {
+	project._getRawSourceReader = () => {
 		return {
 			byGlob: byGlobStub
 		};
@@ -581,7 +603,7 @@ test("_getLibraryJsPath: Reads correctly", async (t) => {
 		getPath: () => "some path"
 	}]);
 
-	project._getSourceReader = () => {
+	project._getRawSourceReader = () => {
 		return {
 			byGlob: byGlobStub
 		};
@@ -597,7 +619,7 @@ test("_getLibraryJsPath: No library.js file", async (t) => {
 	const project = await Specification.create(basicProjectInput);
 	const byGlobStub = sinon.stub().resolves([]);
 
-	project._getSourceReader = () => {
+	project._getRawSourceReader = () => {
 		return {
 			byGlob: byGlobStub
 		};
@@ -613,7 +635,7 @@ test("_getLibraryJsPath: Propagates exception", async (t) => {
 	const project = await Specification.create(basicProjectInput);
 	const byGlobStub = sinon.stub().rejects(new Error("because shark"));
 
-	project._getSourceReader = () => {
+	project._getRawSourceReader = () => {
 		return {
 			byGlob: byGlobStub
 		};
@@ -633,7 +655,7 @@ test("_getLibraryJsPath: Multiple library.js files", async (t) => {
 		getPath: () => "some other path"
 	}]);
 
-	project._getSourceReader = () => {
+	project._getRawSourceReader = () => {
 		return {
 			byGlob: byGlobStub
 		};
@@ -650,7 +672,7 @@ test("_getLibraryJsPath: Result is cached", async (t) => {
 		getPath: () => "some path"
 	}]);
 
-	project._getSourceReader = () => {
+	project._getRawSourceReader = () => {
 		return {
 			byGlob: byGlobStub
 		};
@@ -714,12 +736,48 @@ test("_getNamespace: from manifest.json with .library on same level", async (t) 
 	});
 	sinon.stub(project, "_getDotLibrary").resolves({
 		content: {
-			library: {name: "dot-pony"}
+			library: {name: {_: "dot-pony"}}
 		},
 		filePath: "/mani-pony/.library"
 	});
 	const res = await project._getNamespace();
-	t.deepEqual(res, "mani-pony", "Returned correct namespace");
+	t.is(res, "mani-pony", "Returned correct namespace");
+	t.true(project._isSourceNamespaced, "Project still flagged as namespaced source structure");
+});
+
+test("_getNamespace: from manifest.json for flat project", async (t) => {
+	const project = await Specification.create(basicProjectInput);
+	sinon.stub(project, "_getManifest").resolves({
+		content: {
+			"sap.app": {
+				id: "mani-pony"
+			}
+		},
+		filePath: "/manifest.json"
+	});
+	sinon.stub(project, "_getDotLibrary").resolves({
+		content: {
+			library: {name: {_: "dot-pony"}}
+		},
+		filePath: "/.library"
+	});
+	const res = await project._getNamespace();
+	t.is(res, "mani-pony", "Returned correct namespace");
+	t.false(project._isSourceNamespaced, "Project flagged as flat source structure");
+});
+
+test("_getNamespace: from .library for flat project", async (t) => {
+	const project = await Specification.create(basicProjectInput);
+	sinon.stub(project, "_getManifest").rejects("No manifest aint' here");
+	sinon.stub(project, "_getDotLibrary").resolves({
+		content: {
+			library: {name: {_: "dot-pony"}}
+		},
+		filePath: "/.library"
+	});
+	const res = await project._getNamespace();
+	t.is(res, "dot-pony", "Returned correct namespace");
+	t.false(project._isSourceNamespaced, "Project flagged as flat source structure");
 });
 
 test("_getNamespace: from manifest.json with .library on same level but different directory", async (t) => {
@@ -762,7 +820,7 @@ test("_getNamespace: from manifest.json with not matching file path", async (t) 
 	});
 	sinon.stub(project, "_getDotLibrary").resolves({
 		content: {
-			library: {name: "dot-pony"}
+			library: {name: {_: "dot-pony"}}
 		},
 		filePath: "/different/namespace/.library"
 	});
@@ -806,6 +864,7 @@ test.serial("_getNamespace: from manifest.json without sap.app id", async (t) =>
 		`Namespace resolution from manifest.json failed for project library.d: ` +
 		`No sap.app/id configuration found in manifest.json of project library.d at ${manifestPath}`,
 		"correct verbose message");
+	t.true(project._isSourceNamespaced, "Project still flagged as namespaced source structure");
 });
 
 test("_getNamespace: from .library", async (t) => {
@@ -819,6 +878,7 @@ test("_getNamespace: from .library", async (t) => {
 	});
 	const res = await project._getNamespace();
 	t.deepEqual(res, "dot-pony", "Returned correct namespace");
+	t.true(project._isSourceNamespaced, "Project still flagged as namespaced source structure");
 });
 
 test("_getNamespace: from .library with ignored manifest.json on lower level", async (t) => {
@@ -839,6 +899,7 @@ test("_getNamespace: from .library with ignored manifest.json on lower level", a
 	});
 	const res = await project._getNamespace();
 	t.deepEqual(res, "dot-pony", "Returned correct namespace");
+	t.true(project._isSourceNamespaced, "Project still flagged as namespaced source structure");
 });
 
 test("_getNamespace: manifest.json on higher level than .library", async (t) => {
@@ -889,6 +950,7 @@ test("_getNamespace: from .library with maven placeholder", async (t) => {
 	t.deepEqual(resolveMavenPlaceholderStub.getCall(0).args[0], "${mvn-pony}",
 		"resolveMavenPlaceholder called with correct argument");
 	t.deepEqual(res, "mvn-unicorn", "Returned correct namespace");
+	t.true(project._isSourceNamespaced, "Project still flagged as namespaced source structure");
 });
 
 test("_getNamespace: from .library with not matching file path", async (t) => {
@@ -905,6 +967,7 @@ test("_getNamespace: from .library with not matching file path", async (t) => {
 	t.deepEqual(err.message, `Detected namespace "mvn-pony" does not match detected directory structure ` +
 		`"different/namespace" for project library.d`,
 	"Rejected with correct error message");
+	t.true(project._isSourceNamespaced, "Project still flagged as namespaced source structure");
 });
 
 test("_getNamespace: from library.js", async (t) => {
@@ -914,6 +977,7 @@ test("_getNamespace: from library.js", async (t) => {
 	sinon.stub(project, "_getLibraryJsPath").resolves("/my/namespace/library.js");
 	const res = await project._getNamespace();
 	t.deepEqual(res, "my/namespace", "Returned correct namespace");
+	t.true(project._isSourceNamespaced, "Project still flagged as namespaced source structure");
 });
 
 test.serial("_getNamespace: from project root level library.js", async (t) => {
