@@ -208,11 +208,9 @@ test("getAllProjects", async (t) => {
 	graph.addProject(project2);
 
 	const res = graph.getAllProjects();
-	t.deepEqual(res, [[
-		"application.a", project1
-	], [
-		"application.b", project2
-	]], "Should return all projects in a nested array");
+	t.deepEqual(res, [
+		project1, project2
+	], "Should return all projects in a flat array");
 });
 
 test("add-/getExtension", async (t) => {
@@ -281,11 +279,9 @@ test("getAllExtensions", async (t) => {
 	const extension2 = await createExtension("extension.b");
 	graph.addExtension(extension2);
 	const res = graph.getAllExtensions();
-	t.deepEqual(res, [[
-		"extension.a", extension1
-	], [
-		"extension.b", extension2
-	]], "Should return all extensions in a nested array");
+	t.deepEqual(res, [
+		extension1, extension2
+	], "Should return all extensions in a flat array");
 });
 
 test("declareDependency / getDependencies", async (t) => {
