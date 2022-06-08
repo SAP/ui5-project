@@ -238,7 +238,8 @@ test.serial("generateDependencyTree should skip framework project with version a
 				version: "1.2.3",
 				libraries: [
 					{
-						name: "lib1"
+						name: "lib1",
+						optional: true
 					}
 				]
 			}
@@ -250,6 +251,38 @@ test.serial("generateDependencyTree should skip framework project with version a
 
 	await ui5Framework.enrichProjectGraph(projectGraph);
 	t.is(projectGraph.getAllProjects().length, 1, "Project graph should remain unchanged");
+});
+
+test.serial("generateDependencyTree should throw for framework project with dependency missing in graph", async (t) => {
+	const {ui5Framework} = t.context;
+	const dependencyTree = {
+		id: "@sapui5/project",
+		version: "1.2.3",
+		path: applicationAPath,
+		configuration: {
+			specVersion: "2.0",
+			type: "application",
+			metadata: {
+				name: "application.a"
+			},
+			framework: {
+				name: "SAPUI5",
+				version: "1.2.3",
+				libraries: [
+					{
+						name: "lib1"
+					}
+				]
+			}
+		}
+	};
+
+	const provider = new DependencyTreeProvider({dependencyTree});
+	const projectGraph = await projectGraphBuilder(provider);
+
+	const err = await t.throwsAsync(ui5Framework.enrichProjectGraph(projectGraph));
+	t.is(err.message, `Missing framework dependency lib1 for project application.a`,
+		"Threw with expected error message");
 });
 
 test.serial("generateDependencyTree should ignore root project without framework configuration", async (t) => {
