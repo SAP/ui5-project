@@ -4,7 +4,8 @@ const path = require("path");
 const Module = require("../../../lib/graph/Module");
 
 const applicationAPath = path.join(__dirname, "..", "..", "fixtures", "application.a");
-const archiveApplicationAPath = path.join(__dirname, "..", "..", "fixtures", "archives", "application.a");
+const buildDescriptionApplicationAPath =
+	path.join(__dirname, "..", "..", "fixtures", "build-descriptions", "application.a");
 
 const basicModuleInput = {
 	id: "application.a.id",
@@ -14,7 +15,7 @@ const basicModuleInput = {
 const archiveProjectInput = {
 	id: "application.a.id",
 	version: "1.0.0",
-	modulePath: archiveApplicationAPath
+	modulePath: buildDescriptionApplicationAPath
 };
 
 // test.beforeEach((t) => {
@@ -45,7 +46,7 @@ test("Get specifications from module", async (t) => {
 	t.is(extensions.length, 0, "Should return no extensions");
 });
 
-test.only("Get specifications from archive project", async (t) => {
+test.only("Get specifications from project with build description", async (t) => {
 	const ui5Module = new Module(archiveProjectInput);
 	const {project, extensions} = await ui5Module.getSpecifications();
 	t.is(project.getName(), "application.a", "Should return correct project");
