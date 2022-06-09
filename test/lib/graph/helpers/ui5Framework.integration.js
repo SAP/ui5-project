@@ -215,7 +215,10 @@ function defineTest(testName, {
 						metadata: {
 							name: "sap.ui.lib1"
 						},
-						framework: {libraries: []}
+						framework: {
+							name: frameworkName,
+							libraries: []
+						}
 					}];
 				case path.join(ui5PackagesBaseDir, npmScope, "sap.ui.lib2",
 					frameworkName === "SAPUI5" ? "1.75.2" : "1.75.0"):
@@ -225,7 +228,10 @@ function defineTest(testName, {
 						metadata: {
 							name: "sap.ui.lib2"
 						},
-						framework: {libraries: []}
+						framework: {
+							name: frameworkName,
+							libraries: []
+						}
 					}];
 				case path.join(ui5PackagesBaseDir, npmScope, "sap.ui.lib3",
 					frameworkName === "SAPUI5" ? "1.75.3" : "1.75.0"):
@@ -235,7 +241,10 @@ function defineTest(testName, {
 						metadata: {
 							name: "sap.ui.lib3"
 						},
-						framework: {libraries: []}
+						framework: {
+							name: frameworkName,
+							libraries: []
+						}
 					}];
 				case path.join(ui5PackagesBaseDir, "@openui5", "sap.ui.lib4",
 					frameworkName === "SAPUI5" ? "1.75.4" : "1.75.0"):
@@ -245,7 +254,10 @@ function defineTest(testName, {
 						metadata: {
 							name: "sap.ui.lib4"
 						},
-						framework: {libraries: []}
+						framework: {
+							name: frameworkName,
+							libraries: []
+						}
 					}];
 				case path.join(ui5PackagesBaseDir, npmScope, "sap.ui.lib8",
 					frameworkName === "SAPUI5" ? "1.75.8" : "1.75.0"):
@@ -255,7 +267,10 @@ function defineTest(testName, {
 						metadata: {
 							name: "sap.ui.lib8"
 						},
-						framework: {libraries: []}
+						framework: {
+							name: frameworkName,
+							libraries: []
+						}
 					}];
 				default:
 					throw new Error(
