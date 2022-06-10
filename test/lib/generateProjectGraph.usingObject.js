@@ -310,7 +310,7 @@ test("Missing configuration file for root project", async (t) => {
 	await t.throwsAsync(projectGraphFromTree({dependencyTree: tree}),
 		{
 			message:
-				"Failed to crate a UI5 project from module application.a.id at non-existent. " +
+				"Failed to create a UI5 project from module application.a.id at non-existent. " +
 				"Make sure the path is correct and a project configuration is present or supplied."
 		},
 		"Rejected with error");
