@@ -13,8 +13,8 @@
 			}
 		}
 	},
-	"buildDescription": {
-		"descriptionVersion": "0.1",
+	"buildManifest": {
+		"manifestVersion": "0.1",
 		"timestamp": "2022-05-04T12:45:30.024Z",
 		"versions": {
 			"builderVersion": "3.0.0",

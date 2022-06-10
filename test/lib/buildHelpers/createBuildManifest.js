@@ -1,6 +1,6 @@
 const test = require("ava");
 const path = require("path");
-const createBuildDescription = require("../../../lib/buildHelpers/createBuildDescription");
+const createBuildManifest = require("../../../lib/buildHelpers/createBuildManifest");
 const Specification = require("../../../lib/specifications/Specification");
 
 const applicationAPath = path.join(__dirname, "..", "..", "fixtures", "application.a");
@@ -39,13 +39,13 @@ const libraryProjectInput = {
 	}
 };
 
-test("Create application archive from project", async (t) => {
+test("Create application from project with build manifest", async (t) => {
 	const project = await Specification.create(applicationProjectInput);
 	project.getResourceTagCollection().setTag("/resources/id1/foo.js", "ui5:HasDebugVariant");
 
-	const metadata = await createBuildDescription(project, "buildConfig");
-	t.truthy(new Date(metadata.buildDescription.timestamp), "Timestamp is valid");
-	metadata.buildDescription.timestamp = "<timestamp>";
+	const metadata = await createBuildManifest(project, "buildConfig");
+	t.truthy(new Date(metadata.buildManifest.timestamp), "Timestamp is valid");
+	metadata.buildManifest.timestamp = "<timestamp>";
 
 	t.deepEqual(metadata, {
 		project: {
@@ -62,8 +62,8 @@ test("Create application archive from project", async (t) => {
 				},
 			}
 		},
-		buildDescription: {
-			descriptionVersion: "0.1",
+		buildManifest: {
+			manifestVersion: "0.1",
 			buildConfig: "buildConfig",
 			namespace: "id1",
 			timestamp: "<timestamp>",
@@ -82,13 +82,13 @@ test("Create application archive from project", async (t) => {
 	}, "Returned correct metadata");
 });
 
-test("Create library archive from project", async (t) => {
+test("Create library from project with build manifest", async (t) => {
 	const project = await Specification.create(libraryProjectInput);
 	project.getResourceTagCollection().setTag("/resources/library/d/foo.js", "ui5:HasDebugVariant");
 
-	const metadata = await createBuildDescription(project, "buildConfig");
-	t.truthy(new Date(metadata.buildDescription.timestamp), "Timestamp is valid");
-	metadata.buildDescription.timestamp = "<timestamp>";
+	const metadata = await createBuildManifest(project, "buildConfig");
+	t.truthy(new Date(metadata.buildManifest.timestamp), "Timestamp is valid");
+	metadata.buildManifest.timestamp = "<timestamp>";
 
 	t.deepEqual(metadata, {
 		project: {
@@ -106,8 +106,8 @@ test("Create library archive from project", async (t) => {
 				},
 			}
 		},
-		buildDescription: {
-			descriptionVersion: "0.1",
+		buildManifest: {
+			manifestVersion: "0.1",
 			buildConfig: "buildConfig",
 			namespace: "library/d",
 			timestamp: "<timestamp>",

@@ -9,13 +9,13 @@
 			"configuration": {
 				"paths": {
 					"src": "resources",
-					"test": "test-resources",
+					"test": "test-resources"
 				}
 			}
 		}
 	},
-	"buildDescription": {
-		"descriptionVersion": "0.1",
+	"buildManifest": {
+		"manifestVersion": "0.1",
 		"timestamp": "2022-05-06T09:54:29.051Z",
 		"versions": {
 			"builderVersion": "3.0.0",

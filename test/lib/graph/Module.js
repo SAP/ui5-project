@@ -5,17 +5,25 @@ const Module = require("../../../lib/graph/Module");
 
 const applicationAPath = path.join(__dirname, "..", "..", "fixtures", "application.a");
 const buildDescriptionApplicationAPath =
-	path.join(__dirname, "..", "..", "fixtures", "build-descriptions", "application.a");
+	path.join(__dirname, "..", "..", "fixtures", "build-manifest", "application.a");
+const buildDescriptionLibraryAPath =
+	path.join(__dirname, "..", "..", "fixtures", "build-manifest", "library.e");
 
 const basicModuleInput = {
 	id: "application.a.id",
 	version: "1.0.0",
 	modulePath: applicationAPath
 };
-const archiveProjectInput = {
+const archiveAppProjectInput = {
 	id: "application.a.id",
 	version: "1.0.0",
 	modulePath: buildDescriptionApplicationAPath
+};
+
+const archiveLibProjectInput = {
+	id: "library.e.id",
+	version: "1.0.0",
+	modulePath: buildDescriptionLibraryAPath
 };
 
 // test.beforeEach((t) => {
@@ -46,9 +54,16 @@ test("Get specifications from module", async (t) => {
 	t.is(extensions.length, 0, "Should return no extensions");
 });
 
-test.only("Get specifications from project with build description", async (t) => {
-	const ui5Module = new Module(archiveProjectInput);
+test.only("Get specifications from application project with build manifest", async (t) => {
+	const ui5Module = new Module(archiveAppProjectInput);
 	const {project, extensions} = await ui5Module.getSpecifications();
 	t.is(project.getName(), "application.a", "Should return correct project");
+	t.is(extensions.length, 0, "Should return no extensions");
+});
+
+test.only("Get specifications from library project with build manifest", async (t) => {
+	const ui5Module = new Module(archiveLibProjectInput);
+	const {project, extensions} = await ui5Module.getSpecifications();
+	t.is(project.getName(), "library.e", "Should return correct project");
 	t.is(extensions.length, 0, "Should return no extensions");
 });

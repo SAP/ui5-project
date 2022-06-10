@@ -1,11 +1,11 @@
 const test = require("ava");
 const path = require("path");
-const createBuildDescription = require("../../../lib/buildHelpers/createBuildDescription");
+const createBuildManifest = require("../../../lib/buildHelpers/createBuildManifest");
 const Module = require("../../../lib/graph/Module");
 const Specification = require("../../../lib/specifications/Specification");
 
 const applicationAPath = path.join(__dirname, "..", "..", "fixtures", "application.a");
-const buildDescrApplicationAPath = path.join(__dirname, "..", "..", "fixtures", "build-descriptions", "application.a");
+const buildDescrApplicationAPath = path.join(__dirname, "..", "..", "fixtures", "build-manifest", "application.a");
 const applicationAConfig = {
 	id: "application.a.id",
 	version: "1.0.0",
@@ -18,7 +18,7 @@ const applicationAConfig = {
 	}
 };
 const libraryEPath = path.join(__dirname, "..", "..", "fixtures", "library.e");
-const buildDescrLibraryEPath = path.join(__dirname, "..", "..", "fixtures", "build-descriptions", "library.e");
+const buildDescrLibraryEPath = path.join(__dirname, "..", "..", "fixtures", "build-manifest", "library.e");
 const libraryEConfig = {
 	id: "library.e.id",
 	version: "1.0.0",
@@ -38,13 +38,13 @@ const buildConfig = {
 	excludedTasks: []
 };
 
-// Note: The actual build-description.json files in the fixtures are never used in these tests
+// Note: The actual build-manifest.json files in the fixtures are never used in these tests
 
-test("Create project from application project providing a build description", async (t) => {
+test("Create project from application project providing a build manifest", async (t) => {
 	const inputProject = await Specification.create(applicationAConfig);
 	inputProject.getResourceTagCollection().setTag("/resources/id1/foo.js", "ui5:HasDebugVariant");
 
-	const metadata = await createBuildDescription(inputProject, buildConfig);
+	const metadata = await createBuildManifest(inputProject, buildConfig);
 	const m = new Module({
 		id: "build-descr-application.a.id",
 		version: "2.0.0",
@@ -53,7 +53,7 @@ test("Create project from application project providing a build description", as
 	});
 
 	const {project} = await m.getSpecifications();
-	t.truthy(project, "Module was able to create project from build description metadata");
+	t.truthy(project, "Module was able to create project from build manifest metadata");
 	t.is(project.getName(), project.getName(), "Archive project has correct name");
 	t.is(project.getNamespace(), project.getNamespace(), "Archive project has correct namespace");
 	t.is(project.getResourceTagCollection().getTag("/resources/id1/foo.js", "ui5:HasDebugVariant"), true,
@@ -67,11 +67,11 @@ test("Create project from application project providing a build description", as
 		"Resource has expected path");
 });
 
-test("Create project from library project providing a build description", async (t) => {
+test("Create project from library project providing a build manifest", async (t) => {
 	const inputProject = await Specification.create(libraryEConfig);
 	inputProject.getResourceTagCollection().setTag("/resources/library/e/file.js", "ui5:HasDebugVariant");
 
-	const metadata = await createBuildDescription(inputProject, buildConfig);
+	const metadata = await createBuildManifest(inputProject, buildConfig);
 	const m = new Module({
 		id: "build-descr-library.e.id",
 		version: "2.0.0",
@@ -80,7 +80,7 @@ test("Create project from library project providing a build description", async 
 	});
 
 	const {project} = await m.getSpecifications();
-	t.truthy(project, "Module was able to create project from build description metadata");
+	t.truthy(project, "Module was able to create project from build manifest metadata");
 	t.is(project.getName(), project.getName(), "Archive project has correct name");
 	t.is(project.getNamespace(), project.getNamespace(), "Archive project has correct namespace");
 	t.is(project.getResourceTagCollection().getTag("/resources/library/e/file.js", "ui5:HasDebugVariant"), true,
