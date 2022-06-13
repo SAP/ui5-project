@@ -112,19 +112,6 @@ test("executeCleanupTasks", (t) => {
 	t.is(task2.callCount, 1, "my task 2", "Cleanup task 2 got called");
 });
 
-test("STANDARD_TAGS constant", (t) => {
-	const projectBuildContext = new ProjectBuildContext({
-		buildContext: {},
-		project: "project",
-		log: "log"
-	});
-
-	t.deepEqual(projectBuildContext.STANDARD_TAGS, {
-		OmitFromBuildResult: "ui5:OmitFromBuildResult",
-		IsBundle: "ui5:IsBundle"
-	}, "Exposes correct STANDARD_TAGS constant");
-});
-
 test.serial("getResourceTagCollection", (t) => {
 	const projectAcceptsTagStub = sinon.stub().returns(false);
 	projectAcceptsTagStub.withArgs("project-tag").returns(true);
