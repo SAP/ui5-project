@@ -54,16 +54,115 @@ test("Get specifications from module", async (t) => {
 	t.is(extensions.length, 0, "Should return no extensions");
 });
 
-test.only("Get specifications from application project with build manifest", async (t) => {
+test("Get specifications from application project with build manifest", async (t) => {
 	const ui5Module = new Module(archiveAppProjectInput);
 	const {project, extensions} = await ui5Module.getSpecifications();
 	t.is(project.getName(), "application.a", "Should return correct project");
 	t.is(extensions.length, 0, "Should return no extensions");
 });
 
-test.only("Get specifications from library project with build manifest", async (t) => {
+test("Get specifications from library project with build manifest", async (t) => {
 	const ui5Module = new Module(archiveLibProjectInput);
 	const {project, extensions} = await ui5Module.getSpecifications();
 	t.is(project.getName(), "library.e", "Should return correct project");
 	t.is(extensions.length, 0, "Should return no extensions");
+});
+
+test("configuration (object)", async (t) => {
+	const ui5Module = new Module({
+		id: "application.a.id",
+		version: "1.0.0",
+		modulePath: applicationAPath,
+		configuration: {
+			specVersion: "2.6",
+			type: "application",
+			metadata: {
+				name: "application.a"
+			},
+			customConfiguration: {
+				configurationTest: true
+			}
+		}
+	});
+	const {project, extensions} = await ui5Module.getSpecifications();
+	t.deepEqual(project.getCustomConfiguration(), {
+		configurationTest: true
+	});
+	t.is(extensions.length, 0, "Should return no extensions");
+});
+
+test("configuration (array)", async (t) => {
+	const ui5Module = new Module({
+		id: "application.a.id",
+		version: "1.0.0",
+		modulePath: applicationAPath,
+		configuration: [{
+			specVersion: "2.6",
+			type: "application",
+			metadata: {
+				name: "application.a"
+			},
+			customConfiguration: {
+				configurationTest: true
+			}
+		}, {
+			specVersion: "2.6",
+			kind: "extension",
+			type: "project-shim",
+			metadata: {
+				name: "my-project-shim"
+			},
+			shims: {}
+		}]
+	});
+	const {project, extensions} = await ui5Module.getSpecifications();
+	t.deepEqual(project.getCustomConfiguration(), {
+		configurationTest: true
+	});
+	t.is(extensions.length, 1, "Should return one extension");
+});
+
+test("configPath", async (t) => {
+	const ui5Module = new Module({
+		id: "application.a.id",
+		version: "1.0.0",
+		modulePath: applicationAPath,
+		configPath: "ui5-test-configPath.yaml"
+	});
+	const {project, extensions} = await ui5Module.getSpecifications();
+	t.deepEqual(project.getCustomConfiguration(), {
+		configPathTest: true
+	});
+	t.is(extensions.length, 0, "Should return no extensions");
+});
+
+test("configuration + configPath must not be provided", async (t) => {
+	// 'configuration' as object
+	t.throws(() => {
+		new Module({
+			id: "application.a.id",
+			version: "1.0.0",
+			modulePath: applicationAPath,
+			configPath: "test-ui5.yaml",
+			configuration: {
+				test: "configuration"
+			}
+		});
+	}, {
+		message: "Could not create Module: 'configPath' must not be provided in combination with 'configuration'"
+	});
+	// 'configuration' as array
+	t.throws(() => {
+		new Module({
+			id: "application.a.id",
+			version: "1.0.0",
+			modulePath: applicationAPath,
+			configPath: "test-ui5.yaml",
+			configuration: [{
+				test: "configuration"
+			}]
+		});
+	}, {
+		message: "Could not create Module: 'configPath' must not be provided in combination with 'configuration'"
+	});
 });

@@ -41,3 +41,32 @@ test("Throws error if file not found", async (t) => {
 		`ENOENT: no such file or directory, open '${notExistingPath}/projectDependencies.yaml'`,
 		"Correct error message");
 });
+
+test("rootConfiguration", async (t) => {
+	const projectGraph = await projectGraphFromStaticFile({
+		cwd: applicationHPath,
+		rootConfiguration: {
+			specVersion: "2.6",
+			type: "application",
+			metadata: {
+				name: "application.a"
+			},
+			customConfiguration: {
+				rootConfigurationTest: true
+			}
+		}
+	});
+	t.deepEqual(projectGraph.getRoot().getCustomConfiguration(), {
+		rootConfigurationTest: true
+	});
+});
+
+test("rootConfig", async (t) => {
+	const projectGraph = await projectGraphFromStaticFile({
+		cwd: applicationHPath,
+		rootConfigPath: "ui5-test-configPath.yaml"
+	});
+	t.deepEqual(projectGraph.getRoot().getCustomConfiguration(), {
+		configPathTest: true
+	});
+});

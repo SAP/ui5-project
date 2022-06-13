@@ -40,14 +40,14 @@ test.afterEach.always((t) => {
 
 test("Application A", async (t) => {
 	const {projectGraphFromTree} = t.context;
-	const projectGraph = await projectGraphFromTree({dependencyTree: applicationATree});
+	const projectGraph = await projectGraphFromTree({dependencyTree: getApplicationATree()});
 	const rootProject = projectGraph.getRoot();
 	t.is(rootProject.getName(), "application.a", "Returned correct root project");
 });
 
 test("Application A: Traverse project graph breadth first", async (t) => {
 	const {projectGraphFromTree} = t.context;
-	const projectGraph = await projectGraphFromTree({dependencyTree: applicationATree});
+	const projectGraph = await projectGraphFromTree({dependencyTree: getApplicationATree()});
 	const callbackStub = t.context.sinon.stub().resolves();
 	await projectGraph.traverseBreadthFirst(callbackStub);
 
@@ -107,7 +107,7 @@ test("Application Cycle B: Traverse project graph breadth first with cycles", as
 
 test("Application A: Traverse project graph depth first", async (t) => {
 	const {projectGraphFromTree, sinon} = t.context;
-	const projectGraph = await projectGraphFromTree({dependencyTree: applicationATree});
+	const projectGraph = await projectGraphFromTree({dependencyTree: getApplicationATree()});
 	const callbackStub = sinon.stub().resolves();
 	await projectGraph.traverseDepthFirst(callbackStub);
 
@@ -641,38 +641,40 @@ test("Project with nested invalid dependencies", async (t) => {
 /* ========================= */
 /* ======= Test data ======= */
 
-const applicationATree = {
-	id: "application.a.id",
-	version: "1.0.0",
-	path: applicationAPath,
-	dependencies: [
-		{
-			id: "library.d.id",
-			version: "1.0.0",
-			path: path.join(applicationAPath, "node_modules", "library.d"),
-			dependencies: [
-				{
-					id: "library.a.id",
-					version: "1.0.0",
-					path: path.join(applicationAPath, "node_modules", "collection", "library.a"),
-					dependencies: []
-				},
-				{
-					id: "library.b.id",
-					version: "1.0.0",
-					path: path.join(applicationAPath, "node_modules", "collection", "library.b"),
-					dependencies: []
-				},
-				{
-					id: "library.c.id",
-					version: "1.0.0",
-					path: path.join(applicationAPath, "node_modules", "collection", "library.c"),
-					dependencies: []
-				}
-			]
-		}
-	]
-};
+function getApplicationATree() {
+	return {
+		id: "application.a.id",
+		version: "1.0.0",
+		path: applicationAPath,
+		dependencies: [
+			{
+				id: "library.d.id",
+				version: "1.0.0",
+				path: path.join(applicationAPath, "node_modules", "library.d"),
+				dependencies: [
+					{
+						id: "library.a.id",
+						version: "1.0.0",
+						path: path.join(applicationAPath, "node_modules", "collection", "library.a"),
+						dependencies: []
+					},
+					{
+						id: "library.b.id",
+						version: "1.0.0",
+						path: path.join(applicationAPath, "node_modules", "collection", "library.b"),
+						dependencies: []
+					},
+					{
+						id: "library.c.id",
+						version: "1.0.0",
+						path: path.join(applicationAPath, "node_modules", "collection", "library.c"),
+						dependencies: []
+					}
+				]
+			}
+		]
+	};
+}
 
 
 const applicationCycleATreeIncDeduped = {
@@ -1617,4 +1619,36 @@ test("Project with middleware extension dependency", async (t) => {
 		"application.a"
 	]);
 	t.truthy(graph.getExtension("middleware.a"), "Extension should be added to the graph");
+});
+
+test("rootConfiguration", async (t) => {
+	const {projectGraphFromTree} = t.context;
+	const projectGraph = await projectGraphFromTree({
+		dependencyTree: getApplicationATree(),
+		rootConfiguration: {
+			specVersion: "2.6",
+			type: "application",
+			metadata: {
+				name: "application.a"
+			},
+			customConfiguration: {
+				rootConfigurationTest: true
+			}
+		}
+	});
+
+	t.deepEqual(projectGraph.getRoot().getCustomConfiguration(), {
+		rootConfigurationTest: true
+	});
+});
+
+test("rootConfig", async (t) => {
+	const {projectGraphFromTree} = t.context;
+	const projectGraph = await projectGraphFromTree({
+		dependencyTree: getApplicationATree(),
+		rootConfigPath: "ui5-test-rootConfigPath.yaml"
+	});
+	t.deepEqual(projectGraph.getRoot().getCustomConfiguration(), {
+		rootConfigPathTest: true
+	});
 });
