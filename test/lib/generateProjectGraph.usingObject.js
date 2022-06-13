@@ -1646,7 +1646,7 @@ test("rootConfig", async (t) => {
 	const {projectGraphFromTree} = t.context;
 	const projectGraph = await projectGraphFromTree({
 		dependencyTree: getApplicationATree(),
-		rootConfigPath: "ui5-test-rootConfigPath.yaml"
+		rootConfigPath: "ui5-test-configPath.yaml"
 	});
 	t.deepEqual(projectGraph.getRoot().getCustomConfiguration(), {
 		rootConfigPathTest: true
