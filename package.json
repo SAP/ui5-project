@@ -117,7 +117,7 @@
 		"pretty-hrtime": "^1.0.3",
 		"read-pkg": "^5.2.0",
 		"read-pkg-up": "^7.0.1",
-		"resolve": "^1.22.0",
+		"resolve": "^1.22.1",
 		"rimraf": "^3.0.2",
 		"semver": "^7.3.7"
 	},
