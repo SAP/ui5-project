@@ -1,19 +1,18 @@
-const test = require("ava");
-const sinon = require("sinon");
-const mock = require("mock-require");
-const path = require("path");
-const os = require("os");
-const fs = require("graceful-fs");
-
-const pacote = require("pacote");
-const libnpmconfig = require("libnpmconfig");
-const lockfile = require("lockfile");
-const logger = require("@ui5/logger");
-const Module = require("../../../../lib/graph/Module");
-const ApplicationType = require("../../../../lib/specifications/types/Application");
-const LibraryType = require("../../../../lib/specifications/types/Library");
-const DependencyTreeProvider = require("../../../../lib/graph/providers/DependencyTree");
-const projectGraphBuilder = require("../../../../lib/graph/projectGraphBuilder");
+import test from "ava";
+import sinon from "sinon";
+import esmock from "esmock";
+import path from "node:path";
+import os from "node:os";
+import fs from "graceful-fs";
+import pacote from "pacote";
+import libnpmconfig from "libnpmconfig";
+import lockfile from "lockfile";
+import logger from "@ui5/logger";
+import Module from "../../../../lib/graph/Module.js";
+import ApplicationType from "../../../../lib/specifications/types/Application.js";
+import LibraryType from "../../../../lib/specifications/types/Library.js";
+import DependencyTreeProvider from "../../../../lib/graph/providers/DependencyTree.js";
+import projectGraphBuilder from "../../../../lib/graph/projectGraphBuilder.js";
 
 // Use path within project as mocking base directory to reduce chance of side effects
 // in case mocks/stubs do not work and real fs is used

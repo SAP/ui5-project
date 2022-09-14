@@ -1,9 +1,9 @@
-const path = require("path");
-const test = require("ava");
-const sinonGlobal = require("sinon");
-const mock = require("mock-require");
-const logger = require("@ui5/logger");
-const Specification = require("../../../lib/specifications/Specification");
+import path from "node:path";
+import test from "ava";
+import sinonGlobal from "sinon";
+import esmock from "esmock";
+import logger from "@ui5/logger";
+import Specification from "../../../lib/specifications/Specification.js";
 const applicationAPath = path.join(__dirname, "..", "..", "fixtures", "application.a");
 
 async function createProject(name) {

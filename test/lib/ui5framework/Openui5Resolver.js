@@ -1,8 +1,8 @@
-const test = require("ava");
-const sinon = require("sinon");
-const mock = require("mock-require");
-const path = require("path");
-const os = require("os");
+import test from "ava";
+import sinon from "sinon";
+import esmock from "esmock";
+import path from "node:path";
+import os from "node:os";
 
 let Openui5Resolver;
 

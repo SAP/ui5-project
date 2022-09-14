@@ -1,8 +1,8 @@
-const test = require("ava");
-const path = require("path");
-const sinonGlobal = require("sinon");
+import test from "ava";
+import path from "node:path";
+import sinonGlobal from "sinon";
 
-const projectGraphFromStaticFile = require("../../lib/generateProjectGraph").usingStaticFile;
+import { usingStaticFile as projectGraphFromStaticFile } from "../../lib/generateProjectGraph.js";
 
 const applicationHPath = path.join(__dirname, "..", "fixtures", "application.h");
 const applicationAPath = path.join(__dirname, "..", "fixtures", "application.a");

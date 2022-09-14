@@ -1,13 +1,13 @@
-const test = require("ava");
-const sinon = require("sinon");
-const mock = require("mock-require");
+import test from "ava";
+import sinon from "sinon";
+import esmock from "esmock";
 
 test.afterEach.always((t) => {
 	sinon.restore();
 	mock.stopAll();
 });
 
-const BuildContext = require("../../../../lib/build/helpers/BuildContext");
+import BuildContext from "../../../../lib/build/helpers/BuildContext.js";
 
 test("Missing parameters", (t) => {
 	const error1 = t.throws(() => {

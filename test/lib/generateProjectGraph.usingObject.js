@@ -1,9 +1,9 @@
-const test = require("ava");
-const path = require("path");
-const sinonGlobal = require("sinon");
-const mock = require("mock-require");
-const logger = require("@ui5/logger");
-const ValidationError = require("../../lib/validation/ValidationError");
+import test from "ava";
+import path from "node:path";
+import sinonGlobal from "sinon";
+import esmock from "esmock";
+import logger from "@ui5/logger";
+import ValidationError from "../../lib/validation/ValidationError.js";
 
 const applicationAPath = path.join(__dirname, "..", "fixtures", "application.a");
 const applicationBPath = path.join(__dirname, "..", "fixtures", "application.b");

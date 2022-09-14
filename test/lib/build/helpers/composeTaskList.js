@@ -1,7 +1,7 @@
-const test = require("ava");
-const sinon = require("sinon");
-const mock = require("mock-require");
-const logger = require("@ui5/logger");
+import test from "ava";
+import sinon from "sinon";
+import esmock from "esmock";
+import logger from "@ui5/logger";
 
 test.beforeEach((t) => {
 	t.context.log = {

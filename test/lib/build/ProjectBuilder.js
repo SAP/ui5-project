@@ -1,7 +1,7 @@
-const test = require("ava");
-const sinonGlobal = require("sinon");
-const path = require("path");
-const mock = require("mock-require");
+import test from "ava";
+import sinonGlobal from "sinon";
+import path from "node:path";
+import esmock from "esmock";
 
 function noop() {}
 

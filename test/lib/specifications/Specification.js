@@ -1,8 +1,7 @@
-const test = require("ava");
-const path = require("path");
-const sinon = require("sinon");
-
-const Specification = require("../../../lib/specifications/Specification");
+import test from "ava";
+import path from "node:path";
+import sinon from "sinon";
+import Specification from "../../../lib/specifications/Specification.js";
 const applicationAPath = path.join(__dirname, "..", "..", "fixtures", "application.a");
 const genericExtensionPath = path.join(__dirname, "..", "..", "fixtures", "extension.a");
 const moduleAPath = path.join(__dirname, "..", "..", "fixtures", "module.a");

@@ -1,9 +1,8 @@
-const test = require("ava");
-const path = require("path");
-const sinonGlobal = require("sinon");
-const mock = require("mock-require");
-
-const projectGraphBuilder = require("../../../lib/graph/projectGraphBuilder");
+import test from "ava";
+import path from "node:path";
+import sinonGlobal from "sinon";
+import esmock from "esmock";
+import projectGraphBuilder from "../../../lib/graph/projectGraphBuilder.js";
 
 const libraryEPath = path.join(__dirname, "..", "..", "fixtures", "library.e");
 const collectionPath = path.join(__dirname, "..", "..", "fixtures", "collection");

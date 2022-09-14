@@ -1,7 +1,7 @@
-const test = require("ava");
-const sinon = require("sinon");
-const path = require("path");
-const Module = require("../../../lib/graph/Module");
+import test from "ava";
+import sinon from "sinon";
+import path from "node:path";
+import Module from "../../../lib/graph/Module.js";
 
 const applicationAPath = path.join(__dirname, "..", "..", "fixtures", "application.a");
 const buildDescriptionApplicationAPath =

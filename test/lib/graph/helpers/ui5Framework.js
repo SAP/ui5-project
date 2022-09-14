@@ -1,10 +1,9 @@
-const path = require("path");
-const test = require("ava");
-const sinon = require("sinon");
-const mock = require("mock-require");
-
-const DependencyTreeProvider = require("../../../../lib/graph/providers/DependencyTree");
-const projectGraphBuilder = require("../../../../lib/graph/projectGraphBuilder");
+import path from "node:path";
+import test from "ava";
+import sinon from "sinon";
+import esmock from "esmock";
+import DependencyTreeProvider from "../../../../lib/graph/providers/DependencyTree.js";
+import projectGraphBuilder from "../../../../lib/graph/projectGraphBuilder.js";
 
 const applicationAPath = path.join(__dirname, "..", "..", "..", "fixtures", "application.a");
 const libraryEPath = path.join(__dirname, "..", "..", "..", "fixtures", "library.e");

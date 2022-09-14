@@ -1,9 +1,8 @@
-const test = require("ava");
-const path = require("path");
-const sinon = require("sinon");
-const {createResource} = require("@ui5/fs").resourceFactory;
-const Specification = require("../../../../lib/specifications/Specification");
-const Application = require("../../../../lib/specifications/types/Application");
+import test from "ava";
+import path from "node:path";
+import sinon from "sinon";
+import Specification from "../../../../lib/specifications/Specification.js";
+import Application from "../../../../lib/specifications/types/Application.js";
 
 function clone(obj) {
 	return JSON.parse(JSON.stringify(obj));

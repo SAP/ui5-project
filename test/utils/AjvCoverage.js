@@ -1,11 +1,12 @@
 // Inspired by https://github.com/epoberezkin/ajv-istanbul
 
-const crypto = require("crypto");
-const beautify = require("js-beautify").js_beautify;
-const libReport = require("istanbul-lib-report");
-const reports = require("istanbul-reports");
-const libCoverage = require("istanbul-lib-coverage");
-const {createInstrumenter} = require("istanbul-lib-instrument");
+import crypto from "node:crypto";
+
+import { js_beautify as beautify } from "js-beautify";
+import libReport from "istanbul-lib-report";
+import reports from "istanbul-reports";
+import libCoverage from "istanbul-lib-coverage";
+import { createInstrumenter } from "istanbul-lib-instrument";
 
 const rSchemaName = new RegExp(/sourceURL=([^\s]*)/);
 
@@ -143,4 +144,4 @@ class AjvCoverage {
 	}
 }
 
-module.exports = AjvCoverage;
+export default AjvCoverage;

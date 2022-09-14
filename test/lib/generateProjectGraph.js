@@ -1,7 +1,7 @@
-const test = require("ava");
-const path = require("path");
-const sinonGlobal = require("sinon");
-const mock = require("mock-require");
+import test from "ava";
+import path from "node:path";
+import sinonGlobal from "sinon";
+import esmock from "esmock";
 
 test.beforeEach((t) => {
 	const sinon = t.context.sinon = sinonGlobal.createSandbox();

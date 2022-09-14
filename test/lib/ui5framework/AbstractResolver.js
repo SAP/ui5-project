@@ -1,8 +1,7 @@
-const test = require("ava");
-const sinon = require("sinon");
-const path = require("path");
-
-const AbstractResolver = require("../../../lib/ui5Framework/AbstractResolver");
+import test from "ava";
+import sinon from "sinon";
+import path from "node:path";
+import AbstractResolver from "../../../lib/ui5Framework/AbstractResolver.js";
 
 class MyResolver extends AbstractResolver {
 	static async fetchAllVersions() {}

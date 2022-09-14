@@ -1,9 +1,9 @@
-const test = require("ava");
-const sinon = require("sinon");
-const mock = require("mock-require");
-const path = require("path");
-const logger = require("@ui5/logger");
-const generateProjectGraph = require("../../../../lib/generateProjectGraph");
+import test from "ava";
+import sinon from "sinon";
+import esmock from "esmock";
+import path from "node:path";
+import logger from "@ui5/logger";
+import generateProjectGraph from "../../../../lib/generateProjectGraph.js";
 
 const applicationAPath = path.join(__dirname, "..", "..", "..", "fixtures", "application.a");
 const libraryEPath = path.join(__dirname, "..", "..", "..", "fixtures", "library.e");

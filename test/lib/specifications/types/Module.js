@@ -1,8 +1,8 @@
-const test = require("ava");
-const path = require("path");
-const sinon = require("sinon");
-const mock = require("mock-require");
-const Specification = require("../../../../lib/specifications/Specification");
+import test from "ava";
+import path from "node:path";
+import sinon from "sinon";
+import esmock from "esmock";
+import Specification from "../../../../lib/specifications/Specification.js";
 
 function clone(obj) {
 	return JSON.parse(JSON.stringify(obj));

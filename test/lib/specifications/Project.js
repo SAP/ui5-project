@@ -1,6 +1,6 @@
-const test = require("ava");
-const path = require("path");
-const Specification = require("../../../lib/specifications/Specification");
+import test from "ava";
+import path from "node:path";
+import Specification from "../../../lib/specifications/Specification.js";
 
 function clone(obj) {
 	return JSON.parse(JSON.stringify(obj));

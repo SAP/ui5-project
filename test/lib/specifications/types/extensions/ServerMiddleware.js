@@ -1,8 +1,8 @@
-const test = require("ava");
-const path = require("path");
-const sinon = require("sinon");
-const Specification = require("../../../../../lib/specifications/Specification");
-const ServerMiddleware = require("../../../../../lib/specifications/types/extensions/ServerMiddleware");
+import test from "ava";
+import path from "node:path";
+import sinon from "sinon";
+import Specification from "../../../../../lib/specifications/Specification.js";
+import ServerMiddleware from "../../../../../lib/specifications/types/extensions/ServerMiddleware.js";
 
 function clone(obj) {
 	return JSON.parse(JSON.stringify(obj));

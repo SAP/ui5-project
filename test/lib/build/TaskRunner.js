@@ -1,11 +1,11 @@
-const test = require("ava");
-const sinon = require("sinon");
-const mock = require("mock-require");
+import test from "ava";
+import sinon from "sinon";
+import esmock from "esmock";
 
 const parentLogger = require("@ui5/logger").getGroupLogger("mygroup");
 const taskRepository = require("@ui5/builder").tasks.taskRepository;
 
-const TaskRunner = require("../../../lib/build/TaskRunner");
+import TaskRunner from "../../../lib/build/TaskRunner.js";
 
 function noop() {}
 function emptyarray() {

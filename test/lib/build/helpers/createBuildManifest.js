@@ -1,7 +1,7 @@
-const test = require("ava");
-const path = require("path");
-const createBuildManifest = require("../../../../lib/build/helpers/createBuildManifest");
-const Specification = require("../../../../lib/specifications/Specification");
+import test from "ava";
+import path from "node:path";
+import createBuildManifest from "../../../../lib/build/helpers/createBuildManifest.js";
+import Specification from "../../../../lib/specifications/Specification.js";
 
 const applicationAPath = path.join(__dirname, "..", "..", "..", "fixtures", "application.a");
 const applicationProjectInput = {

@@ -1,10 +1,9 @@
-const test = require("ava");
-const sinon = require("sinon");
-const mock = require("mock-require");
-const path = require("path");
-const fs = require("graceful-fs");
-
-const lockfile = require("lockfile");
+import test from "ava";
+import sinon from "sinon";
+import esmock from "esmock";
+import path from "node:path";
+import fs from "graceful-fs";
+import lockfile from "lockfile";
 
 let Installer;
 

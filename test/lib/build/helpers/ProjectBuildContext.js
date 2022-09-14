@@ -1,7 +1,7 @@
-const test = require("ava");
-const sinon = require("sinon");
-const mock = require("mock-require");
-const ResourceTagCollection = require("@ui5/fs").ResourceTagCollection;
+import test from "ava";
+import sinon from "sinon";
+import esmock from "esmock";
+import { ResourceTagCollection } from "@ui5/fs";
 
 test.beforeEach((t) => {
 	t.context.resourceTagCollection = new ResourceTagCollection({
@@ -13,7 +13,7 @@ test.afterEach.always((t) => {
 	mock.stopAll();
 });
 
-const ProjectBuildContext = require("../../../../lib/build/helpers/ProjectBuildContext");
+import ProjectBuildContext from "../../../../lib/build/helpers/ProjectBuildContext.js";
 
 test("Missing parameters", (t) => {
 	t.throws(() => {
