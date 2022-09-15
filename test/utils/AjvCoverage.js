@@ -2,11 +2,11 @@
 
 import crypto from "node:crypto";
 
-import { js_beautify as beautify } from "js-beautify";
+import beautify from "js-beautify";
 import libReport from "istanbul-lib-report";
 import reports from "istanbul-reports";
 import libCoverage from "istanbul-lib-coverage";
-import { createInstrumenter } from "istanbul-lib-instrument";
+import {createInstrumenter} from "istanbul-lib-instrument";
 
 const rSchemaName = new RegExp(/sourceURL=([^\s]*)/);
 

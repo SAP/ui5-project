@@ -1,6 +1,6 @@
 import test from "ava";
 import sinon from "sinon";
-import { validate, _Validator as Validator } from "../../../lib/validation/validator.js";
+import {validate, _Validator as Validator} from "../../../lib/validation/validator.js";
 
 test.afterEach.always((t) => {
 	sinon.restore();
