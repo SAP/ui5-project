@@ -1,6 +1,8 @@
 import test from "ava";
+import Ajv from "ajv";
+import ajvErrors from "ajv-errors";
 import AjvCoverage from "../../../../../../../utils/AjvCoverage.js";
-import { _Validator as Validator } from "../../../../../../../../lib/validation/validator.js";
+import {_Validator as Validator} from "../../../../../../../../lib/validation/validator.js";
 import ValidationError from "../../../../../../../../lib/validation/ValidationError.js";
 import extension from "../../../../__helper__/extension.js";
 
@@ -21,7 +23,7 @@ async function assertValidation(t, config, expectedErrors = undefined) {
 }
 
 test.before((t) => {
-	t.context.validator = new Validator();
+	t.context.validator = new Validator({Ajv, ajvErrors});
 	t.context.ajvCoverage = new AjvCoverage(t.context.validator.ajv, {
 		includes: ["schema/specVersion/2.0/kind/extension/task.json"]
 	});
