@@ -635,7 +635,6 @@ test.serial("_addTask", async (t) => {
 	}, "Task got called with correct arguments");
 
 	getTaskStub.restore();
-	mock.stopAll();
 });
 
 test.serial("_addTask with options", async (t) => {
@@ -682,7 +681,6 @@ test.serial("_addTask with options", async (t) => {
 	}, "Task got called with correct arguments");
 
 	getTaskStub.restore();
-	mock.stopAll();
 });
 
 test("_addTask: Duplicate task", (t) => {

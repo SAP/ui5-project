@@ -30,7 +30,6 @@ test.beforeEach((t) => {
 
 test.afterEach.always((t) => {
 	sinon.restore();
-	mock.stopAll();
 });
 
 test.serial("ui5Framework translator should throw an error when framework version is not defined", async (t) => {

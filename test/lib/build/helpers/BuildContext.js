@@ -4,7 +4,6 @@ import esmock from "esmock";
 
 test.afterEach.always((t) => {
 	sinon.restore();
-	mock.stopAll();
 });
 
 import BuildContext from "../../../../lib/build/helpers/BuildContext.js";

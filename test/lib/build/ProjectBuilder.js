@@ -72,7 +72,6 @@ test.beforeEach((t) => {
 
 test.afterEach.always((t) => {
 	t.context.sinon.restore();
-	mock.stopAll();
 });
 
 test("Missing graph parameters", (t) => {

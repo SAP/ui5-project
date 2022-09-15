@@ -59,7 +59,6 @@ test.beforeEach((t) => {
 
 test.afterEach.always((t) => {
 	sinon.restore();
-	mock.stopAll();
 	logger.setLevel("info"); // default log level
 });
 

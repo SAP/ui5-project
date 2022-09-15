@@ -14,7 +14,6 @@ test.beforeEach((t) => {
 
 test.afterEach.always(() => {
 	sinon.restore();
-	mock.stopAll();
 });
 
 const allTasks = [

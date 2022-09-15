@@ -1,7 +1,7 @@
 import test from "ava";
 import sinon from "sinon";
 import esmock from "esmock";
-import { ResourceTagCollection } from "@ui5/fs";
+import {ResourceTagCollection} from "@ui5/fs";
 
 test.beforeEach((t) => {
 	t.context.resourceTagCollection = new ResourceTagCollection({
@@ -10,7 +10,6 @@ test.beforeEach((t) => {
 });
 test.afterEach.always((t) => {
 	sinon.restore();
-	mock.stopAll();
 });
 
 import ProjectBuildContext from "../../../../lib/build/helpers/ProjectBuildContext.js";

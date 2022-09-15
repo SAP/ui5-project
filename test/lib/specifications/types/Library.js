@@ -48,7 +48,6 @@ const flatProjectInput = {
 
 test.afterEach.always((t) => {
 	sinon.restore();
-	mock.stopAll();
 });
 
 test("Correct class", async (t) => {

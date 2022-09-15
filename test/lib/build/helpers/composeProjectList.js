@@ -22,7 +22,6 @@ test.beforeEach((t) => {
 
 test.afterEach.always((t) => {
 	sinon.restore();
-	mock.stopAll();
 });
 
 test.serial("_getFlattenedDependencyTree", async (t) => {

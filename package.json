@@ -57,6 +57,10 @@
 		"files": [
 			"test/lib/**/*.js",
 			"!test/**/__helper__/**"
+		],
+		"nodeArguments": [
+			"--loader=esmock",
+			"--no-warnings"
 		]
 	},
 	"nyc": {
