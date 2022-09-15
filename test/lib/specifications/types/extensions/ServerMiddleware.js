@@ -1,5 +1,6 @@
 import test from "ava";
 import path from "node:path";
+import {fileURLToPath} from "node:url";
 import sinon from "sinon";
 import Specification from "../../../../../lib/specifications/Specification.js";
 import ServerMiddleware from "../../../../../lib/specifications/types/extensions/ServerMiddleware.js";
@@ -7,6 +8,8 @@ import ServerMiddleware from "../../../../../lib/specifications/types/extensions
 function clone(obj) {
 	return JSON.parse(JSON.stringify(obj));
 }
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const genericExtensionPath = path.join(__dirname, "..", "..", "..", "..", "fixtures", "extension.a");
 const basicServerMiddlewareInput = {
@@ -21,7 +24,7 @@ const basicServerMiddlewareInput = {
 			name: "middleware-a"
 		},
 		middleware: {
-			path: "lib/extensionModule.js"
+			path: "lib/extensionModule.cjs"
 		}
 	}
 };
@@ -37,7 +40,9 @@ test("Correct class", async (t) => {
 
 test("getMiddleware", async (t) => {
 	const extension = await Specification.create(clone(basicServerMiddlewareInput));
-	t.is(extension.getMiddleware(), "extension module",
+	const middlewarePromise = extension.getMiddleware();
+	t.is(typeof middlewarePromise.then, "function");
+	t.is(await middlewarePromise, "extension module",
 		"Returned correct module");
 });
 

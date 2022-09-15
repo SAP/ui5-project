@@ -1,7 +1,11 @@
 import test from "ava";
 import path from "node:path";
+import {fileURLToPath} from "node:url";
 import sinon from "sinon";
 import Specification from "../../../lib/specifications/Specification.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 const applicationAPath = path.join(__dirname, "..", "..", "fixtures", "application.a");
 const genericExtensionPath = path.join(__dirname, "..", "..", "fixtures", "extension.a");
 const moduleAPath = path.join(__dirname, "..", "..", "fixtures", "module.a");

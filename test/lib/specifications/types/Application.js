@@ -1,5 +1,8 @@
 import test from "ava";
 import path from "node:path";
+import {fileURLToPath} from "node:url";
+import ui5fs from "@ui5/fs";
+const {createResource} = ui5fs.resourceFactory;
 import sinon from "sinon";
 import Specification from "../../../../lib/specifications/Specification.js";
 import Application from "../../../../lib/specifications/types/Application.js";
@@ -7,6 +10,8 @@ import Application from "../../../../lib/specifications/types/Application.js";
 function clone(obj) {
 	return JSON.parse(JSON.stringify(obj));
 }
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const applicationAPath = path.join(__dirname, "..", "..", "..", "fixtures", "application.a");
 const basicProjectInput = {

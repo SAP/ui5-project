@@ -1,5 +1,6 @@
 import test from "ava";
 import path from "node:path";
+import {fileURLToPath} from "node:url";
 import sinon from "sinon";
 import Specification from "../../../../../lib/specifications/Specification.js";
 import Task from "../../../../../lib/specifications/types/extensions/Task.js";
@@ -7,6 +8,8 @@ import Task from "../../../../../lib/specifications/types/extensions/Task.js";
 function clone(obj) {
 	return JSON.parse(JSON.stringify(obj));
 }
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const genericExtensionPath = path.join(__dirname, "..", "..", "..", "..", "fixtures", "extension.a");
 const basicTaskInput = {
@@ -21,7 +24,7 @@ const basicTaskInput = {
 			name: "task-a"
 		},
 		task: {
-			path: "lib/extensionModule.js"
+			path: "lib/extensionModule.cjs"
 		}
 	}
 };
@@ -37,7 +40,9 @@ test("Correct class", async (t) => {
 
 test("getTask", async (t) => {
 	const extension = await Specification.create(clone(basicTaskInput));
-	t.is(extension.getTask(), "extension module",
+	const taskPromise = extension.getTask();
+	t.is(typeof taskPromise.then, "function");
+	t.is(await taskPromise, "extension module",
 		"Returned correct module");
 });
 

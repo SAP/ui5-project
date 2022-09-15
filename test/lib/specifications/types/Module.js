@@ -1,5 +1,6 @@
 import test from "ava";
 import path from "node:path";
+import {fileURLToPath} from "node:url";
 import sinon from "sinon";
 import esmock from "esmock";
 import Specification from "../../../../lib/specifications/Specification.js";
@@ -7,6 +8,8 @@ import Specification from "../../../../lib/specifications/Specification.js";
 function clone(obj) {
 	return JSON.parse(JSON.stringify(obj));
 }
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const moduleAPath = path.join(__dirname, "..", "..", "..", "fixtures", "module.a");
 const basicProjectInput = {
