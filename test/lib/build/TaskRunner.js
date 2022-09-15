@@ -1,9 +1,10 @@
 import test from "ava";
 import sinon from "sinon";
 import esmock from "esmock";
-
-const parentLogger = require("@ui5/logger").getGroupLogger("mygroup");
-const taskRepository = require("@ui5/builder").tasks.taskRepository;
+import logger from "@ui5/logger";
+const parentLogger = logger.getGroupLogger("mygroup");
+import builder from "@ui5/builder";
+const taskRepository = builder.tasks.taskRepository;
 
 import TaskRunner from "../../../lib/build/TaskRunner.js";
 
@@ -597,10 +598,16 @@ test("Multiple custom tasks with same name are called correctly", async (t) => {
 
 test.serial("_addTask", async (t) => {
 	const taskStub = sinon.stub();
-	const getTaskStub = sinon.stub(require("@ui5/builder").tasks.taskRepository, "getTask").returns({
+	const getTaskStub = sinon.stub().returns({
 		task: taskStub
 	});
-	const TaskRunner = mock.reRequire("../../../lib/build/TaskRunner");
+	const TaskRunner = await esmock("../../../lib/build/TaskRunner.js", {
+		"@ui5/builder": {
+			tasks: {
+				getTask: getTaskStub
+			}
+		}
+	});
 
 	const {graph, taskUtil, taskRepository} = t.context;
 	const project = getMockProject("module");
@@ -639,8 +646,14 @@ test.serial("_addTask", async (t) => {
 
 test.serial("_addTask with options", async (t) => {
 	const taskStub = sinon.stub();
-	const getTaskStub = sinon.stub(require("@ui5/builder").tasks.taskRepository, "getTask").returns({});
-	const TaskRunner = mock.reRequire("../../../lib/build/TaskRunner");
+	const getTaskStub = sinon.stub().returns({});
+	const TaskRunner = await esmock("../../../lib/build/TaskRunner.js", {
+		"@ui5/builder": {
+			tasks: {
+				getTask: getTaskStub
+			}
+		}
+	});
 
 	const {graph, taskUtil, taskRepository} = t.context;
 	const project = getMockProject("module");
