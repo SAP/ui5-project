@@ -4,9 +4,7 @@ import esmock from "esmock";
 import path from "node:path";
 import os from "node:os";
 
-let Openui5Resolver;
-
-test.beforeEach((t) => {
+test.beforeEach(async (t) => {
 	t.context.InstallerStub = sinon.stub();
 	t.context.fetchPackageManifestStub = sinon.stub();
 	t.context.fetchPackageVersionsStub = sinon.stub();
@@ -19,9 +17,9 @@ test.beforeEach((t) => {
 		};
 	});
 
-	mock("../../../lib/ui5Framework/npm/Installer", t.context.InstallerStub);
-
-	Openui5Resolver = mock.reRequire("../../../lib/ui5Framework/Openui5Resolver");
+	t.context.Openui5Resolver = await esmock("../../../lib/ui5Framework/Openui5Resolver.js", {
+		"../../../lib/ui5Framework/npm/Installer": t.context.InstallerStub
+	});
 });
 
 test.afterEach.always(() => {
@@ -29,15 +27,19 @@ test.afterEach.always(() => {
 });
 
 test.serial("Openui5Resolver: _getNpmPackageName", (t) => {
+	const {Openui5Resolver} = t.context;
 	t.is(Openui5Resolver._getNpmPackageName("foo"), "@openui5/foo");
 });
 
 test.serial("Openui5Resolver: _getLibaryName", (t) => {
+	const {Openui5Resolver} = t.context;
 	t.is(Openui5Resolver._getLibaryName("@openui5/foo"), "foo");
 	t.is(Openui5Resolver._getLibaryName("@something/else"), "@something/else");
 });
 
 test.serial("Openui5Resolver: getLibraryMetadata", async (t) => {
+	const {Openui5Resolver} = t.context;
+
 	const resolver = new Openui5Resolver({
 		cwd: "/test-project/",
 		version: "1.75.0"
@@ -96,6 +98,8 @@ test.serial("Openui5Resolver: getLibraryMetadata", async (t) => {
 });
 
 test.serial("Openui5Resolver: handleLibrary", async (t) => {
+	const {Openui5Resolver} = t.context;
+
 	const resolver = new Openui5Resolver({
 		cwd: "/test-project/",
 		version: "1.75.0"
@@ -136,6 +140,8 @@ test.serial("Openui5Resolver: handleLibrary", async (t) => {
 });
 
 test.serial("Openui5Resolver: Static fetchAllVersions", async (t) => {
+	const {Openui5Resolver} = t.context;
+
 	const expectedVersions = ["1.75.0", "1.75.1", "1.76.0"];
 	const options = {
 		cwd: "/cwd",
@@ -161,6 +167,8 @@ test.serial("Openui5Resolver: Static fetchAllVersions", async (t) => {
 });
 
 test.serial("Openui5Resolver: Static fetchAllVersions without options", async (t) => {
+	const {Openui5Resolver} = t.context;
+
 	const expectedVersions = ["1.75.0", "1.75.1", "1.76.0"];
 
 	t.context.fetchPackageVersionsStub.returns(expectedVersions);
