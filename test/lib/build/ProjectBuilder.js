@@ -2,6 +2,7 @@ import test from "ava";
 import sinonGlobal from "sinon";
 import path from "node:path";
 import esmock from "esmock";
+import logger from "@ui5/logger";
 
 function noop() {}
 
@@ -18,9 +19,8 @@ function getMockProject(type, id = "b") {
 	};
 }
 
-test.beforeEach((t) => {
+test.beforeEach(async (t) => {
 	const sinon = t.context.sinon = sinonGlobal.createSandbox();
-	t.context.ProjectBuilder = mock.reRequire("../../../lib/build/ProjectBuilder");
 	t.context.getRootNameStub = sinon.stub().returns("project.a");
 	t.context.getRootTypeStub = sinon.stub().returns("application");
 	t.context.taskRepository = "taskRepository";
@@ -68,6 +68,8 @@ test.beforeEach((t) => {
 		},
 		getProject: sinon.stub().returns(getMockProject("project", "b"))
 	};
+
+	t.context.ProjectBuilder = await esmock("../../../lib/build/ProjectBuilder.js");
 });
 
 test.afterEach.always((t) => {
@@ -277,13 +279,12 @@ test.serial("build: Multiple projects", async (t) => {
 	const deregisterCleanupSigHooksStub = sinon.stub(builder, "_deregisterCleanupSigHooks");
 	const executeCleanupTasksStub = sinon.stub(builder, "_executeCleanupTasks").resolves();
 
-	const log = require("@ui5/logger");
-	log.setLevel("verbose");
+	logger.setLevel("verbose");
 	await builder.build({
 		destPath: "dest/path",
 		complexDependencyIncludes: "complexDependencyIncludes"
 	});
-	log.setLevel("info");
+	logger.setLevel("info");
 
 	t.is(getProjectFilterStub.callCount, 1, "_getProjectFilter got called once");
 	t.deepEqual(getProjectFilterStub.getCall(0).args[0], {
@@ -369,13 +370,14 @@ test("_createRequiredBuildContexts", (t) => {
 
 test.serial("_getProjectFilter with complexDependencyIncludes", async (t) => {
 	const {graph, taskRepository, sinon} = t.context;
-
 	const composeProjectListStub = sinon.stub().returns({
 		includedDependencies: ["project.b", "project.c"],
 		excludedDependencies: ["project.d", "project.e", "project.a"],
 	});
-	mock("../../../lib/build/helpers/composeProjectList", composeProjectListStub);
-	const ProjectBuilder = mock.reRequire("../../../lib/build/ProjectBuilder");
+	const ProjectBuilder = await esmock("../../../lib/build/ProjectBuilder.js", {
+		"../../../lib/build/helpers/composeProjectList.js": composeProjectListStub
+	});
+
 	const builder = new ProjectBuilder(graph, taskRepository);
 
 	const filterProject = await builder._getProjectFilter({
@@ -399,13 +401,14 @@ test.serial("_getProjectFilter with complexDependencyIncludes", async (t) => {
 
 test.serial("_getProjectFilter with explicit include/exclude", async (t) => {
 	const {graph, taskRepository, sinon} = t.context;
-
 	const composeProjectListStub = sinon.stub().returns({
 		includedDependencies: ["project.b", "project.c"],
 		excludedDependencies: ["project.d", "project.e", "project.a"],
 	});
-	mock("../../../lib/build/helpers/composeProjectList", composeProjectListStub);
-	const ProjectBuilder = mock.reRequire("../../../lib/build/ProjectBuilder");
+	const ProjectBuilder = await esmock("../../../lib/build/ProjectBuilder.js", {
+		"../../../lib/build/helpers/composeProjectList.js": composeProjectListStub
+	});
+
 	const builder = new ProjectBuilder(graph, taskRepository);
 
 	const filterProject = await builder._getProjectFilter({
@@ -429,11 +432,18 @@ test.serial("_getProjectFilter with explicit include/exclude", async (t) => {
 });
 
 test.serial("_buildProject", async (t) => {
-	const {graph, taskRepository, ProjectBuilder, sinon} = t.context;
+	const {graph, taskRepository, sinon} = t.context;
+	const readerCollectionStub = sinon.stub().returns("dependencies");
+	const ProjectBuilder = await esmock("../../../lib/build/ProjectBuilder.js", {
+		"@ui5/fs": {
+			resourceFactory: {
+				createReaderCollection: readerCollectionStub
+			}
+		}
+	});
+
 	const builder = new ProjectBuilder(graph, taskRepository);
 
-	const readerCollectionStub = sinon.stub(require("@ui5/fs").resourceFactory, "createReaderCollection")
-		.returns("dependencies");
 
 	const runTasksStub = sinon.stub().resolves();
 	await builder._buildProject({
@@ -459,11 +469,18 @@ test.serial("_buildProject", async (t) => {
 });
 
 test.serial("_buildProject: Requested project is not added to readers", async (t) => {
-	const {graph, taskRepository, ProjectBuilder, sinon} = t.context;
-	const builder = new ProjectBuilder(graph, taskRepository);
+	const {graph, taskRepository, sinon} = t.context;
+	const readerCollectionStub = sinon.stub().returns("dependencies");
 
-	const readerCollectionStub = sinon.stub(require("@ui5/fs").resourceFactory, "createReaderCollection")
-		.returns("dependencies");
+	const ProjectBuilder = await esmock("../../../lib/build/ProjectBuilder.js", {
+		"@ui5/fs": {
+			resourceFactory: {
+				createReaderCollection: readerCollectionStub
+			}
+		}
+	});
+
+	const builder = new ProjectBuilder(graph, taskRepository);
 
 	const runTasksStub = sinon.stub().resolves();
 	await builder._buildProject({
@@ -560,15 +577,20 @@ test.serial("_writeResults: Create build manifest", async (t) => {
 	const {graph, taskRepository} = t.context;
 
 	const createBuildManifestStub = sinon.stub().returns({"build": "manifest"});
-	mock("../../../lib/build/helpers/createBuildManifest", createBuildManifestStub);
-	const ProjectBuilder = mock.reRequire("../../../lib/build/ProjectBuilder");
+	const createResourceStub = sinon.stub().returns("build manifest resource");
+	const ProjectBuilder = await esmock.p("../../../lib/build/ProjectBuilder.js", {
+		"../../../lib/build/helpers/createBuildManifest.js": createBuildManifestStub,
+		"@ui5/fs": {
+			resourceFactory: {
+				createResource: createResourceStub
+			}
+		}
+	});
+
 	const builder = new ProjectBuilder(graph, taskRepository, {
 		createBuildManifest: true,
 		otherBuildConfig: "yes"
 	});
-
-	const createResourceStub = sinon.stub(require("@ui5/fs").resourceFactory, "createResource")
-		.returns("build manifest resource");
 
 	const dummyResources = [{
 		_resourceName: "resource.a",
@@ -646,6 +668,8 @@ test.serial("_writeResults: Create build manifest", async (t) => {
 	t.is(writerMock.write.getCall(0).args[0], "build manifest resource", "Write got called with build manifest");
 	t.is(writerMock.write.getCall(1).args[0], dummyResources[1], "Write got called with second resource");
 	t.is(writerMock.write.getCall(2).args[0], dummyResources[2], "Write got called with third resource");
+
+	esmock.purge(ProjectBuilder);
 });
 
 test("_writeResults: Do not create build manifest for non-root project", async (t) => {
