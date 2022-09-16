@@ -110,7 +110,7 @@ test("getBuildOption", (t) => {
 		"(not exposed as buold option)");
 });
 
-test.serial("createProjectContext", (t) => {
+test.serial("createProjectContext", async (t) => {
 	class DummyProjectContext {
 		constructor({buildContext, project, log}) {
 			t.is(buildContext, testBuildContext, "Correct buildContext parameter");
@@ -118,9 +118,9 @@ test.serial("createProjectContext", (t) => {
 			t.is(log, "log", "Correct log parameter");
 		}
 	}
-	mock("../../../../lib/build/helpers/ProjectBuildContext", DummyProjectContext);
-
-	const BuildContext = mock.reRequire("../../../../lib/build/helpers/BuildContext");
+	const BuildContext = await esmock("../../../../lib/build/helpers/BuildContext.js", {
+		"../../../../lib/build/helpers/ProjectBuildContext.js": DummyProjectContext
+	});
 	const testBuildContext = new BuildContext("graph", "taskRepository");
 
 	const projectContext = testBuildContext.createProjectContext({
