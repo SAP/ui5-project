@@ -2,7 +2,6 @@ import test from "ava";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
 import sinon from "sinon";
-import esmock from "esmock";
 import Specification from "../../../../lib/specifications/Specification.js";
 
 function clone(obj) {
@@ -32,7 +31,7 @@ test.afterEach.always((t) => {
 });
 
 test("Correct class", async (t) => {
-	const ThemeLibrary = mock.reRequire("../../../../lib/specifications/types/ThemeLibrary");
+	const {default: ThemeLibrary} = await import("../../../../lib/specifications/types/ThemeLibrary.js");
 	const project = await Specification.create(basicProjectInput);
 	t.true(project instanceof ThemeLibrary, `Is an instance of the ThemeLibrary class`);
 });

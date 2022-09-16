@@ -2,7 +2,6 @@ import test from "ava";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
 import sinon from "sinon";
-import esmock from "esmock";
 import Specification from "../../../../lib/specifications/Specification.js";
 
 function clone(obj) {
@@ -40,7 +39,7 @@ test.afterEach.always((t) => {
 });
 
 test("Correct class", async (t) => {
-	const Module = mock.reRequire("../../../../lib/specifications/types/Module");
+	const {default: Module} = await import("../../../../lib/specifications/types/Module.js");
 	const project = await Specification.create(basicProjectInput);
 	t.true(project instanceof Module, `Is an instance of the Module class`);
 });
