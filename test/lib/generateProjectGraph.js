@@ -91,7 +91,7 @@ test.serial("usingNodePackageDependencies: Do not resolve framework dependencies
 	t.is(enrichProjectGraphStub.callCount, 0, "enrichProjectGraph did not get called");
 });
 
-test.serial.only("usingStaticFile", async (t) => {
+test.serial("usingStaticFile", async (t) => {
 	const {
 		generateProjectGraph, dependencyTreeProviderStub,
 		projectGraphBuilderStub, enrichProjectGraphStub, DummyDependencyTreeProvider
