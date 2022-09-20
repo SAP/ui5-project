@@ -1,5 +1,5 @@
 import test from "ava";
-import sinon from "sinon";
+import sinonGlobal from "sinon";
 import logger from "@ui5/logger";
 const parentLogger = logger.getGroupLogger("mygroup");
 import TaskRunner from "../../../lib/build/TaskRunner.js";
@@ -57,19 +57,21 @@ function getMockProject(type) {
 }
 
 test.beforeEach((t) => {
+	const sinon = t.context.sinon = sinonGlobal.createSandbox();
+
 	t.context.taskUtil = {
 		isRootProject: sinon.stub().returns(true),
 		getBuildOption: sinon.stub(),
 		getInterface: sinon.stub()
 	};
 
-	const taskStub = sinon.stub();
-	const getTaskStub = sinon.stub().resolves({
-		task: taskStub
-	});
-
-	t.context.taskRepository = {getTask: getTaskStub};
-	t.context.taskStub = taskStub;
+	t.context.taskRepository = {
+		getTask: sinon.stub().callsFake(async (taskName) => {
+			throw new Error(`taskRepository: Unknown Task ${taskName}`);
+		}),
+		getAllTaskNames: sinon.stub().returns(["replaceVersion"])
+	};
+	// t.context.taskRepository.getTask.withArgs();
 
 	t.context.graph = {
 		getRoot: () => {
@@ -79,6 +81,10 @@ test.beforeEach((t) => {
 		},
 		getExtension: sinon.stub().returns("a custom task")
 	};
+});
+
+test.afterEach.always((t) => {
+	t.context.sinon.restore();
 });
 
 test("Project of type 'application'", async (t) => {
@@ -380,7 +386,7 @@ test("Custom tasks is unknown", async (t) => {
 });
 
 test("Custom task is called correctly", async (t) => {
-	const {graph, taskUtil, taskRepository} = t.context;
+	const {sinon, graph, taskUtil, taskRepository} = t.context;
 	const taskStub = sinon.stub();
 	graph.getExtension.returns({
 		getTask: () => taskStub,
@@ -422,7 +428,7 @@ test("Custom task is called correctly", async (t) => {
 });
 
 test("Custom task with legacy spec version", async (t) => {
-	const {graph, taskUtil, taskRepository} = t.context;
+	const {sinon, graph, taskUtil, taskRepository} = t.context;
 	const taskStub = sinon.stub();
 	graph.getExtension.returns({
 		getTask: () => taskStub,
@@ -463,7 +469,7 @@ test("Custom task with legacy spec version", async (t) => {
 });
 
 test("Custom task with specVersion 3.0", async (t) => {
-	const {graph, taskUtil, taskRepository} = t.context;
+	const {sinon, graph, taskUtil, taskRepository} = t.context;
 	const taskStub = sinon.stub();
 	graph.getExtension.returns({
 		getTask: () => taskStub,
@@ -506,7 +512,7 @@ test("Custom task with specVersion 3.0", async (t) => {
 });
 
 test("Multiple custom tasks with same name are called correctly", async (t) => {
-	const {graph, taskUtil, taskRepository} = t.context;
+	const {sinon, graph, taskUtil, taskRepository} = t.context;
 	const taskStub1 = sinon.stub();
 	const taskStub2 = sinon.stub();
 	const taskStub3 = sinon.stub();
@@ -784,8 +790,8 @@ test("requiresBuild: has build-manifest", async (t) => {
 	t.false(taskRunner.requiresBuild(), "Project with build-manifest does not require to be build");
 });
 
-test.serial.only("getBuildMetadata", async (t) => {
-	const {graph, taskUtil, taskRepository} = t.context;
+test.serial("getBuildMetadata", async (t) => {
+	const {sinon, graph, taskUtil, taskRepository} = t.context;
 	const project = getMockProject("library");
 	project.hasBuildManifest = () => true;
 	project.getBuildManifest = () => {
