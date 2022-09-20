@@ -1,6 +1,10 @@
 import test from "ava";
 import path from "node:path";
+import {fileURLToPath} from "node:url";
 import sinonGlobal from "sinon";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 const applicationAPath = path.join(__dirname, "..", "..", "..", "fixtures", "application.a");
 const applicationCPath = path.join(__dirname, "..", "..", "..", "fixtures", "application.c");
 const applicationC2Path = path.join(__dirname, "..", "..", "..", "fixtures", "application.c2");
