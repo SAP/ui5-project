@@ -71,7 +71,6 @@ test.beforeEach((t) => {
 		}),
 		getAllTaskNames: sinon.stub().returns(["replaceVersion"])
 	};
-	// t.context.taskRepository.getTask.withArgs();
 
 	t.context.graph = {
 		getRoot: () => {
@@ -605,7 +604,13 @@ test("Multiple custom tasks with same name are called correctly", async (t) => {
 });
 
 test.serial("_addTask", async (t) => {
-	const {graph, taskUtil, taskRepository, taskStub} = t.context;
+	const {sinon, graph, taskUtil, taskRepository} = t.context;
+
+	const taskStub = sinon.stub();
+	taskRepository.getTask.withArgs("standardTask").resolves({
+		task: taskStub
+	});
+
 	const project = getMockProject("module");
 	const taskRunner = await TaskRunner.create({
 		project, graph, taskUtil, taskRepository, parentLogger, buildConfig
@@ -639,7 +644,8 @@ test.serial("_addTask", async (t) => {
 });
 
 test.serial("_addTask with options", async (t) => {
-	const {graph, taskUtil, taskRepository, taskStub} = t.context;
+	const {sinon, graph, taskUtil, taskRepository} = t.context;
+	const taskStub = sinon.stub();
 	const project = getMockProject("module");
 
 	const taskRunner = await TaskRunner.create({
