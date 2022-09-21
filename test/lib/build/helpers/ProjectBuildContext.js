@@ -1,7 +1,8 @@
 import test from "ava";
 import sinon from "sinon";
 import esmock from "esmock";
-import {ResourceTagCollection} from "@ui5/fs";
+import ui5Fs from "@ui5/fs";
+const {ResourceTagCollection} = ui5Fs;
 
 test.beforeEach((t) => {
 	t.context.resourceTagCollection = new ResourceTagCollection({
@@ -111,7 +112,7 @@ test("executeCleanupTasks", (t) => {
 	t.is(task2.callCount, 1, "my task 2", "Cleanup task 2 got called");
 });
 
-test.serial("getResourceTagCollection", (t) => {
+test.serial("getResourceTagCollection", async (t) => {
 	const projectAcceptsTagStub = sinon.stub().returns(false);
 	projectAcceptsTagStub.withArgs("project-tag").returns(true);
 	const projectContextAcceptsTagStub = sinon.stub().returns(false);
@@ -135,11 +136,12 @@ test.serial("getResourceTagCollection", (t) => {
 			return projectContextAcceptsTagStub(tag);
 		}
 	}
-	mock("@ui5/fs", {
-		ResourceTagCollection: DummyResourceTagCollection
-	});
 
-	const ProjectBuildContext = mock.reRequire("../../../../lib/build/helpers/ProjectBuildContext");
+	const ProjectBuildContext = await esmock("../../../../lib/build/helpers/ProjectBuildContext.js", {
+		"@ui5/fs": {
+			ResourceTagCollection: DummyResourceTagCollection
+		}
+	});
 	const projectBuildContext = new ProjectBuildContext({
 		buildContext: {},
 		project: "project",
@@ -233,7 +235,7 @@ test("getTaskUtil", (t) => {
 	t.is(projectBuildContext.getTaskUtil(), projectBuildContext.getTaskUtil(), "Caches TaskUtil instance");
 });
 
-test.serial("getTaskRunner", (t) => {
+test.serial("getTaskRunner", async (t) => {
 	class DummyTaskRunner {
 		constructor(params) {
 			t.deepEqual(params, {
@@ -246,9 +248,10 @@ test.serial("getTaskRunner", (t) => {
 			}, "Created TaskRunner instance with correct parameters");
 		}
 	}
-	mock("../../../../lib/build/TaskRunner", DummyTaskRunner);
 
-	const ProjectBuildContext = mock.reRequire("../../../../lib/build/helpers/ProjectBuildContext");
+	const ProjectBuildContext = await esmock("../../../../lib/build/helpers/ProjectBuildContext.js", {
+		"../../../../lib/build/TaskRunner.js": DummyTaskRunner
+	});
 
 	const projectBuildContext = new ProjectBuildContext({
 		buildContext: {

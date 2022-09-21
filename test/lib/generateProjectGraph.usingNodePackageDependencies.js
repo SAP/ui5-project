@@ -1,8 +1,10 @@
 import test from "ava";
 import path from "node:path";
+import {fileURLToPath} from "node:url";
 import sinonGlobal from "sinon";
+import generateProjectGraph from "../../lib/generateProjectGraph.js";
 
-import { usingNodePackageDependencies as projectGraphFromPackageDeps } from "../../lib/generateProjectGraph.js";
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const applicationAPath = path.join(__dirname, "..", "fixtures", "application.a");
 test.beforeEach((t) => {
@@ -14,13 +16,13 @@ test.afterEach.always((t) => {
 });
 
 test("Application A", async (t) => {
-	const projectGraph = await projectGraphFromPackageDeps({cwd: applicationAPath});
+	const projectGraph = await generateProjectGraph.usingNodePackageDependencies({cwd: applicationAPath});
 	const rootProject = projectGraph.getRoot();
 	t.is(rootProject.getName(), "application.a", "Returned correct root project");
 });
 
 test("Application A: Traverse project graph breadth first", async (t) => {
-	const projectGraph = await projectGraphFromPackageDeps({cwd: applicationAPath});
+	const projectGraph = await generateProjectGraph.usingNodePackageDependencies({cwd: applicationAPath});
 	const callbackStub = t.context.sinon.stub().resolves();
 	await projectGraph.traverseBreadthFirst(callbackStub);
 

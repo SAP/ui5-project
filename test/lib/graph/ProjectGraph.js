@@ -1,9 +1,13 @@
 import path from "node:path";
+import {fileURLToPath} from "node:url";
 import test from "ava";
 import sinonGlobal from "sinon";
 import esmock from "esmock";
 import logger from "@ui5/logger";
 import Specification from "../../../lib/specifications/Specification.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 const applicationAPath = path.join(__dirname, "..", "..", "fixtures", "application.a");
 
 async function createProject(name) {

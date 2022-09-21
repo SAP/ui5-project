@@ -1,9 +1,12 @@
 import test from "ava";
 import path from "node:path";
+import {fileURLToPath} from "node:url";
 import sinonGlobal from "sinon";
 import esmock from "esmock";
 import logger from "@ui5/logger";
 import ValidationError from "../../lib/validation/ValidationError.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const applicationAPath = path.join(__dirname, "..", "fixtures", "application.a");
 const applicationBPath = path.join(__dirname, "..", "fixtures", "application.b");
@@ -18,7 +21,7 @@ const legacyLibraryAPath = path.join(__dirname, "..", "fixtures", "legacy.librar
 const legacyLibraryBPath = path.join(__dirname, "..", "fixtures", "legacy.library.b");
 const legacyCollectionAPath = path.join(__dirname, "..", "fixtures", "legacy.collection.a");
 
-test.beforeEach((t) => {
+test.beforeEach(async (t) => {
 	const sinon = t.context.sinon = sinonGlobal.createSandbox();
 
 	t.context.log = {
@@ -28,14 +31,20 @@ test.beforeEach((t) => {
 		info: sinon.stub(),
 		isLevelEnabled: () => true
 	};
-	sinon.stub(logger, "getLogger").callThrough().withArgs("graph:projectGraphBuilder").returns(t.context.log);
-	mock.reRequire("../../lib/graph/projectGraphBuilder");
-	t.context.projectGraphFromTree = mock.reRequire("../../lib/generateProjectGraph").usingObject;
-	logger.getLogger.restore(); // Immediately restore global stub for following tests
+
+	t.context.generateProjectGraph = await esmock.p("../../lib/generateProjectGraph", {
+		"../../lib/graph/projectGraphBuilder": await esmock("../../lib/graph/projectGraphBuilder", {
+			"@ui5/logger": {
+				getLogger: sinon.stub().withArgs("graph:projectGraphBuilder").returns(t.context.log)
+			}
+		})
+	});
+	t.context.projectGraphFromTree = t.context.generateProjectGraph.usingObject;
 });
 
 test.afterEach.always((t) => {
 	t.context.sinon.restore();
+	esmock.purge(t.context.generateProjectGraph);
 });
 
 test("Application A", async (t) => {
