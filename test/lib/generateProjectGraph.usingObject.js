@@ -3,7 +3,6 @@ import path from "node:path";
 import {fileURLToPath} from "node:url";
 import sinonGlobal from "sinon";
 import esmock from "esmock";
-import logger from "@ui5/logger";
 import ValidationError from "../../lib/validation/ValidationError.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
