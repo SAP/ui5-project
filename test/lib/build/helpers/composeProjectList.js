@@ -2,8 +2,10 @@ import test from "ava";
 import sinon from "sinon";
 import esmock from "esmock";
 import path from "node:path";
-import logger from "@ui5/logger";
+import {fileURLToPath} from "node:url";
 import generateProjectGraph from "../../../../lib/generateProjectGraph.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const applicationAPath = path.join(__dirname, "..", "..", "..", "fixtures", "application.a");
 const libraryEPath = path.join(__dirname, "..", "..", "..", "fixtures", "library.e");
@@ -11,13 +13,15 @@ const libraryFPath = path.join(__dirname, "..", "..", "..", "fixtures", "library
 const libraryGPath = path.join(__dirname, "..", "..", "..", "fixtures", "library.g");
 const libraryDDependerPath = path.join(__dirname, "..", "..", "..", "fixtures", "library.d-depender");
 
-test.beforeEach((t) => {
+test.beforeEach(async (t) => {
 	t.context.log = {
 		warn: sinon.stub()
 	};
-	sinon.stub(logger, "getLogger").callThrough()
-		.withArgs("build:helpers:composeProjectList").returns(t.context.log);
-	t.context.composeProjectList = mock.reRequire("../../../../lib/build/helpers/composeProjectList");
+	t.context.composeProjectList = await esmock("../../../../lib/build/helpers/composeProjectList", {
+		"@ui5/logger": {
+			getLogger: sinon.stub().withArgs("build:helpers:composeProjectList").returns(t.context.log)
+		}
+	});
 });
 
 test.afterEach.always((t) => {
@@ -94,7 +98,8 @@ async function assertCreateDependencyLists(t, {
 	includeDependency, includeDependencyRegExp, includeDependencyTree,
 	excludeDependency, excludeDependencyRegExp, excludeDependencyTree,
 	defaultIncludeDependency, defaultIncludeDependencyRegExp, defaultIncludeDependencyTree,
-	expectedIncludedDependencies, expectedExcludedDependencies
+	expectedIncludedDependencies, expectedExcludedDependencies,
+	expectedLogWarnCallCount = 0
 }) {
 	const tree = { // Does not reflect actual dependencies in fixtures
 		id: "application.a.id",
@@ -174,6 +179,8 @@ async function assertCreateDependencyLists(t, {
 	});
 	t.deepEqual(includedDependencies, expectedIncludedDependencies, "Correct set of included dependencies");
 	t.deepEqual(excludedDependencies, expectedExcludedDependencies, "Correct set of excluded dependencies");
+
+	t.is(t.context.log.warn.callCount, expectedLogWarnCallCount);
 }
 
 test.serial("createDependencyLists: only includes", async (t) => {
@@ -304,4 +311,17 @@ test.serial("createDependencyLists: defaultIncludeDependencyTree has lower prior
 		expectedIncludedDependencies: ["library.f", "library.d", "library.c"],
 		expectedExcludedDependencies: ["library.a", "library.b"]
 	});
+});
+
+test.serial("createDependencyLists: Could not find dependency", async (t) => {
+	await assertCreateDependencyLists(t, {
+		includeAllDependencies: false,
+		includeDependency: ["not.in.dependency.tree"],
+		expectedIncludedDependencies: [],
+		expectedExcludedDependencies: [],
+		expectedLogWarnCallCount: 1
+	});
+	t.deepEqual(t.context.log.warn.getCall(0).args, [
+		`Could not find dependency "not.in.dependency.tree" for project application.a. Dependency filter is ignored`
+	]);
 });
