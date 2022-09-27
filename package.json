@@ -16,9 +16,17 @@
 		"development",
 		"tool"
 	],
-	"main": "index.js",
 	"type": "module",
-	"exports": "./index.js",
+	"exports": {
+		".": "./TODO",
+		"./ui5Framework/Openui5Resolver": "./lib/ui5Framework/Openui5Resolver.js",
+		"./ui5Framework/Sapui5Resolver": "./lib/ui5Framework/Sapui5Resolver.js",
+		"./validation/validator": "./lib/validation/validator.js",
+		"./validation/ValidationError": "./lib/validation/ValidationError.js",
+		"./graph/ProjectGraph": "./lib/graph/ProjectGraph.js",
+		"./graph/projectGraphBuilder": "./lib/graph/projectGraphBuilder.js",
+		"./package.json": "./package.json"
+	},
 	"engines": {
 		"node": ">= 16.13.2",
 		"npm": ">= 8"
@@ -42,10 +50,9 @@
 		"version": "git-chglog --sort semver --next-tag v$npm_package_version -o CHANGELOG.md && git add CHANGELOG.md",
 		"postversion": "git push --follow-tags",
 		"release-note": "git-chglog --sort semver -c .chglog/release-config.yml v$npm_package_version",
-		"depcheck": "depcheck --ignores docdash,@istanbuljs/esm-loader-hook"
+		"depcheck": "depcheck --ignores @ui5/project,docdash,@istanbuljs/esm-loader-hook"
 	},
 	"files": [
-		"index.js",
 		"CHANGELOG.md",
 		"CONTRIBUTING.md",
 		"jsdoc.json",
@@ -74,8 +81,7 @@
 			"jsdocs/**",
 			"coverage/**",
 			"test/**",
-			".eslintrc.cjs",
-			"jsdoc-plugin.cjs"
+			".eslintrc.cjs"
 		],
 		"check-coverage": true,
 		"statements": 90,

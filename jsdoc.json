@@ -7,9 +7,7 @@
 		"includePattern": ".+\\.js$",
 		"excludePattern": "(node_modules(\\\\|/))"
 	},
-	"plugins": [
-		"./jsdoc-plugin.cjs"
-	],
+	"plugins": [],
 	"opts": {
 		"encoding": "utf8",
 		"destination": "jsdocs/",
