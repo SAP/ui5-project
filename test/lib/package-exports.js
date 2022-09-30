@@ -10,38 +10,28 @@ test("export of package.json", (t) => {
 });
 
 // Public API contract (exported modules)
-test.skip("@ui5/project", (t) => {
-	// TODO
-});
-
 [
-	{
-		exportedSpecifier: "@ui5/project/ui5Framework/Openui5Resolver",
-		mappedModule: "../../lib/ui5Framework/Openui5Resolver.js"
-	},
-	{
-		exportedSpecifier: "@ui5/project/ui5Framework/Sapui5Resolver",
-		mappedModule: "../../lib/ui5Framework/Sapui5Resolver.js"
-	},
-	{
-		exportedSpecifier: "@ui5/project/validation/validator",
-		mappedModule: "../../lib/validation/validator.js"
-	},
-	{
-		exportedSpecifier: "@ui5/project/validation/ValidationError",
-		mappedModule: "../../lib/validation/ValidationError.js"
-	},
-	{
-		exportedSpecifier: "@ui5/project/graph/ProjectGraph",
-		mappedModule: "../../lib/graph/ProjectGraph.js"
-	},
-	{
-		exportedSpecifier: "@ui5/project/graph/projectGraphBuilder",
-		mappedModule: "../../lib/graph/projectGraphBuilder.js"
-	},
-].forEach(({exportedSpecifier, mappedModule}) => {
-	test(`${exportedSpecifier}`, async (t) => {
-		const actual = await import(exportedSpecifier);
+	"ui5Framework/Openui5Resolver",
+	"ui5Framework/Sapui5Resolver",
+	"validation/validator",
+	"validation/ValidationError",
+	"graph/ProjectGraph",
+	"graph/projectGraphBuilder",
+	{exportedSpecifier: "graph", mappedModule: "../../lib/graph/graph.js"},
+].forEach((v) => {
+	let exportedSpecifier; let mappedModule;
+	if (typeof v === "string") {
+		exportedSpecifier = v;
+	} else {
+		exportedSpecifier = v.exportedSpecifier;
+		mappedModule = v.mappedModule;
+	}
+	if (!mappedModule) {
+		mappedModule = `../../lib/${exportedSpecifier}.js`;
+	}
+	const spec = `@ui5/project/${exportedSpecifier}`;
+	test(`${spec}`, async (t) => {
+		const actual = await import(spec);
 		const expected = await import(mappedModule);
 		t.is(actual, expected, "Correct module exported");
 	});
