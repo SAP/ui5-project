@@ -1,8 +1,7 @@
 import test from "ava";
 import sinon from "sinon";
 import esmock from "esmock";
-import ui5Fs from "@ui5/fs";
-const {ResourceTagCollection} = ui5Fs;
+import ResourceTagCollection from "@ui5/fs/ResourceTagCollection";
 
 test.beforeEach((t) => {
 	t.context.resourceTagCollection = new ResourceTagCollection({
