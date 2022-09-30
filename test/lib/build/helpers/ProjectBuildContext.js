@@ -1,7 +1,7 @@
 import test from "ava";
 import sinon from "sinon";
 import esmock from "esmock";
-import ResourceTagCollection from "@ui5/fs/ResourceTagCollection";
+import ResourceTagCollection from "@ui5/fs/internal/ResourceTagCollection";
 
 test.beforeEach((t) => {
 	t.context.resourceTagCollection = new ResourceTagCollection({
