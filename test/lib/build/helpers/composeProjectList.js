@@ -3,7 +3,7 @@ import sinon from "sinon";
 import esmock from "esmock";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
-import generateProjectGraph from "../../../../lib/generateProjectGraph.js";
+import {graphFromObject} from "../../../../lib/graph/graph.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -81,7 +81,7 @@ test.serial("_getFlattenedDependencyTree", async (t) => {
 			}]
 		}]
 	};
-	const graph = await generateProjectGraph.usingObject({dependencyTree: tree});
+	const graph = await graphFromObject({dependencyTree: tree});
 
 	t.deepEqual(await _getFlattenedDependencyTree(graph), {
 		"library.e": ["library.d", "library.a", "library.b", "library.c"],
@@ -163,7 +163,7 @@ async function assertCreateDependencyLists(t, {
 		}]
 	};
 
-	const graph = await generateProjectGraph.usingObject({dependencyTree: tree});
+	const graph = await graphFromObject({dependencyTree: tree});
 
 	const {includedDependencies, excludedDependencies} = await t.context.composeProjectList(graph, {
 		includeAllDependencies,

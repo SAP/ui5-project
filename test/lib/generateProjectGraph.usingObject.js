@@ -31,7 +31,7 @@ test.beforeEach(async (t) => {
 		isLevelEnabled: () => true
 	};
 
-	t.context.generateProjectGraph = await esmock.p("../../lib/generateProjectGraph", {
+	t.context.generateProjectGraph = await esmock.p("../../lib/graph/graph", {
 		"../../lib/graph/projectGraphBuilder": await esmock("../../lib/graph/projectGraphBuilder", {
 			"@ui5/logger": {
 				getLogger: sinon.stub().withArgs("graph:projectGraphBuilder").returns(t.context.log)

@@ -3,7 +3,7 @@ import path from "node:path";
 import {fileURLToPath} from "node:url";
 import sinonGlobal from "sinon";
 
-import generateProjectGraph from "../../lib/generateProjectGraph.js";
+import generateProjectGraph from "../../lib/graph/graph.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

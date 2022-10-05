@@ -137,9 +137,7 @@ test.serial("getResourceTagCollection", async (t) => {
 	}
 
 	const ProjectBuildContext = await esmock("../../../../lib/build/helpers/ProjectBuildContext.js", {
-		"@ui5/fs": {
-			ResourceTagCollection: DummyResourceTagCollection
-		}
+		"@ui5/fs/internal/ResourceTagCollection": DummyResourceTagCollection
 	});
 	const projectBuildContext = new ProjectBuildContext({
 		buildContext: {},

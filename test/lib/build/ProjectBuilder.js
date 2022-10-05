@@ -435,10 +435,8 @@ test.serial("_buildProject", async (t) => {
 	const {graph, taskRepository, sinon} = t.context;
 	const readerCollectionStub = sinon.stub().returns("dependencies");
 	const ProjectBuilder = await esmock("../../../lib/build/ProjectBuilder.js", {
-		"@ui5/fs": {
-			resourceFactory: {
-				createReaderCollection: readerCollectionStub
-			}
+		"@ui5/fs/resourceFactory": {
+			createReaderCollection: readerCollectionStub
 		}
 	});
 
@@ -473,10 +471,8 @@ test.serial("_buildProject: Requested project is not added to readers", async (t
 	const readerCollectionStub = sinon.stub().returns("dependencies");
 
 	const ProjectBuilder = await esmock("../../../lib/build/ProjectBuilder.js", {
-		"@ui5/fs": {
-			resourceFactory: {
-				createReaderCollection: readerCollectionStub
-			}
+		"@ui5/fs/resourceFactory": {
+			createReaderCollection: readerCollectionStub
 		}
 	});
 
@@ -580,10 +576,8 @@ test.serial("_writeResults: Create build manifest", async (t) => {
 	const createResourceStub = sinon.stub().returns("build manifest resource");
 	const ProjectBuilder = await esmock.p("../../../lib/build/ProjectBuilder.js", {
 		"../../../lib/build/helpers/createBuildManifest.js": createBuildManifestStub,
-		"@ui5/fs": {
-			resourceFactory: {
-				createResource: createResourceStub
-			}
+		"@ui5/fs/resourceFactory": {
+			createResource: createResourceStub
 		}
 	});
 
