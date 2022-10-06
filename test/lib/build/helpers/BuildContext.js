@@ -111,20 +111,36 @@ test("getBuildOption", (t) => {
 });
 
 test.serial("createProjectContext", async (t) => {
+	t.plan(6);
+
+	const project = {
+		getType: sinon.stub().returns("foo")
+	};
+	const taskRunner = {"task": "runner"};
 	class DummyProjectContext {
 		constructor({buildContext, project, log}) {
 			t.is(buildContext, testBuildContext, "Correct buildContext parameter");
-			t.is(project, "project", "Correct project parameter");
+			t.is(project, project, "Correct project parameter");
 			t.is(log, "log", "Correct log parameter");
+		}
+		getTaskUtil() {
+			return "taskUtil";
+		}
+		setTaskRunner(_taskRunner) {
+			t.is(_taskRunner, taskRunner);
 		}
 	}
 	const BuildContext = await esmock("../../../../lib/build/helpers/BuildContext.js", {
-		"../../../../lib/build/helpers/ProjectBuildContext.js": DummyProjectContext
+		"../../../../lib/build/helpers/ProjectBuildContext.js": DummyProjectContext,
+		"../../../../lib/build/TaskRunner.js": {
+			create: sinon.stub().resolves(taskRunner)
+		},
+
 	});
 	const testBuildContext = new BuildContext("graph", "taskRepository");
 
-	const projectContext = testBuildContext.createProjectContext({
-		project: "project",
+	const projectContext = await testBuildContext.createProjectContext({
+		project,
 		log: "log"
 	});
 

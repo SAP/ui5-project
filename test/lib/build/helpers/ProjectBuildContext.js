@@ -204,6 +204,7 @@ test("getResourceTagCollection: Assigns project to resource if necessary", (t) =
 });
 
 test("getProject", (t) => {
+	const project = "project";
 	const getProjectStub = sinon.stub().returns("pony");
 	const projectBuildContext = new ProjectBuildContext({
 		buildContext: {
@@ -213,12 +214,16 @@ test("getProject", (t) => {
 				};
 			}
 		},
-		project: "project",
+		project,
 		log: "log"
 	});
 
 	t.is(projectBuildContext.getProject("pony project"), "pony", "Returned correct value");
+	t.is(getProjectStub.callCount, 1);
 	t.is(getProjectStub.getCall(0).args[0], "pony project", "getProject got called with correct argument");
+
+	t.is(projectBuildContext.getProject(), project);
+	t.is(getProjectStub.callCount, 1, "getProject is not called again when requesting current project");
 });
 
 test("getTaskUtil", (t) => {
@@ -232,39 +237,18 @@ test("getTaskUtil", (t) => {
 	t.is(projectBuildContext.getTaskUtil(), projectBuildContext.getTaskUtil(), "Caches TaskUtil instance");
 });
 
-test.serial("getTaskRunner", async (t) => {
-	class DummyTaskRunner {
-		constructor(params) {
-			t.deepEqual(params, {
-				graph: "graph",
-				project: "project",
-				taskUtil: "taskUtil",
-				taskRepository: "taskRepository",
-				parentLogger: "log",
-				buildConfig: "buildConfig",
-			}, "Created TaskRunner instance with correct parameters");
-		}
-	}
-
-	const ProjectBuildContext = await esmock("../../../../lib/build/helpers/ProjectBuildContext.js", {
-		"../../../../lib/build/TaskRunner.js": DummyTaskRunner
-	});
-
+test.serial("setTaskRunner / getTaskRunner", (t) => {
 	const projectBuildContext = new ProjectBuildContext({
-		buildContext: {
-			getGraph: () => "graph",
-			getBuildConfig: () => "buildConfig",
-			getTaskRepository: () => "taskRepository",
-		},
+		buildContext: {},
 		project: "project",
-		log: "log",
+		log: "log"
 	});
 
-	sinon.stub(projectBuildContext, "getTaskUtil").returns("taskUtil");
+	t.is(projectBuildContext.getTaskRunner(), undefined, "No taskRunner assigned / created by default");
 
-	t.true(projectBuildContext.getTaskRunner() instanceof DummyTaskRunner,
-		"Returned a TaskRunner instance");
-	t.is(projectBuildContext.getTaskRunner(), projectBuildContext.getTaskRunner(),
-		"Caches TaskRunner instance");
+	const taskRunner = {"task": "runner"};
+	projectBuildContext.setTaskRunner(taskRunner);
+
+	t.is(projectBuildContext.getTaskRunner(), taskRunner, "getter returns previously set object");
 });
 

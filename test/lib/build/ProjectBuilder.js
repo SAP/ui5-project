@@ -14,8 +14,8 @@ function getMockProject(type, id = "b") {
 		getCopyright: noop,
 		getVersion: noop,
 		getSpecVersion: () => "0.1",
-		getReader: () => "reader",
-		getWorkspace: () => "workspace",
+		getReader: async () => "reader",
+		getWorkspace: async () => "workspace",
 	};
 }
 
@@ -109,7 +109,7 @@ test("build", async (t) => {
 		getProject: sinon.stub().returns(getMockProject("library"))
 	};
 	const createRequiredBuildContextsStub = sinon.stub(builder, "_createRequiredBuildContexts")
-		.returns(new Map().set("project.a", projectBuildContextMock));
+		.resolves(new Map().set("project.a", projectBuildContextMock));
 
 	const registerCleanupSigHooksStub = sinon.stub(builder, "_registerCleanupSigHooks").returns("cleanup sig hooks");
 	const buildProjectStub = sinon.stub(builder, "_buildProject").resolves();
@@ -203,7 +203,7 @@ test("build: Failure", async (t) => {
 		getProject: sinon.stub().returns(getMockProject("library"))
 	};
 	sinon.stub(builder, "_createRequiredBuildContexts")
-		.returns(new Map().set("project.a", projectBuildContextMock));
+		.resolves(new Map().set("project.a", projectBuildContextMock));
 
 	sinon.stub(builder, "_registerCleanupSigHooks").returns("cleanup sig hooks");
 	sinon.stub(builder, "_buildProject").rejects(new Error("Some Error"));
@@ -267,7 +267,7 @@ test.serial("build: Multiple projects", async (t) => {
 		getProject: sinon.stub().returns(getMockProject("library", "c"))
 	};
 	const createRequiredBuildContextsStub = sinon.stub(builder, "_createRequiredBuildContexts")
-		.returns(new Map()
+		.resolves(new Map()
 			.set("project.a", projectBuildContextMockA)
 			.set("project.b", projectBuildContextMockB)
 			.set("project.c", projectBuildContextMockC)
@@ -325,7 +325,7 @@ test.serial("build: Multiple projects", async (t) => {
 	t.is(executeCleanupTasksStub.callCount, 1, "_executeCleanupTasksStub got called once");
 });
 
-test("_createRequiredBuildContexts", (t) => {
+test("_createRequiredBuildContexts", async (t) => {
 	const {graph, taskRepository, ProjectBuilder, sinon} = t.context;
 
 	const builder = new ProjectBuilder(graph, taskRepository);
@@ -342,7 +342,7 @@ test("_createRequiredBuildContexts", (t) => {
 	};
 	const createProjectContextStub = sinon.stub(builder._buildContext, "createProjectContext")
 		.returns(projectBuildContextMock);
-	const projectBuildContexts = builder._createRequiredBuildContexts(["project.a", "project.c"]);
+	const projectBuildContexts = await builder._createRequiredBuildContexts(["project.a", "project.c"]);
 
 	t.deepEqual(Object.fromEntries(projectBuildContexts), {
 		"project.a": projectBuildContextMock,

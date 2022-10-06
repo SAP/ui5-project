@@ -1088,7 +1088,7 @@ const treeWithInvalidModules = {
  * A shim extension located in a project's dependencies can't influence other dependencies of that project anymore
  * TODO: Check whether the above is fine for us
 
-test.only("Legacy: Project with project-shim extension with dependency configuration", async (t) => {
+test("Legacy: Project with project-shim extension with dependency configuration", async (t) => {
 	const tree = {
 		id: "application.a.id",
 		path: applicationAPath,
