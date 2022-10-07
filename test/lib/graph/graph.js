@@ -93,7 +93,7 @@ test.serial("graphFromPackageDependencies: Do not resolve framework dependencies
 	t.is(enrichProjectGraphStub.callCount, 0, "enrichProjectGraph did not get called");
 });
 
-test.serial("usingStaticFile", async (t) => {
+test.serial("graphFromStaticFile", async (t) => {
 	const {
 		dependencyTreeProviderStub,
 		projectGraphBuilderStub, enrichProjectGraphStub, DummyDependencyTreeProvider
@@ -138,7 +138,7 @@ test.serial("usingStaticFile", async (t) => {
 	}, "enrichProjectGraph got called with correct options");
 });
 
-test.serial("usingStaticFile: Do not resolve framework dependencies", async (t) => {
+test.serial("graphFromStaticFile: Do not resolve framework dependencies", async (t) => {
 	const {enrichProjectGraphStub} = t.context;
 	const {graphFromStaticFile} = t.context.graph;
 
