@@ -11,11 +11,12 @@ function clone(obj) {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const genericExtensionPath = path.join(__dirname, "..", "..", "..", "..", "fixtures", "extension.a");
-const basicServerMiddlewareInput = {
+const genericCjsExtensionPath = path.join(__dirname, "..", "..", "..", "..", "fixtures", "extension.a");
+const genericEsmExtensionPath = path.join(__dirname, "..", "..", "..", "..", "fixtures", "extension.a.esm");
+const basicCjsServerMiddlewareInput = {
 	id: "server.middleware.a",
 	version: "1.0.0",
-	modulePath: genericExtensionPath,
+	modulePath: genericCjsExtensionPath,
 	configuration: {
 		specVersion: "2.6",
 		kind: "extension",
@@ -24,7 +25,23 @@ const basicServerMiddlewareInput = {
 			name: "middleware-a"
 		},
 		middleware: {
-			path: "lib/extensionModule.cjs"
+			path: "lib/extensionModule.js"
+		}
+	}
+};
+const basicEsmServerMiddlewareInput = {
+	id: "server.middleware.a",
+	version: "1.0.0",
+	modulePath: genericEsmExtensionPath,
+	configuration: {
+		specVersion: "2.6",
+		kind: "extension",
+		type: "server-middleware",
+		metadata: {
+			name: "middleware-a"
+		},
+		middleware: {
+			path: "lib/extensionModule.js"
 		}
 	}
 };
@@ -33,13 +50,25 @@ test.afterEach.always((t) => {
 	sinon.restore();
 });
 
-test("Correct class", async (t) => {
-	const extension = await Specification.create(clone(basicServerMiddlewareInput));
+test("Correct class (CJS)", async (t) => {
+	const extension = await Specification.create(clone(basicCjsServerMiddlewareInput));
+	t.true(extension instanceof ServerMiddleware, `Is an instance of the ServerMiddleware class`);
+});
+test("Correct class (ESM)", async (t) => {
+	const extension = await Specification.create(clone(basicEsmServerMiddlewareInput));
 	t.true(extension instanceof ServerMiddleware, `Is an instance of the ServerMiddleware class`);
 });
 
-test("getMiddleware", async (t) => {
-	const extension = await Specification.create(clone(basicServerMiddlewareInput));
+test("getMiddleware (CJS)", async (t) => {
+	const extension = await Specification.create(clone(basicCjsServerMiddlewareInput));
+	const middlewarePromise = extension.getMiddleware();
+	t.is(typeof middlewarePromise.then, "function");
+	t.is(await middlewarePromise, "extension module",
+		"Returned correct module");
+});
+
+test("getMiddleware (ESM)", async (t) => {
+	const extension = await Specification.create(clone(basicEsmServerMiddlewareInput));
 	const middlewarePromise = extension.getMiddleware();
 	t.is(typeof middlewarePromise.then, "function");
 	t.is(await middlewarePromise, "extension module",
@@ -47,7 +76,7 @@ test("getMiddleware", async (t) => {
 });
 
 test("Middleware with illegal suffix", async (t) => {
-	const serverMiddlewareInput = clone(basicServerMiddlewareInput);
+	const serverMiddlewareInput = clone(basicCjsServerMiddlewareInput);
 	serverMiddlewareInput.configuration.metadata.name += "--1";
 	const err = await t.throwsAsync(Specification.create(serverMiddlewareInput));
 	t.is(err.message,

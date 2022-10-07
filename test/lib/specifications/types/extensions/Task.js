@@ -11,11 +11,13 @@ function clone(obj) {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const genericExtensionPath = path.join(__dirname, "..", "..", "..", "..", "fixtures", "extension.a");
-const basicTaskInput = {
+const genericCjsExtensionPath = path.join(__dirname, "..", "..", "..", "..", "fixtures", "extension.a");
+const genericEsmExtensionPath = path.join(__dirname, "..", "..", "..", "..", "fixtures", "extension.a.esm");
+
+const basicCjsTaskInput = {
 	id: "task.a",
 	version: "1.0.0",
-	modulePath: genericExtensionPath,
+	modulePath: genericCjsExtensionPath,
 	configuration: {
 		specVersion: "2.6",
 		kind: "extension",
@@ -24,7 +26,24 @@ const basicTaskInput = {
 			name: "task-a"
 		},
 		task: {
-			path: "lib/extensionModule.cjs"
+			path: "lib/extensionModule.js"
+		}
+	}
+};
+
+const basicEsmTaskInput = {
+	id: "task.a",
+	version: "1.0.0",
+	modulePath: genericEsmExtensionPath,
+	configuration: {
+		specVersion: "2.6",
+		kind: "extension",
+		type: "task",
+		metadata: {
+			name: "task-a"
+		},
+		task: {
+			path: "lib/extensionModule.js"
 		}
 	}
 };
@@ -33,13 +52,26 @@ test.afterEach.always((t) => {
 	sinon.restore();
 });
 
-test("Correct class", async (t) => {
-	const extension = await Specification.create(clone(basicTaskInput));
+test("Correct class (CJS)", async (t) => {
+	const extension = await Specification.create(clone(basicCjsTaskInput));
 	t.true(extension instanceof Task, `Is an instance of the Task class`);
 });
 
-test("getTask", async (t) => {
-	const extension = await Specification.create(clone(basicTaskInput));
+test("Correct class (ESM)", async (t) => {
+	const extension = await Specification.create(clone(basicEsmTaskInput));
+	t.true(extension instanceof Task, `Is an instance of the Task class`);
+});
+
+test("getTask (CJS)", async (t) => {
+	const extension = await Specification.create(clone(basicCjsTaskInput));
+	const taskPromise = extension.getTask();
+	t.is(typeof taskPromise.then, "function");
+	t.is(await taskPromise, "extension module",
+		"Returned correct module");
+});
+
+test("getTask (ESM)", async (t) => {
+	const extension = await Specification.create(clone(basicEsmTaskInput));
 	const taskPromise = extension.getTask();
 	t.is(typeof taskPromise.then, "function");
 	t.is(await taskPromise, "extension module",
@@ -47,7 +79,7 @@ test("getTask", async (t) => {
 });
 
 test("Task with illegal suffix", async (t) => {
-	const TaskInput = clone(basicTaskInput);
+	const TaskInput = clone(basicCjsTaskInput);
 	TaskInput.configuration.metadata.name += "--1";
 	const err = await t.throwsAsync(Specification.create(TaskInput));
 	t.is(err.message,
