@@ -241,7 +241,10 @@ test.serial("enrichProjectGraph shouldn't throw when no framework version and no
 	const provider = new DependencyTreeProvider({dependencyTree});
 	const projectGraph = await projectGraphBuilder(provider);
 
-	await ui5Framework.enrichProjectGraph(projectGraph);
+	// Framework override is fine, even if no framework version is configured
+	await ui5Framework.enrichProjectGraph(projectGraph, {
+		versionOverride: "1.75.0"
+	});
 
 	t.is(log.verbose.callCount, 2);
 	t.deepEqual(log.verbose.getCall(0).args, [
