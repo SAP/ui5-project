@@ -203,11 +203,10 @@ test.serial("generateDependencyTree should throw error when no framework version
 		await ui5Framework.enrichProjectGraph(projectGraph);
 	}, {message: "No framework version defined for root project application.a"});
 
-	await t.throwsAsync(async () => {
-		await ui5Framework.enrichProjectGraph(projectGraph, {
-			versionOverride: "1.75.0"
-		});
-	}, {message: "No framework version defined for root project application.a"});
+	// Framework override is fine, even if no framework version is configured
+	await ui5Framework.enrichProjectGraph(projectGraph, {
+		versionOverride: "1.75.0"
+	});
 });
 
 test.serial("generateDependencyTree should skip framework project without version", async (t) => {
