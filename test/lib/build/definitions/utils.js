@@ -1,6 +1,5 @@
 import test from "ava";
-import utils from "../../../../lib/build/definitions/_utils.js";
-const {enhancePatternWithExcludes} = utils;
+import {enhancePatternWithExcludes} from "../../../../lib/build/definitions/_utils.js";
 
 test("enhancePatternWithExcludes", (t) => {
 	const patterns = ["/default/pattern", "!/other/pattern"];

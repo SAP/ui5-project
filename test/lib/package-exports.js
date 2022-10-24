@@ -6,7 +6,14 @@ const require = createRequire(import.meta.url);
 
 // package.json should be exported to allow reading version (e.g. from @ui5/cli)
 test("export of package.json", (t) => {
-	t.truthy(require("@ui5/project/package.json").version);
+	const packageJson = require("@ui5/project/package.json");
+	t.truthy(packageJson.version);
+});
+
+// Check number of definied exports
+test("check number of exports", (t) => {
+	const packageJson = require("@ui5/project/package.json");
+	t.is(Object.keys(packageJson.exports).length, 8);
 });
 
 // Public API contract (exported modules)

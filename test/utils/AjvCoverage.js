@@ -1,7 +1,6 @@
 // Inspired by https://github.com/epoberezkin/ajv-istanbul
 
 import crypto from "node:crypto";
-
 import beautify from "js-beautify";
 import libReport from "istanbul-lib-report";
 import reports from "istanbul-reports";
@@ -9,7 +8,6 @@ import libCoverage from "istanbul-lib-coverage";
 import {createInstrumenter} from "istanbul-lib-instrument";
 
 const rSchemaName = new RegExp(/sourceURL=([^\s]*)/);
-
 const rRootDataUndefined = /\n(?:\s)*if \(rootData === undefined\) rootData = data;/g;
 const rEnsureErrorArray = /\n(?:\s)*if \(vErrors === null\) vErrors = \[err\];(?:\s)*else vErrors\.push\(err\);/g;
 const rDataPathOrEmptyString = /dataPath: \(dataPath \|\| ''\)/g;
