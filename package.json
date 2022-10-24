@@ -115,9 +115,9 @@
 		"url": "git@github.com:SAP/ui5-project.git"
 	},
 	"dependencies": {
-		"@ui5/builder": "^3.0.0-alpha.11",
-		"@ui5/fs": "^3.0.0-alpha.6",
-		"@ui5/logger": "^3.0.1-alpha.2",
+		"@ui5/builder": "^3.0.0-alpha.12",
+		"@ui5/fs": "^3.0.0-alpha.7",
+		"@ui5/logger": "^3.0.1-alpha.3",
 		"ajv": "^6.12.6",
 		"ajv-errors": "^1.0.1",
 		"chalk": "^4.1.2",
