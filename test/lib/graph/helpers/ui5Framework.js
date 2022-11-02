@@ -293,7 +293,7 @@ test.serial("generateDependencyTree should throw for framework project with depe
 	const projectGraph = await projectGraphBuilder(provider);
 
 	const err = await t.throwsAsync(ui5Framework.enrichProjectGraph(projectGraph));
-	t.is(err.message, `Missing framework dependency lib1 for project application.a`,
+	t.is(err.message, `Missing framework dependency lib1 for framework project application.a`,
 		"Threw with expected error message");
 });
 
@@ -419,7 +419,7 @@ test.serial("utils.getFrameworkLibrariesFromTree: Framework project", async (t) 
 	const projectGraph = await projectGraphBuilder(provider);
 
 	const ui5Dependencies = await utils.getFrameworkLibrariesFromGraph(projectGraph);
-	t.deepEqual(ui5Dependencies, []);
+	t.deepEqual(ui5Dependencies, ["lib1"]);
 });
 
 
