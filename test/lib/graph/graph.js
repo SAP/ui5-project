@@ -17,6 +17,14 @@ test.beforeEach(async (t) => {
 
 	t.context.DummyNpmProvider = DummyNpmProvider;
 
+	t.context.workspaceConstructorStub = sinon.stub();
+	class DummyWorkspace {
+		constructor(params) {
+			t.context.workspaceConstructorStub(params);
+		}
+	}
+	t.context.DummyWorkspace = DummyWorkspace;
+
 	t.context.dependencyTreeProviderStub = sinon.stub();
 	class DummyDependencyTreeProvider {
 		constructor(params) {
@@ -30,6 +38,7 @@ test.beforeEach(async (t) => {
 	t.context.graph = await esmock.p("../../../lib/graph/graph.js", {
 		"../../../lib/graph/providers/NodePackageDependencies.js": t.context.DummyNpmProvider,
 		"../../../lib/graph/providers/DependencyTree.js": t.context.DummyDependencyTreeProvider,
+		"../../../lib/graph/Workspace.js": t.context.DummyWorkspace,
 		"../../../lib/graph/projectGraphBuilder.js": t.context.projectGraphBuilderStub,
 		"../../../lib/graph/helpers/ui5Framework.js": {
 			enrichProjectGraph: t.context.enrichProjectGraphStub
@@ -63,6 +72,7 @@ test.serial("graphFromPackageDependencies", async (t) => {
 		cwd: path.join(__dirname, "..", "..", "..", "cwd"),
 		rootConfiguration: "rootConfiguration",
 		rootConfigPath: "rootConfigPath",
+		workspace: undefined
 	}, "Created NodePackageDependencies provider instance with correct parameters");
 
 	t.is(projectGraphBuilderStub.callCount, 1, "projectGraphBuilder got called once");
@@ -73,7 +83,127 @@ test.serial("graphFromPackageDependencies", async (t) => {
 	t.is(enrichProjectGraphStub.getCall(0).args[0], "graph",
 		"enrichProjectGraph got called with graph");
 	t.deepEqual(enrichProjectGraphStub.getCall(0).args[1], {
+		versionOverride: "versionOverride",
+		workspace: undefined
+	}, "enrichProjectGraph got called with correct options");
+});
+
+test.serial("graphFromPackageDependencies with workspace object", async (t) => {
+	const {
+		workspaceConstructorStub, npmProviderConstructorStub,
+		projectGraphBuilderStub, enrichProjectGraphStub, DummyNpmProvider
+	} = t.context;
+	const {graphFromPackageDependencies} = t.context.graph;
+
+	const res = await graphFromPackageDependencies({
+		cwd: "cwd",
+		rootConfiguration: "rootConfiguration",
+		rootConfigPath: "rootConfigPath",
+		versionOverride: "versionOverride",
+		workspaceConfiguration: {
+			metadata: {
+				name: "default"
+			}
+		}
+	});
+
+	t.is(res, "graph");
+
+	t.is(workspaceConstructorStub.callCount, 1, "Workspace constructor got called once");
+	t.deepEqual(workspaceConstructorStub.getCall(0).args[0], {
+		cwd: path.join(__dirname, "..", "..", "..", "cwd"),
+		workspaceConfiguration: {
+			metadata: {
+				name: "default"
+			}
+		}
+	}, "Created Workspace instance with correct parameters");
+
+	t.is(npmProviderConstructorStub.callCount, 1, "NPM provider constructor got called once");
+	t.deepEqual(npmProviderConstructorStub.getCall(0).args[0], {
+		cwd: path.join(__dirname, "..", "..", "..", "cwd"),
+		rootConfiguration: "rootConfiguration",
+		rootConfigPath: "rootConfigPath",
+		workspace: new t.context.DummyWorkspace()
+	}, "Created NodePackageDependencies provider instance with correct parameters");
+
+	t.is(projectGraphBuilderStub.callCount, 1, "projectGraphBuilder got called once");
+	t.true(projectGraphBuilderStub.getCall(0).args[0] instanceof DummyNpmProvider,
+		"projectGraphBuilder got called with correct provider instance");
+
+	t.is(enrichProjectGraphStub.callCount, 1, "enrichProjectGraph got called once");
+	t.is(enrichProjectGraphStub.getCall(0).args[0], "graph",
+		"enrichProjectGraph got called with graph");
+	t.deepEqual(enrichProjectGraphStub.getCall(0).args[1], {
+		versionOverride: "versionOverride",
+		workspace: new t.context.DummyWorkspace()
+	}, "enrichProjectGraph got called with correct options");
+});
+
+test.serial("graphFromPackageDependencies with workspace file", async (t) => {
+	const {
+		workspaceConstructorStub, npmProviderConstructorStub,
+		projectGraphBuilderStub, enrichProjectGraphStub, DummyNpmProvider
+	} = t.context;
+	const {graphFromPackageDependencies} = t.context.graph;
+
+	const readWorkspaceConfigFileStub =
+		t.context.sinon.stub(graphFromPackageDependencies._utils, "readWorkspaceConfigFile")
+			.resolves([{
+				metadata: {
+					name: "default"
+				}
+			}, {
+				metadata: {
+					name: "non-default"
+				}
+			}]);
+
+	const res = await graphFromPackageDependencies({
+		cwd: "cwd",
+		rootConfiguration: "rootConfiguration",
+		rootConfigPath: "rootConfigPath",
 		versionOverride: "versionOverride"
+	});
+
+	t.is(res, "graph");
+
+	t.is(readWorkspaceConfigFileStub.callCount, 1, "readWorkspaceConfigFile got called once");
+	t.is(readWorkspaceConfigFileStub.getCall(0).args[0], path.join(__dirname, "..", "..", "..", "cwd"),
+		"readWorkspaceConfigFile got called with correct first argument");
+	t.is(readWorkspaceConfigFileStub.getCall(0).args[1], "ui5-workspace.yaml",
+		"readWorkspaceConfigFile got called with correct second argument");
+	t.is(readWorkspaceConfigFileStub.getCall(0).args[2], false,
+		"readWorkspaceConfigFile got called with correct third argument");
+
+	t.is(workspaceConstructorStub.callCount, 1, "Workspace constructor got called once");
+	t.deepEqual(workspaceConstructorStub.getCall(0).args[0], {
+		cwd: path.join(__dirname, "..", "..", "..", "cwd"),
+		workspaceConfiguration: {
+			metadata: {
+				name: "default"
+			}
+		}
+	}, "Created Workspace instance with correct parameters");
+
+	t.is(npmProviderConstructorStub.callCount, 1, "NPM provider constructor got called once");
+	t.deepEqual(npmProviderConstructorStub.getCall(0).args[0], {
+		cwd: path.join(__dirname, "..", "..", "..", "cwd"),
+		rootConfiguration: "rootConfiguration",
+		rootConfigPath: "rootConfigPath",
+		workspace: new t.context.DummyWorkspace()
+	}, "Created NodePackageDependencies provider instance with correct parameters");
+
+	t.is(projectGraphBuilderStub.callCount, 1, "projectGraphBuilder got called once");
+	t.true(projectGraphBuilderStub.getCall(0).args[0] instanceof DummyNpmProvider,
+		"projectGraphBuilder got called with correct provider instance");
+
+	t.is(enrichProjectGraphStub.callCount, 1, "enrichProjectGraph got called once");
+	t.is(enrichProjectGraphStub.getCall(0).args[0], "graph",
+		"enrichProjectGraph got called with graph");
+	t.deepEqual(enrichProjectGraphStub.getCall(0).args[1], {
+		versionOverride: "versionOverride",
+		workspace: new t.context.DummyWorkspace()
 	}, "enrichProjectGraph got called with correct options");
 });
 
