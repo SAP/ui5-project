@@ -14,6 +14,7 @@ const applicationFPath = path.join(__dirname, "..", "..", "..", "fixtures", "app
 const applicationGPath = path.join(__dirname, "..", "..", "..", "fixtures", "application.g");
 const errApplicationAPath = path.join(__dirname, "..", "..", "..", "fixtures", "err.application.a");
 const cycleDepsBasePath = path.join(__dirname, "..", "..", "..", "fixtures", "cyclic-deps", "node_modules");
+const libraryDOverridePath = path.join(__dirname, "..", "..", "..", "fixtures", "library.d-adtl-deps");
 
 import projectGraphBuilder from "../../../../lib/graph/projectGraphBuilder.js";
 import NodePackageDependenciesProvider from "../../../../lib/graph/providers/NodePackageDependencies.js";
@@ -65,6 +66,31 @@ test("AppA: project with collection dependency", async (t) => {
 		"library.c",
 		"application.a",
 	]);
+});
+
+test("AppA: project with workspace overrides", async (t) => {
+	const workspace = {
+		getName: () => "workspace name",
+		getNode: t.context.sinon.stub().resolves(undefined).onFirstCall().resolves({
+			// This version of library.d has an additional dependency to library.f,
+			// which in turn has a dependency to library.g
+			path: libraryDOverridePath
+		})
+	};
+	const npmProvider = new NodePackageDependenciesProvider({
+		cwd: applicationAPath,
+		workspace
+	});
+	const graph = await testGraphCreationDfs(t, npmProvider, [
+		"library.g", // Added through workspace override of library.d
+		"library.a",
+		"library.b",
+		"library.c",
+		"library.f", // Added through workspace override of library.d
+		"library.d",
+		"application.a",
+	]);
+	t.is(graph.getProject("library.d").getVersion(), "2.0.0", "Version from override is used");
 });
 
 test("AppC: project with dependency with optional dependency resolved through root project", async (t) => {
