@@ -22,6 +22,7 @@ test("check number of exports", (t) => {
 	"specifications/SpecificationVersion",
 	"ui5Framework/Openui5Resolver",
 	"ui5Framework/Sapui5Resolver",
+	"ui5Framework/Sapui5MavenSnapshotResolver",
 	"validation/validator",
 	"validation/ValidationError",
 	"graph/ProjectGraph",
