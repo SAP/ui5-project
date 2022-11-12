@@ -69,7 +69,8 @@ test.beforeEach((t) => {
 		getTask: sinon.stub().callsFake(async (taskName) => {
 			throw new Error(`taskRepository: Unknown Task ${taskName}`);
 		}),
-		getAllTaskNames: sinon.stub().returns(["replaceVersion"])
+		getAllTaskNames: sinon.stub().returns(["replaceVersion"]),
+		getRemovedTaskNames: sinon.stub().returns(["removedTask"]),
 	};
 
 	t.context.graph = {
@@ -359,6 +360,24 @@ test("Custom tasks with unknown afterTask", async (t) => {
 	t.is(err.message,
 		"Could not find task unknownTask, referenced by custom task myTask, " +
 		"to be scheduled for project project.b",
+		"Threw with expected error message");
+});
+
+test("Custom tasks with removed beforeTask", async (t) => {
+	const {graph, taskUtil, taskRepository} = t.context;
+	const project = getMockProject("application");
+	project.getCustomTasks = () => [
+		{name: "myTask", beforeTask: "removedTask"}
+	];
+	const err = await t.throwsAsync(async () => {
+		await TaskRunner.create({
+			project, graph, taskUtil, taskRepository, parentLogger, buildConfig
+		});
+	});
+	t.is(err.message,
+		`Standard task removedTask, referenced by custom task myTask in project project.b, ` +
+		`has been removed in this version of UI5 Tooling and can't be referenced anymore. ` +
+		`Please see the migration guide at https://sap.github.io/ui5-tooling/updates/migrate-v3/`,
 		"Threw with expected error message");
 });
 
