@@ -20,7 +20,12 @@ test.beforeEach(async (t) => {
 		"lockfile": {
 			lock: t.context.lockStub,
 			unlock: t.context.unlockStub
-		},
+		}
+	});
+	t.context.Installer = await esmock.p("../../../../lib/ui5Framework/npm/Installer.js", {
+		"../../../../lib/ui5Framework/AbstractInstaller.js": t.context.AbstractResolver,
+		"mkdirp": t.context.mkdirpStub,
+		"rimraf": t.context.rimrafStub,
 		"graceful-fs": {
 			rename: t.context.renameStub,
 			stat: t.context.statStub,
@@ -31,6 +36,7 @@ test.beforeEach(async (t) => {
 
 test.afterEach.always((t) => {
 	sinon.restore();
+	esmock.purge(t.context.AbstractResolver);
 	esmock.purge(t.context.Installer);
 });
 
@@ -51,7 +57,9 @@ test.serial("Installer: constructor requires 'cwd'", (t) => {
 	const {Installer} = t.context;
 
 	t.throws(() => {
-		new Installer({});
+		new Installer({
+			ui5HomeDir: "/ui5Home/"
+		});
 	}, {message: `Installer: Missing parameter "cwd"`});
 });
 
@@ -100,12 +108,25 @@ test.serial("Installer: _getLockPath", (t) => {
 		ui5HomeDir: "/ui5Home/"
 	});
 
-	const lockPath = installer._getLockPath({
-		pkgName: "@openui5/sap.ui.lib1",
-		version: "1.2.3"
+	const lockPath = installer._getLockPath("lo/ck-n@me");
+
+	t.is(lockPath, path.join("/ui5Home/", "framework", "locks", "lo-ck-n@me.lock"));
+});
+
+test.serial("Installer: _getLockPath with illegal characters", (t) => {
+	const {Installer} = t.context;
+
+	const installer = new Installer({
+		cwd: "/cwd/",
+		ui5HomeDir: "/ui5Home/"
 	});
 
-	t.is(lockPath, path.join("/ui5Home/", "framework", "locks", "package-@openui5-sap.ui.lib1@1.2.3.lock"));
+	t.throws(() => installer._getLockPath("lock.näme"), {
+		message: "Illegal file name: lock.näme"
+	});
+	t.throws(() => installer._getLockPath(".lock.name"), {
+		message: "Illegal file name: .lock.name"
+	});
 });
 
 test.serial("Installer: fetchPackageManifest (without existing package.json)", async (t) => {
@@ -290,13 +311,10 @@ test.serial("Installer: _synchronize", async (t) => {
 
 	const callback = sinon.stub().resolves();
 
-	await installer._synchronize({
-		pkgName: "@openui5/sap.ui.lib1",
-		version: "1.2.3"
-	}, callback);
+	await installer._synchronize("lock/name", callback);
 
 	t.is(getLockPathStub.callCount, 1, "_getLockPath should be called once");
-	t.deepEqual(getLockPathStub.getCall(0).args, [{pkgName: "@openui5/sap.ui.lib1", version: "1.2.3"}],
+	t.is(getLockPathStub.getCall(0).args[0], "lock/name",
 		"_getLockPath should be called with expected args");
 
 	t.is(t.context.mkdirStub.callCount, 1, "mkdir should be called once");
@@ -343,10 +361,7 @@ test.serial("Installer: _synchronize should unlock when callback promise has res
 			"unlock should not be called when the callback did not fully resolve, yet");
 	});
 
-	await installer._synchronize({
-		pkgName: "@openui5/sap.ui.lib1",
-		version: "1.2.3"
-	}, callback);
+	await installer._synchronize("lock/name", callback);
 
 	t.is(callback.callCount, 1, "callback should be called once");
 	t.is(t.context.unlockStub.callCount, 1, "unlock should be called after _synchronize has resolved");
@@ -367,10 +382,7 @@ test.serial("Installer: _synchronize should throw when locking fails", async (t)
 	const callback = sinon.stub();
 
 	await t.throwsAsync(async () => {
-		await installer._synchronize({
-			pkgName: "@openui5/sap.ui.lib1",
-			version: "1.2.3"
-		}, callback);
+		await installer._synchronize("lock/name", callback);
 	}, {message: "Locking error"});
 
 	t.is(callback.callCount, 0, "callback should not be called");
@@ -393,10 +405,7 @@ test.serial("Installer: _synchronize should still unlock when callback throws an
 	const callback = sinon.stub().throws(new Error("Callback throws error"));
 
 	await t.throwsAsync(async () => {
-		await installer._synchronize({
-			pkgName: "@openui5/sap.ui.lib1",
-			version: "1.2.3"
-		}, callback);
+		await installer._synchronize("lock/name", callback);
 	}, {message: "Callback throws error"});
 
 	t.is(callback.callCount, 1, "callback should be called once");
@@ -420,10 +429,7 @@ test.serial("Installer: _synchronize should still unlock when callback rejects w
 	const callback = sinon.stub().rejects(new Error("Callback rejects with error"));
 
 	await t.throwsAsync(async () => {
-		await installer._synchronize({
-			pkgName: "@openui5/sap.ui.lib1",
-			version: "1.2.3"
-		}, callback);
+		await installer._synchronize("lock/name", callback);
 	}, {message: "Callback rejects with error"});
 
 	t.is(callback.callCount, 1, "callback should be called once");
@@ -478,10 +484,8 @@ test.serial("Installer: installPackage with new package", async (t) => {
 		"_packageJsonExists should be called with the correct arguments on second call");
 
 	t.is(synchronizeSpy.callCount, 1, "_synchronize should be called once");
-	t.deepEqual(synchronizeSpy.getCall(0).args[0], {
-		pkgName: "myPackage",
-		version: "1.2.3"
-	}, "_synchronize should be called with the correct first argument");
+	t.is(synchronizeSpy.getCall(0).args[0], "package-myPackage@1.2.3",
+		"_synchronize should be called with the correct first argument");
 	t.is(t.context.lockStub.callCount, 1, "lock should be called once");
 	t.is(t.context.unlockStub.callCount, 1, "unlock should be called once");
 
@@ -612,10 +616,8 @@ test.serial("Installer: installPackage with install already in progress", async 
 		"_packageJsonExists should be called with the correct arguments on second call");
 
 	t.is(synchronizeSpy.callCount, 1, "_synchronize should be called once");
-	t.deepEqual(synchronizeSpy.getCall(0).args[0], {
-		pkgName: "myPackage",
-		version: "1.2.3"
-	}, "_synchronize should be called with the correct first argument");
+	t.is(synchronizeSpy.getCall(0).args[0], "package-myPackage@1.2.3",
+		"_synchronize should be called with the correct first argument");
 	t.is(t.context.lockStub.callCount, 1, "lock should be called once");
 	t.is(t.context.unlockStub.callCount, 1, "unlock should be called once");
 
@@ -678,10 +680,8 @@ test.serial("Installer: installPackage with new package and existing target and 
 		"_packageJsonExists should be called with the correct arguments on second call");
 
 	t.is(synchronizeSpy.callCount, 1, "_synchronize should be called once");
-	t.deepEqual(synchronizeSpy.getCall(0).args[0], {
-		pkgName: "myPackage",
-		version: "1.2.3"
-	}, "_synchronize should be called with the correct first argument");
+	t.is(synchronizeSpy.getCall(0).args[0], "package-myPackage@1.2.3",
+		"_synchronize should be called with the correct first argument");
 	t.is(t.context.lockStub.callCount, 1, "lock should be called once");
 	t.is(t.context.unlockStub.callCount, 1, "unlock should be called once");
 
