@@ -197,8 +197,8 @@ test("AbstractResolver: install error handling (rejection of metadata/install)",
 	await t.throwsAsync(async () => {
 		await resolver.install(["sap.ui.lib1", "sap.ui.lib2"]);
 	}, {message: `Resolution of framework libraries failed with errors:
-Failed to resolve library sap.ui.lib1: Error installing sap.ui.lib1
-Failed to resolve library sap.ui.lib2: Error installing sap.ui.lib2`});
+  1. Failed to resolve library sap.ui.lib1: Error installing sap.ui.lib1
+  2. Failed to resolve library sap.ui.lib2: Error installing sap.ui.lib2`});
 
 	t.is(handleLibraryStub.callCount, 2, "Each library should be handled once");
 });
@@ -227,8 +227,7 @@ test("AbstractResolver: install error handling (rejection of dependency metadata
 
 	await t.throwsAsync(async () => {
 		await resolver.install(["sap.ui.lib1"]);
-	}, {message: `Resolution of framework libraries failed with errors:
-Failed to resolve library sap.ui.lib2: Error installing sap.ui.lib2`});
+	}, {message: `Failed to resolve library sap.ui.lib2: Error installing sap.ui.lib2`});
 
 	t.is(handleLibraryStub.callCount, 2, "Each library should be handled once");
 });
@@ -269,8 +268,7 @@ test("AbstractResolver: install error handling (rejection of dependency install)
 
 	await t.throwsAsync(async () => {
 		await resolver.install(["sap.ui.lib1"]);
-	}, {message: `Resolution of framework libraries failed with errors:
-Failed to resolve library sap.ui.lib3: Error installing sap.ui.lib3`});
+	}, {message: `Failed to resolve library sap.ui.lib3: Error installing sap.ui.lib3`});
 
 	t.is(handleLibraryStub.callCount, 3, "Each library should be handled once");
 });
@@ -290,8 +288,8 @@ test("AbstractResolver: install error handling (handleLibrary throws error)", as
 	await t.throwsAsync(async () => {
 		await resolver.install(["sap.ui.lib1", "sap.ui.lib2"]);
 	}, {message: `Resolution of framework libraries failed with errors:
-Failed to resolve library sap.ui.lib1: Error within handleLibrary: sap.ui.lib1
-Failed to resolve library sap.ui.lib2: Error within handleLibrary: sap.ui.lib2`});
+  1. Failed to resolve library sap.ui.lib1: Error within handleLibrary: sap.ui.lib1
+  2. Failed to resolve library sap.ui.lib2: Error within handleLibrary: sap.ui.lib2`});
 
 	t.is(handleLibraryStub.callCount, 2, "Each library should be handled once");
 });
