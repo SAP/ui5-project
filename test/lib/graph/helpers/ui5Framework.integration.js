@@ -687,18 +687,17 @@ defineErrorTest("SAPUI5: ui5Framework helper should throw a proper error when me
 	frameworkName: "SAPUI5",
 	failMetadata: true,
 	expectedErrorMessage: `Resolution of framework libraries failed with errors:
-Failed to resolve library sap.ui.lib1: Failed to extract package @sapui5/distribution-metadata@1.75.0: ` +
+  1. Failed to resolve library sap.ui.lib1: Failed to extract package @sapui5/distribution-metadata@1.75.0: ` +
 `404 - @sapui5/distribution-metadata
-Failed to resolve library sap.ui.lib4: Failed to extract package @sapui5/distribution-metadata@1.75.0: ` +
-`404 - @sapui5/distribution-metadata` // TODO: should only be returned once?
+  2. Failed to resolve library sap.ui.lib4: Error already logged`
 });
 defineErrorTest("SAPUI5: ui5Framework helper should throw a proper error when package extraction fails", {
 	frameworkName: "SAPUI5",
 	failExtract: true,
 	expectedErrorMessage: `Resolution of framework libraries failed with errors:
-Failed to resolve library sap.ui.lib1: Failed to extract package @sapui5/sap.ui.lib1@1.75.1: ` +
+  1. Failed to resolve library sap.ui.lib1: Failed to extract package @sapui5/sap.ui.lib1@1.75.1: ` +
 `404 - @sapui5/sap.ui.lib1
-Failed to resolve library sap.ui.lib4: Failed to extract package @openui5/sap.ui.lib4@1.75.4: ` +
+  2. Failed to resolve library sap.ui.lib4: Failed to extract package @openui5/sap.ui.lib4@1.75.4: ` +
 `404 - @openui5/sap.ui.lib4`
 });
 defineErrorTest(
@@ -707,10 +706,9 @@ defineErrorTest(
 		failMetadata: true,
 		failExtract: true,
 		expectedErrorMessage: `Resolution of framework libraries failed with errors:
-Failed to resolve library sap.ui.lib1: Failed to extract package @sapui5/distribution-metadata@1.75.0: ` +
+  1. Failed to resolve library sap.ui.lib1: Failed to extract package @sapui5/distribution-metadata@1.75.0: ` +
 `404 - @sapui5/distribution-metadata
-Failed to resolve library sap.ui.lib4: Failed to extract package @sapui5/distribution-metadata@1.75.0: ` +
-`404 - @sapui5/distribution-metadata`
+  2. Failed to resolve library sap.ui.lib4: Error already logged`
 	});
 
 
@@ -718,16 +716,16 @@ defineErrorTest("OpenUI5: ui5Framework helper should throw a proper error when m
 	frameworkName: "OpenUI5",
 	failMetadata: true,
 	expectedErrorMessage: `Resolution of framework libraries failed with errors:
-Failed to resolve library sap.ui.lib1: Failed to read manifest of @openui5/sap.ui.lib1@1.75.0
-Failed to resolve library sap.ui.lib4: Failed to read manifest of @openui5/sap.ui.lib4@1.75.0`
+  1. Failed to resolve library sap.ui.lib1: Failed to read manifest of @openui5/sap.ui.lib1@1.75.0
+  2. Failed to resolve library sap.ui.lib4: Failed to read manifest of @openui5/sap.ui.lib4@1.75.0`
 });
 defineErrorTest("OpenUI5: ui5Framework helper should throw a proper error when package extraction fails", {
 	frameworkName: "OpenUI5",
 	failExtract: true,
 	expectedErrorMessage: `Resolution of framework libraries failed with errors:
-Failed to resolve library sap.ui.lib1: Failed to extract package @openui5/sap.ui.lib1@1.75.0: ` +
+  1. Failed to resolve library sap.ui.lib1: Failed to extract package @openui5/sap.ui.lib1@1.75.0: ` +
 `404 - @openui5/sap.ui.lib1
-Failed to resolve library sap.ui.lib4: Failed to extract package @openui5/sap.ui.lib4@1.75.0: ` +
+  2. Failed to resolve library sap.ui.lib4: Failed to extract package @openui5/sap.ui.lib4@1.75.0: ` +
 `404 - @openui5/sap.ui.lib4`
 });
 defineErrorTest(
@@ -736,8 +734,8 @@ defineErrorTest(
 		failMetadata: true,
 		failExtract: true,
 		expectedErrorMessage: `Resolution of framework libraries failed with errors:
-Failed to resolve library sap.ui.lib1: Failed to read manifest of @openui5/sap.ui.lib1@1.75.0
-Failed to resolve library sap.ui.lib4: Failed to read manifest of @openui5/sap.ui.lib4@1.75.0`
+  1. Failed to resolve library sap.ui.lib1: Failed to read manifest of @openui5/sap.ui.lib1@1.75.0
+  2. Failed to resolve library sap.ui.lib4: Failed to read manifest of @openui5/sap.ui.lib4@1.75.0`
 	});
 
 test.serial("ui5Framework helper should not fail when no framework configuration is given", async (t) => {
@@ -893,8 +891,7 @@ test.serial(
 		await t.throwsAsync(async () => {
 			await ui5Framework.enrichProjectGraph(projectGraph);
 		}, {
-			message: `Resolution of framework libraries failed with errors:
-Failed to resolve library does.not.exist: Could not find library "does.not.exist"`});
+			message: `Failed to resolve library does.not.exist: Could not find library "does.not.exist"`});
 	});
 
 // TODO test: Should not download packages again in case they are already installed
