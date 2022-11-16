@@ -5,6 +5,8 @@ import sinonGlobal from "sinon";
 import esmock from "esmock";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+const fixturesPath = path.join(__dirname, "..", "..", "fixtures");
+
 test.beforeEach(async (t) => {
 	const sinon = t.context.sinon = sinonGlobal.createSandbox();
 
@@ -71,13 +73,14 @@ test.serial("graphFromPackageDependencies", async (t) => {
 	t.deepEqual(npmProviderConstructorStub.getCall(0).args[0], {
 		cwd: path.join(__dirname, "..", "..", "..", "cwd"),
 		rootConfiguration: "rootConfiguration",
-		rootConfigPath: "rootConfigPath",
-		workspace: undefined
+		rootConfigPath: "rootConfigPath"
 	}, "Created NodePackageDependencies provider instance with correct parameters");
 
 	t.is(projectGraphBuilderStub.callCount, 1, "projectGraphBuilder got called once");
 	t.true(projectGraphBuilderStub.getCall(0).args[0] instanceof DummyNpmProvider,
 		"projectGraphBuilder got called with correct provider instance");
+	t.is(projectGraphBuilderStub.getCall(0).args[1], undefined,
+		"projectGraphBuilder got called with an empty workspace");
 
 	t.is(enrichProjectGraphStub.callCount, 1, "enrichProjectGraph got called once");
 	t.is(enrichProjectGraphStub.getCall(0).args[0], "graph",
@@ -124,12 +127,13 @@ test.serial("graphFromPackageDependencies with workspace object", async (t) => {
 		cwd: path.join(__dirname, "..", "..", "..", "cwd"),
 		rootConfiguration: "rootConfiguration",
 		rootConfigPath: "rootConfigPath",
-		workspace: new t.context.DummyWorkspace()
 	}, "Created NodePackageDependencies provider instance with correct parameters");
 
 	t.is(projectGraphBuilderStub.callCount, 1, "projectGraphBuilder got called once");
 	t.true(projectGraphBuilderStub.getCall(0).args[0] instanceof DummyNpmProvider,
 		"projectGraphBuilder got called with correct provider instance");
+	t.true(projectGraphBuilderStub.getCall(0).args[1] instanceof t.context.DummyWorkspace,
+		"projectGraphBuilder got called with correct workspace instance");
 
 	t.is(enrichProjectGraphStub.callCount, 1, "enrichProjectGraph got called once");
 	t.is(enrichProjectGraphStub.getCall(0).args[0], "graph",
@@ -190,13 +194,14 @@ test.serial("graphFromPackageDependencies with workspace file", async (t) => {
 	t.deepEqual(npmProviderConstructorStub.getCall(0).args[0], {
 		cwd: path.join(__dirname, "..", "..", "..", "cwd"),
 		rootConfiguration: "rootConfiguration",
-		rootConfigPath: "rootConfigPath",
-		workspace: new t.context.DummyWorkspace()
+		rootConfigPath: "rootConfigPath"
 	}, "Created NodePackageDependencies provider instance with correct parameters");
 
 	t.is(projectGraphBuilderStub.callCount, 1, "projectGraphBuilder got called once");
 	t.true(projectGraphBuilderStub.getCall(0).args[0] instanceof DummyNpmProvider,
 		"projectGraphBuilder got called with correct provider instance");
+	t.true(projectGraphBuilderStub.getCall(0).args[1] instanceof t.context.DummyWorkspace,
+		"projectGraphBuilder got called with correct workspace instance");
 
 	t.is(enrichProjectGraphStub.callCount, 1, "enrichProjectGraph got called once");
 	t.is(enrichProjectGraphStub.getCall(0).args[0], "graph",
@@ -337,4 +342,67 @@ test.serial("usingObject: Do not resolve framework dependencies", async (t) => {
 
 	t.is(res, "graph");
 	t.is(enrichProjectGraphStub.callCount, 0, "enrichProjectGraph did not get called");
+});
+
+test.serial("utils: readDependencyConfigFile", async (t) => {
+	const {graphFromStaticFile} = t.context.graph;
+	const res = await graphFromStaticFile._utils.readDependencyConfigFile(
+		path.join(fixturesPath, "application.h"), "projectDependencies.yaml");
+
+	t.deepEqual(res, {
+		id: "static-application.a",
+		path: path.join(fixturesPath, "application.a"),
+		version: "0.0.1",
+		dependencies: [{
+			id: "static-library.e",
+			path: path.join(fixturesPath, "library.e"),
+			version: "0.0.1",
+		}],
+	}, "Returned correct file content");
+});
+
+test.serial("utils: readWorkspaceConfigFile", async (t) => {
+	const {graphFromPackageDependencies} = t.context.graph;
+	const res = await graphFromPackageDependencies._utils.readWorkspaceConfigFile(
+		path.join(fixturesPath, "library.e"), "ui5-workspace.yaml");
+
+	t.deepEqual(res, [{
+		"specVersion": "workspace/1.0",
+		"metadata": {
+			"name": "config-a"
+		},
+		"dependencyManagement": {
+			"resolutions": [{
+				"path": "../library.d"
+			}]
+		}
+	}, {
+		"specVersion": "workspace/1.0",
+		"metadata": {
+			"name": "config-b"
+		},
+		"dependencyManagement": {
+			"resolutions": [{
+				"path": "../library.x"
+			}]
+		}
+	}], "Returned correct file content");
+});
+
+test.serial("utils: readWorkspaceConfigFile - throwIfMissing: false", async (t) => {
+	const {graphFromPackageDependencies} = t.context.graph;
+	const res = await graphFromPackageDependencies._utils.readWorkspaceConfigFile(
+		path.join(fixturesPath, "library.d"), "ui5-workspace.yaml");
+
+	t.deepEqual(res, [], "Returned empty array");
+});
+
+test.serial("utils: readWorkspaceConfigFile - throwIfMissing: true", async (t) => {
+	const {graphFromPackageDependencies} = t.context.graph;
+	const err = await t.throwsAsync(graphFromPackageDependencies._utils.readWorkspaceConfigFile(
+		path.join(fixturesPath, "library.d"), "ui5-workspace.yaml", true));
+	const filePath = path.join(fixturesPath, "library.d", "ui5-workspace.yaml");
+	t.is(err.message,
+		`Failed to load workspace configuration from path ${filePath}: ` +
+		`ENOENT: no such file or directory, open '${filePath}'`);
 });

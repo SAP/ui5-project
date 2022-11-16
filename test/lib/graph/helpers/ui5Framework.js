@@ -104,7 +104,7 @@ test.serial("ui5Framework translator should throw an error when framework versio
 	], "Sapui5Resolver#install should be called with expected args");
 
 	t.is(ProjectProcessorStub.callCount, 1, "ProjectProcessor#constructor should be called once");
-	t.deepEqual(ProjectProcessorStub.getCall(0).args, [{libraryMetadata}],
+	t.deepEqual(ProjectProcessorStub.getCall(0).args, [{libraryMetadata, workspace: undefined}],
 		"ProjectProcessor#constructor should be called with expected args");
 
 	t.is(addProjectToGraphStub.callCount, 3, "ProjectProcessor#getProject should be called 3 times");

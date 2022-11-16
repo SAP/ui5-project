@@ -28,18 +28,18 @@ test.afterEach.always((t) => {
 });
 
 function testGraphCreationBfs(...args) {
-	return _testGraphCreation(...args, true);
+	return _testGraphCreation(true, ...args);
 }
 
 function testGraphCreationDfs(...args) {
-	return _testGraphCreation(...args, false);
+	return _testGraphCreation(false, ...args);
 }
 
-async function _testGraphCreation(t, npmProvider, expectedOrder, bfs) {
+async function _testGraphCreation(bfs, t, npmProvider, expectedOrder, workspace) {
 	if (bfs === undefined) {
 		throw new Error("Test error: Parameter 'bfs' must be specified");
 	}
-	const projectGraph = await projectGraphBuilder(npmProvider);
+	const projectGraph = await projectGraphBuilder(npmProvider, workspace);
 	const callbackStub = t.context.sinon.stub().resolves();
 	if (bfs) {
 		await projectGraph.traverseBreadthFirst(callbackStub);
@@ -71,15 +71,14 @@ test("AppA: project with collection dependency", async (t) => {
 test("AppA: project with workspace overrides", async (t) => {
 	const workspace = {
 		getName: () => "workspace name",
-		getNode: t.context.sinon.stub().resolves(undefined).onFirstCall().resolves({
+		getModuleByNodeId: t.context.sinon.stub().resolves(undefined).onFirstCall().resolves({
 			// This version of library.d has an additional dependency to library.f,
 			// which in turn has a dependency to library.g
-			path: libraryDOverridePath
+			getPath: () => libraryDOverridePath
 		})
 	};
 	const npmProvider = new NodePackageDependenciesProvider({
-		cwd: applicationAPath,
-		workspace
+		cwd: applicationAPath
 	});
 	const graph = await testGraphCreationDfs(t, npmProvider, [
 		"library.g", // Added through workspace override of library.d
@@ -89,7 +88,13 @@ test("AppA: project with workspace overrides", async (t) => {
 		"library.f", // Added through workspace override of library.d
 		"library.d",
 		"application.a",
-	]);
+	], workspace);
+
+	t.is(workspace.getModuleByNodeId.callCount, 2, "Workspace#getModuleByNodeId got called twice");
+	t.is(workspace.getModuleByNodeId.getCall(0).args[0], "library.d",
+		"Workspace#getModuleByNodeId got called with correct argument on first call");
+	t.is(workspace.getModuleByNodeId.getCall(1).args[0], "collection",
+		"Workspace#getModuleByNodeId got called with correct argument on second call");
 	t.is(graph.getProject("library.d").getVersion(), "2.0.0", "Version from override is used");
 });
 

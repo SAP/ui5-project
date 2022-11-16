@@ -1,16 +1,16 @@
 {
   "name": "collection",
   "version": "1.0.0",
-  "description": "Simple Collection",
+  "description": "Simple Collection used for Workspace testing",
   "dependencies": {
-    "library.d": "file:../library.d"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "workspaces": [
-    "library.a",
-    "library.b",
-    "library.c"
-  ]
+  "ui5": {
+    "workspaces": [
+      "library.{a,b}",
+      "*c"
+    ]
+  }
 }
