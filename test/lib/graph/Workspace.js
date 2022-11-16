@@ -62,6 +62,8 @@ test("Basic resolution", async (t) => {
 		})
 	});
 
+	t.is(workspace.getName(), "workspace-name");
+
 	const {projectNameMap, moduleIdMap} = await workspace._getResolvedModules();
 	t.deepEqual(Array.from(projectNameMap.keys()).sort(), ["library.d", "library.e"], "Correct project name keys");
 
@@ -74,6 +76,11 @@ test("Basic resolution", async (t) => {
 	t.true(libD instanceof Module, "library.d value is instance of Module");
 	t.is(libD.getVersion(), "1.0.0", "Correct version for library.d");
 	t.is(libD.getPath(), libraryD, "Correct path for library.d");
+
+	t.is(await workspace.getModuleByProjectName("library.d"), libD,
+		"getModuleByProjectName returns correct module for library.d");
+	t.is(await workspace.getModuleByNodeId("library.d"), libD,
+		"getModuleByNodeId returns correct module for library.d");
 
 	t.deepEqual(Array.from(moduleIdMap.keys()).sort(), ["library.d", "library.e"], "Correct module ID keys");
 	moduleIdMap.forEach((value, key) => {
@@ -155,4 +162,205 @@ test("Package workspace resolution: Dynamic patterns", async (t) => {
 	moduleIdMap.forEach((value, key) => {
 		t.is(value, projectNameMap.get(key), `Same instance of module ${key} in both maps`);
 	});
+});
+
+test("Package workspace resolution: Nested workspace", async (t) => {
+	const workspace = new t.context.Workspace({
+		cwd: __dirname,
+		workspaceConfiguration: createWorkspaceConfig({
+			dependencyManagement: {
+				resolutions: [{
+					path: "../../fixtures/library.xyz"
+				}]
+			}
+		})
+	});
+
+	const readPackageJsonStub = t.context.sinon.stub(workspace, "_readPackageJson").onFirstCall().resolves({
+		name: "First Package",
+		ui5: {
+			workspaces: [
+				"workspace-a",
+				"workspace-b"
+			]
+		}
+	}).onSecondCall().resolves({
+		name: "Second Package",
+		ui5: {
+			workspaces: [
+				"workspace-c",
+				"workspace-d"
+			]
+		}
+	}).onThirdCall().resolves({
+		name: "Third Package",
+		workspaces: [
+			"workspace-e",
+			"workspace-f"
+		]
+	});
+
+	const {projectNameMap, moduleIdMap} = await workspace._getResolvedModules();
+	// All workspaces. Should not resolve to any module
+	// Nested workspaces should not get resolved
+	t.is(readPackageJsonStub.callCount, 3, "readPackageJson got called three times");
+	t.is(projectNameMap.size, 0, "Project name to module map is empty");
+	t.is(moduleIdMap.size, 0, "Module ID to module map is empty");
+});
+
+test("Package workspace resolution: Package workspace resolves to many modules", async (t) => {
+	// This should generally not happen. Currently this test is only *really* required for code coverage reasons
+
+	const {sinon} = t.context;
+	const workspace = new t.context.Workspace({
+		cwd: __dirname,
+		workspaceConfiguration: createWorkspaceConfig({
+			dependencyManagement: {
+				resolutions: [{
+					path: "../../fixtures/library.xyz"
+				}]
+			}
+		})
+	});
+
+	sinon.stub(workspace, "_readPackageJson").onFirstCall().resolves({
+		name: "First Package",
+		workspaces: [
+			"workspace-a",
+			"workspace-b"
+		]
+	});
+
+	sinon.stub(workspace, "_getModulesFromPath").callThrough().onSecondCall().resolves([
+		"module 1",
+		"module 2"
+	]);
+
+	await t.throwsAsync(workspace._getResolvedModules(), {
+		message:
+			`Workspace of module First Package at ${path.join(__dirname, "..", "..", "fixtures", "library.xyz")} ` +
+			`unexpectedly resolved to multiple modules`
+	}, "Threw with expected error message");
+});
+
+test("No resolutions configuration", async (t) => {
+	const workspace = new t.context.Workspace({
+		cwd: __dirname,
+		workspaceConfiguration: createWorkspaceConfig({
+			dependencyManagement: {}
+		})
+	});
+
+	t.is(workspace.getName(), "workspace-name");
+
+	const {projectNameMap, moduleIdMap} = await workspace._getResolvedModules();
+	t.is(projectNameMap.size, 0, "Project name to module map is empty");
+	t.is(moduleIdMap.size, 0, "Module ID to module map is empty");
+
+	t.falsy(await workspace.getModuleByProjectName("library.e"),
+		"getModuleByProjectName yields no result for library.e");
+	t.falsy(await workspace.getModuleByNodeId("library.e"),
+		"getModuleByNodeId yields no result for library.e");
+});
+
+test("Empty dependencyManagement configuration", async (t) => {
+	const workspace = new t.context.Workspace({
+		cwd: __dirname,
+		workspaceConfiguration: createWorkspaceConfig({
+			dependencyManagement: {}
+		})
+	});
+
+	t.is(workspace.getName(), "workspace-name");
+
+	const {projectNameMap, moduleIdMap} = await workspace._getResolvedModules();
+	t.is(projectNameMap.size, 0, "Project name to module map is empty");
+	t.is(moduleIdMap.size, 0, "Module ID to module map is empty");
+});
+
+test("Empty resolutions configuration", async (t) => {
+	const workspace = new t.context.Workspace({
+		cwd: __dirname,
+		workspaceConfiguration: createWorkspaceConfig({
+			dependencyManagement: {
+				resolutions: []
+			}
+		})
+	});
+
+	t.is(workspace.getName(), "workspace-name");
+
+	const {projectNameMap, moduleIdMap} = await workspace._getResolvedModules();
+	t.is(projectNameMap.size, 0, "Project name to module map is empty");
+	t.is(moduleIdMap.size, 0, "Module ID to module map is empty");
+});
+
+test("Missing path in resolution", async (t) => {
+	const workspace = new t.context.Workspace({
+		cwd: __dirname,
+		workspaceConfiguration: createWorkspaceConfig({
+			dependencyManagement: {
+				resolutions: [{}]
+			}
+		})
+	});
+
+	await t.throwsAsync(workspace._getResolvedModules(), {
+		message: "Missing property 'path' in dependency resolution configuration of workspace workspace-name"
+	}, "Threw with expected error message");
+});
+
+test("Invalid resolutions configuration", async (t) => {
+	const workspace = new t.context.Workspace({
+		cwd: __dirname,
+		workspaceConfiguration: createWorkspaceConfig({
+			dependencyManagement: {
+				resolutions: [{
+					path: "../../fixtures/does-not-exist"
+				}]
+			}
+		})
+	});
+
+	await t.throwsAsync(workspace._getResolvedModules(), {
+		message:
+			/Failed to resolve workspace-resolutions path \.\.\/\.\.\/fixtures\/does-not-exist: ENOENT:/
+	}, "Threw with expected error message");
+});
+
+test("Resolution does not lead to a project", async (t) => {
+	const workspace = new t.context.Workspace({
+		cwd: __dirname,
+		workspaceConfiguration: createWorkspaceConfig({
+			dependencyManagement: {
+				resolutions: [{
+					path: "../../fixtures/extension.a"
+				}]
+			}
+		})
+	});
+
+	t.is(workspace.getName(), "workspace-name");
+
+	const {projectNameMap, moduleIdMap} = await workspace._getResolvedModules();
+	t.is(projectNameMap.size, 0, "Project name to module map is empty");
+	t.is(moduleIdMap.size, 0, "Module ID to module map is empty");
+});
+
+test("Missing parameters", (t) => {
+	t.throws(() => {
+		new t.context.Workspace({
+			workspaceConfiguration: {metadata: {name: "config-a"}}
+		});
+	}, {
+		message: "[Workspace] One or more mandatory parameters not provided"
+	}, "Threw with expected error message");
+
+	t.throws(() => {
+		new t.context.Workspace({
+			cwd: "cwd"
+		});
+	}, {
+		message: "[Workspace] One or more mandatory parameters not provided"
+	}, "Threw with expected error message");
 });
