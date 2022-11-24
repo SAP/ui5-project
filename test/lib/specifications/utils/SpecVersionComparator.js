@@ -31,6 +31,11 @@ test.serial("Invalid specVersion", (t) => {
 		"Static isSupportedSpecVersionStub has been called with expected arguments");
 });
 
+test("(instance) getSpecVersion", (t) => {
+	t.is(new SpecVersionComparator("0.1").getSpecVersion(), "0.1");
+	t.is(new SpecVersionComparator("1.1").getSpecVersion(), "1.1");
+});
+
 test("(instance) major", (t) => {
 	t.is(new SpecVersionComparator("0.1").major(), 0);
 	t.is(new SpecVersionComparator("1.1").major(), 1);

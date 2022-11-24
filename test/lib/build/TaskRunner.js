@@ -393,7 +393,8 @@ test("Custom task is called correctly", async (t) => {
 	const taskStub = sinon.stub();
 	graph.getExtension.returns({
 		getTask: () => taskStub,
-		getSpecVersion: () => "2.6"
+		getSpecVersion: () => "2.6",
+		getSpecVersionComparator: () => "specVersionComparator 2.6"
 	});
 	t.context.taskUtil.getInterface.returns("taskUtil interface");
 	const project = getMockProject("module");
@@ -426,7 +427,7 @@ test("Custom task is called correctly", async (t) => {
 	}, "Task got called with one argument");
 
 	t.is(taskUtil.getInterface.callCount, 1, "taskUtil#getInterface got called once");
-	t.is(taskUtil.getInterface.getCall(0).args[0], "2.6",
+	t.is(taskUtil.getInterface.getCall(0).args[0], "specVersionComparator 2.6",
 		"taskUtil#getInterface got called with correct argument");
 });
 
@@ -435,7 +436,8 @@ test("Custom task with legacy spec version", async (t) => {
 	const taskStub = sinon.stub();
 	graph.getExtension.returns({
 		getTask: () => taskStub,
-		getSpecVersion: () => "1.0"
+		getSpecVersion: () => "1.0",
+		getSpecVersionComparator: () => "specVersionComparator 1.0"
 	});
 	t.context.taskUtil.getInterface.returns(undefined); // simulating no taskUtil for old specVersion
 	const project = getMockProject("module");
@@ -467,7 +469,7 @@ test("Custom task with legacy spec version", async (t) => {
 	}, "Task got called with one argument");
 
 	t.is(taskUtil.getInterface.callCount, 1, "taskUtil#getInterface got called once");
-	t.is(taskUtil.getInterface.getCall(0).args[0], "1.0",
+	t.is(taskUtil.getInterface.getCall(0).args[0], "specVersionComparator 1.0",
 		"taskUtil#getInterface got called with correct argument");
 });
 
@@ -476,7 +478,8 @@ test("Custom task with specVersion 3.0", async (t) => {
 	const taskStub = sinon.stub();
 	graph.getExtension.returns({
 		getTask: () => taskStub,
-		getSpecVersion: () => "3.0"
+		getSpecVersion: () => "3.0",
+		getSpecVersionComparator: () => "specVersionComparator 3.0"
 	});
 	t.context.taskUtil.getInterface.returns(undefined); // simulating no taskUtil for old specVersion
 	const project = getMockProject("module");
@@ -510,7 +513,7 @@ test("Custom task with specVersion 3.0", async (t) => {
 	}, "Task got called with one argument");
 
 	t.is(taskUtil.getInterface.callCount, 1, "taskUtil#getInterface got called once");
-	t.is(taskUtil.getInterface.getCall(0).args[0], "3.0",
+	t.is(taskUtil.getInterface.getCall(0).args[0], "specVersionComparator 3.0",
 		"taskUtil#getInterface got called with correct argument");
 });
 
@@ -521,15 +524,18 @@ test("Multiple custom tasks with same name are called correctly", async (t) => {
 	const taskStub3 = sinon.stub();
 	graph.getExtension.onFirstCall().returns({
 		getTask: () => taskStub1,
-		getSpecVersion: () => "2.5"
+		getSpecVersion: () => "2.5",
+		getSpecVersionComparator: () => "specVersionComparator 2.5"
 	});
 	graph.getExtension.onSecondCall().returns({
 		getTask: () => taskStub2,
-		getSpecVersion: () => "2.6"
+		getSpecVersion: () => "2.6",
+		getSpecVersionComparator: () => "specVersionComparator 2.6"
 	});
 	graph.getExtension.onThirdCall().returns({
 		getTask: () => taskStub3,
-		getSpecVersion: () => "3.0"
+		getSpecVersion: () => "3.0",
+		getSpecVersionComparator: () => "specVersionComparator 3.0"
 	});
 	const project = getMockProject("module");
 	project.getCustomTasks = () => [
@@ -599,11 +605,11 @@ test("Multiple custom tasks with same name are called correctly", async (t) => {
 	}, "Task 3 got called with one argument");
 
 	t.is(taskUtil.getInterface.callCount, 3, "taskUtil#getInterface got called once");
-	t.is(taskUtil.getInterface.getCall(0).args[0], "2.5",
+	t.is(taskUtil.getInterface.getCall(0).args[0], "specVersionComparator 2.5",
 		"taskUtil#getInterface got called with correct argument on first call");
-	t.is(taskUtil.getInterface.getCall(1).args[0], "3.0",
+	t.is(taskUtil.getInterface.getCall(1).args[0], "specVersionComparator 3.0",
 		"taskUtil#getInterface got called with correct argument on second call");
-	t.is(taskUtil.getInterface.getCall(2).args[0], "2.6",
+	t.is(taskUtil.getInterface.getCall(2).args[0], "specVersionComparator 2.6",
 		"taskUtil#getInterface got called with correct argument on third call");
 });
 
