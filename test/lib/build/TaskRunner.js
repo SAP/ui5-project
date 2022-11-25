@@ -391,10 +391,14 @@ test("Custom tasks is unknown", async (t) => {
 test("Custom task is called correctly", async (t) => {
 	const {sinon, graph, taskUtil, taskRepository, TaskRunner} = t.context;
 	const taskStub = sinon.stub();
+	const specVersionComparatorGteStub = sinon.stub().returns(false);
+	const mockSpecVersionComparator = {
+		gte: specVersionComparatorGteStub
+	};
 	graph.getExtension.returns({
 		getTask: () => taskStub,
 		getSpecVersion: () => "2.6",
-		getSpecVersionComparator: () => "specVersionComparator 2.6"
+		getSpecVersionComparator: () => mockSpecVersionComparator
 	});
 	t.context.taskUtil.getInterface.returns("taskUtil interface");
 	const project = getMockProject("module");
@@ -413,6 +417,9 @@ test("Custom task is called correctly", async (t) => {
 		dependencies: "dependencies"
 	});
 
+	t.is(specVersionComparatorGteStub.callCount, 1, "SpecVersionComparator#gte got called once");
+	t.is(specVersionComparatorGteStub.getCall(0).args[0], "3.0",
+		"SpecVersionComparator#gte got called with correct arguments");
 	t.is(taskStub.callCount, 1, "Task got called once");
 	t.is(taskStub.getCall(0).args.length, 1, "Task got called with one argument");
 	t.deepEqual(taskStub.getCall(0).args[0], {
@@ -427,17 +434,21 @@ test("Custom task is called correctly", async (t) => {
 	}, "Task got called with one argument");
 
 	t.is(taskUtil.getInterface.callCount, 1, "taskUtil#getInterface got called once");
-	t.is(taskUtil.getInterface.getCall(0).args[0], "specVersionComparator 2.6",
+	t.is(taskUtil.getInterface.getCall(0).args[0], mockSpecVersionComparator,
 		"taskUtil#getInterface got called with correct argument");
 });
 
 test("Custom task with legacy spec version", async (t) => {
 	const {sinon, graph, taskUtil, taskRepository, TaskRunner} = t.context;
 	const taskStub = sinon.stub();
+	const specVersionComparatorGteStub = sinon.stub().returns(false);
+	const mockSpecVersionComparator = {
+		gte: specVersionComparatorGteStub
+	};
 	graph.getExtension.returns({
 		getTask: () => taskStub,
 		getSpecVersion: () => "1.0",
-		getSpecVersionComparator: () => "specVersionComparator 1.0"
+		getSpecVersionComparator: () => mockSpecVersionComparator
 	});
 	t.context.taskUtil.getInterface.returns(undefined); // simulating no taskUtil for old specVersion
 	const project = getMockProject("module");
@@ -456,6 +467,9 @@ test("Custom task with legacy spec version", async (t) => {
 		dependencies: "dependencies"
 	});
 
+	t.is(specVersionComparatorGteStub.callCount, 1, "SpecVersionComparator#gte got called once");
+	t.is(specVersionComparatorGteStub.getCall(0).args[0], "3.0",
+		"SpecVersionComparator#gte got called with correct arguments");
 	t.is(taskStub.callCount, 1, "Task got called once");
 	t.is(taskStub.getCall(0).args.length, 1, "Task got called with one argument");
 	t.deepEqual(taskStub.getCall(0).args[0], {
@@ -469,17 +483,21 @@ test("Custom task with legacy spec version", async (t) => {
 	}, "Task got called with one argument");
 
 	t.is(taskUtil.getInterface.callCount, 1, "taskUtil#getInterface got called once");
-	t.is(taskUtil.getInterface.getCall(0).args[0], "specVersionComparator 1.0",
+	t.is(taskUtil.getInterface.getCall(0).args[0], mockSpecVersionComparator,
 		"taskUtil#getInterface got called with correct argument");
 });
 
 test("Custom task with specVersion 3.0", async (t) => {
 	const {sinon, graph, taskUtil, taskRepository, TaskRunner} = t.context;
 	const taskStub = sinon.stub();
+	const specVersionComparatorGteStub = sinon.stub().returns(true);
+	const mockSpecVersionComparator = {
+		gte: specVersionComparatorGteStub
+	};
 	graph.getExtension.returns({
 		getTask: () => taskStub,
 		getSpecVersion: () => "3.0",
-		getSpecVersionComparator: () => "specVersionComparator 3.0"
+		getSpecVersionComparator: () => mockSpecVersionComparator
 	});
 	t.context.taskUtil.getInterface.returns(undefined); // simulating no taskUtil for old specVersion
 	const project = getMockProject("module");
@@ -498,6 +516,9 @@ test("Custom task with specVersion 3.0", async (t) => {
 		dependencies: "dependencies"
 	}, "log");
 
+	t.is(specVersionComparatorGteStub.callCount, 1, "SpecVersionComparator#gte got called once");
+	t.is(specVersionComparatorGteStub.getCall(0).args[0], "3.0",
+		"SpecVersionComparator#gte got called with correct arguments");
 	t.is(taskStub.callCount, 1, "Task got called once");
 	t.is(taskStub.getCall(0).args.length, 1, "Task got called with one argument");
 	t.deepEqual(taskStub.getCall(0).args[0], {
@@ -513,7 +534,7 @@ test("Custom task with specVersion 3.0", async (t) => {
 	}, "Task got called with one argument");
 
 	t.is(taskUtil.getInterface.callCount, 1, "taskUtil#getInterface got called once");
-	t.is(taskUtil.getInterface.getCall(0).args[0], "specVersionComparator 3.0",
+	t.is(taskUtil.getInterface.getCall(0).args[0], mockSpecVersionComparator,
 		"taskUtil#getInterface got called with correct argument");
 });
 
@@ -522,20 +543,29 @@ test("Multiple custom tasks with same name are called correctly", async (t) => {
 	const taskStub1 = sinon.stub();
 	const taskStub2 = sinon.stub();
 	const taskStub3 = sinon.stub();
+	const mockSpecVersionComparatorA = {
+		gte: () => false
+	};
+	const mockSpecVersionComparatorB = {
+		gte: () => false
+	};
+	const mockSpecVersionComparatorC = {
+		gte: () => true
+	};
 	graph.getExtension.onFirstCall().returns({
 		getTask: () => taskStub1,
 		getSpecVersion: () => "2.5",
-		getSpecVersionComparator: () => "specVersionComparator 2.5"
+		getSpecVersionComparator: () => mockSpecVersionComparatorA
 	});
 	graph.getExtension.onSecondCall().returns({
 		getTask: () => taskStub2,
 		getSpecVersion: () => "2.6",
-		getSpecVersionComparator: () => "specVersionComparator 2.6"
+		getSpecVersionComparator: () => mockSpecVersionComparatorB
 	});
 	graph.getExtension.onThirdCall().returns({
 		getTask: () => taskStub3,
 		getSpecVersion: () => "3.0",
-		getSpecVersionComparator: () => "specVersionComparator 3.0"
+		getSpecVersionComparator: () => mockSpecVersionComparatorC
 	});
 	const project = getMockProject("module");
 	project.getCustomTasks = () => [
@@ -605,11 +635,11 @@ test("Multiple custom tasks with same name are called correctly", async (t) => {
 	}, "Task 3 got called with one argument");
 
 	t.is(taskUtil.getInterface.callCount, 3, "taskUtil#getInterface got called once");
-	t.is(taskUtil.getInterface.getCall(0).args[0], "specVersionComparator 2.5",
+	t.is(taskUtil.getInterface.getCall(0).args[0], mockSpecVersionComparatorA,
 		"taskUtil#getInterface got called with correct argument on first call");
-	t.is(taskUtil.getInterface.getCall(1).args[0], "specVersionComparator 3.0",
+	t.is(taskUtil.getInterface.getCall(1).args[0], mockSpecVersionComparatorC,
 		"taskUtil#getInterface got called with correct argument on second call");
-	t.is(taskUtil.getInterface.getCall(2).args[0], "specVersionComparator 2.6",
+	t.is(taskUtil.getInterface.getCall(2).args[0], mockSpecVersionComparatorB,
 		"taskUtil#getInterface got called with correct argument on third call");
 });
 
