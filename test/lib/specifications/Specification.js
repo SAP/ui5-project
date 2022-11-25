@@ -296,6 +296,6 @@ test("Invalid specVersion", async (t) => {
 	await t.throwsAsync(Specification.create(t.context.basicProjectInput), {
 		message:
 		"Unsupported Specification Version 0.5 defined. Your UI5 CLI installation might be outdated. " +
-		"For details see https://sap.github.io/ui5-tooling/pages/Configuration/#specification-versions"
+		"For details, see https://sap.github.io/ui5-tooling/pages/Configuration/#specification-versions"
 	}, "Threw with expected error message");
 });
