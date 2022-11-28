@@ -20,9 +20,7 @@ const STANDARD_TAGS = Object.freeze({
 
 test("Instantiation", (t) => {
 	const taskUtil = new TaskUtil({
-		projectBuildContext: {
-			// STANDARD_TAGS: ["some tag", "some other tag", "Thursday"]
-		}
+		projectBuildContext: {}
 	});
 
 	t.deepEqual(taskUtil.STANDARD_TAGS, STANDARD_TAGS, "Correct standard tags exposed");
@@ -186,6 +184,22 @@ test("getDependencies", (t) => {
 
 	t.is(getDependenciesStub.callCount, 1, "ProjectBuildContext#getDependencies got called once");
 	t.is(res, "Pony farm!", "Correct result");
+});
+
+test("resourceFactory", (t) => {
+	const {resourceFactory} = new TaskUtil({
+		projectBuildContext: {}
+	});
+	t.is(typeof resourceFactory.createResource, "function",
+		"resourceFactory function createResource is available");
+	t.is(typeof resourceFactory.createReaderCollectionPrioritized, "function",
+		"resourceFactory function createReaderCollectionPrioritized is available");
+	t.is(typeof resourceFactory.createFilterReader, "function",
+		"resourceFactory function createFilterReader is available");
+	t.is(typeof resourceFactory.createLinkReader, "function",
+		"resourceFactory function createLinkReader is available");
+	t.is(typeof resourceFactory.createFlatReader, "function",
+		"resourceFactory function createFlatReader is available");
 });
 
 test("registerCleanupTask", (t) => {
