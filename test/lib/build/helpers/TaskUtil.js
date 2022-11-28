@@ -1,14 +1,14 @@
 import test from "ava";
 import sinon from "sinon";
 import TaskUtil from "../../../../lib/build/helpers/TaskUtil.js";
-import SpecVersionComparator from "../../../../lib/specifications/utils/SpecVersionComparator.js";
+import SpecificationVersion from "../../../../lib/specifications/SpecificationVersion.js";
 
 test.afterEach.always((t) => {
 	sinon.restore();
 });
 
-function getSpecVersionComparator(specVersion) {
-	return new SpecVersionComparator(specVersion);
+function getSpecificationVersion(specVersion) {
+	return new SpecificationVersion(specVersion);
 }
 
 const STANDARD_TAGS = Object.freeze({
@@ -221,7 +221,7 @@ test("getInterface: specVersion 1.0", (t) => {
 		projectBuildContext: {}
 	});
 
-	const interfacedTaskUtil = taskUtil.getInterface(getSpecVersionComparator("1.0"));
+	const interfacedTaskUtil = taskUtil.getInterface(getSpecificationVersion("1.0"));
 
 	t.is(interfacedTaskUtil, undefined, "no interface provided");
 });
@@ -231,7 +231,7 @@ test("getInterface: specVersion 2.2", (t) => {
 		projectBuildContext: {}
 	});
 
-	const interfacedTaskUtil = taskUtil.getInterface(getSpecVersionComparator("2.2"));
+	const interfacedTaskUtil = taskUtil.getInterface(getSpecificationVersion("2.2"));
 
 	t.deepEqual(Object.keys(interfacedTaskUtil), [
 		"STANDARD_TAGS",
@@ -255,7 +255,7 @@ test("getInterface: specVersion 2.3", (t) => {
 		projectBuildContext: {}
 	});
 
-	const interfacedTaskUtil = taskUtil.getInterface(getSpecVersionComparator("2.3"));
+	const interfacedTaskUtil = taskUtil.getInterface(getSpecificationVersion("2.3"));
 
 	t.deepEqual(Object.keys(interfacedTaskUtil), [
 		"STANDARD_TAGS",
@@ -279,7 +279,7 @@ test("getInterface: specVersion 2.4", (t) => {
 		projectBuildContext: {}
 	});
 
-	const interfacedTaskUtil = taskUtil.getInterface(getSpecVersionComparator("2.4"));
+	const interfacedTaskUtil = taskUtil.getInterface(getSpecificationVersion("2.4"));
 
 	t.deepEqual(Object.keys(interfacedTaskUtil), [
 		"STANDARD_TAGS",
@@ -303,7 +303,7 @@ test("getInterface: specVersion 2.5", (t) => {
 		projectBuildContext: {}
 	});
 
-	const interfacedTaskUtil = taskUtil.getInterface(getSpecVersionComparator("2.5"));
+	const interfacedTaskUtil = taskUtil.getInterface(getSpecificationVersion("2.5"));
 
 	t.deepEqual(Object.keys(interfacedTaskUtil), [
 		"STANDARD_TAGS",
@@ -327,7 +327,7 @@ test("getInterface: specVersion 2.6", (t) => {
 		projectBuildContext: {}
 	});
 
-	const interfacedTaskUtil = taskUtil.getInterface(getSpecVersionComparator("2.6"));
+	const interfacedTaskUtil = taskUtil.getInterface(getSpecificationVersion("2.6"));
 
 	t.deepEqual(Object.keys(interfacedTaskUtil), [
 		"STANDARD_TAGS",
@@ -369,7 +369,7 @@ test("getInterface: specVersion 3.0", (t) => {
 		}
 	});
 
-	const interfacedTaskUtil = taskUtil.getInterface(getSpecVersionComparator("3.0"));
+	const interfacedTaskUtil = taskUtil.getInterface(getSpecificationVersion("3.0"));
 
 	t.deepEqual(Object.keys(interfacedTaskUtil), [
 		"STANDARD_TAGS",
@@ -394,7 +394,6 @@ test("getInterface: specVersion 3.0", (t) => {
 	// getProject
 	const interfacedProject = interfacedTaskUtil.getProject("pony");
 	t.deepEqual(Object.keys(interfacedProject), [
-		"getSpecVersion",
 		"getType",
 		"getName",
 		"getVersion",
@@ -405,7 +404,6 @@ test("getInterface: specVersion 3.0", (t) => {
 		"isFrameworkProject",
 	], "Correct methods are provided");
 
-	t.is(interfacedProject.getSpecVersion(), "specVersion", "getSpecVersion function is bound correctly");
 	t.is(interfacedProject.getType(), "type", "getType function is bound correctly");
 	t.is(interfacedProject.getName(), "name", "getName function is bound correctly");
 	t.is(interfacedProject.getVersion(), "version", "getVersion function is bound correctly");

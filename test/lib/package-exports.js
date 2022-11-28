@@ -18,7 +18,7 @@ test("check number of exports", (t) => {
 
 // Public API contract (exported modules)
 [
-	"specifications/utils/SpecVersionComparator",
+	"specifications/SpecificationVersion",
 	"ui5Framework/Openui5Resolver",
 	"ui5Framework/Sapui5Resolver",
 	"validation/validator",

@@ -48,8 +48,8 @@ test("Configurations", async (t) => {
 	const project = await Specification.create(t.context.basicProjectInput);
 	t.is(project.getKind(), "project", "Returned correct kind configuration");
 	t.is(project.getType(), "application", "Returned correct type configuration");
-	t.is(project.getSpecVersion(), "2.3", "Returned correct specification version");
-	t.is(project.getSpecVersionComparator().major(), 2,
+	t.is(project.getSpecVersion().toString(), "2.3", "Returned correct specification version");
+	t.is(project.getSpecVersion().major(), 2,
 		"SpecVersionComparator returned correct major version");
 });
 
@@ -113,7 +113,7 @@ test("Migrate legacy project", async (t) => {
 	t.context.basicProjectInput.configuration.specVersion = "1.0";
 	const project = await Specification.create(t.context.basicProjectInput);
 
-	t.is(project.getSpecVersion(), "2.6", "Project got migrated to latest specVersion");
+	t.is(project.getSpecVersion().toString(), "2.6", "Project got migrated to latest specVersion");
 });
 
 test("Migrate legacy project unexpected configuration", async (t) => {
@@ -147,7 +147,7 @@ test("Migrate legacy module: specVersion 1.0", async (t) => {
 		}
 	});
 
-	t.is(project.getSpecVersion(), "2.6", "Project got migrated to latest specVersion");
+	t.is(project.getSpecVersion().toString(), "2.6", "Project got migrated to latest specVersion");
 });
 
 test("Migrate legacy module: specVersion 0.1", async (t) => {
@@ -168,7 +168,7 @@ test("Migrate legacy module: specVersion 0.1", async (t) => {
 		}
 	});
 
-	t.is(project.getSpecVersion(), "2.6", "Project got migrated to latest specVersion");
+	t.is(project.getSpecVersion().toString(), "2.6", "Project got migrated to latest specVersion");
 });
 
 test("Migrate legacy extension", async (t) => {
@@ -195,7 +195,7 @@ test("Migrate legacy extension", async (t) => {
 		}
 	});
 
-	t.is(project.getSpecVersion(), "2.6", "Project got migrated to latest specVersion");
+	t.is(project.getSpecVersion().toString(), "2.6", "Project got migrated to latest specVersion");
 });
 
 [{
