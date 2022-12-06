@@ -10,6 +10,7 @@
 	"properties": {
 		"specVersion": {
 			"enum": [
+				"3.0",
 				"2.6", "2.5", "2.4", "2.3", "2.2", "2.1", "2.0",
 				"1.1", "1.0", "0.1"
 			],
@@ -19,20 +20,30 @@
 
 	"if": {
 		"properties": {
-			"specVersion": { "enum": ["2.6", "2.5", "2.4", "2.3", "2.2", "2.1", "2.0"] }
+			"specVersion": { "enum": ["3.0"] }
 		}
 	},
 	"then": {
-		"$ref": "specVersion/2.0.json"
+		"$ref": "specVersion/3.0.json"
 	},
 	"else": {
 		"if": {
 			"properties": {
-				"specVersion": { "enum": ["1.1", "1.0", "0.1"] }
+				"specVersion": { "enum": ["2.6", "2.5", "2.4", "2.3", "2.2", "2.1", "2.0"] }
 			}
 		},
 		"then": {
-			"additionalProperties": true
+			"$ref": "specVersion/2.0.json"
+		},
+		"else": {
+			"if": {
+				"properties": {
+					"specVersion": { "enum": ["1.1", "1.0", "0.1"] }
+				}
+			},
+			"then": {
+				"additionalProperties": true
+			}
 		}
 	}
 }
