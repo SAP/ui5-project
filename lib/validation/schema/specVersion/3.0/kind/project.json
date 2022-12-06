@@ -259,7 +259,7 @@
 			"properties": {
 				"optimize": {
 					"type": "boolean",
-					"default": false
+					"default": true
 				},
 				"decorateBootstrapModule": {
 					"type": "boolean",
@@ -276,6 +276,10 @@
 				"numberOfParts": {
 					"type": "number",
 					"default": 1
+				},
+				"sourceMap": {
+					"type": "boolean",
+					"default": true
 				}
 			}
 		},
