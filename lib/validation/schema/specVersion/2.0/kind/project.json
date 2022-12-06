@@ -182,7 +182,7 @@
 				}
 			}
 		},
-		"builder-bundles-3.0": {
+		"builder-bundles-2.4": {
 			"type": "array",
 			"additionalProperties": false,
 			"items": {
@@ -297,7 +297,7 @@
 				}
 			}
 		},
-		"builder-componentPreload-specVersion-3.0": {
+		"builder-componentPreload-specVersion-2.3": {
 			"type": "object",
 			"additionalProperties": false,
 			"properties": {
