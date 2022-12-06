@@ -1,0 +1,130 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"$id": "http://ui5.sap/schema/specVersion/3.0/kind/project/library.json",
+
+	"type": "object",
+	"required": ["specVersion", "type", "metadata"],
+	"if": {
+		"properties": {
+			"specVersion": { "enum": ["3.0"] }
+		}
+	},
+	"then": {
+		"additionalProperties": false,
+		"properties": {
+			"specVersion": { "enum": ["3.0"] },
+			"kind": {
+				"enum": ["project", null]
+			},
+			"type": {
+				"enum": ["library"]
+			},
+			"metadata": {
+				"$ref": "../project.json#/definitions/metadata"
+			},
+			"framework": {
+				"$ref": "../project.json#/definitions/framework"
+			},
+			"resources": {
+				"$ref": "#/definitions/resources"
+			},
+			"builder": {
+				"$ref": "#/definitions/builder-specVersion-3.0"
+			},
+			"server": {
+				"$ref": "../project.json#/definitions/server"
+			},
+			"customConfiguration": {
+				"type": "object",
+				"additionalProperties": true
+			}
+		}
+	},
+
+	"definitions": {
+		"resources": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"configuration": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"propertiesFileSourceEncoding": {
+							"$ref": "../project.json#/definitions/resources-configuration-propertiesFileSourceEncoding"
+						},
+						"paths": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"src": {
+									"type": "string"
+								},
+								"test": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"builder-jsdoc": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"excludes": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				}
+			}
+		},
+		"builder": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"resources": {
+					"$ref": "../project.json#/definitions/builder-resources"
+				},
+				"jsdoc": {
+					"$ref": "#/definitions/builder-jsdoc"
+				},
+				"bundles": {
+					"$ref": "../project.json#/definitions/builder-bundles"
+				},
+				"componentPreload": {
+					"$ref": "../project.json#/definitions/builder-componentPreload"
+				},
+				"customTasks": {
+					"$ref": "../project.json#/definitions/customTasks"
+				}
+			}
+		},
+		"builder-specVersion-3.0": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"resources": {
+					"$ref": "../project.json#/definitions/builder-resources"
+				},
+				"jsdoc": {
+					"$ref": "#/definitions/builder-jsdoc"
+				},
+				"bundles": {
+					"$ref": "../project.json#/definitions/builder-bundles"
+				},
+				"componentPreload": {
+					"$ref": "../project.json#/definitions/builder-componentPreload-specVersion-3.0"
+				},
+				"libraryPreload": {
+					"$ref": "../project.json#/definitions/builder-libraryPreload"
+				},
+				"customTasks": {
+					"$ref": "../project.json#/definitions/customTasks"
+				}
+			}
+		}
+	}
+}
