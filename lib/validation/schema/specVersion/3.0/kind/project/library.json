@@ -50,7 +50,7 @@
 					"$ref": "../../../2.0/kind/project.json#/definitions/builder-resources"
 				},
 				"jsdoc": {
-					"$ref": "../../../2.0/kind/project/library.json#definitions/builder-jsdoc"
+					"$ref": "../../../2.0/kind/project/library.json#/definitions/builder-jsdoc"
 				},
 				"bundles": {
 					"$ref": "../project.json#/definitions/builder-bundles"
