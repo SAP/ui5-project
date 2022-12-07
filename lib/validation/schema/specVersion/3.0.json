@@ -31,7 +31,7 @@
 			}
 		},
 		"then": {
-			"$ref": "3.0/kind/extension.json"
+			"$ref": "2.0/kind/extension.json"
 		}
 	}
 }
