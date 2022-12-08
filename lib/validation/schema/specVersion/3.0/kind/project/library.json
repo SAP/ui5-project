@@ -26,7 +26,7 @@
 				"$ref": "../../../2.0/kind/project.json#/definitions/framework"
 			},
 			"resources": {
-				"$ref": "../../../2.0/kind/project.json#/definitions/resources"
+				"$ref": "../../../2.0/kind/project/library.json#/definitions/resources"
 			},
 			"builder": {
 				"$ref": "#/definitions/builder"
