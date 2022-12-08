@@ -25,7 +25,7 @@ async function assertValidation(t, config, expectedErrors = undefined) {
 test.before((t) => {
 	t.context.validator = new Validator({Ajv, ajvErrors});
 	t.context.ajvCoverage = new AjvCoverage(t.context.validator.ajv, {
-		includes: ["schema/specVersion/2.0/kind/extension/project-shim.json"]
+		includes: ["schema/specVersion/kind/extension/project-shim.json"]
 	});
 });
 
@@ -40,7 +40,7 @@ test.after.always((t) => {
 	t.context.ajvCoverage.verify(thresholds);
 });
 
-["2.6", "2.5", "2.4", "2.3", "2.2", "2.1", "2.0"].forEach((specVersion) => {
+["3.0", "2.6", "2.5", "2.4", "2.3", "2.2", "2.1", "2.0"].forEach((specVersion) => {
 	test(`kind: extension / type: project-shim (${specVersion})`, async (t) => {
 		await assertValidation(t, {
 			"specVersion": specVersion,

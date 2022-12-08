@@ -30,7 +30,7 @@ async function assertValidation(t, config, expectedErrors = undefined) {
 test.before((t) => {
 	t.context.validator = new Validator({Ajv, ajvErrors});
 	t.context.ajvCoverage = new AjvCoverage(t.context.validator.ajv, {
-		includes: ["schema/specVersion/2.0/kind/project/application.json"]
+		includes: ["schema/specVersion/kind/project/application.json"]
 	});
 });
 
@@ -45,7 +45,7 @@ test.after.always((t) => {
 	t.context.ajvCoverage.verify(thresholds);
 });
 
-["2.6", "2.5", "2.4", "2.3", "2.2", "2.1", "2.0"].forEach(function(specVersion) {
+["3.0", "2.6", "2.5", "2.4", "2.3", "2.2", "2.1", "2.0"].forEach(function(specVersion) {
 	test(`Valid configuration (specVersion ${specVersion})`, async (t) => {
 		await assertValidation(t, {
 			"specVersion": specVersion,
@@ -435,7 +435,7 @@ test.after.always((t) => {
 				keyword: "enum",
 				message: "should be equal to one of the allowed values",
 				params: {
-					allowedValues: ["2.6", "2.5", "2.4"].includes(specVersion) ? [
+					allowedValues: ["3.0", "2.6", "2.5", "2.4"].includes(specVersion) ? [
 						"raw",
 						"preload",
 						"require",
@@ -539,7 +539,7 @@ test.after.always((t) => {
 	});
 });
 
-["2.6", "2.5", "2.4", "2.3"].forEach(function(specVersion) {
+["3.0", "2.6", "2.5", "2.4", "2.3"].forEach(function(specVersion) {
 	test(`application (specVersion ${specVersion}): builder/componentPreload/excludes`, async (t) => {
 		await assertValidation(t, {
 			"specVersion": specVersion,
@@ -636,7 +636,7 @@ test.after.always((t) => {
 	});
 });
 
-["2.6", "2.5", "2.4"].forEach(function(specVersion) {
+["3.0", "2.6", "2.5", "2.4"].forEach(function(specVersion) {
 	// Unsupported cases for older spec-versions already tested via "allowedValues" comparison above
 	test(`application (specVersion ${specVersion}): builder/bundles/bundleDefinition/sections/mode: bundleInfo`,
 		async (t) => {
@@ -664,7 +664,7 @@ test.after.always((t) => {
 		});
 });
 
-["2.6", "2.5"].forEach(function(specVersion) {
+["3.0", "2.6", "2.5"].forEach(function(specVersion) {
 	test(`application (specVersion ${specVersion}): builder/settings/includeDependency*`, async (t) => {
 		await assertValidation(t, {
 			"specVersion": specVersion,
@@ -845,7 +845,7 @@ test.after.always((t) => {
 	});
 });
 
-["2.6"].forEach(function(specVersion) {
+["3.0", "2.6"].forEach(function(specVersion) {
 	test(`application (specVersion ${specVersion}): builder/minification/excludes`, async (t) => {
 		await assertValidation(t, {
 			"specVersion": specVersion,
