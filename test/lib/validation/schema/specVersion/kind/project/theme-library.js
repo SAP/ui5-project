@@ -1,10 +1,10 @@
 import test from "ava";
 import Ajv from "ajv";
 import ajvErrors from "ajv-errors";
-import AjvCoverage from "../../../../../../../utils/AjvCoverage.js";
-import {_Validator as Validator} from "../../../../../../../../lib/validation/validator.js";
-import ValidationError from "../../../../../../../../lib/validation/ValidationError.js";
-import project from "../../../../__helper__/project.js";
+import AjvCoverage from "../../../../../../utils/AjvCoverage.js";
+import {_Validator as Validator} from "../../../../../../../lib/validation/validator.js";
+import ValidationError from "../../../../../../../lib/validation/ValidationError.js";
+import project from "../../../__helper__/project.js";
 
 async function assertValidation(t, config, expectedErrors = undefined) {
 	const validation = t.context.validator.validate({config, project: {id: "my-project"}});
