@@ -52,7 +52,7 @@ test.after.always((t) => {
 			"shims": {
 				"configurations": {
 					"invalid": {
-						"specVersion": "3.0",
+						"specVersion": "4.0",
 						"type": "does-not-exist",
 						"metadata": {
 							"name": "my-application"
@@ -134,7 +134,7 @@ const additionalConfiguration = {
 				}
 			},
 			"my-other-dependency": {
-				"specVersion": "3.0",
+				"specVersion": "4.0",
 				"type": "does-not-exist",
 				"metadata": {
 					"name": "my-application"
