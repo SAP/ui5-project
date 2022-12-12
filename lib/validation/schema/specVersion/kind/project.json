@@ -135,7 +135,7 @@
 				"additionalProperties": false,
 				"properties": {
 					"bundleDefinition": {
-						"$ref": "#/definitions/builder-bundles-bundleDefinition"
+						"$ref": "#/definitions/builder-bundles-bundleDefinition-2.4"
 					},
 					"bundleOptions": {
 						"$ref": "#/definitions/builder-bundles-bundleOptions"
@@ -151,7 +151,7 @@
 				"additionalProperties": false,
 				"properties": {
 					"bundleDefinition": {
-						"$ref": "#/definitions/builder-bundles-bundleDefinition"
+						"$ref": "#/definitions/builder-bundles-bundleDefinition-2.4"
 					},
 					"bundleOptions": {
 						"$ref": "#/definitions/builder-bundles-bundleOptions-3.0"
@@ -160,6 +160,64 @@
 			}
 		},
 		"builder-bundles-bundleDefinition": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["name"],
+			"properties": {
+				"name": {
+					"type": "string"
+				},
+				"defaultFileTypes": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"sections": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"additionalProperties": false,
+						"required": ["mode", "filters"],
+						"properties": {
+							"name": {
+								"type": "string"
+							},
+							"mode": {
+								"enum": ["raw", "preload", "require", "provided"]
+							},
+							"filters": {
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							},
+							"resolve": {
+								"type": "boolean",
+								"default": false
+							},
+							"resolveConditional": {
+								"type": "boolean",
+								"default": false
+							},
+							"renderer": {
+								"type": "boolean",
+								"default": false
+							},
+							"sort": {
+								"type": "boolean",
+								"default": true
+							},
+							"declareRawModules": {
+								"type": "boolean",
+								"default": false
+							}
+						}
+					}
+				}
+			}
+		},
+		"builder-bundles-bundleDefinition-2.4": {
 			"type": "object",
 			"additionalProperties": false,
 			"required": ["name"],
