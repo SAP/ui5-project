@@ -195,3 +195,110 @@ test("No specVersion", async (t) => {
 		}
 	}]);
 });
+
+["3.0"].forEach(function(specVersion) {
+	test(`application (specVersion ${specVersion}): builder/bundles/bundleOptions deprectaions`, async (t) => {
+		await assertValidation(t, {
+			"specVersion": specVersion,
+			"kind": "project",
+			"type": "application",
+			"metadata": {
+				"name": "com.sap.ui5.test",
+				"copyright": "yes"
+			},
+			"builder": {
+				"bundles": [{
+					"bundleOptions": {
+						"debugMode": true
+					}
+				}]
+			}
+		}, [
+			{
+				keyword: "additionalProperties",
+				dataPath: "/builder/bundles/0/bundleOptions",
+				params: {
+					additionalProperty: "debugMode",
+				},
+				message: "should NOT have additional properties",
+			},
+		]);
+	});
+
+	test(`Invalid (specVersion ${specVersion}): builder/bundles/bundleOptions config`, async (t) => {
+		await assertValidation(t, {
+			"specVersion": specVersion,
+			"kind": "project",
+			"type": "application",
+			"metadata": {
+				"name": "com.sap.ui5.test",
+				"copyright": "yes"
+			},
+			"builder": {
+				"bundles": [{
+					"bundleOptions": {
+						"optimize": "invalid value",
+						"decorateBootstrapModule": {"invalid": "value"},
+						"addTryCatchRestartWrapper": ["invalid value"],
+						"usePredefineCalls": 12,
+						"numberOfParts": true,
+						"sourceMap": 55
+					}
+				}]
+			}
+		}, [
+			{
+				keyword: "type",
+				dataPath: "/builder/bundles/0/bundleOptions/optimize",
+				params: {
+					type: "boolean",
+				},
+				message: "should be boolean"
+			},
+			{
+				keyword: "type",
+				dataPath:
+					"/builder/bundles/0/bundleOptions/decorateBootstrapModule",
+				params: {
+					type: "boolean",
+				},
+				message: "should be boolean"
+			},
+			{
+				keyword: "type",
+				dataPath:
+					"/builder/bundles/0/bundleOptions/addTryCatchRestartWrapper",
+				params: {
+					type: "boolean",
+				},
+				message: "should be boolean"
+			},
+			{
+				keyword: "type",
+				dataPath:
+					"/builder/bundles/0/bundleOptions/usePredefineCalls",
+				params: {
+					type: "boolean",
+				},
+				message: "should be boolean"
+			},
+			{
+				keyword: "type",
+				dataPath:
+					"/builder/bundles/0/bundleOptions/numberOfParts",
+				params: {
+					type: "number",
+				},
+				message: "should be number"
+			},
+			{
+				keyword: "type",
+				dataPath: "/builder/bundles/0/bundleOptions/sourceMap",
+				params: {
+					type: "boolean",
+				},
+				message: "should be boolean"
+			}
+		]);
+	});
+});
