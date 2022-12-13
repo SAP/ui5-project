@@ -197,108 +197,134 @@ test("No specVersion", async (t) => {
 });
 
 ["3.0"].forEach(function(specVersion) {
-	test(`application (specVersion ${specVersion}): builder/bundles/bundleOptions deprectaions`, async (t) => {
-		await assertValidation(t, {
-			"specVersion": specVersion,
-			"kind": "project",
-			"type": "application",
-			"metadata": {
-				"name": "com.sap.ui5.test",
-				"copyright": "yes"
-			},
-			"builder": {
-				"bundles": [{
-					"bundleOptions": {
-						"debugMode": true
-					}
-				}]
-			}
-		}, [
-			{
-				keyword: "additionalProperties",
-				dataPath: "/builder/bundles/0/bundleOptions",
-				params: {
-					additionalProperty: "debugMode",
+	["application", "library"].forEach(function(type) {
+		test(`${type} (specVersion ${specVersion}): builder/bundles/bundleOptions`, async (t) => {
+			await assertValidation(t, {
+				"specVersion": specVersion,
+				"kind": "project",
+				"type": type,
+				"metadata": {
+					"name": "com.sap.ui5.test",
+					"copyright": "yes"
 				},
-				message: "should NOT have additional properties",
-			},
-		]);
-	});
+				"builder": {
+					"bundles": [{
+						"bundleOptions": {
+							"optimize": false,
+							"decorateBootstrapModule": false,
+							"addTryCatchRestartWrapper": true,
+							"usePredefineCalls": true,
+							"numberOfParts": 8,
+							"sourceMap": false
+						}
+					}]
+				}
+			});
+		});
 
-	test(`Invalid (specVersion ${specVersion}): builder/bundles/bundleOptions config`, async (t) => {
-		await assertValidation(t, {
-			"specVersion": specVersion,
-			"kind": "project",
-			"type": "application",
-			"metadata": {
-				"name": "com.sap.ui5.test",
-				"copyright": "yes"
-			},
-			"builder": {
-				"bundles": [{
-					"bundleOptions": {
-						"optimize": "invalid value",
-						"decorateBootstrapModule": {"invalid": "value"},
-						"addTryCatchRestartWrapper": ["invalid value"],
-						"usePredefineCalls": 12,
-						"numberOfParts": true,
-						"sourceMap": 55
-					}
-				}]
-			}
-		}, [
-			{
-				keyword: "type",
-				dataPath: "/builder/bundles/0/bundleOptions/optimize",
-				params: {
-					type: "boolean",
+		test(`${type} (specVersion ${specVersion}): builder/bundles/bundleOptions deprectaions`, async (t) => {
+			await assertValidation(t, {
+				"specVersion": specVersion,
+				"kind": "project",
+				"type": type,
+				"metadata": {
+					"name": "com.sap.ui5.test",
+					"copyright": "yes"
 				},
-				message: "should be boolean"
-			},
-			{
-				keyword: "type",
-				dataPath:
-					"/builder/bundles/0/bundleOptions/decorateBootstrapModule",
-				params: {
-					type: "boolean",
+				"builder": {
+					"bundles": [{
+						"bundleOptions": {
+							"debugMode": true
+						}
+					}]
+				}
+			}, [
+				{
+					keyword: "additionalProperties",
+					dataPath: "/builder/bundles/0/bundleOptions",
+					params: {
+						additionalProperty: "debugMode",
+					},
+					message: "should NOT have additional properties",
 				},
-				message: "should be boolean"
-			},
-			{
-				keyword: "type",
-				dataPath:
-					"/builder/bundles/0/bundleOptions/addTryCatchRestartWrapper",
-				params: {
-					type: "boolean",
+			]);
+		});
+
+		test(`${type} invalid (specVersion ${specVersion}): builder/bundles/bundleOptions config`, async (t) => {
+			await assertValidation(t, {
+				"specVersion": specVersion,
+				"kind": "project",
+				"type": type,
+				"metadata": {
+					"name": "com.sap.ui5.test",
+					"copyright": "yes"
 				},
-				message: "should be boolean"
-			},
-			{
-				keyword: "type",
-				dataPath:
-					"/builder/bundles/0/bundleOptions/usePredefineCalls",
-				params: {
-					type: "boolean",
+				"builder": {
+					"bundles": [{
+						"bundleOptions": {
+							"optimize": "invalid value",
+							"decorateBootstrapModule": {"invalid": "value"},
+							"addTryCatchRestartWrapper": ["invalid value"],
+							"usePredefineCalls": 12,
+							"numberOfParts": true,
+							"sourceMap": 55
+						}
+					}]
+				}
+			}, [
+				{
+					keyword: "type",
+					dataPath: "/builder/bundles/0/bundleOptions/optimize",
+					params: {
+						type: "boolean",
+					},
+					message: "should be boolean"
 				},
-				message: "should be boolean"
-			},
-			{
-				keyword: "type",
-				dataPath:
-					"/builder/bundles/0/bundleOptions/numberOfParts",
-				params: {
-					type: "number",
+				{
+					keyword: "type",
+					dataPath:
+						"/builder/bundles/0/bundleOptions/decorateBootstrapModule",
+					params: {
+						type: "boolean",
+					},
+					message: "should be boolean"
 				},
-				message: "should be number"
-			},
-			{
-				keyword: "type",
-				dataPath: "/builder/bundles/0/bundleOptions/sourceMap",
-				params: {
-					type: "boolean",
+				{
+					keyword: "type",
+					dataPath:
+						"/builder/bundles/0/bundleOptions/addTryCatchRestartWrapper",
+					params: {
+						type: "boolean",
+					},
+					message: "should be boolean"
 				},
-				message: "should be boolean"
-			}
-		]);
+				{
+					keyword: "type",
+					dataPath:
+						"/builder/bundles/0/bundleOptions/usePredefineCalls",
+					params: {
+						type: "boolean",
+					},
+					message: "should be boolean"
+				},
+				{
+					keyword: "type",
+					dataPath:
+						"/builder/bundles/0/bundleOptions/numberOfParts",
+					params: {
+						type: "number",
+					},
+					message: "should be number"
+				},
+				{
+					keyword: "type",
+					dataPath: "/builder/bundles/0/bundleOptions/sourceMap",
+					params: {
+						type: "boolean",
+					},
+					message: "should be boolean"
+				}
+			]);
+		});
 	});
 });
