@@ -1,5 +1,5 @@
 /**
- * Common test functionality for customConfiguration section in config
+ * Common test functionality for builder/bundles/bundleOptions section in config
  */
 export default {
 	/**
