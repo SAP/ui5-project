@@ -112,8 +112,10 @@ test("getBuildOption", (t) => {
 test("createProjectContext", async (t) => {
 	const buildContext = new BuildContext("graph", "taskRepository");
 	const projectBuildContext = await buildContext.createProjectContext({
-		project: "project",
-		log: "log"
+		project: {
+			getName: () => "project",
+			getType: () => "type",
+		},
 	});
 
 	t.deepEqual(buildContext._projectBuildContexts, [projectBuildContext],
