@@ -20,6 +20,24 @@ const themeLibraryEPath = path.join(__dirname, "..", "..", "fixtures", "theme.li
 const genericExtensionPath = path.join(__dirname, "..", "..", "fixtures", "extension.a");
 const moduleAPath = path.join(__dirname, "..", "..", "fixtures", "module.a");
 
+function createSubclass(Specification) {
+	class DummySpecification extends Specification {
+		getPath() {
+			return "path";
+		}
+		getType() {
+			return "type";
+		}
+		getKind() {
+			return "kind";
+		}
+		getName() {
+			return "name";
+		}
+	}
+	return DummySpecification;
+}
+
 test.beforeEach((t) => {
 	t.context.basicProjectInput = {
 		id: "application.a.id",
@@ -321,21 +339,7 @@ test("getRootReader: Default parameters", async (t) => {
 		}
 	});
 
-	class DummySpecification extends Specification {
-		getPath() {
-			return "path";
-		}
-		getType() {
-			return "type";
-		}
-		getKind() {
-			return "kind";
-		}
-		getName() {
-			return "name";
-		}
-	}
-
+	const DummySpecification = createSubclass(Specification);
 	const spec = new DummySpecification();
 	await spec.getRootReader();
 
@@ -356,21 +360,7 @@ test("getRootReader: Custom parameters", async (t) => {
 		}
 	});
 
-	class DummySpecification extends Specification {
-		getPath() {
-			return "path";
-		}
-		getType() {
-			return "type";
-		}
-		getKind() {
-			return "kind";
-		}
-		getName() {
-			return "name";
-		}
-	}
-
+	const DummySpecification = createSubclass(Specification);
 	const spec = new DummySpecification();
 	await spec.getRootReader({});
 	await spec.getRootReader({
