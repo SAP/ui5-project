@@ -6,7 +6,7 @@ import {_Validator as Validator} from "../../../../lib/validation/validator.js";
 import ValidationError from "../../../../lib/validation/ValidationError.js";
 
 async function assertValidation(t, config, expectedErrors = undefined) {
-	const validation = t.context.validator.validate({config, project: {id: "my-project"}});
+	const validation = t.context.validator.validate({config, project: {id: "my-project"}, schemaName: "ui5.json"});
 	if (expectedErrors) {
 		const validationError = await t.throwsAsync(validation, {
 			instanceOf: ValidationError,
