@@ -201,7 +201,7 @@ test.serial("ValidationError.formatErrors", (t) => {
 	const message = ValidationError.prototype.formatErrors.apply(fakeValidationErrorInstance);
 
 	const expectedMessage =
-`${chalk.red("Invalid ui5.yaml configuration for project my-project")}
+`${chalk.red("Invalid configuration for project my-project")}
 
 Error message 1
 

@@ -31,7 +31,7 @@ test("Invalid configuration", async (t) => {
 		}
 	};
 	const error = await t.throwsAsync(Specification.create(customProjectInput));
-	t.is(error.message, `${chalk.red("Invalid ui5.yaml configuration for project application.a.id")}
+	t.is(error.message, `${chalk.red("Invalid configuration for project application.a.id")}
 
 Configuration \
 ${chalk.underline(chalk.red("resources/configuration/propertiesFileSourceEncoding"))} \

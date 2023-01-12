@@ -14,9 +14,9 @@ test.serial("validate function calls Validator#validate method", async (t) => {
 	const validateStub = sinon.stub(Validator.prototype, "validate");
 	validateStub.resolves();
 
-	const result = await validate({config, project, yaml});
+	const result = await validate({config, project, yaml, schemaName: "ui5.json"});
 
 	t.is(result, undefined, "validate should return undefined");
 	t.is(validateStub.callCount, 1, "validate should be called once");
-	t.deepEqual(validateStub.getCall(0).args, [{config, project, yaml}]);
+	t.deepEqual(validateStub.getCall(0).args, [{config, project, yaml, schemaName: "ui5.json"}]);
 });
