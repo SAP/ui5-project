@@ -39,44 +39,56 @@ test("validate function calls Validator#validate method", async (t) => {
 	t.deepEqual(validateStub.getCall(0).args, [{config, project, yaml, schemaName: "ui5.json"}]);
 });
 
+test("Validator requires schemaName", (t) => {
+	const {sinon, Validator} = t.context;
+
+	const Ajv = sinon.stub();
+	const ajvErrors = sinon.stub();
+	const invalidContructor = () => {
+		new Validator({Ajv, ajvErrors});
+	};
+
+	t.throws(invalidContructor, {
+		message:
+			"\"schemaName\" is missing or incorrect. The available schemaName variants are ui5,ui5.json," +
+			"ui5-workspace,ui5-workspace.json",
+	});
+});
+
 test("Validator#_compileSchema with two simultaneous calls for different schemas", async (t) => {
 	const {sinon, Validator} = t.context;
 
 	const schema1 = {schema1: true};
-	const schema2 = {schema2: true};
 
 	const loadSchemaStub = sinon.stub(Validator, "loadSchema");
-	loadSchemaStub.withArgs("schema1.json").resolves(schema1);
-	loadSchemaStub.withArgs("schema2.json").resolves(schema2);
+	loadSchemaStub.onCall(0).resolves(schema1);
 
 	const schema1Fn = sinon.stub().named("schema1Fn");
-	const schema2Fn = sinon.stub().named("schema2Fn");
 
 	const compileAsyncStub = sinon.stub().resolves();
-	compileAsyncStub.withArgs(schema1).resolves(schema1Fn);
-	compileAsyncStub.withArgs(schema2).resolves(schema2Fn);
+	compileAsyncStub.onCall(0).resolves(schema1Fn);
 
 	const Ajv = sinon.stub().returns({
 		compileAsync: compileAsyncStub
 	});
 	const ajvErrors = sinon.stub();
 
-	const validator = new Validator({Ajv, ajvErrors});
+	const validator = new Validator({Ajv, ajvErrors, schemaName: "ui5-workspace"});
 
-	const compile1 = validator._compileSchema("schema1.json");
-	const compile2 = validator._compileSchema("schema2.json");
+	const compile1 = validator._compileSchema();
+	const compile2 = validator._compileSchema();
+	const compile3 = validator._compileSchema();
 
 	const compile1Result = await compile1;
 	const compile2Result = await compile2;
+	const compile3Result = await compile3;
 
-	t.is(compile1Result, schema1Fn);
-	t.is(compile2Result, schema2Fn);
+	t.is(compile1Result, compile2Result);
+	t.is(compile2Result, compile3Result);
 
-	t.is(loadSchemaStub.callCount, 2);
-	t.deepEqual(loadSchemaStub.getCall(0).args, ["schema1.json"]);
-	t.deepEqual(loadSchemaStub.getCall(1).args, ["schema2.json"]);
+	t.is(loadSchemaStub.callCount, 1);
+	t.deepEqual(loadSchemaStub.getCall(0).args, ["ui5-workspace.json"]);
 
-	t.is(compileAsyncStub.callCount, 2);
+	t.is(compileAsyncStub.callCount, 1);
 	t.deepEqual(compileAsyncStub.getCall(0).args, [schema1]);
-	t.deepEqual(compileAsyncStub.getCall(1).args, [schema2]);
 });

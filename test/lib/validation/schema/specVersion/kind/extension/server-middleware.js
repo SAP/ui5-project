@@ -7,7 +7,7 @@ import ValidationError from "../../../../../../../lib/validation/ValidationError
 import extension from "../../../__helper__/extension.js";
 
 async function assertValidation(t, config, expectedErrors = undefined) {
-	const validation = t.context.validator.validate({config, project: {id: "my-project"}, schemaName: "ui5.json"});
+	const validation = t.context.validator.validate({config, project: {id: "my-project"}});
 	if (expectedErrors) {
 		const validationError = await t.throwsAsync(validation, {
 			instanceOf: ValidationError,
@@ -23,7 +23,7 @@ async function assertValidation(t, config, expectedErrors = undefined) {
 }
 
 test.before((t) => {
-	t.context.validator = new Validator({Ajv, ajvErrors});
+	t.context.validator = new Validator({Ajv, ajvErrors, schemaName: "ui5"});
 	t.context.ajvCoverage = new AjvCoverage(t.context.validator.ajv, {
 		includes: ["schema/specVersion/kind/extension/server-middleware.json"]
 	});
