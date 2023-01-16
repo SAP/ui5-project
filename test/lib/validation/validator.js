@@ -55,18 +55,20 @@ test("Validator requires schemaName", (t) => {
 	});
 });
 
-test("Validator#_compileSchema with two simultaneous calls for different schemas", async (t) => {
+test("Validator#_compileSchema cache test", async (t) => {
 	const {sinon, Validator} = t.context;
 
 	const schema1 = {schema1: true};
 
 	const loadSchemaStub = sinon.stub(Validator, "loadSchema");
 	loadSchemaStub.onCall(0).resolves(schema1);
+	loadSchemaStub.resolves({schema2: true});
 
 	const schema1Fn = sinon.stub().named("schema1Fn");
 
 	const compileAsyncStub = sinon.stub().resolves();
 	compileAsyncStub.onCall(0).resolves(schema1Fn);
+	compileAsyncStub.resolves(sinon.stub().named("schema2Fn"));
 
 	const Ajv = sinon.stub().returns({
 		compileAsync: compileAsyncStub
