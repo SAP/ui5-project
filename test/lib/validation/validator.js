@@ -32,11 +32,11 @@ test("validate function calls Validator#validate method", async (t) => {
 	const validateStub = sinon.stub(Validator.prototype, "validate");
 	validateStub.resolves();
 
-	const result = await validate({config, project, yaml, schemaName: "ui5.json"});
+	const result = await validate({config, project, yaml, schemaName: "ui5"});
 
 	t.is(result, undefined, "validate should return undefined");
 	t.is(validateStub.callCount, 1, "validate should be called once");
-	t.deepEqual(validateStub.getCall(0).args, [{config, project, yaml, schemaName: "ui5.json"}]);
+	t.deepEqual(validateStub.getCall(0).args, [{config, project, yaml, schemaName: "ui5"}]);
 });
 
 test("Validator requires schemaName", (t) => {
@@ -50,8 +50,7 @@ test("Validator requires schemaName", (t) => {
 
 	t.throws(invalidContructor, {
 		message:
-			"\"schemaName\" is missing or incorrect. The available schemaName variants are ui5,ui5.json," +
-			"ui5-workspace,ui5-workspace.json",
+			"\"schemaName\" is missing or incorrect. The available schemaName variants are ui5,ui5-workspace",
 	});
 });
 
@@ -66,8 +65,7 @@ test("Validator requires a valid schemaName", (t) => {
 
 	t.throws(invalidContructor, {
 		message:
-			"\"schemaName\" is missing or incorrect. The available schemaName variants are ui5,ui5.json," +
-			"ui5-workspace,ui5-workspace.json",
+			"\"schemaName\" is missing or incorrect. The available schemaName variants are ui5,ui5-workspace",
 	});
 });
 
