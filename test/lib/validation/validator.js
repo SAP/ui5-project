@@ -55,6 +55,22 @@ test("Validator requires schemaName", (t) => {
 	});
 });
 
+test("Validator requires a valid schemaName", (t) => {
+	const {sinon, Validator} = t.context;
+
+	const Ajv = sinon.stub();
+	const ajvErrors = sinon.stub();
+	const invalidContructor = () => {
+		new Validator({Ajv, ajvErrors, schemName: "invalid schema name"});
+	};
+
+	t.throws(invalidContructor, {
+		message:
+			"\"schemaName\" is missing or incorrect. The available schemaName variants are ui5,ui5.json," +
+			"ui5-workspace,ui5-workspace.json",
+	});
+});
+
 test("Validator#_compileSchema cache test", async (t) => {
 	const {sinon, Validator} = t.context;
 
