@@ -50,7 +50,7 @@ test("Validator requires schemaName", (t) => {
 
 	t.throws(invalidContructor, {
 		message:
-			"\"schemaName\" is missing or incorrect. The available schemaName variants are ui5,ui5-workspace",
+			"\"schemaName\" is missing or incorrect. The available schemaName variants are ui5, ui5-workspace",
 	});
 });
 
@@ -65,7 +65,7 @@ test("Validator requires a valid schemaName", (t) => {
 
 	t.throws(invalidContructor, {
 		message:
-			"\"schemaName\" is missing or incorrect. The available schemaName variants are ui5,ui5-workspace",
+			"\"schemaName\" is missing or incorrect. The available schemaName variants are ui5, ui5-workspace",
 	});
 });
 
