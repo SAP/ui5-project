@@ -223,8 +223,6 @@ test.serial("graphFromPackageDependencies with workspace file", async (t) => {
 		"readWorkspaceConfigFile got called with correct first argument");
 	t.is(readWorkspaceConfigFileStub.getCall(0).args[1], "ui5-workspace.yaml",
 		"readWorkspaceConfigFile got called with correct second argument");
-	t.is(readWorkspaceConfigFileStub.getCall(0).args[2], false,
-		"readWorkspaceConfigFile got called with correct third argument");
 
 	t.is(workspaceConstructorStub.callCount, 1, "Workspace constructor got called once");
 	t.deepEqual(workspaceConstructorStub.getCall(0).args[0], {
@@ -292,8 +290,6 @@ test.serial("graphFromPackageDependencies with inactive workspace file at custom
 		"readWorkspaceConfigFile got called with correct first argument");
 	t.is(readWorkspaceConfigFileStub.getCall(0).args[1], "workspaceConfigPath",
 		"readWorkspaceConfigFile got called with correct second argument");
-	t.is(readWorkspaceConfigFileStub.getCall(0).args[2], true,
-		"readWorkspaceConfigFile got called with correct third argument");
 
 	t.is(workspaceConstructorStub.callCount, 0, "Workspace constructor is not called");
 
@@ -496,7 +492,7 @@ test.serial("utils: readWorkspaceConfigFile", async (t) => {
 	}], "Returned correct file content");
 });
 
-test.serial("utils: readWorkspaceConfigFile - throwIfMissing: false", async (t) => {
+test.serial("utils: readWorkspaceConfigFile - Does not throw if default file is missing", async (t) => {
 	const {graphFromPackageDependencies} = t.context.graph;
 	const res = await graphFromPackageDependencies._utils.readWorkspaceConfigFile(
 		path.join(fixturesPath, "library.d"), "ui5-workspace.yaml");
@@ -504,11 +500,11 @@ test.serial("utils: readWorkspaceConfigFile - throwIfMissing: false", async (t) 
 	t.deepEqual(res, [], "Returned empty array");
 });
 
-test.serial("utils: readWorkspaceConfigFile - throwIfMissing: true", async (t) => {
+test.serial("utils: readWorkspaceConfigFile - Throws if non-default file is missing", async (t) => {
 	const {graphFromPackageDependencies} = t.context.graph;
 	const err = await t.throwsAsync(graphFromPackageDependencies._utils.readWorkspaceConfigFile(
-		path.join(fixturesPath, "library.d"), "ui5-workspace.yaml", true));
-	const filePath = path.join(fixturesPath, "library.d", "ui5-workspace.yaml");
+		path.join(fixturesPath, "library.d"), "other-ui5-workspace.yaml", true));
+	const filePath = path.join(fixturesPath, "library.d", "other-ui5-workspace.yaml");
 	t.is(err.message,
 		`Failed to load workspace configuration from path ${filePath}: ` +
 		`ENOENT: no such file or directory, open '${filePath}'`);
