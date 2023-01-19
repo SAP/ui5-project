@@ -372,7 +372,7 @@ test("Invalid configuration in file", async (t) => {
 	});
 	const err = await t.throwsAsync(ui5Module.getSpecifications());
 
-	t.true(err.message.includes("Invalid configuration"), "Threw with validation error");
+	t.true(err.message.includes("Invalid ui5.yaml configuration"), "Threw with validation error");
 	// Check that config file name is referenced. This validates that the error was not produced by
 	// the Specification instance but the Module
 	t.true(err.message.includes("ui5-test-error.yaml"), "Error message references file name");
