@@ -55,6 +55,18 @@ test("validateWorkspace function calls Validator#validate method without project
 	t.deepEqual(validateStub.getCall(0).args, [{config, yaml}]);
 });
 
+test("validateWorkspace throw an Error", async (t) => {
+	const {validateWorkspace} = await esmock("../../../lib/validation/validator.js");
+	const config = {config: true};
+	const yaml = {yaml: true};
+
+	const err = await t.throwsAsync(async () => {
+		return await validateWorkspace({config, yaml});
+	});
+
+	t.is(err.message.includes("Invalid workspace configuration."), true);
+});
+
 test("Validator requires schemaName", (t) => {
 	const {sinon, Validator} = t.context;
 
