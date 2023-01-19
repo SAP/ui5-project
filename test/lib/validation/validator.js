@@ -12,9 +12,10 @@ test.beforeEach(async (t) => {
 		"ajv": Ajv,
 		"ajv-errors": ajvErrors
 	});
-	const {validate, _Validator: Validator} = t.context.validatorModule;
+	const {validate, validateWorkspace, _Validator: Validator} = t.context.validatorModule;
 
 	t.context.validate = validate;
+	t.context.validateWorkspace = validateWorkspace;
 	t.context.Validator = Validator;
 });
 
@@ -32,11 +33,26 @@ test("validate function calls Validator#validate method", async (t) => {
 	const validateStub = sinon.stub(Validator.prototype, "validate");
 	validateStub.resolves();
 
-	const result = await validate({config, project, yaml, schemaName: "ui5"});
+	const result = await validate({config, project, yaml});
 
 	t.is(result, undefined, "validate should return undefined");
 	t.is(validateStub.callCount, 1, "validate should be called once");
-	t.deepEqual(validateStub.getCall(0).args, [{config, project, yaml, schemaName: "ui5"}]);
+	t.deepEqual(validateStub.getCall(0).args, [{config, project, yaml}]);
+});
+
+test("validateWorkspace function calls Validator#validate method without project", async (t) => {
+	const {sinon, Validator, validateWorkspace} = t.context;
+	const config = {config: true};
+	const yaml = {yaml: true};
+
+	const validateStub = sinon.stub(Validator.prototype, "validate");
+	validateStub.resolves();
+
+	const result = await validateWorkspace({config, yaml});
+
+	t.is(result, undefined, "validate should return undefined");
+	t.is(validateStub.callCount, 1, "validate should be called once");
+	t.deepEqual(validateStub.getCall(0).args, [{config, yaml}]);
 });
 
 test("Validator requires schemaName", (t) => {
