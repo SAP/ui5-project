@@ -93,6 +93,34 @@
 				}
 			}
 		},
+		"metadata-3.0": {
+			"type": "object",
+			"required": ["name"],
+			"additionalProperties": false,
+			"properties": {
+				"name": {
+					"type": "string",
+					"minLength": 3,
+					"maxLength": 50,
+					"pattern": "^(?:@[0-9a-z-_.]+/)?[a-z][0-9a-z-_.]*$"
+				},
+				"copyright": {
+					"type": "string"
+				},
+				"deprecated": {
+					"type": "boolean",
+					"default": false
+				},
+				"sapInternal": {
+					"type": "boolean",
+					"default": false
+				},
+				"allowSapInternal": {
+					"type": "boolean",
+					"default": false
+				}
+			}
+		},
 		"resources-configuration-propertiesFileSourceEncoding": {
 			"enum": ["UTF-8", "ISO-8859-1"],
 			"default": "UTF-8",

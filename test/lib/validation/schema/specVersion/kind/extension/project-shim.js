@@ -122,6 +122,58 @@ test.after.always((t) => {
 	});
 });
 
+["3.0"].forEach(function(specVersion) {
+	test(`Invalid project name (specVersion ${specVersion})`, async (t) => {
+		await assertValidation(t, {
+			"specVersion": specVersion,
+			"kind": "extension",
+			"type": "project-shim",
+			"metadata": {
+				"name": "illegal-🦜"
+			},
+			"shims": {}
+		}, [{
+			dataPath: "/metadata/name",
+			keyword: "pattern",
+			message: `should match pattern "^(?:@[0-9a-z-_.]+/)?[a-z][0-9a-z-_.]*$"`,
+			params: {
+				pattern: `^(?:@[0-9a-z-_.]+/)?[a-z][0-9a-z-_.]*$`,
+			},
+		}]);
+		await assertValidation(t, {
+			"specVersion": specVersion,
+			"kind": "extension",
+			"type": "project-shim",
+			"metadata": {
+				"name": "a"
+			},
+			"shims": {}
+		}, [{
+			dataPath: "/metadata/name",
+			keyword: "minLength",
+			message: `should NOT be shorter than 3 characters`,
+			params: {
+				limit: 3,
+			},
+		}]);
+		await assertValidation(t, {
+			"specVersion": specVersion,
+			"kind": "extension",
+			"type": "project-shim",
+			"metadata": {
+				"name": "a".repeat(51)
+			},
+			"shims": {}
+		}, [{
+			dataPath: "/metadata/name",
+			keyword: "maxLength",
+			message: `should NOT be longer than 50 characters`,
+			params: {
+				limit: 50,
+			},
+		}]);
+	});
+});
 
 const additionalConfiguration = {
 	"shims": {
