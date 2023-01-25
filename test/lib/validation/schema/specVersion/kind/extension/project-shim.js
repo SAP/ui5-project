@@ -15,6 +15,11 @@ async function assertValidation(t, config, expectedErrors = undefined) {
 		});
 		validationError.errors.forEach((error) => {
 			delete error.schemaPath;
+			if (error.params && Array.isArray(error.params.errors)) {
+				error.params.errors.forEach(($) => {
+					delete $.schemaPath;
+				});
+			}
 		});
 		t.deepEqual(validationError.errors, expectedErrors);
 	} else {
@@ -123,21 +128,28 @@ test.after.always((t) => {
 });
 
 ["3.0"].forEach(function(specVersion) {
-	test(`Invalid project name (specVersion ${specVersion})`, async (t) => {
+	test(`Invalid extension name (specVersion ${specVersion})`, async (t) => {
 		await assertValidation(t, {
 			"specVersion": specVersion,
 			"kind": "extension",
 			"type": "project-shim",
 			"metadata": {
-				"name": "illegal-🦜"
+				"name": "illegal/name"
 			},
 			"shims": {}
 		}, [{
 			dataPath: "/metadata/name",
-			keyword: "pattern",
-			message: `should match pattern "^(?:@[0-9a-z-_.]+/)?[a-z][0-9a-z-_.]*$"`,
+			keyword: "errorMessage",
+			message: `Not a valid extension name. It must consist of lowercase alphanumeric characters, dash, underscore and period only. Additionally, it may contain an npm-style package scope. For details see: https://sap.github.io/ui5-tooling/stable/pages/Configuration/#name`,
 			params: {
-				pattern: `^(?:@[0-9a-z-_.]+/)?[a-z][0-9a-z-_.]*$`,
+				errors: [{
+					dataPath: "/metadata/name",
+					keyword: "pattern",
+					message: `should match pattern "^(?:@[0-9a-z-_.]+\\/)?[a-z][0-9a-z-_.]*$"`,
+					params: {
+						pattern: "^(?:@[0-9a-z-_.]+\\/)?[a-z][0-9a-z-_.]*$",
+					}
+				}]
 			},
 		}]);
 		await assertValidation(t, {
@@ -150,10 +162,17 @@ test.after.always((t) => {
 			"shims": {}
 		}, [{
 			dataPath: "/metadata/name",
-			keyword: "minLength",
-			message: `should NOT be shorter than 3 characters`,
+			keyword: "errorMessage",
+			message: `Not a valid extension name. It must consist of lowercase alphanumeric characters, dash, underscore and period only. Additionally, it may contain an npm-style package scope. For details see: https://sap.github.io/ui5-tooling/stable/pages/Configuration/#name`,
 			params: {
-				limit: 3,
+				errors: [{
+					dataPath: "/metadata/name",
+					keyword: "minLength",
+					message: "should NOT be shorter than 3 characters",
+					params: {
+						limit: 3,
+					}
+				}]
 			},
 		}]);
 		await assertValidation(t, {
@@ -166,10 +185,17 @@ test.after.always((t) => {
 			"shims": {}
 		}, [{
 			dataPath: "/metadata/name",
-			keyword: "maxLength",
-			message: `should NOT be longer than 50 characters`,
+			keyword: "errorMessage",
+			message: `Not a valid extension name. It must consist of lowercase alphanumeric characters, dash, underscore and period only. Additionally, it may contain an npm-style package scope. For details see: https://sap.github.io/ui5-tooling/stable/pages/Configuration/#name`,
 			params: {
-				limit: 50,
+				errors: [{
+					dataPath: "/metadata/name",
+					keyword: "maxLength",
+					message: "should NOT be longer than 50 characters",
+					params: {
+						limit: 50,
+					}
+				}]
 			},
 		}]);
 	});
