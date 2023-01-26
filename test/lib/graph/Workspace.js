@@ -51,7 +51,7 @@ test.afterEach.always((t) => {
 test("Basic resolution", async (t) => {
 	const workspace = new t.context.Workspace({
 		cwd: __dirname,
-		workspaceConfiguration: createWorkspaceConfig({
+		configuration: createWorkspaceConfig({
 			dependencyManagement: {
 				resolutions: [{
 					path: "../../fixtures/library.d"
@@ -91,7 +91,7 @@ test("Basic resolution", async (t) => {
 test("Package workspace resolution: Static patterns", async (t) => {
 	const workspace = new t.context.Workspace({
 		cwd: __dirname,
-		workspaceConfiguration: createWorkspaceConfig({
+		configuration: createWorkspaceConfig({
 			dependencyManagement: {
 				resolutions: [{
 					path: "../../fixtures/collection"
@@ -129,7 +129,7 @@ test("Package workspace resolution: Static patterns", async (t) => {
 test("Package workspace resolution: Dynamic patterns", async (t) => {
 	const workspace = new t.context.Workspace({
 		cwd: __dirname,
-		workspaceConfiguration: createWorkspaceConfig({
+		configuration: createWorkspaceConfig({
 			dependencyManagement: {
 				resolutions: [{
 					path: "../../fixtures/collection.b"
@@ -167,7 +167,7 @@ test("Package workspace resolution: Dynamic patterns", async (t) => {
 test("Package workspace resolution: Nested workspace", async (t) => {
 	const workspace = new t.context.Workspace({
 		cwd: __dirname,
-		workspaceConfiguration: createWorkspaceConfig({
+		configuration: createWorkspaceConfig({
 			dependencyManagement: {
 				resolutions: [{
 					path: "../../fixtures/library.xyz"
@@ -214,7 +214,7 @@ test("Package workspace resolution: Package workspace resolves to many modules",
 	const {sinon} = t.context;
 	const workspace = new t.context.Workspace({
 		cwd: __dirname,
-		workspaceConfiguration: createWorkspaceConfig({
+		configuration: createWorkspaceConfig({
 			dependencyManagement: {
 				resolutions: [{
 					path: "../../fixtures/library.xyz"
@@ -246,7 +246,7 @@ test("Package workspace resolution: Package workspace resolves to many modules",
 test("No resolutions configuration", async (t) => {
 	const workspace = new t.context.Workspace({
 		cwd: __dirname,
-		workspaceConfiguration: createWorkspaceConfig({
+		configuration: createWorkspaceConfig({
 			dependencyManagement: {}
 		})
 	});
@@ -266,7 +266,7 @@ test("No resolutions configuration", async (t) => {
 test("Empty dependencyManagement configuration", async (t) => {
 	const workspace = new t.context.Workspace({
 		cwd: __dirname,
-		workspaceConfiguration: createWorkspaceConfig({
+		configuration: createWorkspaceConfig({
 			dependencyManagement: {}
 		})
 	});
@@ -281,7 +281,7 @@ test("Empty dependencyManagement configuration", async (t) => {
 test("Empty resolutions configuration", async (t) => {
 	const workspace = new t.context.Workspace({
 		cwd: __dirname,
-		workspaceConfiguration: createWorkspaceConfig({
+		configuration: createWorkspaceConfig({
 			dependencyManagement: {
 				resolutions: []
 			}
@@ -298,7 +298,7 @@ test("Empty resolutions configuration", async (t) => {
 test("Missing path in resolution", async (t) => {
 	const workspace = new t.context.Workspace({
 		cwd: __dirname,
-		workspaceConfiguration: createWorkspaceConfig({
+		configuration: createWorkspaceConfig({
 			dependencyManagement: {
 				resolutions: [{}]
 			}
@@ -313,7 +313,7 @@ test("Missing path in resolution", async (t) => {
 test("Invalid resolutions configuration", async (t) => {
 	const workspace = new t.context.Workspace({
 		cwd: __dirname,
-		workspaceConfiguration: createWorkspaceConfig({
+		configuration: createWorkspaceConfig({
 			dependencyManagement: {
 				resolutions: [{
 					path: "../../fixtures/does-not-exist"
@@ -331,7 +331,7 @@ test("Invalid resolutions configuration", async (t) => {
 test("Resolution does not lead to a project", async (t) => {
 	const workspace = new t.context.Workspace({
 		cwd: __dirname,
-		workspaceConfiguration: createWorkspaceConfig({
+		configuration: createWorkspaceConfig({
 			dependencyManagement: {
 				resolutions: [{
 					path: "../../fixtures/extension.a"
@@ -350,7 +350,7 @@ test("Resolution does not lead to a project", async (t) => {
 test("Missing parameters", (t) => {
 	t.throws(() => {
 		new t.context.Workspace({
-			workspaceConfiguration: {metadata: {name: "config-a"}}
+			configuration: {metadata: {name: "config-a"}}
 		});
 	}, {
 		message: "[Workspace] One or more mandatory parameters not provided"

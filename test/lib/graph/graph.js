@@ -11,21 +11,21 @@ test.beforeEach(async (t) => {
 	const sinon = t.context.sinon = sinonGlobal.createSandbox();
 
 	t.context.npmProviderConstructorStub = sinon.stub();
-	class DummyNpmProvider {
+	class MockNpmProvider {
 		constructor(params) {
 			t.context.npmProviderConstructorStub(params);
 		}
 	}
 
-	t.context.DummyNpmProvider = DummyNpmProvider;
+	t.context.MockNpmProvider = MockNpmProvider;
 
 	t.context.workspaceConstructorStub = sinon.stub();
-	class DummyWorkspace {
+	class MockWorkspace {
 		constructor(params) {
 			t.context.workspaceConstructorStub(params);
 		}
 	}
-	t.context.DummyWorkspace = DummyWorkspace;
+	t.context.MockWorkspace = MockWorkspace;
 
 	t.context.dependencyTreeProviderStub = sinon.stub();
 	class DummyDependencyTreeProvider {
@@ -38,9 +38,9 @@ test.beforeEach(async (t) => {
 	t.context.projectGraphBuilderStub = sinon.stub().resolves("graph");
 	t.context.enrichProjectGraphStub = sinon.stub();
 	t.context.graph = await esmock.p("../../../lib/graph/graph.js", {
-		"../../../lib/graph/providers/NodePackageDependencies.js": t.context.DummyNpmProvider,
+		"../../../lib/graph/providers/NodePackageDependencies.js": t.context.MockNpmProvider,
 		"../../../lib/graph/providers/DependencyTree.js": t.context.DummyDependencyTreeProvider,
-		"../../../lib/graph/Workspace.js": t.context.DummyWorkspace,
+		"../../../lib/graph/Workspace.js": t.context.MockWorkspace,
 		"../../../lib/graph/projectGraphBuilder.js": t.context.projectGraphBuilderStub,
 		"../../../lib/graph/helpers/ui5Framework.js": {
 			enrichProjectGraph: t.context.enrichProjectGraphStub
@@ -56,7 +56,7 @@ test.afterEach.always((t) => {
 test.serial("graphFromPackageDependencies", async (t) => {
 	const {
 		npmProviderConstructorStub,
-		projectGraphBuilderStub, enrichProjectGraphStub, DummyNpmProvider
+		projectGraphBuilderStub, enrichProjectGraphStub, MockNpmProvider
 	} = t.context;
 	const {graphFromPackageDependencies} = t.context.graph;
 
@@ -77,7 +77,7 @@ test.serial("graphFromPackageDependencies", async (t) => {
 	}, "Created NodePackageDependencies provider instance with correct parameters");
 
 	t.is(projectGraphBuilderStub.callCount, 1, "projectGraphBuilder got called once");
-	t.true(projectGraphBuilderStub.getCall(0).args[0] instanceof DummyNpmProvider,
+	t.true(projectGraphBuilderStub.getCall(0).args[0] instanceof MockNpmProvider,
 		"projectGraphBuilder got called with correct provider instance");
 	t.is(projectGraphBuilderStub.getCall(0).args[1], undefined,
 		"projectGraphBuilder got called with an empty workspace");
@@ -94,7 +94,7 @@ test.serial("graphFromPackageDependencies", async (t) => {
 test.serial("graphFromPackageDependencies with workspace object", async (t) => {
 	const {
 		workspaceConstructorStub, npmProviderConstructorStub,
-		projectGraphBuilderStub, enrichProjectGraphStub, DummyNpmProvider
+		projectGraphBuilderStub, enrichProjectGraphStub, MockNpmProvider
 	} = t.context;
 	const {graphFromPackageDependencies} = t.context.graph;
 
@@ -104,8 +104,14 @@ test.serial("graphFromPackageDependencies with workspace object", async (t) => {
 		rootConfigPath: "rootConfigPath",
 		versionOverride: "versionOverride",
 		workspaceConfiguration: {
+			specVersion: "workspace/1.0",
 			metadata: {
 				name: "default"
+			},
+			dependencyManagement: {
+				resolutions: [{
+					path: "resolution/path"
+				}]
 			}
 		}
 	});
@@ -115,9 +121,15 @@ test.serial("graphFromPackageDependencies with workspace object", async (t) => {
 	t.is(workspaceConstructorStub.callCount, 1, "Workspace constructor got called once");
 	t.deepEqual(workspaceConstructorStub.getCall(0).args[0], {
 		cwd: path.join(__dirname, "..", "..", "..", "cwd"),
-		workspaceConfiguration: {
+		configuration: {
+			specVersion: "workspace/1.0",
 			metadata: {
 				name: "default"
+			},
+			dependencyManagement: {
+				resolutions: [{
+					path: "resolution/path"
+				}]
 			}
 		}
 	}, "Created Workspace instance with correct parameters");
@@ -130,9 +142,9 @@ test.serial("graphFromPackageDependencies with workspace object", async (t) => {
 	}, "Created NodePackageDependencies provider instance with correct parameters");
 
 	t.is(projectGraphBuilderStub.callCount, 1, "projectGraphBuilder got called once");
-	t.true(projectGraphBuilderStub.getCall(0).args[0] instanceof DummyNpmProvider,
+	t.true(projectGraphBuilderStub.getCall(0).args[0] instanceof MockNpmProvider,
 		"projectGraphBuilder got called with correct provider instance");
-	t.true(projectGraphBuilderStub.getCall(0).args[1] instanceof t.context.DummyWorkspace,
+	t.true(projectGraphBuilderStub.getCall(0).args[1] instanceof t.context.MockWorkspace,
 		"projectGraphBuilder got called with correct workspace instance");
 
 	t.is(enrichProjectGraphStub.callCount, 1, "enrichProjectGraph got called once");
@@ -140,14 +152,14 @@ test.serial("graphFromPackageDependencies with workspace object", async (t) => {
 		"enrichProjectGraph got called with graph");
 	t.deepEqual(enrichProjectGraphStub.getCall(0).args[1], {
 		versionOverride: "versionOverride",
-		workspace: new t.context.DummyWorkspace()
+		workspace: new t.context.MockWorkspace()
 	}, "enrichProjectGraph got called with correct options");
 });
 
 test.serial("graphFromPackageDependencies with inactive workspace object", async (t) => {
 	const {
 		workspaceConstructorStub, npmProviderConstructorStub,
-		projectGraphBuilderStub, enrichProjectGraphStub, DummyNpmProvider
+		projectGraphBuilderStub, enrichProjectGraphStub, MockNpmProvider
 	} = t.context;
 	const {graphFromPackageDependencies} = t.context.graph;
 
@@ -158,8 +170,14 @@ test.serial("graphFromPackageDependencies with inactive workspace object", async
 		versionOverride: "versionOverride",
 		activeWorkspace: "other",
 		workspaceConfiguration: {
+			specVersion: "workspace/1.0",
 			metadata: {
 				name: "default"
+			},
+			dependencyManagement: {
+				resolutions: [{
+					path: "resolution/path"
+				}]
 			}
 		}
 	});
@@ -176,7 +194,7 @@ test.serial("graphFromPackageDependencies with inactive workspace object", async
 	}, "Created NodePackageDependencies provider instance with correct parameters");
 
 	t.is(projectGraphBuilderStub.callCount, 1, "projectGraphBuilder got called once");
-	t.true(projectGraphBuilderStub.getCall(0).args[0] instanceof DummyNpmProvider,
+	t.true(projectGraphBuilderStub.getCall(0).args[0] instanceof MockNpmProvider,
 		"projectGraphBuilder got called with correct provider instance");
 	t.falsy(projectGraphBuilderStub.getCall(0).args[1],
 		"projectGraphBuilder got called with no workspace instance");
@@ -193,7 +211,7 @@ test.serial("graphFromPackageDependencies with inactive workspace object", async
 test.serial("graphFromPackageDependencies with workspace file", async (t) => {
 	const {
 		workspaceConstructorStub, npmProviderConstructorStub,
-		projectGraphBuilderStub, enrichProjectGraphStub, DummyNpmProvider
+		projectGraphBuilderStub, enrichProjectGraphStub, MockNpmProvider
 	} = t.context;
 	const {graphFromPackageDependencies} = t.context.graph;
 
@@ -219,15 +237,16 @@ test.serial("graphFromPackageDependencies with workspace file", async (t) => {
 	t.is(res, "graph");
 
 	t.is(readWorkspaceConfigFileStub.callCount, 1, "readWorkspaceConfigFile got called once");
-	t.is(readWorkspaceConfigFileStub.getCall(0).args[0], path.join(__dirname, "..", "..", "..", "cwd"),
+	t.is(readWorkspaceConfigFileStub.getCall(0).args[0],
+		path.join(__dirname, "..", "..", "..", "cwd", "ui5-workspace.yaml"),
 		"readWorkspaceConfigFile got called with correct first argument");
-	t.is(readWorkspaceConfigFileStub.getCall(0).args[1], "ui5-workspace.yaml",
+	t.is(readWorkspaceConfigFileStub.getCall(0).args[1], false,
 		"readWorkspaceConfigFile got called with correct second argument");
 
 	t.is(workspaceConstructorStub.callCount, 1, "Workspace constructor got called once");
 	t.deepEqual(workspaceConstructorStub.getCall(0).args[0], {
 		cwd: path.join(__dirname, "..", "..", "..", "cwd"),
-		workspaceConfiguration: {
+		configuration: {
 			metadata: {
 				name: "default"
 			}
@@ -242,9 +261,9 @@ test.serial("graphFromPackageDependencies with workspace file", async (t) => {
 	}, "Created NodePackageDependencies provider instance with correct parameters");
 
 	t.is(projectGraphBuilderStub.callCount, 1, "projectGraphBuilder got called once");
-	t.true(projectGraphBuilderStub.getCall(0).args[0] instanceof DummyNpmProvider,
+	t.true(projectGraphBuilderStub.getCall(0).args[0] instanceof MockNpmProvider,
 		"projectGraphBuilder got called with correct provider instance");
-	t.true(projectGraphBuilderStub.getCall(0).args[1] instanceof t.context.DummyWorkspace,
+	t.true(projectGraphBuilderStub.getCall(0).args[1] instanceof t.context.MockWorkspace,
 		"projectGraphBuilder got called with correct workspace instance");
 
 	t.is(enrichProjectGraphStub.callCount, 1, "enrichProjectGraph got called once");
@@ -252,14 +271,83 @@ test.serial("graphFromPackageDependencies with workspace file", async (t) => {
 		"enrichProjectGraph got called with graph");
 	t.deepEqual(enrichProjectGraphStub.getCall(0).args[1], {
 		versionOverride: "versionOverride",
-		workspace: new t.context.DummyWorkspace()
+		workspace: new t.context.MockWorkspace()
+	}, "enrichProjectGraph got called with correct options");
+});
+
+test.serial("graphFromPackageDependencies with workspace file at custom path", async (t) => {
+	const {
+		workspaceConstructorStub, npmProviderConstructorStub,
+		projectGraphBuilderStub, enrichProjectGraphStub, MockNpmProvider
+	} = t.context;
+	const {graphFromPackageDependencies} = t.context.graph;
+
+	const readWorkspaceConfigFileStub =
+		t.context.sinon.stub(graphFromPackageDependencies._utils, "readWorkspaceConfigFile")
+			.resolves([{
+				metadata: {
+					name: "default"
+				}
+			}, {
+				metadata: {
+					name: "non-default"
+				}
+			}]);
+
+	const res = await graphFromPackageDependencies({
+		cwd: "cwd",
+		rootConfiguration: "rootConfiguration",
+		rootConfigPath: "rootConfigPath",
+		versionOverride: "versionOverride",
+		workspaceConfigPath: path.join("..", "workspaceConfigDir", "workspaceConfigPath")
+	});
+
+	t.is(res, "graph");
+
+	t.is(readWorkspaceConfigFileStub.callCount, 1, "readWorkspaceConfigFile got called once");
+	t.is(readWorkspaceConfigFileStub.getCall(0).args[0],
+		path.join(__dirname, "..", "..", "..", "workspaceConfigDir", "workspaceConfigPath"),
+		"readWorkspaceConfigFile got called with correct first argument");
+	t.is(readWorkspaceConfigFileStub.getCall(0).args[1], true,
+		"readWorkspaceConfigFile got called with correct second argument");
+
+	t.is(workspaceConstructorStub.callCount, 1, "Workspace constructor got called once");
+	t.deepEqual(workspaceConstructorStub.getCall(0).args[0], {
+		// cwd matches directory of configuration file
+		cwd: path.join(__dirname, "..", "..", "..", "workspaceConfigDir"),
+		configuration: {
+			metadata: {
+				name: "default"
+			}
+		}
+	}, "Created Workspace instance with correct parameters");
+
+	t.is(npmProviderConstructorStub.callCount, 1, "NPM provider constructor got called once");
+	t.deepEqual(npmProviderConstructorStub.getCall(0).args[0], {
+		cwd: path.join(__dirname, "..", "..", "..", "cwd"),
+		rootConfiguration: "rootConfiguration",
+		rootConfigPath: "rootConfigPath"
+	}, "Created NodePackageDependencies provider instance with correct parameters");
+
+	t.is(projectGraphBuilderStub.callCount, 1, "projectGraphBuilder got called once");
+	t.true(projectGraphBuilderStub.getCall(0).args[0] instanceof MockNpmProvider,
+		"projectGraphBuilder got called with correct provider instance");
+	t.true(projectGraphBuilderStub.getCall(0).args[1] instanceof t.context.MockWorkspace,
+		"projectGraphBuilder got called with correct workspace instance");
+
+	t.is(enrichProjectGraphStub.callCount, 1, "enrichProjectGraph got called once");
+	t.is(enrichProjectGraphStub.getCall(0).args[0], "graph",
+		"enrichProjectGraph got called with graph");
+	t.deepEqual(enrichProjectGraphStub.getCall(0).args[1], {
+		versionOverride: "versionOverride",
+		workspace: new t.context.MockWorkspace()
 	}, "enrichProjectGraph got called with correct options");
 });
 
 test.serial("graphFromPackageDependencies with inactive workspace file at custom path", async (t) => {
 	const {
 		workspaceConstructorStub, npmProviderConstructorStub,
-		projectGraphBuilderStub, enrichProjectGraphStub, DummyNpmProvider
+		projectGraphBuilderStub, enrichProjectGraphStub, MockNpmProvider
 	} = t.context;
 	const {graphFromPackageDependencies} = t.context.graph;
 
@@ -286,9 +374,10 @@ test.serial("graphFromPackageDependencies with inactive workspace file at custom
 	t.is(res, "graph");
 
 	t.is(readWorkspaceConfigFileStub.callCount, 1, "readWorkspaceConfigFile got called once");
-	t.is(readWorkspaceConfigFileStub.getCall(0).args[0], path.join(__dirname, "..", "..", "..", "cwd"),
+	t.is(readWorkspaceConfigFileStub.getCall(0).args[0],
+		path.join(__dirname, "..", "..", "..", "cwd", "workspaceConfigPath"),
 		"readWorkspaceConfigFile got called with correct first argument");
-	t.is(readWorkspaceConfigFileStub.getCall(0).args[1], "workspaceConfigPath",
+	t.is(readWorkspaceConfigFileStub.getCall(0).args[1], true,
 		"readWorkspaceConfigFile got called with correct second argument");
 
 	t.is(workspaceConstructorStub.callCount, 0, "Workspace constructor is not called");
@@ -301,7 +390,7 @@ test.serial("graphFromPackageDependencies with inactive workspace file at custom
 	}, "Created NodePackageDependencies provider instance with correct parameters");
 
 	t.is(projectGraphBuilderStub.callCount, 1, "projectGraphBuilder got called once");
-	t.true(projectGraphBuilderStub.getCall(0).args[0] instanceof DummyNpmProvider,
+	t.true(projectGraphBuilderStub.getCall(0).args[0] instanceof MockNpmProvider,
 		"projectGraphBuilder got called with correct provider instance");
 	t.falsy(projectGraphBuilderStub.getCall(0).args[1],
 		"projectGraphBuilder got called with no workspace instance");
@@ -447,6 +536,152 @@ test.serial("usingObject: Do not resolve framework dependencies", async (t) => {
 	t.is(enrichProjectGraphStub.callCount, 0, "enrichProjectGraph did not get called");
 });
 
+test.serial("utils: createWorkspace from object", async (t) => {
+	const {
+		workspaceConstructorStub,
+		MockWorkspace
+	} = t.context;
+	const {graphFromPackageDependencies} = t.context.graph;
+
+	const res = await graphFromPackageDependencies._utils.createWorkspace({
+		cwd: "cwd",
+		configObject: {
+			specVersion: "workspace/1.0",
+			metadata: {
+				name: "default"
+			},
+			dependencyManagement: {
+				resolutions: [{
+					path: "resolution/path"
+				}]
+			}
+		}
+	});
+
+	t.true(res instanceof MockWorkspace, "Returned instance of Workspace");
+
+	t.is(workspaceConstructorStub.callCount, 1, "Workspace constructor got called once");
+	t.deepEqual(workspaceConstructorStub.getCall(0).args[0], {
+		cwd: "cwd",
+		configuration: {
+			specVersion: "workspace/1.0",
+			metadata: {
+				name: "default"
+			},
+			dependencyManagement: {
+				resolutions: [{
+					path: "resolution/path"
+				}]
+			}
+		}
+	}, "Created Workspace instance with correct parameters");
+});
+
+test.serial("utils: createWorkspace from invalid object", async (t) => {
+	const {graphFromPackageDependencies} = t.context.graph;
+
+	const err = await t.throwsAsync(graphFromPackageDependencies._utils.createWorkspace({
+		cwd: "cwd",
+		configObject: {
+			metadata: {
+				name: "default"
+			},
+			dependencyManagement: {
+				resolutions: [{
+					path: "resolution/path"
+				}]
+			}
+		}
+	}));
+
+	t.true(err.message.includes("Invalid workspace configuration"), "Threw with validation error");
+});
+
+test.serial("utils: createWorkspace from invalid file", async (t) => {
+	const {graphFromPackageDependencies} = t.context.graph;
+
+	const err = await t.throwsAsync(graphFromPackageDependencies._utils.createWorkspace({
+		cwd: "cwd",
+		configPath: path.join(fixturesPath, "library.h", "invalid-ui5-workspace.yaml")
+	}));
+
+	t.true(err.message.includes("Invalid workspace configuration"), "Threw with validation error");
+});
+
+test.serial("utils: readWorkspaceConfigFile - Does not throw for missing file if not requested", async (t) => {
+	const {graphFromPackageDependencies} = t.context.graph;
+	const res = await graphFromPackageDependencies._utils.readWorkspaceConfigFile(
+		path.join(fixturesPath, "library.d", "ui5-workspace.yaml"), false);
+
+	t.deepEqual(res, [], "Returned empty array");
+});
+
+test.serial("utils: readWorkspaceConfigFile - Throws for missing file if requested", async (t) => {
+	const {graphFromPackageDependencies} = t.context.graph;
+	const filePath = path.join(fixturesPath, "library.d", "other-ui5-workspace.yaml");
+	const err =
+		await t.throwsAsync(graphFromPackageDependencies._utils.readWorkspaceConfigFile(filePath, true));
+	t.is(err.message,
+		`Failed to load workspace configuration from path ${filePath}: ` +
+		`ENOENT: no such file or directory, open '${filePath}'`);
+});
+
+test.serial("utils: readWorkspaceConfigFile", async (t) => {
+	const {graphFromPackageDependencies} = t.context.graph;
+	const res = await graphFromPackageDependencies._utils.readWorkspaceConfigFile(
+		path.join(fixturesPath, "library.h", "ui5-workspace.yaml"), false);
+	t.deepEqual(res,
+		[{
+			specVersion: "workspace/1.0",
+			metadata: {
+				name: "default",
+			},
+			dependencyManagement: {
+				resolutions: [{
+					path: "../library.d",
+				}]
+			},
+		}, {
+			specVersion: "workspace/1.0",
+			metadata: {
+				name: "all-libraries",
+			},
+			dependencyManagement: {
+				resolutions: [{
+					path: "../library.d",
+				}, {
+					path: "../library.e",
+				}, {
+					path: "../library.f",
+				}],
+			},
+		}], "Read workspace configuration file correctly");
+});
+
+test.serial("utils: readWorkspaceConfigFile - Validation errors", async (t) => {
+	const {graphFromPackageDependencies} = t.context.graph;
+	const filePath = path.join(fixturesPath, "library.h", "invalid-ui5-workspace.yaml");
+	const err =
+		await t.throwsAsync(graphFromPackageDependencies._utils.readWorkspaceConfigFile(filePath, true));
+	t.true(err.message.includes("Invalid workspace configuration"), "Threw with validation error");
+});
+
+test.serial("utils: readWorkspaceConfigFile - Not a YAML", async (t) => {
+	const {graphFromPackageDependencies} = t.context.graph;
+	const filePath = path.join(fixturesPath, "library.h", "corrupt-ui5-workspace.yaml");
+	const err =
+		await t.throwsAsync(graphFromPackageDependencies._utils.readWorkspaceConfigFile(filePath, true));
+	t.regex(err.message, new RegExp(`^Failed to parse workspace configuration at ${filePath}.*`),
+		"Threw with parsing error");
+});
+
+test.serial("utils: readWorkspaceConfigFile - Empty file", async (t) => {
+	const {graphFromPackageDependencies} = t.context.graph;
+	const filePath = path.join(fixturesPath, "library.h", "empty-ui5-workspace.yaml");
+	const res = await graphFromPackageDependencies._utils.readWorkspaceConfigFile(filePath, true);
+	t.deepEqual(res, [], "No workspace configuration returned");
+});
+
 test.serial("utils: readDependencyConfigFile", async (t) => {
 	const {graphFromStaticFile} = t.context.graph;
 	const res = await graphFromStaticFile._utils.readDependencyConfigFile(
@@ -464,48 +699,3 @@ test.serial("utils: readDependencyConfigFile", async (t) => {
 	}, "Returned correct file content");
 });
 
-test.serial("utils: readWorkspaceConfigFile", async (t) => {
-	const {graphFromPackageDependencies} = t.context.graph;
-	const res = await graphFromPackageDependencies._utils.readWorkspaceConfigFile(
-		path.join(fixturesPath, "library.e"), "ui5-workspace.yaml");
-
-	t.deepEqual(res, [{
-		"specVersion": "workspace/1.0",
-		"metadata": {
-			"name": "config-a"
-		},
-		"dependencyManagement": {
-			"resolutions": [{
-				"path": "../library.d"
-			}]
-		}
-	}, {
-		"specVersion": "workspace/1.0",
-		"metadata": {
-			"name": "config-b"
-		},
-		"dependencyManagement": {
-			"resolutions": [{
-				"path": "../library.x"
-			}]
-		}
-	}], "Returned correct file content");
-});
-
-test.serial("utils: readWorkspaceConfigFile - Does not throw if default file is missing", async (t) => {
-	const {graphFromPackageDependencies} = t.context.graph;
-	const res = await graphFromPackageDependencies._utils.readWorkspaceConfigFile(
-		path.join(fixturesPath, "library.d"), "ui5-workspace.yaml");
-
-	t.deepEqual(res, [], "Returned empty array");
-});
-
-test.serial("utils: readWorkspaceConfigFile - Throws if non-default file is missing", async (t) => {
-	const {graphFromPackageDependencies} = t.context.graph;
-	const err = await t.throwsAsync(graphFromPackageDependencies._utils.readWorkspaceConfigFile(
-		path.join(fixturesPath, "library.d"), "other-ui5-workspace.yaml", true));
-	const filePath = path.join(fixturesPath, "library.d", "other-ui5-workspace.yaml");
-	t.is(err.message,
-		`Failed to load workspace configuration from path ${filePath}: ` +
-		`ENOENT: no such file or directory, open '${filePath}'`);
-});
