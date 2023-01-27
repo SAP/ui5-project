@@ -10,7 +10,8 @@
   "ui5": {
     "workspaces": [
       "library.{a,b}",
-      "*c"
+      "*c",
+      "sub-*"
     ]
   }
 }

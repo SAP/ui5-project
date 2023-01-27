@@ -88,6 +88,58 @@ test("Basic resolution", async (t) => {
 	});
 });
 
+test("Basic resolution: package.json is missing name field", async (t) => {
+	const workspace = new t.context.Workspace({
+		cwd: __dirname,
+		configuration: createWorkspaceConfig({
+			dependencyManagement: {
+				resolutions: [{
+					path: "../../fixtures/library.d"
+				}, {
+					path: "../../fixtures/library.e"
+				}]
+			}
+		})
+	});
+
+	t.context.sinon.stub(workspace, "_readPackageJson")
+		.resolves({
+			version: "1.0.0",
+		});
+
+	const err = await t.throwsAsync(workspace._getResolvedModules());
+	t.is(err.message,
+		`Failed to resolve workspace dependency resolution path ` +
+		`../../fixtures/library.d to ${libraryD}: package.json must contain fields 'name' and 'version'`,
+		"Threw with expected error message");
+});
+
+test("Basic resolution: package.json is missing version field", async (t) => {
+	const workspace = new t.context.Workspace({
+		cwd: __dirname,
+		configuration: createWorkspaceConfig({
+			dependencyManagement: {
+				resolutions: [{
+					path: "../../fixtures/library.d"
+				}, {
+					path: "../../fixtures/library.e"
+				}]
+			}
+		})
+	});
+
+	t.context.sinon.stub(workspace, "_readPackageJson")
+		.resolves({
+			name: "Package",
+		});
+
+	const err = await t.throwsAsync(workspace._getResolvedModules());
+	t.is(err.message,
+		`Failed to resolve workspace dependency resolution path ` +
+		`../../fixtures/library.d to ${libraryD}: package.json must contain fields 'name' and 'version'`,
+		"Threw with expected error message");
+});
+
 test("Package workspace resolution: Static patterns", async (t) => {
 	const workspace = new t.context.Workspace({
 		cwd: __dirname,
@@ -139,7 +191,7 @@ test("Package workspace resolution: Dynamic patterns", async (t) => {
 	});
 
 	const {projectNameMap, moduleIdMap} = await workspace._getResolvedModules();
-	t.deepEqual(Array.from(projectNameMap.keys()).sort(), ["library.a", "library.b", "library.c"],
+	t.deepEqual(Array.from(projectNameMap.keys()).sort(), ["library.a", "library.b", "library.c", "library.d"],
 		"Correct project name keys");
 
 	const libA = projectNameMap.get("library.a");
@@ -157,14 +209,19 @@ test("Package workspace resolution: Dynamic patterns", async (t) => {
 	t.is(libC.getVersion(), "1.0.0", "Correct version for library.c");
 	t.is(libC.getPath(), collectionBLibraryC, "Correct path for library.c");
 
-	t.deepEqual(Array.from(moduleIdMap.keys()).sort(), ["library.a", "library.b", "library.c"],
+	const libD = projectNameMap.get("library.d");
+	t.true(libD instanceof Module, "library.d value is instance of Module");
+	t.is(libD.getVersion(), "1.0.0", "Correct version for library.d");
+	t.is(libD.getPath(), libraryD, "Correct path for library.d");
+
+	t.deepEqual(Array.from(moduleIdMap.keys()).sort(), ["library.a", "library.b", "library.c", "library.d"],
 		"Correct module ID keys");
 	moduleIdMap.forEach((value, key) => {
 		t.is(value, projectNameMap.get(key), `Same instance of module ${key} in both maps`);
 	});
 });
 
-test("Package workspace resolution: Nested workspace", async (t) => {
+test("Package workspace resolution: Nested workspaces", async (t) => {
 	const workspace = new t.context.Workspace({
 		cwd: __dirname,
 		configuration: createWorkspaceConfig({
@@ -176,71 +233,79 @@ test("Package workspace resolution: Nested workspace", async (t) => {
 		})
 	});
 
-	const readPackageJsonStub = t.context.sinon.stub(workspace, "_readPackageJson").onFirstCall().resolves({
-		name: "First Package",
-		ui5: {
-			workspaces: [
-				"workspace-a",
-				"workspace-b"
-			]
-		}
-	}).onSecondCall().resolves({
-		name: "Second Package",
-		ui5: {
+	const readPackageJsonStub = t.context.sinon.stub(workspace, "_readPackageJson")
+		.rejects(new Error("Test does not provide for more package mocks"))
+		.onCall(0).resolves({
+			name: "First Package",
+			version: "1.0.0",
+			ui5: {
+				workspaces: [
+					"workspace-a",
+					"workspace-b"
+				]
+			}
+		}).onCall(1).resolves({
+			name: "Second Package",
+			version: "1.0.0",
 			workspaces: [
 				"workspace-c",
 				"workspace-d"
 			]
-		}
-	}).onThirdCall().resolves({
-		name: "Third Package",
+		}).onCall(2).resolves({
+			name: "Third Package",
+			version: "1.0.0"
+		}).onCall(3).resolves({
+			name: "Fourth Package",
+			version: "1.0.0",
+		}).onCall(4).resolves({
+			name: "Fifth Package",
+			version: "1.0.0",
+		});
+
+	const {projectNameMap, moduleIdMap} = await workspace._getResolvedModules();
+	// All workspaces. Should not resolve to any module
+	t.is(readPackageJsonStub.callCount, 5, "readPackageJson got called five times");
+	t.is(projectNameMap.size, 0, "Project name to module map is empty");
+	t.is(moduleIdMap.size, 0, "Module ID to module map is empty");
+});
+
+test("Package workspace resolution: Recursive workspaces", async (t) => {
+	const workspace = new t.context.Workspace({
+		cwd: __dirname,
+		configuration: createWorkspaceConfig({
+			dependencyManagement: {
+				resolutions: [{
+					path: "../../fixtures/library.xyz"
+				}]
+			}
+		})
+	});
+
+	const basePath = path.join(__dirname, "../../fixtures/library.xyz");
+	const workspaceAPath = path.join(basePath, "workspace-a");
+
+	const readPackageJsonStub = t.context.sinon.stub(workspace, "_readPackageJson");
+	readPackageJsonStub.withArgs(basePath).resolves({
+		name: "Base Package",
+		version: "1.0.0",
 		workspaces: [
-			"workspace-e",
-			"workspace-f"
+			"workspace-a"
+		]
+	});
+	readPackageJsonStub.withArgs(workspaceAPath).resolves({
+		name: "Workspace A Package",
+		version: "1.0.0",
+		workspaces: [
+			".."
 		]
 	});
 
 	const {projectNameMap, moduleIdMap} = await workspace._getResolvedModules();
 	// All workspaces. Should not resolve to any module
-	// Nested workspaces should not get resolved
-	t.is(readPackageJsonStub.callCount, 3, "readPackageJson got called three times");
+	// Recursive workspace definition should not lead to another readPackageJson call
+	t.is(readPackageJsonStub.callCount, 2, "readPackageJson got called two times");
 	t.is(projectNameMap.size, 0, "Project name to module map is empty");
 	t.is(moduleIdMap.size, 0, "Module ID to module map is empty");
-});
-
-test("Package workspace resolution: Package workspace resolves to many modules", async (t) => {
-	// This should generally not happen. Currently this test is only *really* required for code coverage reasons
-
-	const {sinon} = t.context;
-	const workspace = new t.context.Workspace({
-		cwd: __dirname,
-		configuration: createWorkspaceConfig({
-			dependencyManagement: {
-				resolutions: [{
-					path: "../../fixtures/library.xyz"
-				}]
-			}
-		})
-	});
-
-	sinon.stub(workspace, "_readPackageJson").onFirstCall().resolves({
-		name: "First Package",
-		workspaces: [
-			"workspace-a",
-			"workspace-b"
-		]
-	});
-
-	sinon.stub(workspace, "_getModulesFromPath").callThrough().onSecondCall().resolves([
-		"module 1",
-		"module 2"
-	]);
-
-	await t.throwsAsync(workspace._getResolvedModules(), {
-		message:
-			`Workspace of module First Package at ${path.join(__dirname, "..", "..", "fixtures", "library.xyz")} ` +
-			`unexpectedly resolved to multiple modules`
-	}, "Threw with expected error message");
 });
 
 test("No resolutions configuration", async (t) => {
@@ -322,10 +387,13 @@ test("Invalid resolutions configuration", async (t) => {
 		})
 	});
 
-	await t.throwsAsync(workspace._getResolvedModules(), {
-		message:
-			/Failed to resolve workspace-resolutions path \.\.\/\.\.\/fixtures\/does-not-exist: ENOENT:/
-	}, "Threw with expected error message");
+	const absPath = path.join(__dirname, "../../fixtures/does-not-exist");
+
+	const err = await t.throwsAsync(workspace._getResolvedModules());
+	t.true(
+		err.message.startsWith(`Failed to resolve workspace dependency resolution path ` +
+			`../../fixtures/does-not-exist to ${absPath}: ENOENT:`),
+		"Threw with expected error message");
 });
 
 test("Resolution does not lead to a project", async (t) => {
