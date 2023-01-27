@@ -671,7 +671,7 @@ test.serial("utils: readWorkspaceConfigFile - Not a YAML", async (t) => {
 	const filePath = path.join(fixturesPath, "library.h", "corrupt-ui5-workspace.yaml");
 	const err =
 		await t.throwsAsync(graphFromPackageDependencies._utils.readWorkspaceConfigFile(filePath, true));
-	t.regex(err.message, new RegExp(`^Failed to parse workspace configuration at ${filePath}.*`),
+	t.true(err.message.includes(`Failed to parse workspace configuration at ${filePath}`),
 		"Threw with parsing error");
 });
 
