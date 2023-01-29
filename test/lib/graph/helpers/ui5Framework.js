@@ -11,6 +11,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const applicationAPath = path.join(__dirname, "..", "..", "..", "fixtures", "application.a");
 const libraryDPath = path.join(__dirname, "..", "..", "..", "fixtures", "library.d");
 const libraryEPath = path.join(__dirname, "..", "..", "..", "fixtures", "library.e");
+const libraryFPath = path.join(__dirname, "..", "..", "..", "fixtures", "library.f");
 
 test.beforeEach(async (t) => {
 	const sinon = t.context.sinon = sinonGlobal.createSandbox();
@@ -987,7 +988,7 @@ test.serial("ProjectProcessor: Add project to graph", async (t) => {
 	t.is(graphMock.getProject.getCall(0).args[0], "library.e", "graph#getProject got called with the correct argument");
 	t.is(graphMock.addProject.callCount, 1, "graph#addProject got called once");
 	t.is(graphMock.addProject.getCall(0).args[0].getName(), "library.e",
-		"graph#addProject got with the correct project");
+		"graph#addProject got called with the correct project");
 });
 
 test.serial("ProjectProcessor: Add same project twice", async (t) => {
@@ -1016,7 +1017,7 @@ test.serial("ProjectProcessor: Add same project twice", async (t) => {
 	t.is(graphMock.getProject.getCall(0).args[0], "library.e", "graph#getProject got called with the correct argument");
 	t.is(graphMock.addProject.callCount, 1, "graph#addProject got called once");
 	t.is(graphMock.addProject.getCall(0).args[0].getName(), "library.e",
-		"graph#addProject got with the correct project");
+		"graph#addProject got called with the correct project");
 });
 
 test.serial("ProjectProcessor: Project already in graph", async (t) => {
@@ -1079,12 +1080,12 @@ test.serial("ProjectProcessor: Add project with dependencies to graph", async (t
 	t.is(graphMock.getProject.getCall(1).args[0], "library.d", "graph#getProject got called with the correct argument");
 	t.is(graphMock.addProject.callCount, 2, "graph#addProject got called twice");
 	t.is(graphMock.addProject.getCall(0).args[0].getName(), "library.d",
-		"graph#addProject got with the correct project");
+		"graph#addProject got called with the correct project");
 	t.is(graphMock.addProject.getCall(1).args[0].getName(), "library.e",
-		"graph#addProject got with the correct project");
+		"graph#addProject got called with the correct project");
 	t.is(graphMock.declareDependency.callCount, 1, "graph#declareDependency got called once");
 	t.deepEqual(graphMock.declareDependency.getCall(0).args, ["library.e", "library.d"],
-		"graph#declareDependency got with the correct arguments");
+		"graph#declareDependency got called with the correct arguments");
 });
 
 test.serial("ProjectProcessor: Resolve project via workspace", async (t) => {
@@ -1109,7 +1110,8 @@ test.serial("ProjectProcessor: Resolve project via workspace", async (t) => {
 		getSpecifications: sinon.stub()
 			.onFirstCall().resolves({
 				project: libraryDProjectMock
-			}).onSecondCall().resolves({
+			})
+			.onSecondCall().resolves({
 				project: libraryEProjectMock
 			})
 	};
@@ -1144,12 +1146,12 @@ test.serial("ProjectProcessor: Resolve project via workspace", async (t) => {
 	t.is(graphMock.getProject.getCall(1).args[0], "library.d", "graph#getProject got called with the correct argument");
 	t.is(graphMock.addProject.callCount, 2, "graph#addProject got called once");
 	t.is(graphMock.addProject.getCall(0).args[0].getName(), "library.d",
-		"graph#addProject got with the correct project");
+		"graph#addProject got called with the correct project");
 	t.is(graphMock.addProject.getCall(1).args[0].getName(), "library.e",
-		"graph#addProject got with the correct project");
+		"graph#addProject got called with the correct project");
 	t.is(graphMock.declareDependency.callCount, 1, "graph#declareDependency got called once");
 	t.deepEqual(graphMock.declareDependency.getCall(0).args, ["library.e", "library.d"],
-		"graph#declareDependency got with the correct arguments");
+		"graph#declareDependency got called with the correct arguments");
 });
 
 test.serial("ProjectProcessor: Resolve project via workspace with additional dependency", async (t) => {
@@ -1174,7 +1176,8 @@ test.serial("ProjectProcessor: Resolve project via workspace with additional dep
 		getSpecifications: sinon.stub()
 			.onFirstCall().resolves({
 				project: libraryEProjectMock
-			}).onSecondCall().resolves({
+			})
+			.onSecondCall().resolves({
 				project: libraryDProjectMock
 			})
 	};
@@ -1209,12 +1212,12 @@ test.serial("ProjectProcessor: Resolve project via workspace with additional dep
 	t.is(graphMock.getProject.getCall(1).args[0], "library.d", "graph#getProject got called with the correct argument");
 	t.is(graphMock.addProject.callCount, 2, "graph#addProject got called once");
 	t.is(graphMock.addProject.getCall(0).args[0].getName(), "library.e",
-		"graph#addProject got with the correct project");
+		"graph#addProject got called with the correct project");
 	t.is(graphMock.addProject.getCall(1).args[0].getName(), "library.d",
-		"graph#addProject got with the correct project");
+		"graph#addProject got called with the correct project");
 	t.is(graphMock.declareDependency.callCount, 1, "graph#declareDependency got called once");
 	t.deepEqual(graphMock.declareDependency.getCall(0).args, ["library.e", "library.d"],
-		"graph#declareDependency got with the correct arguments");
+		"graph#declareDependency got called with the correct arguments");
 });
 
 test.serial("ProjectProcessor: Resolve project via workspace with additional, unknown dependency", async (t) => {
@@ -1239,7 +1242,8 @@ test.serial("ProjectProcessor: Resolve project via workspace with additional, un
 		getSpecifications: sinon.stub()
 			.onFirstCall().resolves({
 				project: libraryEProjectMock
-			}).onSecondCall().resolves({
+			})
+			.onSecondCall().resolves({
 				project: libraryDProjectMock
 			})
 	};
@@ -1273,6 +1277,144 @@ test.serial("ProjectProcessor: Resolve project via workspace with additional, un
 			"Unable to find dependency library.xyz, required by project library.e " +
 			"(resolved via workspace name workspace) " +
 			"in current set of libraries. Try adding it temporarily to the root project's dependencies"
+	}, "Threw with expected error message");
+});
+
+test.serial("ProjectProcessor: Resolve project via workspace with cyclic dependency", async (t) => {
+	const {sinon} = t.context;
+	const {ProjectProcessor} = t.context.utils;
+	const graphMock = {
+		getProject: sinon.stub().returns(),
+		addProject: sinon.stub(),
+		declareDependency: sinon.stub()
+	};
+	const libraryEProjectMock = {
+		getName: () => "library.e",
+		getFrameworkDependencies: sinon.stub().returns([{
+			name: "library.d"
+		}])
+	};
+	const libraryDProjectMock = {
+		getName: () => "library.d",
+		getFrameworkDependencies: sinon.stub().returns([{
+			name: "library.e" // Cyclic dependency in workspace project
+		}])
+	};
+	const moduleMock = {
+		getSpecifications: sinon.stub()
+			.onFirstCall().resolves({
+				project: libraryEProjectMock
+			})
+			.onSecondCall().resolves({
+				project: libraryDProjectMock
+			})
+	};
+	const workspaceMock = {
+		getName: sinon.stub().returns("workspace name"),
+		getModuleByProjectName: sinon.stub().resolves(moduleMock),
+	};
+	const projectProcessor = new ProjectProcessor({
+		libraryMetadata: {
+			"library.e": {
+				id: "lib.e.id",
+				version: "1000.0.0",
+				path: libraryEPath,
+				dependencies: ["library.d"],
+				optionalDependencies: []
+			},
+			"library.d": {
+				id: "lib.d.id",
+				version: "120000.0.0",
+				path: libraryDPath,
+				dependencies: [],
+				optionalDependencies: []
+			}
+		},
+		graph: graphMock,
+		workspace: workspaceMock
+	});
+
+	await t.throwsAsync(projectProcessor.addProjectToGraph("library.e"), {
+		message:
+			"ui5Framework:ProjectPreprocessor: Detected cyclic dependency chain: " +
+			"library.e -> *library.d* -> *library.d*"
+	}, "Threw with expected error message");
+});
+
+test.serial("ProjectProcessor: Resolve project via workspace with distant cyclic dependency", async (t) => {
+	const {sinon} = t.context;
+	const {ProjectProcessor} = t.context.utils;
+	const graphMock = {
+		getProject: sinon.stub().returns(),
+		addProject: sinon.stub(),
+		declareDependency: sinon.stub()
+	};
+	const libraryEProjectMock = {
+		getName: () => "library.e",
+		getFrameworkDependencies: sinon.stub().returns([{
+			name: "library.d"
+		}])
+	};
+	const libraryDProjectMock = {
+		getName: () => "library.d",
+		getFrameworkDependencies: sinon.stub().returns([{
+			name: "library.f"
+		}])
+	};
+	const libraryFProjectMock = {
+		getName: () => "library.f",
+		getFrameworkDependencies: sinon.stub().returns([{
+			name: "library.e" // Cyclic dependency in workspace project
+		}])
+	};
+	const moduleMock = {
+		getSpecifications: sinon.stub()
+			.onFirstCall().resolves({
+				project: libraryEProjectMock
+			})
+			.onSecondCall().resolves({
+				project: libraryDProjectMock
+			})
+			.onThirdCall().resolves({
+				project: libraryFProjectMock
+			})
+	};
+	const workspaceMock = {
+		getName: sinon.stub().returns("workspace name"),
+		getModuleByProjectName: sinon.stub().resolves(moduleMock),
+	};
+	const projectProcessor = new ProjectProcessor({
+		libraryMetadata: {
+			"library.e": {
+				id: "lib.e.id",
+				version: "1000.0.0",
+				path: libraryEPath,
+				dependencies: ["library.d"],
+				optionalDependencies: []
+			},
+			"library.d": {
+				id: "lib.d.id",
+				version: "120000.0.0",
+				path: libraryDPath,
+				dependencies: ["library.f"],
+				optionalDependencies: []
+			},
+			"library.f": {
+				id: "lib.f.id",
+				version: "1.0.0",
+				path: libraryFPath,
+				dependencies: [],
+				optionalDependencies: []
+			},
+		},
+		graph: graphMock,
+		workspace: workspaceMock
+	});
+
+	await t.throwsAsync(projectProcessor.addProjectToGraph("library.e"), {
+		message:
+			"ui5Framework:ProjectPreprocessor: Detected cyclic dependency chain: " +
+			"library.e -> *library.d* -> library.f -> *library.d*"
 	}, "Threw with expected error message");
 });
 
