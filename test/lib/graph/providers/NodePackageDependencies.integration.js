@@ -219,7 +219,7 @@ test("AppCycleD: cyclic npm deps - Cycles everywhere", async (t) => {
 
 	const error = await t.throwsAsync(testGraphCreationDfs(t, npmProvider, []));
 	t.is(error.message,
-		`Detected cyclic dependency chain: application.cycle.d -> module.h* -> module.i -> module.k -> module.h*`);
+		`Detected cyclic dependency chain: application.cycle.d -> *module.h* -> module.i -> module.k -> *module.h*`);
 });
 
 test("AppCycleE: cyclic npm deps - Cycle via devDependency", async (t) => {
