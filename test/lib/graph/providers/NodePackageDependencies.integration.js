@@ -74,7 +74,8 @@ test("AppA: project with workspace overrides", async (t) => {
 		getModuleByNodeId: t.context.sinon.stub().resolves(undefined).onFirstCall().resolves({
 			// This version of library.d has an additional dependency to library.f,
 			// which in turn has a dependency to library.g
-			getPath: () => libraryDOverridePath
+			getPath: () => libraryDOverridePath,
+			getVersion: () => "1.0.0",
 		})
 	};
 	const npmProvider = new NodePackageDependenciesProvider({

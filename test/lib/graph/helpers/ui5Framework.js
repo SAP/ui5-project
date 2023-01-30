@@ -1107,6 +1107,8 @@ test.serial("ProjectProcessor: Resolve project via workspace", async (t) => {
 		getFrameworkDependencies: sinon.stub().returns([])
 	};
 	const moduleMock = {
+		getVersion: () => "1.0.0",
+		getPath: () => path.join("module", "path"),
 		getSpecifications: sinon.stub()
 			.onFirstCall().resolves({
 				project: libraryDProjectMock
@@ -1173,6 +1175,8 @@ test.serial("ProjectProcessor: Resolve project via workspace with additional dep
 		getFrameworkDependencies: sinon.stub().returns([])
 	};
 	const moduleMock = {
+		getVersion: () => "1.0.0",
+		getPath: () => path.join("module", "path"),
 		getSpecifications: sinon.stub()
 			.onFirstCall().resolves({
 				project: libraryEProjectMock
@@ -1239,6 +1243,8 @@ test.serial("ProjectProcessor: Resolve project via workspace with additional, un
 		getFrameworkDependencies: sinon.stub().returns([])
 	};
 	const moduleMock = {
+		getVersion: () => "1.0.0",
+		getPath: () => path.join("module", "path"),
 		getSpecifications: sinon.stub()
 			.onFirstCall().resolves({
 				project: libraryEProjectMock
@@ -1301,6 +1307,8 @@ test.serial("ProjectProcessor: Resolve project via workspace with cyclic depende
 		}])
 	};
 	const moduleMock = {
+		getVersion: () => "1.0.0",
+		getPath: () => path.join("module", "path"),
 		getSpecifications: sinon.stub()
 			.onFirstCall().resolves({
 				project: libraryEProjectMock
@@ -1368,6 +1376,8 @@ test.serial("ProjectProcessor: Resolve project via workspace with distant cyclic
 		}])
 	};
 	const moduleMock = {
+		getVersion: () => "1.0.0",
+		getPath: () => path.join("module", "path"),
 		getSpecifications: sinon.stub()
 			.onFirstCall().resolves({
 				project: libraryEProjectMock
