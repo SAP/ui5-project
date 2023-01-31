@@ -126,7 +126,7 @@ test("isFrameworkProject: sapui5", async (t) => {
 	const customProjectInput = clone(basicProjectInput);
 	customProjectInput.id = "@sapui5/" + customProjectInput.id;
 	const project = await Specification.create(customProjectInput);
-	t.true(project.isFrameworkProject(), "Is not a framework project");
+	t.true(project.isFrameworkProject(), "Is a framework project");
 });
 
 test("isDeprecated/isSapInternal: Defaults", async (t) => {
@@ -144,9 +144,9 @@ test("isDeprecated/isSapInternal: True", async (t) => {
 	customProjectInput.configuration.metadata.sapInternal = true;
 	customProjectInput.configuration.metadata.allowSapInternal = true;
 	const project = await Specification.create(customProjectInput);
-	t.true(project.isDeprecated(), "Is not deprecated");
-	t.true(project.isSapInternal(), "Is not SAP-internal");
-	t.true(project.getAllowSapInternal(), "Does not allow SAP-internal");
+	t.true(project.isDeprecated(), "Is deprecated");
+	t.true(project.isSapInternal(), "Is SAP-internal");
+	t.true(project.getAllowSapInternal(), "Does allow SAP-internal");
 });
 
 test("getServerSettings", async (t) => {
