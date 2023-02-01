@@ -119,7 +119,7 @@ test("getFramework* configurations", async (t) => {
 		{name: "lib-1"},
 		{name: "lib-2"}
 	], "Returned correct framework dependencies");
-	t.true(project.isFrameworkProject(), "Is not a framework project");
+	t.true(project.isFrameworkProject(), "Is a framework project");
 });
 
 test("isFrameworkProject: sapui5", async (t) => {
