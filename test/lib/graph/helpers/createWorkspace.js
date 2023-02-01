@@ -188,6 +188,34 @@ test("createWorkspace: Using missing file and non-default name", async (t) => {
 });
 
 test("createWorkspace: Using non-default file and non-default name", async (t) => {
+	const {createWorkspace, workspaceConstructorStub, MockWorkspace} = t.context;
+
+	const res = await createWorkspace({
+		cwd: path.join(fixturesPath, "library.h"),
+		name: "library-d",
+		configPath: "custom-ui5-workspace.yaml"
+	});
+
+	t.true(res instanceof MockWorkspace, "Returned instance of Workspace");
+
+	t.is(workspaceConstructorStub.callCount, 1, "Workspace constructor got called once");
+	t.deepEqual(workspaceConstructorStub.getCall(0).args[0], {
+		cwd: libraryHPath,
+		configuration: {
+			specVersion: "workspace/1.0",
+			metadata: {
+				name: "library-d"
+			},
+			dependencyManagement: {
+				resolutions: [{
+					path: "../library.d"
+				}]
+			}
+		}
+	}, "Created Workspace instance with correct parameters");
+});
+
+test("createWorkspace: Using non-default file and non-default name which is not in file", async (t) => {
 	const {createWorkspace, workspaceConstructorStub} = t.context;
 
 	const err = await t.throwsAsync(createWorkspace({

@@ -36,7 +36,7 @@ test.beforeEach(async (t) => {
 		isLevelEnabled: () => true
 	};
 
-	t.context.Workspace = await esmock.p("../../../lib/graph/Workspace.js", {
+	t.context.Workspace = await esmock("../../../lib/graph/Workspace.js", {
 		"@ui5/logger": {
 			getLogger: sinon.stub().withArgs("graph:Workspace").returns(t.context.log)
 		}
