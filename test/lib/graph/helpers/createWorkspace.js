@@ -3,8 +3,8 @@ import {fileURLToPath} from "node:url";
 import path from "node:path";
 import sinonGlobal from "sinon";
 import esmock from "esmock";
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixturesPath = path.join(__dirname, "..", "..", "..", "fixtures");
 const libraryHPath = path.join(fixturesPath, "library.h");
 
