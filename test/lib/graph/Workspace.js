@@ -17,7 +17,7 @@ const collectionBLibraryC = path.join(__dirname, "..", "..", "fixtures", "collec
 
 function createWorkspaceConfig({dependencyManagement}) {
 	return {
-		specVersion: "2.3",
+		specVersion: "workspace/1.0",
 		metadata: {
 			name: "workspace-name"
 		},
@@ -375,6 +375,23 @@ test("Missing path in resolution", async (t) => {
 	}, "Threw with expected error message");
 });
 
+test("Invalid specVersion", async (t) => {
+	const workspace = new t.context.Workspace({
+		cwd: __dirname,
+		configuration: {
+			specVersion: "project/1.0",
+			metadata: {
+				name: "workspace-name"
+			}
+		}
+	});
+
+	const err = await t.throwsAsync(workspace._getResolvedModules());
+	t.true(
+		err.message.includes(`Unsupported "specVersion"`),
+		"Threw with expected error message");
+});
+
 test("Invalid resolutions configuration", async (t) => {
 	const workspace = new t.context.Workspace({
 		cwd: __dirname,
@@ -443,7 +460,7 @@ test("Missing parameters", (t) => {
 			configuration: {metadata: {name: "config-a"}}
 		});
 	}, {
-		message: "[Workspace] One or more mandatory parameters not provided"
+		message: "Could not create Workspace: Missing or empty parameter 'cwd'"
 	}, "Threw with expected error message");
 
 	t.throws(() => {
@@ -451,6 +468,6 @@ test("Missing parameters", (t) => {
 			cwd: "cwd"
 		});
 	}, {
-		message: "[Workspace] One or more mandatory parameters not provided"
+		message: "Could not create Workspace: Missing or empty parameter 'configuration'"
 	}, "Threw with expected error message");
 });

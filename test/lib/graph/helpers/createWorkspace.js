@@ -106,9 +106,6 @@ test("createWorkspace: Using invalid object", async (t) => {
 	const err = await t.throwsAsync(createWorkspace({
 		cwd: "cwd",
 		configObject: {
-			metadata: {
-				name: "default"
-			},
 			dependencyManagement: {
 				resolutions: [{
 					path: "resolution/path"
@@ -116,7 +113,8 @@ test("createWorkspace: Using invalid object", async (t) => {
 			}
 		}
 	}));
-	t.true(err.message.includes("Invalid workspace configuration"), "Threw with validation error");
+	t.is(err.message, "Invalid workspace configuration: Missing or empty property 'metadata.name'",
+		"Threw with validation error");
 });
 
 test("createWorkspace: Using file", async (t) => {
