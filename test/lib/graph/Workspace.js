@@ -396,13 +396,35 @@ test("Invalid resolutions configuration", async (t) => {
 		"Threw with expected error message");
 });
 
-test("Resolution does not lead to a project", async (t) => {
+test("Resolves extension only", async (t) => {
 	const workspace = new t.context.Workspace({
 		cwd: __dirname,
 		configuration: createWorkspaceConfig({
 			dependencyManagement: {
 				resolutions: [{
 					path: "../../fixtures/extension.a"
+				}]
+			}
+		})
+	});
+
+	t.is(workspace.getName(), "workspace-name");
+
+	const {projectNameMap, moduleIdMap} = await workspace._getResolvedModules();
+	t.is(projectNameMap.size, 0, "Project name to module map is empty");
+	t.is(moduleIdMap.size, 1, "Added one entry to Module ID to module map");
+	t.deepEqual(Array.from(moduleIdMap.keys()), ["extension.a"],
+		"Expected entry in Module ID to module map");
+});
+
+test("Resolution does not lead to a project", async (t) => {
+	const workspace = new t.context.Workspace({
+		cwd: __dirname,
+		configuration: createWorkspaceConfig({
+			dependencyManagement: {
+				resolutions: [{
+					// Using a directory with a package.json but no ui5.yaml
+					path: "../../fixtures/init-library"
 				}]
 			}
 		})
