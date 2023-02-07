@@ -7,6 +7,7 @@ import {fileURLToPath} from "node:url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 test.beforeEach(async (t) => {
+	t.context.mkdirpStub = sinon.stub().resolves();
 	t.context.rimrafStub = sinon.stub().resolves();
 
 	t.context.lockStub = sinon.stub();
