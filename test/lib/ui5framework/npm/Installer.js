@@ -8,13 +8,12 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 test.beforeEach(async (t) => {
 	t.context.mkdirpStub = sinon.stub().resolves();
-	t.context.rimrafStub = sinon.stub().resolves();
+	t.context.rimrafStub = sinon.stub().yieldsAsync();
 
 	t.context.lockStub = sinon.stub();
 	t.context.unlockStub = sinon.stub();
 	t.context.renameStub = sinon.stub().yieldsAsync();
 	t.context.statStub = sinon.stub().yieldsAsync();
-	t.context.mkdirStub = sinon.stub().yieldsAsync();
 
 	t.context.AbstractResolver = await esmock.p("../../../../lib/ui5Framework/AbstractInstaller.js", {
 		"mkdirp": t.context.mkdirpStub,
@@ -30,8 +29,7 @@ test.beforeEach(async (t) => {
 		"rimraf": t.context.rimrafStub,
 		"graceful-fs": {
 			rename: t.context.renameStub,
-			stat: t.context.statStub,
-			mkdir: t.context.mkdirStub
+			stat: t.context.statStub
 		}
 	});
 });
@@ -319,11 +317,9 @@ test.serial("Installer: _synchronize", async (t) => {
 	t.is(getLockPathStub.getCall(0).args[0], "lock/name",
 		"_getLockPath should be called with expected args");
 
-	t.is(t.context.mkdirStub.callCount, 1, "mkdir should be called once");
-	t.is(t.context.mkdirStub.getCall(0).args[0], path.join("/ui5Home/", "framework", "locks"),
-		"mkdir should be called with expected path");
-	t.deepEqual(t.context.mkdirStub.getCall(0).args[1], {recursive: true},
-		"mkdir should be called with expected options");
+	t.is(t.context.mkdirpStub.callCount, 1, "_mkdirp should be called once");
+	t.deepEqual(t.context.mkdirpStub.getCall(0).args, [path.join("/ui5Home/", "framework", "locks")],
+		"_mkdirp should be called with expected args");
 
 	t.is(t.context.lockStub.callCount, 1, "lock should be called once");
 	t.is(t.context.lockStub.getCall(0).args[0], "/locks/lockfile.lock",
@@ -506,11 +502,11 @@ test.serial("Installer: installPackage with new package", async (t) => {
 
 	t.is(extractPackageStub.callCount, 1, "_extractPackage should be called once");
 
-	t.is(t.context.mkdirStub.callCount, 2, "mkdir should be called twice");
-	t.is(t.context.mkdirStub.getCall(0).args[0], path.join("/", "ui5Home", "framework", "locks"),
-		"mkdir should be called with the correct arguments on first call");
-	t.is(t.context.mkdirStub.getCall(1).args[0], path.join("my", "package"),
-		"mkdir should be called with the correct arguments on second call");
+	t.is(t.context.mkdirpStub.callCount, 2, "mkdirp should be called twice");
+	t.is(t.context.mkdirpStub.getCall(0).args[0], path.join("/", "ui5Home", "framework", "locks"),
+		"mkdirp should be called with the correct arguments on first call");
+	t.is(t.context.mkdirpStub.getCall(1).args[0], path.join("my", "package"),
+		"mkdirp should be called with the correct arguments on second call");
 
 	t.is(t.context.renameStub.callCount, 1, "fs.rename should be called once");
 	t.is(t.context.renameStub.getCall(0).args[0], "staging-dir-path",
@@ -569,7 +565,7 @@ test.serial("Installer: installPackage with already installed package", async (t
 	t.is(pathExistsStub.callCount, 0, "_pathExists should never be called");
 	t.is(t.context.rimrafStub.callCount, 0, "rimraf should never be called");
 	t.is(extractPackageStub.callCount, 0, "_extractPackage should never be called");
-	t.is(t.context.mkdirStub.callCount, 0, "mkdir should never be called");
+	t.is(t.context.mkdirpStub.callCount, 0, "mkdirp should never be called");
 	t.is(t.context.renameStub.callCount, 0, "fs.rename should never be called");
 });
 
@@ -625,9 +621,9 @@ test.serial("Installer: installPackage with install already in progress", async 
 
 	t.is(t.context.rimrafStub.callCount, 0, "rimraf should never be called");
 
-	t.is(t.context.mkdirStub.callCount, 1, "mkdir should be called once");
-	t.is(t.context.mkdirStub.getCall(0).args[0], path.join("/", "ui5Home", "framework", "locks"),
-		"mkdir should be called with the correct arguments");
+	t.is(t.context.mkdirpStub.callCount, 1, "mkdirp should be called once");
+	t.is(t.context.mkdirpStub.getCall(0).args[0], path.join("/", "ui5Home", "framework", "locks"),
+		"mkdirp should be called with the correct arguments");
 
 	t.is(getStagingDirForPackageStub.callCount, 0, "_getStagingDirForPackage should never be called");
 	t.is(pathExistsStub.callCount, 0, "_pathExists should never be called");
@@ -707,11 +703,11 @@ test.serial("Installer: installPackage with new package and existing target and 
 
 	t.is(extractPackageStub.callCount, 1, "_extractPackage should be called once");
 
-	t.is(t.context.mkdirStub.callCount, 2, "mkdir should be called twice");
-	t.is(t.context.mkdirStub.getCall(0).args[0], path.join("/", "ui5Home", "framework", "locks"),
-		"mkdir should be called with the correct arguments on first call");
-	t.is(t.context.mkdirStub.getCall(1).args[0], path.join("my", "package"),
-		"mkdir should be called with the correct arguments on second call");
+	t.is(t.context.mkdirpStub.callCount, 2, "mkdirp should be called twice");
+	t.is(t.context.mkdirpStub.getCall(0).args[0], path.join("/", "ui5Home", "framework", "locks"),
+		"mkdirp should be called with the correct arguments on first call");
+	t.is(t.context.mkdirpStub.getCall(1).args[0], path.join("my", "package"),
+		"mkdirp should be called with the correct arguments on second call");
 
 	t.is(t.context.renameStub.callCount, 1, "fs.rename should be called once");
 	t.is(t.context.renameStub.getCall(0).args[0], "staging-dir-path",
