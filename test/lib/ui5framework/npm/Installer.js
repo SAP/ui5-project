@@ -16,7 +16,9 @@ test.beforeEach(async (t) => {
 	t.context.statStub = sinon.stub().yieldsAsync();
 
 	t.context.AbstractResolver = await esmock.p("../../../../lib/ui5Framework/AbstractInstaller.js", {
-		"mkdirp": t.context.mkdirpStub,
+		"../../../../lib/utils/fs.js": {
+			mkdirp: t.context.mkdirpStub
+		},
 		"rimraf": t.context.rimrafStub,
 		"lockfile": {
 			lock: t.context.lockStub,
@@ -25,7 +27,9 @@ test.beforeEach(async (t) => {
 	});
 	t.context.Installer = await esmock.p("../../../../lib/ui5Framework/npm/Installer.js", {
 		"../../../../lib/ui5Framework/AbstractInstaller.js": t.context.AbstractResolver,
-		"mkdirp": t.context.mkdirpStub,
+		"../../../../lib/utils/fs.js": {
+			mkdirp: t.context.mkdirpStub
+		},
 		"rimraf": t.context.rimrafStub,
 		"graceful-fs": {
 			rename: t.context.renameStub,

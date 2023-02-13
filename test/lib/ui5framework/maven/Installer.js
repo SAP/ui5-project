@@ -30,7 +30,9 @@ test.beforeEach(async (t) => {
 	};
 
 	t.context.AbstractInstaller = await esmock.p("../../../../lib/ui5Framework/AbstractInstaller.js", {
-		"mkdirp": t.context.mkdirpStub,
+		"../../../../lib/utils/fs.js": {
+			mkdirp: t.context.mkdirpStub
+		},
 		"lockfile": {
 			lock: t.context.lockStub,
 			unlock: t.context.unlockStub
@@ -39,7 +41,9 @@ test.beforeEach(async (t) => {
 
 	t.context.Installer = await esmock.p("../../../../lib/ui5Framework/maven/Installer.js", {
 		"../../../../lib/ui5Framework/AbstractInstaller.js": t.context.AbstractInstaller,
-		"mkdirp": t.context.mkdirpStub,
+		"../../../../lib/utils/fs.js": {
+			mkdirp: t.context.mkdirpStub
+		},
 		"node:util": {
 			"promisify": t.context.promisifyStub,
 		},
