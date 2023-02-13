@@ -211,7 +211,7 @@ test.serial("Installer: installPackage", async (t) => {
 	t.deepEqual(
 		installedPackage,
 		{pkgPath:
-				"/ui5Home/framework/packages/@sapui5/distribution-metadata/1.22"},
+				path.join("/ui5Home/", "framework", "packages", "@sapui5", "distribution-metadata", "1.22")},
 		"Install the correct package"
 	);
 });
@@ -243,7 +243,7 @@ test.serial("Installer: installArtifact", async (t) => {
 
 	t.is(
 		installedArtifact.artifactPath,
-		"/ui5Home/framework/artifacts/com_sap_ui5_dist-sapui5-sdk-dist/1.22.jar",
+		path.join("/ui5Home/", "framework", "artifacts", "com_sap_ui5_dist-sapui5-sdk-dist", "1.22.jar"),
 		"artifactPath correctly resolved"
 	);
 
@@ -459,7 +459,7 @@ test.serial("Installer: _writeLocalArtifactMetadata", async (t) => {
 	t.is(writeJsonStub.callCount, 1, "_writeJson called");
 	t.deepEqual(
 		writeJsonStub.args,
-		[["/ui5Home/framework/metadata/Id.json", {foo: "bar"}]],
+		[[path.join("/ui5Home/", "framework", "metadata", "Id.json"), {foo: "bar"}]],
 		"_writeJson called with correct arguments"
 	);
 });
