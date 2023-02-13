@@ -3,18 +3,24 @@ import sinon from "sinon";
 import esmock from "esmock";
 import path from "node:path";
 import fs from "graceful-fs";
+import rimraf from "rimraf";
 
 test.beforeEach(async (t) => {
 	t.context.mkdirpStub = sinon.stub().resolves();
-	t.context.rimrafStub = sinon.stub().yieldsAsync();
+	t.context.rimrafStub = sinon.stub().resolves();
 	t.context.readFileStub = sinon.stub();
 	t.context.writeFileStub = sinon.stub();
 	t.context.renameStub = sinon.stub().returns();
+	t.context.rmStub = sinon.stub().returns();
+	t.context.statStub = sinon.stub().returns();
 
 	t.context.promisifyStub = sinon.stub();
 	t.context.promisifyStub.withArgs(fs.readFile).callsFake(() => t.context.readFileStub);
 	t.context.promisifyStub.withArgs(fs.readFile).callsFake(() => t.context.readFileStub);
 	t.context.promisifyStub.withArgs(fs.rename).callsFake(() => t.context.renameStub);
+	t.context.promisifyStub.withArgs(fs.rm).callsFake(() => t.context.rmStub);
+	t.context.promisifyStub.withArgs(fs.stat).callsFake(() => t.context.statStub);
+	t.context.promisifyStub.withArgs(rimraf).callsFake(() => t.context.rimrafStub);
 
 	t.context.lockStub = sinon.stub();
 	t.context.unlockStub = sinon.stub();
@@ -25,7 +31,6 @@ test.beforeEach(async (t) => {
 
 	t.context.AbstractInstaller = await esmock.p("../../../../lib/ui5Framework/AbstractInstaller.js", {
 		"mkdirp": t.context.mkdirpStub,
-		"rimraf": t.context.rimrafStub,
 		"lockfile": {
 			lock: t.context.lockStub,
 			unlock: t.context.unlockStub
@@ -35,7 +40,6 @@ test.beforeEach(async (t) => {
 	t.context.Installer = await esmock.p("../../../../lib/ui5Framework/maven/Installer.js", {
 		"../../../../lib/ui5Framework/AbstractInstaller.js": t.context.AbstractInstaller,
 		"mkdirp": t.context.mkdirpStub,
-		"rimraf": t.context.rimrafStub,
 		"node:util": {
 			"promisify": t.context.promisifyStub,
 		},
@@ -383,4 +387,153 @@ test.serial("Installer: _getRemoteArtifactMetadata throws missing deployment met
 		extension: "jar",
 	}), {message: "Could not find deployment undefined.jar for artifact " +
 	"com.sap.ui5.dist:sapui5-sdk-dist:1.75.0 in snapshot metadata:\n[{\"value\":\"5.0.0-SNAPSHOT\"}]"});
+});
+
+test.serial("Installer: _getLocalArtifactMetadata", async (t) => {
+	const {Installer} = t.context;
+
+	const installer = new Installer({
+		cwd: "/cwd/",
+		ui5HomeDir: "/ui5Home/",
+		snapshotEndpointUrl: "endpoint-url"
+	});
+
+	sinon.stub(installer, "readJson").resolves({foo: "bar"});
+	const localArtifactMetadata = await installer._getLocalArtifactMetadata();
+
+	t.deepEqual(localArtifactMetadata, {foo: "bar"}, "Returns the correct metadata");
+});
+
+test.serial("Installer: _getLocalArtifactMetadata file not found", async (t) => {
+	const {Installer} = t.context;
+
+	const installer = new Installer({
+		cwd: "/cwd/",
+		ui5HomeDir: "/ui5Home/",
+		snapshotEndpointUrl: "endpoint-url"
+	});
+
+	sinon.stub(installer, "readJson").throws({code: "ENOENT"});
+	const localArtifactMetadata = await installer._getLocalArtifactMetadata();
+
+	t.deepEqual(
+		localArtifactMetadata,
+		{lastCheck: 0, lastUpdate: 0, revision: null, staleRevisions: []},
+		"Returns an 'empty' localArtifactMetadata"
+	);
+});
+
+test.serial("Installer: _getLocalArtifactMetadata throws", async (t) => {
+	const {Installer} = t.context;
+
+	const installer = new Installer({
+		cwd: "/cwd/",
+		ui5HomeDir: "/ui5Home/",
+		snapshotEndpointUrl: "endpoint-url"
+	});
+
+	sinon.stub(installer, "readJson").throws(() => {
+		throw new Error("Error message");
+	});
+
+	await t.throwsAsync(installer._getLocalArtifactMetadata(), {
+		message: "Error message",
+	});
+});
+
+
+test.serial("Installer: _writeLocalArtifactMetadata", async (t) => {
+	const {Installer} = t.context;
+
+	const installer = new Installer({
+		cwd: "/cwd/",
+		ui5HomeDir: "/ui5Home/",
+		snapshotEndpointUrl: "endpoint-url"
+	});
+
+	const writeJsonStub = sinon.stub(installer, "_writeJson").resolves("/path/to/file");
+
+	const fsWriteRsource = await installer._writeLocalArtifactMetadata("Id", {foo: "bar"});
+
+	t.is(fsWriteRsource, "/path/to/file");
+	t.is(writeJsonStub.callCount, 1, "_writeJson called");
+	t.deepEqual(
+		writeJsonStub.args,
+		[["/ui5Home/framework/metadata/Id.json", {foo: "bar"}]],
+		"_writeJson called with correct arguments"
+	);
+});
+
+test.serial("Installer: _removeStaleRevisions", async (t) => {
+	const {Installer, rmStub} = t.context;
+
+	const installer = new Installer({
+		cwd: "/cwd/",
+		ui5HomeDir: "/ui5Home/",
+		snapshotEndpointUrl: "endpoint-url"
+	});
+
+	const pathForArtifact = sinon.stub(installer, "_getTargetPathForArtifact")
+		.onCall(0).resolves("/path/to/artifact/1")
+		.onCall(1).resolves("/path/to/artifact/2");
+
+	await installer._removeStaleRevisions("Id", {
+		staleRevisions: ["1", "2", "3", "4", "5"],
+	},
+	{pkgName: "myPkg"});
+
+	t.is(pathForArtifact.callCount, 2, "requested path for 2 artifacts");
+	t.is(pathForArtifact.getCall(0).args[0].revision, "1", "Resolved revison 1");
+	t.is(pathForArtifact.getCall(1).args[0].revision, "2", "Resolved revison 2");
+
+	t.is(await rmStub.getCall(0).args[0], "/path/to/artifact/1", "Rm artifact 1");
+	t.is(await rmStub.getCall(1).args[0], "/path/to/artifact/2", "Rm artifact 2");
+});
+
+test.serial("Installer: _pathExists", async (t) => {
+	const {Installer, statStub} = t.context;
+
+	const installer = new Installer({
+		cwd: "/cwd/",
+		ui5HomeDir: "/ui5Home/",
+		snapshotEndpointUrl: "endpoint-url"
+	});
+
+	statStub.resolves("/target/path/");
+	const pathExists = await installer._pathExists();
+
+	t.is(pathExists, true, "Resolves the target path");
+});
+
+test.serial("Installer: _pathExists file not found", async (t) => {
+	const {Installer, statStub} = t.context;
+
+	const installer = new Installer({
+		cwd: "/cwd/",
+		ui5HomeDir: "/ui5Home/",
+		snapshotEndpointUrl: "endpoint-url"
+	});
+
+	statStub.throws({code: "ENOENT"});
+	const pathExists = await installer._pathExists();
+
+	t.is(pathExists, false, "Target path is not resolved");
+});
+
+test.serial("Installer: _pathExists throws", async (t) => {
+	const {Installer, statStub} = t.context;
+
+	const installer = new Installer({
+		cwd: "/cwd/",
+		ui5HomeDir: "/ui5Home/",
+		snapshotEndpointUrl: "endpoint-url"
+	});
+
+	statStub.throws(() => {
+		throw new Error("Error message");
+	});
+
+	await t.throwsAsync(installer._pathExists(), {
+		message: "Error message",
+	});
 });
