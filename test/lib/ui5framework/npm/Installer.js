@@ -86,13 +86,20 @@ test.serial("Installer: fetchPackageVersions", async (t) => {
 	});
 
 	const registry = installer.getRegistry();
-	const requestPackagePackumentStub = sinon.stub(registry, "requestPackagePackument")
+	const requestPackagePackumentStub = sinon.stub().resolves({
+		versions: {
+			"1.0.0": {},
+			"2.0.0": {},
+			"3.0.0": {},
+		},
+	});
+	sinon
+		.stub(registry, "_getPacote")
 		.resolves({
-			versions: {
-				"1.0.0": {},
-				"2.0.0": {},
-				"3.0.0": {}
-			}
+			pacote: {
+				packument: requestPackagePackumentStub
+			},
+			pacoteOptions: {},
 		});
 
 	const packageVersions = await installer.fetchPackageVersions({pkgName: "@openui5/sap.ui.lib1"});
@@ -100,7 +107,7 @@ test.serial("Installer: fetchPackageVersions", async (t) => {
 	t.deepEqual(packageVersions, ["1.0.0", "2.0.0", "3.0.0"], "Should resolve with expected versions");
 
 	t.is(requestPackagePackumentStub.callCount, 1, "requestPackagePackument should be called once");
-	t.deepEqual(requestPackagePackumentStub.getCall(0).args, ["@openui5/sap.ui.lib1"],
+	t.is(requestPackagePackumentStub.getCall(0).args[0], "@openui5/sap.ui.lib1",
 		"requestPackagePackument should be called with pkgName");
 });
 
@@ -771,4 +778,25 @@ test.serial("Installer: _pathExists - re-throws unexpected errors", async (t) =>
 	t.is(err, notFoundError, "Should throw with expected exception");
 	t.is(t.context.statStub.getCall(0).args[0], "my-path",
 		"fs.stat should be called with correct arguments");
+});
+
+
+test.serial("Installer: Registry throws", (t) => {
+	const {Installer} = t.context;
+
+	const installer = new Installer({
+		cwd: "/cwd/",
+		ui5HomeDir: "/ui5Home/"
+	});
+
+	installer._cwd = null;
+	t.throws(() => installer.getRegistry(), {
+		message: "Registry: Missing parameter \"cwd\"",
+	}, "Registry requires cwd");
+
+	installer._cwd = "/cwd/";
+	installer._caCacheDir = null;
+	t.throws(() => installer.getRegistry(), {
+		message: "Registry: Missing parameter \"cacheDir\"",
+	}, "Registry requires cahceDir");
 });
