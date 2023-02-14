@@ -82,6 +82,24 @@ test.serial(
 			"getLibraryMetadata returns metadata for one library");
 	});
 
+test.serial("Sapui5MavenSnapshotResolver: getLibraryMetadata throws", async (t) => {
+	const {Sapui5MavenSnapshotResolver} = t.context;
+
+	const resolver = new Sapui5MavenSnapshotResolver({
+		cwd: "/test-project/",
+		version: "1.75.0"
+	});
+
+	const loadDistMetadataStub = sinon.stub(resolver, "loadDistMetadata");
+	loadDistMetadataStub.resolves({
+		libraries: {}
+	});
+
+	await t.throwsAsync(resolver.getLibraryMetadata("sap.ui.foo"), {
+		message: "Could not find library \"sap.ui.foo\"",
+	});
+});
+
 test.serial("Sapui5MavenSnapshotResolver: handleLibrary", async (t) => {
 	const {Sapui5MavenSnapshotResolver} = t.context;
 
@@ -133,6 +151,22 @@ test.serial("Sapui5MavenSnapshotResolver: handleLibrary", async (t) => {
 
 	t.deepEqual(await promises.install, {pkgPath: "/foo/sap.ui.lib1"}, "Install should resolve with expected object");
 	t.is(loadDistMetadataStub.callCount, 1, "loadDistMetadata should be called once");
+});
+
+test.serial("Sapui5MavenSnapshotResolver: handleLibrary throws", async (t) => {
+	const {Sapui5MavenSnapshotResolver} = t.context;
+
+	const resolver = new Sapui5MavenSnapshotResolver({
+		cwd: "/test-project/",
+		version: "1.75.0"
+	});
+
+	sinon.stub(resolver, "getLibraryMetadata").resolves({});
+
+	await t.throwsAsync(resolver.handleLibrary("sap.ui.lib1"), {
+		message:
+			"Metadata is missing GAV information. This might indicate an unsupported SNAPSHOT version.",
+	});
 });
 
 test.serial("Sapui5MavenSnapshotResolver: Static fetchAllVersions", async (t) => {
