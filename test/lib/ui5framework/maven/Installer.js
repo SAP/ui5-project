@@ -16,7 +16,7 @@ test.beforeEach(async (t) => {
 
 	t.context.promisifyStub = sinon.stub();
 	t.context.promisifyStub.withArgs(fs.readFile).callsFake(() => t.context.readFileStub);
-	t.context.promisifyStub.withArgs(fs.readFile).callsFake(() => t.context.readFileStub);
+	t.context.promisifyStub.withArgs(fs.writeFile).callsFake(() => t.context.writeFileStub);
 	t.context.promisifyStub.withArgs(fs.rename).callsFake(() => t.context.renameStub);
 	t.context.promisifyStub.withArgs(fs.rm).callsFake(() => t.context.rmStub);
 	t.context.promisifyStub.withArgs(fs.stat).callsFake(() => t.context.statStub);
@@ -268,7 +268,13 @@ test.serial("Installer: _fetchArtifactMetadata", async (t) => {
 	});
 
 	sinon.stub(installer, "_synchronize").callsFake( async (pckg, callback) => await callback());
-	sinon.stub(installer, "_getLocalArtifactMetadata").resolves({lastCheck: 0, lastUpdate: 0});
+	sinon.stub(installer, "_getLocalArtifactMetadata")
+		.resolves({
+			lastCheck: 0,
+			lastUpdate: 0,
+			revision: "2",
+			staleRevisions: [],
+		});
 	sinon.stub(installer, "_getRemoteArtifactMetadata").resolves({revision: "1.22", lastUpdate: 0});
 	sinon.stub(installer, "_removeStaleRevisions").resolves();
 	sinon.stub(installer, "_writeLocalArtifactMetadata").resolves();
@@ -447,7 +453,7 @@ test.serial("Installer: _getLocalArtifactMetadata throws", async (t) => {
 
 
 test.serial("Installer: _writeLocalArtifactMetadata", async (t) => {
-	const {Installer} = t.context;
+	const {Installer, writeFileStub} = t.context;
 
 	const installer = new Installer({
 		cwd: "/cwd/",
@@ -455,15 +461,16 @@ test.serial("Installer: _writeLocalArtifactMetadata", async (t) => {
 		snapshotEndpointUrl: "endpoint-url"
 	});
 
-	const writeJsonStub = sinon.stub(installer, "_writeJson").resolves("/path/to/file");
+	// const writeJsonStub = sinon.stub(installer, "_writeJson").resolves("/path/to/file");
+	writeFileStub.resolves("/path/to/file");
 
 	const fsWriteRsource = await installer._writeLocalArtifactMetadata("Id", {foo: "bar"});
 
 	t.is(fsWriteRsource, "/path/to/file");
-	t.is(writeJsonStub.callCount, 1, "_writeJson called");
+	t.is(writeFileStub.callCount, 1, "_writeJson called");
 	t.deepEqual(
-		writeJsonStub.args,
-		[[path.join("/ui5Home/", "framework", "metadata", "Id.json"), {foo: "bar"}]],
+		writeFileStub.args,
+		[[path.join("/ui5Home/", "framework", "metadata", "Id.json"), "{\"foo\":\"bar\"}"]],
 		"_writeJson called with correct arguments"
 	);
 });
@@ -481,17 +488,26 @@ test.serial("Installer: _removeStaleRevisions", async (t) => {
 		.onCall(0).resolves("/path/to/artifact/1")
 		.onCall(1).resolves("/path/to/artifact/2");
 
-	await installer._removeStaleRevisions("Id", {
+	let metadata = {
 		staleRevisions: ["1", "2", "3", "4", "5"],
-	},
-	{pkgName: "myPkg"});
+	};
 
+	await installer._removeStaleRevisions("Id", metadata, {pkgName: "myPkg"});
+
+	t.is(metadata.staleRevisions.length, 3, "Metadata's staleRevisions cut");
 	t.is(pathForArtifact.callCount, 2, "requested path for 2 artifacts");
 	t.is(pathForArtifact.getCall(0).args[0].revision, "1", "Resolved revison 1");
 	t.is(pathForArtifact.getCall(1).args[0].revision, "2", "Resolved revison 2");
 
 	t.is(await rmStub.getCall(0).args[0], "/path/to/artifact/1", "Rm artifact 1");
 	t.is(await rmStub.getCall(1).args[0], "/path/to/artifact/2", "Rm artifact 2");
+
+	metadata = {
+		staleRevisions: ["1"],
+	};
+	await installer._removeStaleRevisions("Id", metadata, {pkgName: "myPkg"});
+
+	t.deepEqual(metadata, {staleRevisions: ["1"]}, "Stale revisions stay untouched if 1 or less");
 });
 
 test.serial("Installer: _pathExists", async (t) => {
