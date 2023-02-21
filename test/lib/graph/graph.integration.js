@@ -23,11 +23,15 @@ test.beforeEach(async (t) => {
 
 	t.context.projectGraphBuilderStub = sinon.stub().resolves("graph");
 	t.context.enrichProjectGraphStub = sinon.stub();
+	t.context.configFromFileStub = sinon.stub().resolves({});
 	t.context.graph = await esmock.p("../../../lib/graph/graph.js", {
 		"../../../lib/graph/providers/NodePackageDependencies.js": t.context.MockNpmProvider,
 		"../../../lib/graph/projectGraphBuilder.js": t.context.projectGraphBuilderStub,
 		"../../../lib/graph/helpers/ui5Framework.js": {
 			enrichProjectGraph: t.context.enrichProjectGraphStub
+		},
+		"../../../lib/config/Configuration.js": {
+			"fromFile": t.context.configFromFileStub
 		}
 	});
 });
@@ -275,6 +279,7 @@ test.serial("graphFromPackageDependencies with inactive workspace file at custom
 	t.is(enrichProjectGraphStub.getCall(0).args[0], "graph",
 		"enrichProjectGraph got called with graph");
 	t.deepEqual(enrichProjectGraphStub.getCall(0).args[1], {
+		resolverConfig: {},
 		versionOverride: "versionOverride",
 		workspace: null
 	}, "enrichProjectGraph got called with correct options");
