@@ -1,15 +1,20 @@
 import test from "ava";
 import sinonGlobal from "sinon";
 import esmock from "esmock";
-import path from "node:path";
 
 test.beforeEach(async (t) => {
 	const sinon = t.context.sinon = sinonGlobal.createSandbox();
 
-	t.context.homedirStub = sinon.stub().returns("~/");
+	t.context.homedirStub = sinon.stub().returns("~");
 	t.context.promisifyStub = sinon.stub();
 	t.context.yesnoStub = sinon.stub();
+	t.context.resolveStub = sinon.stub().callsFake((path) => path);
+	t.context.joinStub = sinon.stub().callsFake((...args) => args.join("/"));
 	t.context.Configuration = await esmock.p("../../../lib/config/Configuration.js", {
+		"node:path": {
+			resolve: t.context.resolveStub,
+			join: t.context.joinStub
+		},
 		"yesno": t.context.yesnoStub,
 		"node:util": {
 			"promisify": t.context.promisifyStub
@@ -31,18 +36,18 @@ test.serial("Build configuration with defaults", (t) => {
 	const config = new Configuration({cwd: "/"});
 
 	t.deepEqual(config.toJSON(), {
-		artifactsDir: path.join("~", ".ui5", "framework", "artifacts"),
-		cacheDir: path.join("~", ".ui5", "framework", "cacache"),
+		artifactsDir: "~/.ui5/framework/artifacts",
+		cacheDir: "~/.ui5/framework/cacache",
 		cacheMode: "default",
-		cwd: path.join("/"),
-		frameworkDir: path.join("~", ".ui5", "framework"),
-		lockDir: path.join("~", ".ui5", "framework", "locks"),
-		metadataDir: path.join("~", ".ui5", "framework", "metadata"),
-		packagesDir: path.join("~", ".ui5", "framework", "packages"),
+		cwd: "/",
+		frameworkDir: "~/.ui5/framework",
+		lockDir: "~/.ui5/framework/locks",
+		metadataDir: "~/.ui5/framework/metadata",
+		packagesDir: "~/.ui5/framework/packages",
 		snapshotEndpointUrl: undefined,
 		sources: false,
-		stagingDir: path.join("~", ".ui5", "framework", "staging"),
-		ui5HomeDir: path.join("~", ".ui5"),
+		stagingDir: "~/.ui5/framework/staging",
+		ui5HomeDir: "~/.ui5",
 		version: undefined,
 	});
 });
@@ -52,18 +57,18 @@ test.serial("Overwrite defaults defaults", (t) => {
 	const {Configuration} = t.context.Configuration;
 
 	const params = {
-		artifactsDir: path.join("/", "custom-location", "artifacts"),
-		cacheDir: path.join("/", "custom-location", "cacache"),
+		artifactsDir: "/custom-location/artifacts",
+		cacheDir: "/custom-location/cacache",
 		cacheMode: "force",
-		cwd: path.join("/"),
-		frameworkDir: path.join("/", "custom-location", "framework"),
-		lockDir: path.join("/", "custom-location", "locks"),
-		metadataDir: path.join("/", "custom-location", "metadata"),
-		packagesDir: path.join("/", "custom-location", "packages"),
+		cwd: "/",
+		frameworkDir: "/custom-location/framework",
+		lockDir: "/custom-location/locks",
+		metadataDir: "/custom-location/metadata",
+		packagesDir: "/custom-location/packages",
 		snapshotEndpointUrl: undefined,
 		sources: true,
-		stagingDir: path.join("/", "custom-location", "staging"),
-		ui5HomeDir: path.join("/", "custom-location"),
+		stagingDir: "/custom-location/staging",
+		ui5HomeDir: "/custom-location",
 		version: "1.99.0-SNAPSHOT"
 	};
 
@@ -76,18 +81,18 @@ test.serial("Check getters", (t) => {
 	const {Configuration} = t.context.Configuration;
 
 	const params = {
-		artifactsDir: path.join("/", "custom-location", "artifacts"),
-		cacheDir: path.join("/", "custom-location", "cacache"),
+		artifactsDir: "/custom-location/artifacts",
+		cacheDir: "/custom-location/cacache",
 		cacheMode: "force",
-		cwd: path.join("/"),
-		frameworkDir: path.join("/", "custom-location", "framework"),
-		lockDir: path.join("/", "custom-location", "locks"),
-		metadataDir: path.join("/", "custom-location", "metadata"),
-		packagesDir: path.join("/", "custom-location", "packages"),
+		cwd: "/",
+		frameworkDir: "/custom-location/framework",
+		lockDir: "/custom-location/locks",
+		metadataDir: "/custom-location/metadata",
+		packagesDir: "/custom-location/packages",
 		snapshotEndpointUrl: undefined,
 		sources: true,
-		stagingDir: path.join("/", "custom-location", "staging"),
-		ui5HomeDir: path.join("/", "custom-location"),
+		stagingDir: "/custom-location/staging",
+		ui5HomeDir: "/custom-location",
 		version: "1.99.0-SNAPSHOT"
 	};
 
@@ -114,18 +119,18 @@ test.serial("fromFile", async (t) => {
 	const {promisifyStub, sinon} = t.context;
 
 	const ui5rcContents = {
-		artifactsDir: path.join("/", "custom-location", "artifacts"),
-		cacheDir: path.join("/", "custom-location", "cacache"),
+		artifactsDir: "/custom-location/artifacts",
+		cacheDir: "/custom-location/cacache",
 		cacheMode: "force",
-		cwd: path.join("/"),
-		frameworkDir: path.join("/", "custom-location", "framework"),
-		lockDir: path.join("/", "custom-location", "locks"),
-		metadataDir: path.join("/", "custom-location", "metadata"),
-		packagesDir: path.join("/", "custom-location", "packages"),
+		cwd: "/",
+		frameworkDir: "/custom-location/framework",
+		lockDir: "/custom-location/locks",
+		metadataDir: "/custom-location/metadata",
+		packagesDir: "/custom-location/packages",
 		snapshotEndpointUrl: undefined,
 		sources: true,
-		stagingDir: path.join("/", "custom-location", "staging"),
-		ui5HomeDir: path.join("/", "custom-location"),
+		stagingDir: "/custom-location/staging",
+		ui5HomeDir: "/custom-location",
 		version: "1.99.0-SNAPSHOT",
 	};
 	const responseStub = sinon.stub().resolves(JSON.stringify(ui5rcContents));
@@ -146,7 +151,7 @@ test.serial("fromFile: configuration file not found- fallback to default config"
 	const config = await fromFile("/non-existing/path/.ui5rc");
 
 	t.is(config instanceof Configuration, true, "Created a default configuration");
-	t.is(config.getUi5HomeDir(), path.join("~/", ".ui5"), "Dafault settings");
+	t.is(config.getUi5HomeDir(), "~/.ui5", "Dafault settings");
 });
 
 test.serial("fromFile: throws", async (t) => {
