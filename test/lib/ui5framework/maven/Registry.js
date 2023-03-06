@@ -124,7 +124,7 @@ test.serial("Registry: requestMavenMetadata not found", async (t) => {
 			message:
 				"Failed to connect to Maven registry at some-url/. Please check the correct Endpoint URL" +
 				" is maintained and can be reached. You may be able to continue working offline. For this, " +
-				"set --cache-mode to \"force\" or use the --offline flag",
+				"set --cache-mode to \"force\"",
 		}
 	);
 });
@@ -241,7 +241,7 @@ test.serial("Registry: requestArtifact not found", async (t) => {
 				"Failed to connect to Maven registry at some-url/. " +
 				"Please check the correct Endpoint URL is maintained and can be reached. " +
 				"You may be able to continue working offline. For this, set --cache-mode to " +
-				"\"force\" or use the --offline flag",
+				"\"force\"",
 		}
 	);
 });
