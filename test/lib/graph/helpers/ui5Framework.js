@@ -105,7 +105,8 @@ test.serial("enrichProjectGraph", async (t) => {
 
 	t.is(t.context.Sapui5ResolverInstallStub.callCount, 1, "Sapui5Resolver#install should be called once");
 	t.deepEqual(t.context.Sapui5ResolverInstallStub.getCall(0).args, [
-		referencedLibraries
+		referencedLibraries,
+		undefined
 	], "Sapui5Resolver#install should be called with expected args");
 
 	t.is(ProjectProcessorStub.callCount, 1, "ProjectProcessor#constructor should be called once");
