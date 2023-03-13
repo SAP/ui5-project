@@ -7,7 +7,6 @@ test.beforeEach(async (t) => {
 
 	t.context.homedirStub = sinon.stub().returns("~");
 	t.context.promisifyStub = sinon.stub();
-	t.context.yesnoStub = sinon.stub();
 	t.context.resolveStub = sinon.stub().callsFake((path) => path);
 	t.context.joinStub = sinon.stub().callsFake((...args) => args.join("/"));
 	t.context.Configuration = await esmock.p("../../../lib/config/Configuration.js", {
@@ -15,7 +14,6 @@ test.beforeEach(async (t) => {
 			resolve: t.context.resolveStub,
 			join: t.context.joinStub
 		},
-		"yesno": t.context.yesnoStub,
 		"node:util": {
 			"promisify": t.context.promisifyStub
 		},
