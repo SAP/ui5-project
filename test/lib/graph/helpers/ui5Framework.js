@@ -107,7 +107,6 @@ test.serial("enrichProjectGraph", async (t) => {
 
 	t.is(t.context.Sapui5ResolverStub.callCount, 1, "Sapui5Resolver#constructor should be called once");
 	t.deepEqual(t.context.Sapui5ResolverStub.getCall(0).args, [{
-		config: undefined,
 		cwd: dependencyTree.path,
 		version: dependencyTree.configuration.framework.version,
 		providedLibraryMetadata: undefined
@@ -314,7 +313,6 @@ test.serial("enrichProjectGraph: With versionOverride", async (t) => {
 
 	t.is(Sapui5ResolverStub.callCount, 1, "Sapui5Resolver#constructor should be called once");
 	t.deepEqual(Sapui5ResolverStub.getCall(0).args, [{
-		config: undefined,
 		cwd: dependencyTree.path,
 		version: "1.99.9",
 		providedLibraryMetadata: undefined
@@ -453,7 +451,6 @@ test.serial("enrichProjectGraph should resolve framework project with version an
 	t.is(getFrameworkLibrariesFromGraphStub.callCount, 1, "getFrameworkLibrariesFromGrap should be called once");
 	t.is(Sapui5ResolverStub.callCount, 1, "Sapui5Resolver#constructor should be called once");
 	t.deepEqual(Sapui5ResolverStub.getCall(0).args, [{
-		config: undefined,
 		cwd: dependencyTree.path,
 		version: "1.2.3",
 		providedLibraryMetadata: undefined
@@ -534,7 +531,6 @@ test.serial("enrichProjectGraph should resolve framework project " +
 	t.is(Sapui5ResolverStub.callCount, 1, "Sapui5Resolver#constructor should be called once");
 	t.is(getFrameworkLibrariesFromGraphStub.callCount, 1, "getFrameworkLibrariesFromGraph should be called once");
 	t.deepEqual(Sapui5ResolverStub.getCall(0).args, [{
-		config: undefined,
 		cwd: dependencyTree.path,
 		version: "1.99.9",
 		providedLibraryMetadata: undefined
