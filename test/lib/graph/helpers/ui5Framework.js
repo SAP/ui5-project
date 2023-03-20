@@ -100,13 +100,13 @@ test.serial("enrichProjectGraph", async (t) => {
 	t.is(t.context.Sapui5ResolverStub.callCount, 1, "Sapui5Resolver#constructor should be called once");
 	t.deepEqual(t.context.Sapui5ResolverStub.getCall(0).args, [{
 		cwd: dependencyTree.path,
-		version: dependencyTree.configuration.framework.version
+		version: dependencyTree.configuration.framework.version,
+		providedLibraryMetadata: undefined
 	}], "Sapui5Resolver#constructor should be called with expected args");
 
 	t.is(t.context.Sapui5ResolverInstallStub.callCount, 1, "Sapui5Resolver#install should be called once");
 	t.deepEqual(t.context.Sapui5ResolverInstallStub.getCall(0).args, [
-		referencedLibraries,
-		undefined
+		referencedLibraries
 	], "Sapui5Resolver#install should be called with expected args");
 
 	t.is(ProjectProcessorStub.callCount, 1, "ProjectProcessor#constructor should be called once");
@@ -187,7 +187,8 @@ test.serial("enrichProjectGraph: With versionOverride", async (t) => {
 	t.is(Sapui5ResolverStub.callCount, 1, "Sapui5Resolver#constructor should be called once");
 	t.deepEqual(Sapui5ResolverStub.getCall(0).args, [{
 		cwd: dependencyTree.path,
-		version: "1.99.9"
+		version: "1.99.9",
+		providedLibraryMetadata: undefined
 	}], "Sapui5Resolver#constructor should be called with expected args");
 });
 
@@ -315,7 +316,8 @@ test.serial("enrichProjectGraph should resolve framework project with version an
 	t.is(Sapui5ResolverStub.callCount, 1, "Sapui5Resolver#constructor should be called once");
 	t.deepEqual(Sapui5ResolverStub.getCall(0).args, [{
 		cwd: dependencyTree.path,
-		version: "1.2.3"
+		version: "1.2.3",
+		providedLibraryMetadata: undefined
 	}], "Sapui5Resolver#constructor should be called with expected args");
 });
 
@@ -394,7 +396,8 @@ test.serial("enrichProjectGraph should resolve framework project " +
 	t.is(getFrameworkLibrariesFromGraphStub.callCount, 1, "getFrameworkLibrariesFromGrap should be called once");
 	t.deepEqual(Sapui5ResolverStub.getCall(0).args, [{
 		cwd: dependencyTree.path,
-		version: "1.99.9"
+		version: "1.99.9",
+		providedLibraryMetadata: undefined
 	}], "Sapui5Resolver#constructor should be called with expected args");
 });
 

@@ -135,7 +135,8 @@ test.afterEach.always((t) => {
 
 function defineTest(testName, {
 	frameworkName,
-	verbose = false
+	verbose = false,
+	librariesInWorkspace
 }) {
 	const npmScope = frameworkName === "SAPUI5" ? "@sapui5" : "@openui5";
 
@@ -410,7 +411,61 @@ function defineTest(testName, {
 		const provider = new DependencyTreeProvider({dependencyTree});
 		const projectGraph = await projectGraphBuilder(provider);
 
-		await ui5Framework.enrichProjectGraph(projectGraph);
+		if (librariesInWorkspace) {
+			const projectNameMap = new Map();
+			const moduleIdMap = new Map();
+			librariesInWorkspace.forEach((libName) => {
+				const libraryDistMetadata = distributionMetadata.libraries[libName];
+				const module = {
+					getSpecifications: sinon.stub().resolves({
+						project: {
+							getName: sinon.stub().returns(libName),
+							getVersion: sinon.stub().returns("1.76.0-SNAPSHOT"),
+							getRootPath: sinon.stub().returns(path.join(fakeBaseDir, "workspace", libName)),
+							isFrameworkProject: sinon.stub().returns(true),
+							__id: libraryDistMetadata.npmPackageName,
+							getRootReader: sinon.stub().returns({
+								byPath: sinon.stub().resolves({
+									getString: sinon.stub().resolves(JSON.stringify({dependencies: {}}))
+								})
+							}),
+							getFrameworkDependencies: sinon.stub().callsFake(() => {
+								const deps = [];
+								libraryDistMetadata.dependencies.forEach((dep) => {
+									deps.push({name: dep});
+								});
+								libraryDistMetadata.optionalDependencies.forEach((optDep) => {
+									deps.push({name: optDep, optional: true});
+								});
+								return deps;
+							}),
+							isDeprecated: sinon.stub().returns(false),
+							isSapInternal: sinon.stub().returns(false),
+							getAllowSapInternal: sinon.stub().returns(false),
+						}
+					}),
+					getVersion: sinon.stub().returns("1.76.0-SNAPSHOT"),
+					getPath: sinon.stub().returns(path.join(fakeBaseDir, "workspace", libName)),
+				};
+				projectNameMap.set(libName, module);
+				moduleIdMap.set(libraryDistMetadata.npmPackageName);
+			});
+
+			const getModuleByProjectName = sinon.stub().callsFake((projectName) => projectNameMap.get(projectName));
+
+			const workspace = {
+				getName: sinon.stub().returns("test"),
+				_getResolvedModules: sinon.stub().resolves({
+					projectNameMap,
+					moduleIdMap
+				}),
+				getModuleByProjectName
+			};
+
+			await ui5Framework.enrichProjectGraph(projectGraph, {workspace});
+		} else {
+			await ui5Framework.enrichProjectGraph(projectGraph);
+		}
 
 		const callbackStub = sinon.stub().resolves();
 		await projectGraph.traverseDepthFirst(callbackStub);
@@ -463,6 +518,15 @@ defineTest("ui5Framework helper should enhance project graph with UI5 framework 
 defineTest("ui5Framework helper should enhance project graph with UI5 framework libraries", {
 	frameworkName: "OpenUI5",
 	verbose: true
+});
+
+defineTest("ui5Framework helper should not cause install of libraries within workspace", {
+	frameworkName: "SAPUI5",
+	librariesInWorkspace: ["sap.ui.lib1", "sap.ui.lib2", "sap.ui.lib8"]
+});
+defineTest("ui5Framework helper should not cause install of libraries within workspace", {
+	frameworkName: "OpenUI5",
+	librariesInWorkspace: ["sap.ui.lib1", "sap.ui.lib2", "sap.ui.lib8"]
 });
 
 function defineErrorTest(testName, {
@@ -723,7 +787,7 @@ test.serial("ui5Framework translator should not try to install anything when no 
 	t.is(pacote.manifest.callCount, 0, "No manifest should be requested");
 });
 
-test.serial("ui5Framework translator should throw an error when framework version is not defined", async (t) => {
+test.serial("ui5Framework helper should throw an error when framework version is not defined", async (t) => {
 	const {ui5Framework, projectGraphBuilder} = t.context;
 
 	const dependencyTree = {
@@ -751,7 +815,7 @@ test.serial("ui5Framework translator should throw an error when framework versio
 });
 
 test.serial(
-	"SAPUI5: ui5Framework translator should throw error when using a library that is not part of the dist metadata",
+	"SAPUI5: ui5Framework helper should throw error when using a library that is not part of the dist metadata",
 	async (t) => {
 		const {sinon, ui5Framework, Installer, projectGraphBuilder} = t.context;
 
