@@ -136,7 +136,7 @@ test.afterEach.always((t) => {
 function defineTest(testName, {
 	frameworkName,
 	verbose = false,
-	librariesInWorkspace
+	librariesInWorkspace = null
 }) {
 	const npmScope = frameworkName === "SAPUI5" ? "@sapui5" : "@openui5";
 
@@ -787,8 +787,8 @@ test.serial("ui5Framework translator should not try to install anything when no 
 	t.is(pacote.manifest.callCount, 0, "No manifest should be requested");
 });
 
-test.serial("ui5Framework helper should throw an error when framework version is not defined", async (t) => {
-	const {ui5Framework, projectGraphBuilder} = t.context;
+test.serial("ui5Framework helper shouldn't throw when framework version and libraries are not provided", async (t) => {
+	const {ui5Framework, projectGraphBuilder, logStub} = t.context;
 
 	const dependencyTree = {
 		id: "test-id",
@@ -809,9 +809,24 @@ test.serial("ui5Framework helper should throw an error when framework version is
 	const provider = new DependencyTreeProvider({dependencyTree});
 	const projectGraph = await projectGraphBuilder(provider);
 
-	await t.throwsAsync(async () => {
-		await ui5Framework.enrichProjectGraph(projectGraph);
-	}, {message: `No framework version defined for root project test-project`}, "Correct error message");
+	await ui5Framework.enrichProjectGraph(projectGraph);
+
+	t.is(logStub.verbose.callCount, 5);
+	t.deepEqual(logStub.verbose.getCall(0).args, [
+		"Configuration for module test-id has been supplied directly"
+	]);
+	t.deepEqual(logStub.verbose.getCall(1).args, [
+		"Module test-id contains project test-project"
+	]);
+	t.deepEqual(logStub.verbose.getCall(2).args, [
+		"Root project test-project qualified as application project for project graph"
+	]);
+	t.deepEqual(logStub.verbose.getCall(3).args, [
+		"Project test-project has no framework dependencies"
+	]);
+	t.deepEqual(logStub.verbose.getCall(4).args, [
+		"No SAPUI5 libraries referenced in project test-project or in any of its dependencies"
+	]);
 });
 
 test.serial(

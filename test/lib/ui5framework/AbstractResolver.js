@@ -46,13 +46,6 @@ test("AbstractResolver: constructor", (t) => {
 	t.true(resolver instanceof AbstractResolver, "Constructor returns instance of abstract class");
 });
 
-test("AbstractResolver: constructor requires 'version'", (t) => {
-	const {MyResolver} = t.context;
-	t.throws(() => {
-		new MyResolver({});
-	}, {message: `AbstractResolver: Missing parameter "version"`});
-});
-
 test("AbstractResolver: Set absolute 'cwd'", (t) => {
 	const {MyResolver} = t.context;
 	const resolver = new MyResolver({
