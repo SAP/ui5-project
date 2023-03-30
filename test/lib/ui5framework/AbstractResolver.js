@@ -44,6 +44,15 @@ test("AbstractResolver: constructor", (t) => {
 	});
 	t.true(resolver instanceof MyResolver, "Constructor returns instance of sub-class");
 	t.true(resolver instanceof AbstractResolver, "Constructor returns instance of abstract class");
+	t.is(resolver._version, "1.75.0");
+});
+
+test("AbstractResolver: constructor without version", (t) => {
+	const {MyResolver} = t.context;
+	const resolver = new MyResolver({
+		cwd: "/test-project/"
+	});
+	t.is(resolver._version, undefined);
 });
 
 test("AbstractResolver: Set absolute 'cwd'", (t) => {
