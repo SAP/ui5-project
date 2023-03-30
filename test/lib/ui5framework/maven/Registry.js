@@ -43,16 +43,7 @@ test.serial("Registry: constructor", (t) => {
 		endpointUrl: "some-url"
 	});
 	t.true(reg instanceof Registry, "Constructor returns instance of class");
-	t.is(reg._cwd, "/cwd/");
 	t.is(reg._endpointUrl, "some-url/");
-});
-
-test.serial("Registry: constructor requires 'cwd'", (t) => {
-	const {Registry} = t.context;
-
-	t.throws(() => {
-		new Registry({});
-	}, {message: `Registry: Missing parameter "cwd"`});
 });
 
 test.serial("Registry: constructor requires 'endpointUrl'", (t) => {
@@ -124,8 +115,7 @@ test.serial("Registry: requestMavenMetadata not found", async (t) => {
 		{
 			message:
 				"Failed to connect to Maven registry at some-url/. Please check the correct Endpoint URL" +
-				" is maintained and can be reached. You may be able to continue working offline. For this, " +
-				"set --cache-mode to \"force\"",
+				" is maintained and can be reached. ",
 		}
 	);
 });
@@ -240,9 +230,7 @@ test.serial("Registry: requestArtifact not found", async (t) => {
 		{
 			message:
 				"Failed to connect to Maven registry at some-url/. " +
-				"Please check the correct Endpoint URL is maintained and can be reached. " +
-				"You may be able to continue working offline. For this, set --cache-mode to " +
-				"\"force\"",
+				"Please check the correct Endpoint URL is maintained and can be reached. "
 		}
 	);
 });

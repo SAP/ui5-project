@@ -75,16 +75,6 @@ test.serial("Installer: constructor", (t) => {
 	t.is(installer._metadataDir, path.join("/ui5Home/", "framework", "metadata"));
 });
 
-test.serial("Installer: constructor requires 'cwd'", (t) => {
-	const {Installer} = t.context;
-
-	t.throws(() => {
-		new Installer({
-			ui5HomeDir: "/ui5Home/"
-		});
-	}, {message: `Installer: Missing parameter "cwd"`});
-});
-
 test.serial("Installer: constructor requires 'ui5HomeDir'", (t) => {
 	const {Installer} = t.context;
 
