@@ -1297,6 +1297,93 @@ test("utils.checkForDuplicateFrameworkProjects: Two duplicates", (t) => {
 	});
 });
 
+test.skip("utils.getFrameworkLibraryDependencies: ", async (t) => {
+	const {utils, sinon} = t.context;
+
+	const project = {};
+
+	const result = await utils.getFrameworkLibraryDependencies(project);
+});
+
+test("utils.getWorkspaceFrameworkLibraryMetadata: No workspace modules", async (t) => {
+	const {utils, sinon} = t.context;
+
+	const workspace = {
+		getModules: sinon.stub().resolves([])
+	};
+
+	const libraryMetadata = await utils.getWorkspaceFrameworkLibraryMetadata({workspace, projectGraph: {}});
+
+	t.deepEqual(libraryMetadata, {});
+});
+
+test("utils.getWorkspaceFrameworkLibraryMetadata: With workspace modules", async (t) => {
+	const {utils, sinon} = t.context;
+
+	const workspace = {
+		getModules: sinon.stub().resolves([
+			{
+				// Extensions don't have projects, should be ignored
+				getSpecifications: sinon.stub().resolves({
+					project: null
+				})
+			},
+			{
+				getSpecifications: sinon.stub().resolves({
+					project: {
+						// some types don't have a "isFrameworkProject" method
+					}
+				})
+			},
+			{
+				getSpecifications: sinon.stub().resolves({
+					project: {
+						isFrameworkProject: sinon.stub().returns(false)
+					}
+				})
+			},
+			{
+				getSpecifications: sinon.stub().resolves({
+					project: {
+						isFrameworkProject: sinon.stub().returns(true),
+						getName: sinon.stub().returns("framework.project.within.projectGraph")
+					}
+				})
+			},
+			{
+				getSpecifications: sinon.stub().resolves({
+					project: {
+						isFrameworkProject: sinon.stub().returns(true),
+						getName: sinon.stub().returns("framework.project.not.within.projectGraph"),
+						getId: sinon.stub().returns("id"),
+						getRootPath: sinon.stub().returns("/rootPath"),
+						getVersion: sinon.stub().returns("1.0.0"),
+					}
+				})
+			}
+		])
+	};
+
+	const getProject = sinon.stub().returns(undefined);
+	getProject.withArgs("framework.project.within.projectGraph").returns({});
+	getProject.withArgs("framework.project.not.within.projectGraph").returns(undefined);
+	const projectGraph = {
+		getProject
+	};
+
+	const libraryMetadata = await utils.getWorkspaceFrameworkLibraryMetadata({workspace, projectGraph});
+
+	t.deepEqual(libraryMetadata, {
+		"framework.project.not.within.projectGraph": {
+			dependencies: [],
+			id: "id",
+			optionalDependencies: [],
+			path: "/rootPath",
+			version: "1.0.0"
+		},
+	});
+});
+
 test.serial("ProjectProcessor: Add project to graph", async (t) => {
 	const {sinon} = t.context;
 	const {ProjectProcessor} = t.context.utils;
