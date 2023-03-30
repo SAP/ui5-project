@@ -1,15 +1,13 @@
 import test from "ava";
 import sinon from "sinon";
 import esmock from "esmock";
-import {pipeline} from "node:stream";
 import {promisify} from "node:util";
 
 test.beforeEach(async (t) => {
 	t.context.pipelineStub = sinon.stub().resolves();
+	t.context.streamPipelineStub = sinon.stub().resolves();
 
 	t.context.promisifyStub = sinon.stub();
-	t.context.promisifyStub
-		.withArgs(pipeline).callsFake(() => t.context.pipelineStub);
 
 	t.context.fetchStub = sinon.stub().resolves({
 		ok: true,
@@ -20,6 +18,9 @@ test.beforeEach(async (t) => {
 
 	t.context.Registry = await esmock.p("../../../../lib/ui5Framework/maven/Registry.js", {
 		"make-fetch-happen": t.context.fetchStub,
+		"node:stream/promises": {
+			"pipeline": t.context.streamPipelineStub
+		},
 		"node:util": {
 			"promisify": t.context.promisifyStub
 		},
@@ -162,7 +163,7 @@ test.serial("Registry: requestMavenMetadata No metadata/bad xml", async (t) => {
 });
 
 test.serial("Registry: requestArtifact", async (t) => {
-	const {Registry, fetchStub, pipelineStub, fsCreateWriteStreamStub} = t.context;
+	const {Registry, fetchStub, streamPipelineStub, fsCreateWriteStreamStub} = t.context;
 
 	fetchStub.resolves({
 		ok: true,
@@ -181,8 +182,8 @@ test.serial("Registry: requestArtifact", async (t) => {
 		extension: "jar"
 	}, "/target/path/");
 
-	t.is(pipelineStub.callCount, 1, "Pipeline is called");
-	t.is(pipelineStub.args[0][0], "content body", "Pipeline called with response body as argument");
+	t.is(streamPipelineStub.callCount, 1, "Pipeline is called");
+	t.is(streamPipelineStub.args[0][0], "content body", "Pipeline called with response body as argument");
 	t.is(fsCreateWriteStreamStub.callCount, 1, "writeStream called");
 	t.deepEqual(fsCreateWriteStreamStub.args[0], ["/target/path/"], "writeStream called with the target path");
 });
