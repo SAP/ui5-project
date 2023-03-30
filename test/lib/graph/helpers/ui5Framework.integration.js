@@ -423,7 +423,7 @@ function defineTest(testName, {
 							getVersion: sinon.stub().returns("1.76.0-SNAPSHOT"),
 							getRootPath: sinon.stub().returns(path.join(fakeBaseDir, "workspace", libName)),
 							isFrameworkProject: sinon.stub().returns(true),
-							__id: libraryDistMetadata.npmPackageName,
+							getId: sinon.stub().returns(libraryDistMetadata.npmPackageName),
 							getRootReader: sinon.stub().returns({
 								byPath: sinon.stub().resolves({
 									getString: sinon.stub().resolves(JSON.stringify({dependencies: {}}))
@@ -448,17 +448,22 @@ function defineTest(testName, {
 					getPath: sinon.stub().returns(path.join(fakeBaseDir, "workspace", libName)),
 				};
 				projectNameMap.set(libName, module);
-				moduleIdMap.set(libraryDistMetadata.npmPackageName);
+				moduleIdMap.set(libraryDistMetadata.npmPackageName, module);
 			});
 
-			const getModuleByProjectName = sinon.stub().callsFake((projectName) => projectNameMap.get(projectName));
+			const getModuleByProjectName = sinon.stub().callsFake(
+				async (projectName) => projectNameMap.get(projectName)
+			);
+			const getModules = sinon.stub().callsFake(
+				async () => {
+					const sortedMap = new Map([...moduleIdMap].sort((a, b) => String(a[0]).localeCompare(b[0])));
+					return Array.from(sortedMap.values());
+				}
+			);
 
 			const workspace = {
 				getName: sinon.stub().returns("test"),
-				_getResolvedModules: sinon.stub().resolves({
-					projectNameMap,
-					moduleIdMap
-				}),
+				getModules,
 				getModuleByProjectName
 			};
 
