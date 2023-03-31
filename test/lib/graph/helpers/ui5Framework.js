@@ -1297,12 +1297,90 @@ test("utils.checkForDuplicateFrameworkProjects: Two duplicates", (t) => {
 	});
 });
 
-test.skip("utils.getFrameworkLibraryDependencies: ", async (t) => {
+test("utils.getFrameworkLibraryDependencies: OpenUI5 library", async (t) => {
 	const {utils, sinon} = t.context;
 
-	const project = {};
+	const project = {
+		getId: sinon.stub().returns("@openui5/sap.ui.lib1"),
+		getRootReader: sinon.stub().returns({
+			byPath: sinon.stub().withArgs("/package.json").resolves({
+				getString: sinon.stub().resolves(JSON.stringify({
+					dependencies: {
+						"@openui5/sap.ui.lib2": "*"
+					},
+					devDependencies: {
+						"@openui5/themelib_fancy": "*"
+					}
+				}))
+			})
+		}),
+	};
 
 	const result = await utils.getFrameworkLibraryDependencies(project);
+	t.deepEqual(result, {
+		dependencies: ["sap.ui.lib2"],
+		optionalDependencies: ["themelib_fancy"]
+	});
+});
+
+test("utils.getFrameworkLibraryDependencies: SAPUI5 library", async (t) => {
+	const {utils, sinon} = t.context;
+
+	const project = {
+		getId: sinon.stub().returns("@sapui5/sap.ui.lib1"),
+		getFrameworkDependencies: sinon.stub().returns([
+			{
+				name: "sap.ui.lib2"
+			},
+			{
+				name: "themelib_fancy",
+				optional: true
+			},
+			{
+				name: "sap.ui.lib3",
+				development: true
+			}
+		])
+	};
+
+	const result = await utils.getFrameworkLibraryDependencies(project);
+	t.deepEqual(result, {
+		dependencies: ["sap.ui.lib2"],
+		optionalDependencies: ["themelib_fancy"]
+	});
+});
+
+test("utils.getFrameworkLibraryDependencies: OpenUI5 library - no dependencies", async (t) => {
+	const {utils, sinon} = t.context;
+
+	const project = {
+		getId: sinon.stub().returns("@openui5/sap.ui.lib1"),
+		getRootReader: sinon.stub().returns({
+			byPath: sinon.stub().withArgs("/package.json").resolves({
+				getString: sinon.stub().resolves(JSON.stringify({}))
+			})
+		}),
+	};
+
+	const result = await utils.getFrameworkLibraryDependencies(project);
+	t.deepEqual(result, {
+		dependencies: [],
+		optionalDependencies: []
+	});
+});
+
+test("utils.getFrameworkLibraryDependencies: No framework library", async (t) => {
+	const {utils, sinon} = t.context;
+
+	const project = {
+		getId: sinon.stub().returns("foo")
+	};
+
+	const result = await utils.getFrameworkLibraryDependencies(project);
+	t.deepEqual(result, {
+		dependencies: [],
+		optionalDependencies: []
+	});
 });
 
 test("utils.getWorkspaceFrameworkLibraryMetadata: No workspace modules", async (t) => {
@@ -1346,7 +1424,22 @@ test("utils.getWorkspaceFrameworkLibraryMetadata: With workspace modules", async
 				getSpecifications: sinon.stub().resolves({
 					project: {
 						isFrameworkProject: sinon.stub().returns(true),
-						getName: sinon.stub().returns("framework.project.within.projectGraph")
+						getName: sinon.stub().returns("sap.ui.lib1"),
+						getId: sinon.stub().returns("@openui5/sap.ui.lib1"),
+						getRootPath: sinon.stub().returns("/rootPath"),
+						getRootReader: sinon.stub().returns({
+							byPath: sinon.stub().withArgs("/package.json").resolves({
+								getString: sinon.stub().resolves(JSON.stringify({
+									dependencies: {
+										"@openui5/sap.ui.lib2": "*"
+									},
+									devDependencies: {
+										"@openui5/themelib_fancy": "*"
+									}
+								}))
+							})
+						}),
+						getVersion: sinon.stub().returns("1.0.0"),
 					}
 				})
 			},
@@ -1354,19 +1447,31 @@ test("utils.getWorkspaceFrameworkLibraryMetadata: With workspace modules", async
 				getSpecifications: sinon.stub().resolves({
 					project: {
 						isFrameworkProject: sinon.stub().returns(true),
-						getName: sinon.stub().returns("framework.project.not.within.projectGraph"),
-						getId: sinon.stub().returns("id"),
+						getName: sinon.stub().returns("sap.ui.lib3"),
+						getId: sinon.stub().returns("@sapui5/sap.ui.lib3"),
 						getRootPath: sinon.stub().returns("/rootPath"),
 						getVersion: sinon.stub().returns("1.0.0"),
+						getFrameworkDependencies: sinon.stub().returns([
+							{
+								name: "sap.ui.lib4"
+							},
+							{
+								name: "sap.ui.lib5",
+								optional: true
+							},
+							{
+								name: "sap.ui.lib6",
+								development: true
+							}
+						])
 					}
 				})
 			}
 		])
 	};
 
-	const getProject = sinon.stub().returns(undefined);
-	getProject.withArgs("framework.project.within.projectGraph").returns({});
-	getProject.withArgs("framework.project.not.within.projectGraph").returns(undefined);
+	const getProject = sinon.stub();
+	getProject.withArgs("sap.ui.lib1").returns(undefined);
 	const projectGraph = {
 		getProject
 	};
@@ -1374,14 +1479,56 @@ test("utils.getWorkspaceFrameworkLibraryMetadata: With workspace modules", async
 	const libraryMetadata = await utils.getWorkspaceFrameworkLibraryMetadata({workspace, projectGraph});
 
 	t.deepEqual(libraryMetadata, {
-		"framework.project.not.within.projectGraph": {
-			dependencies: [],
-			id: "id",
-			optionalDependencies: [],
+		"sap.ui.lib1": {
+			dependencies: [
+				"sap.ui.lib2"
+			],
+			id: "@openui5/sap.ui.lib1",
+			optionalDependencies: [
+				"themelib_fancy"
+			],
+			path: "/rootPath",
+			version: "1.0.0"
+		},
+		"sap.ui.lib3": {
+			dependencies: [
+				"sap.ui.lib4"
+			],
+			id: "@sapui5/sap.ui.lib3",
+			optionalDependencies: [
+				"sap.ui.lib5"
+			],
 			path: "/rootPath",
 			version: "1.0.0"
 		},
 	});
+});
+
+test("utils.getWorkspaceFrameworkLibraryMetadata: With workspace module within projectGraph", async (t) => {
+	const {utils, sinon} = t.context;
+
+	const workspace = {
+		getModules: sinon.stub().resolves([
+			{
+				getSpecifications: sinon.stub().resolves({
+					project: {
+						isFrameworkProject: sinon.stub().returns(true),
+						getName: sinon.stub().returns("sap.ui.lib1")
+					}
+				})
+			}
+		])
+	};
+
+	const getProject = sinon.stub();
+	getProject.withArgs("sap.ui.lib1").returns({});
+	const projectGraph = {
+		getProject
+	};
+
+	const libraryMetadata = await utils.getWorkspaceFrameworkLibraryMetadata({workspace, projectGraph});
+
+	t.deepEqual(libraryMetadata, {});
 });
 
 test.serial("ProjectProcessor: Add project to graph", async (t) => {
