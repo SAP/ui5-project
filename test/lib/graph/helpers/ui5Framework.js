@@ -29,8 +29,6 @@ test.beforeEach(async (t) => {
 	};
 
 	t.context.Openui5ResolverStub = sinon.stub();
-	t.context.yesnoStub = sinon.stub();
-	t.context.promisifyStub = sinon.stub();
 
 	t.context.Sapui5ResolverStub = sinon.stub();
 	t.context.Sapui5ResolverInstallStub = sinon.stub();
@@ -42,19 +40,13 @@ test.beforeEach(async (t) => {
 	t.context.Sapui5ResolverResolveVersionStub = sinon.stub();
 	t.context.Sapui5ResolverStub.resolveVersion = t.context.Sapui5ResolverResolveVersionStub;
 
-	t.context.Sapui5MavenSnapshotResolver = await esmock.p(
-		"../../../../lib/ui5Framework/Sapui5MavenSnapshotResolver.js",
-		{
-			"yesno": t.context.yesnoStub,
-			"node:util": {
-				"promisify": t.context.promisifyStub
-			},
+	t.context.Sapui5MavenSnapshotResolverInstallStub = sinon.stub();
+	t.context.Sapui5MavenSnapshotResolver = sinon.stub()
+		.callsFake(() => {
+			return {
+				install: t.context.Sapui5MavenSnapshotResolverInstallStub
+			};
 		});
-
-	t.context.Sapui5MavenSnapshotResolverInstallStub = sinon.stub(
-		t.context.Sapui5MavenSnapshotResolver.prototype,
-		"install"
-	);
 
 	t.context.ui5Framework = await esmock.p("../../../../lib/graph/helpers/ui5Framework.js", {
 		"@ui5/logger": ui5Logger,
@@ -66,7 +58,6 @@ test.beforeEach(async (t) => {
 
 test.afterEach.always((t) => {
 	t.context.sinon.restore();
-	esmock.purge(t.context.Sapui5MavenSnapshotResolver);
 	esmock.purge(t.context.ui5Framework);
 });
 
@@ -2124,49 +2115,4 @@ test.serial("ProjectProcessor: Project missing in metadata", async (t) => {
 	await t.throwsAsync(projectProcessor.addProjectToGraph("lib.a"), {
 		message: "Failed to find library lib.a in dist packages metadata.json"
 	}, "Threw with expected error message");
-});
-
-test.serial("resolveSnapshotEndpointUrl", async (t) => {
-	const resolveSnapshotEndpointUrl = t.context.Sapui5MavenSnapshotResolver.resolveSnapshotEndpointUrl;
-	const {promisifyStub, yesnoStub, sinon} = t.context;
-
-	const readStub = sinon.stub().resolves(`<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
-	  <profiles>
-		<profile>
-		  <id>snapshot.build</id>
-		  <pluginRepositories>
-			<pluginRepository>
-			  <id>artifactory</id>
-			  <url>/build-snapshots/</url>
-			</pluginRepository>
-		  </pluginRepositories>
-		</profile>
-	  </profiles>
-	</settings>`);
-	promisifyStub.callsFake(() => readStub);
-	yesnoStub.resolves(true);
-
-	const endpoint = await resolveSnapshotEndpointUrl();
-
-	t.is(endpoint, "/build-snapshots/", "URL Extracted from settings.xml");
-});
-
-test.serial("resolveSnapshotEndpointUrl throws", async (t) => {
-	const resolveSnapshotEndpointUrl = t.context.Sapui5MavenSnapshotResolver.resolveSnapshotEndpointUrl;
-	const {promisifyStub, yesnoStub, sinon} = t.context;
-
-	const readStub = sinon.stub()
-		.onFirstCall().throws({code: "ENOENT"})
-		.onSecondCall().throws(new Error("Error"));
-	promisifyStub.callsFake(() => readStub);
-	yesnoStub.resolves(true);
-
-	await t.throwsAsync(resolveSnapshotEndpointUrl(), {
-		message: "SnapshotURL not resolved",
-	});
-
-	await t.throwsAsync(resolveSnapshotEndpointUrl(), {
-		message: "Error",
-	});
 });

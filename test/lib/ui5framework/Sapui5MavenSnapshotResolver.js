@@ -19,13 +19,21 @@ test.beforeEach(async (t) => {
 
 	process.env.UI5_MAVEN_SNAPSHOT_ENDPOINT = "_SNAPSHOT_URL_";
 
-	t.context.Sapui5MavenSnapshotResolver = await esmock("../../../lib/ui5Framework/Sapui5MavenSnapshotResolver.js", {
-		"../../../lib/ui5Framework/maven/Installer": t.context.InstallerStub
+	t.context.yesnoStub = sinon.stub();
+	t.context.promisifyStub = sinon.stub();
+
+	t.context.Sapui5MavenSnapshotResolver = await esmock.p("../../../lib/ui5Framework/Sapui5MavenSnapshotResolver.js", {
+		"../../../lib/ui5Framework/maven/Installer": t.context.InstallerStub,
+		"yesno": t.context.yesnoStub,
+		"node:util": {
+			"promisify": t.context.promisifyStub
+		},
 	});
 });
 
-test.afterEach.always(() => {
-	process.env.UI5_MAVEN_SNAPSHOT_ENDPOINT = null;
+test.afterEach.always((t) => {
+	delete process.env.UI5_MAVEN_SNAPSHOT_ENDPOINT;
+	esmock.purge(t.context.Sapui5MavenSnapshotResolver);
 	sinon.restore();
 });
 
@@ -221,4 +229,49 @@ test.serial("Sapui5MavenSnapshotResolver: Static fetchAllVersions without option
 		cwd: process.cwd(),
 		ui5HomeDir: path.join(os.homedir(), ".ui5")
 	}], "Installer should be called with expected arguments");
+});
+
+test.serial("_resolveSnapshotEndpointUrl", async (t) => {
+	const resolveSnapshotEndpointUrl = t.context.Sapui5MavenSnapshotResolver._resolveSnapshotEndpointUrl;
+	const {promisifyStub, yesnoStub} = t.context;
+
+	const readStub = sinon.stub().resolves(`<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+	  <profiles>
+		<profile>
+		  <id>snapshot.build</id>
+		  <pluginRepositories>
+			<pluginRepository>
+			  <id>artifactory</id>
+			  <url>/build-snapshots/</url>
+			</pluginRepository>
+		  </pluginRepositories>
+		</profile>
+	  </profiles>
+	</settings>`);
+	promisifyStub.callsFake(() => readStub);
+	yesnoStub.resolves(true);
+
+	const endpoint = await resolveSnapshotEndpointUrl();
+
+	t.is(endpoint, "/build-snapshots/", "URL Extracted from settings.xml");
+});
+
+test.serial("_resolveSnapshotEndpointUrl throws", async (t) => {
+	const resolveSnapshotEndpointUrl = t.context.Sapui5MavenSnapshotResolver._resolveSnapshotEndpointUrl;
+	const {promisifyStub, yesnoStub} = t.context;
+
+	const readStub = sinon.stub()
+		.onFirstCall().throws({code: "ENOENT"})
+		.onSecondCall().throws(new Error("Error"));
+	promisifyStub.callsFake(() => readStub);
+	yesnoStub.resolves(true);
+
+	await t.throwsAsync(resolveSnapshotEndpointUrl(".m2/settings.xml"), {
+		message: "SnapshotURL not resolved. Settings.xml could not be found in .m2/settings.xml",
+	});
+
+	await t.throwsAsync(resolveSnapshotEndpointUrl(), {
+		message: "Error",
+	});
 });
