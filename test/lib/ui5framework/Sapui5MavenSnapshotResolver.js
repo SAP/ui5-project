@@ -203,6 +203,7 @@ test.serial("Sapui5MavenSnapshotResolver: Static fetchAllVersions", async (t) =>
 	t.true(t.context.InstallerStub.calledWithNew(), "Installer should be called with new");
 	t.deepEqual(t.context.InstallerStub.getCall(0).args, [{
 		cwd: path.resolve("/cwd"),
+		snapshotEndpointUrl: undefined,
 		ui5HomeDir: path.resolve("/ui5HomeDir")
 	}], "Installer should be called with expected arguments");
 });
@@ -227,6 +228,7 @@ test.serial("Sapui5MavenSnapshotResolver: Static fetchAllVersions without option
 	t.true(t.context.InstallerStub.calledWithNew(), "Installer should be called with new");
 	t.deepEqual(t.context.InstallerStub.getCall(0).args, [{
 		cwd: process.cwd(),
+		snapshotEndpointUrl: undefined,
 		ui5HomeDir: path.join(os.homedir(), ".ui5")
 	}], "Installer should be called with expected arguments");
 });

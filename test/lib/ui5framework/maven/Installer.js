@@ -102,10 +102,10 @@ test.serial("Installer: fetchPackageVersions", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5HomeDir: "/ui5Home/",
-		snapshotEndpointUrl: "endpoint-url"
+		snapshotEndpointUrl: () => Promise.resolve("endpoint-url")
 	});
 
-	const registry = installer.getRegistry();
+	const registry = await installer.getRegistry();
 	const requestMavenMetadataStub = sinon.stub(registry, "requestMavenMetadata")
 		.resolves({
 			versioning: {
@@ -130,10 +130,10 @@ test.serial("Installer: fetchPackageVersions throws", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5HomeDir: "/ui5Home/",
-		snapshotEndpointUrl: "endpoint-url"
+		snapshotEndpointUrl: () => Promise.resolve("endpoint-url")
 	});
 
-	const registry = installer.getRegistry();
+	const registry = await installer.getRegistry();
 	sinon.stub(registry, "requestMavenMetadata").resolves({});
 
 	await t.throwsAsync(
@@ -311,10 +311,10 @@ test.serial("Installer: _getRemoteArtifactMetadata", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5HomeDir: "/ui5Home/",
-		snapshotEndpointUrl: "endpoint-url"
+		snapshotEndpointUrl: () => Promise.resolve("endpoint-url")
 	});
 
-	const registry = installer.getRegistry();
+	const registry = await installer.getRegistry();
 	const requestMavenMetadataStub = sinon.stub(registry, "requestMavenMetadata")
 		.resolves({
 			versioning: {
@@ -346,10 +346,10 @@ test.serial("Installer: _getRemoteArtifactMetadata throws", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5HomeDir: "/ui5Home/",
-		snapshotEndpointUrl: "endpoint-url"
+		snapshotEndpointUrl: () => Promise.resolve("endpoint-url")
 	});
 
-	const registry = installer.getRegistry();
+	const registry = await installer.getRegistry();
 	sinon.stub(registry, "requestMavenMetadata").resolves({});
 
 	await t.throwsAsync(installer._getRemoteArtifactMetadata({
@@ -366,10 +366,10 @@ test.serial("Installer: _getRemoteArtifactMetadata throws missing deployment met
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5HomeDir: "/ui5Home/",
-		snapshotEndpointUrl: "endpoint-url"
+		snapshotEndpointUrl: () => Promise.resolve("endpoint-url")
 	});
 
-	const registry = installer.getRegistry();
+	const registry = await installer.getRegistry();
 	sinon.stub(registry, "requestMavenMetadata")
 		.resolves({
 			versioning: {
