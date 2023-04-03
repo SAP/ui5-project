@@ -500,8 +500,8 @@ test("AbstractResolver: install error handling " +
 
 	await t.throwsAsync(resolver.install(["sap.ui.lib1", "sap.ui.lib2"]), {
 		message: `Resolution of framework libraries failed with errors:
-Failed to resolve library sap.ui.lib1: Unable to install library sap.ui.lib1. No framework version provided.
-Failed to resolve library sap.ui.lib2: Unable to install library sap.ui.lib2. No framework version provided.`
+  1. Failed to resolve library sap.ui.lib1: Unable to install library sap.ui.lib1. No framework version provided.
+  2. Failed to resolve library sap.ui.lib2: Unable to install library sap.ui.lib2. No framework version provided.`
 	});
 
 	t.is(handleLibraryStub.callCount, 0, "Handle library should not be called when no version is available");
@@ -525,8 +525,9 @@ test("AbstractResolver: install error handling " +
 	const handleLibraryStub = sinon.stub(resolver, "handleLibrary");
 
 	await t.throwsAsync(resolver.install(["sap.ui.lib1", "sap.ui.lib2"]), {
-		message: `Resolution of framework libraries failed with errors:
-Failed to resolve library sap.ui.lib2: Unable to install library sap.ui.lib2. No framework version provided.`
+		message:
+			"Failed to resolve library sap.ui.lib2:" +
+			" Unable to install library sap.ui.lib2. No framework version provided.",
 	});
 
 	t.is(handleLibraryStub.callCount, 0, "Handle library should not be called when no version is available");
