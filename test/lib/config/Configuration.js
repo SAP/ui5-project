@@ -29,7 +29,7 @@ test.afterEach.always((t) => {
 });
 
 test.serial("Build configuration with defaults", (t) => {
-	const {Configuration} = t.context.Configuration;
+	const {Configuration} = t.context;
 
 	const config = new Configuration({});
 
@@ -40,7 +40,7 @@ test.serial("Build configuration with defaults", (t) => {
 
 
 test.serial("Overwrite defaults defaults", (t) => {
-	const {Configuration} = t.context.Configuration;
+	const {Configuration} = t.context;
 
 	const params = {
 		snapshotEndpointUrl: "https://snapshot.url"
@@ -52,7 +52,7 @@ test.serial("Overwrite defaults defaults", (t) => {
 });
 
 test.serial("Check getters", (t) => {
-	const {Configuration} = t.context.Configuration;
+	const {Configuration} = t.context;
 
 	const params = {
 		snapshotEndpointUrl: "https://snapshot.url"
@@ -65,7 +65,7 @@ test.serial("Check getters", (t) => {
 
 
 test.serial("fromFile", async (t) => {
-	const {fromFile} = t.context.Configuration;
+	const fromFile = t.context.Configuration.fromFile;
 	const {promisifyStub, sinon} = t.context;
 
 	const ui5rcContents = {
@@ -80,8 +80,8 @@ test.serial("fromFile", async (t) => {
 });
 
 test.serial("fromFile: configuration file not found- fallback to default config", async (t) => {
-	const {fromFile, Configuration} = t.context.Configuration;
-	const {promisifyStub, sinon} = t.context;
+	const {promisifyStub, sinon, Configuration} = t.context;
+	const fromFile = Configuration.fromFile;
 
 	const responseStub = sinon.stub().throws({code: "ENOENT"});
 	promisifyStub.callsFake(() => responseStub);
@@ -93,7 +93,7 @@ test.serial("fromFile: configuration file not found- fallback to default config"
 });
 
 test.serial("fromFile: throws", async (t) => {
-	const {fromFile} = t.context.Configuration;
+	const fromFile = t.context.Configuration.fromFile;
 	const {promisifyStub, sinon} = t.context;
 
 	const responseStub = sinon.stub().throws(new Error("Error"));
@@ -105,14 +105,14 @@ test.serial("fromFile: throws", async (t) => {
 });
 
 test.serial("saveConfig", async (t) => {
-	const {saveConfig, Configuration} = t.context.Configuration;
-	const {promisifyStub, sinon} = t.context;
+	const {promisifyStub, sinon, Configuration} = t.context;
+	const saveConfig = Configuration.saveConfig;
 
 	const writeStub = sinon.stub().resolves();
 	promisifyStub.callsFake(() => writeStub);
 
 	const config = new Configuration({});
-	await saveConfig("/path/to/save/.ui5rc", config);
+	await saveConfig(config, "/path/to/save/.ui5rc");
 
 	t.deepEqual(
 		writeStub.getCall(0).args,
