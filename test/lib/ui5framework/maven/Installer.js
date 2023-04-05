@@ -65,7 +65,7 @@ test.serial("Installer: constructor", (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5HomeDir: "/ui5Home/",
-		snapshotEndpointUrl: "some-url"
+		snapshotEndpointUrlCb: () => {}
 	});
 	t.true(installer instanceof Installer, "Constructor returns instance of class");
 	t.is(installer._artifactsDir, path.join("/ui5Home/", "framework", "artifacts"));
@@ -85,7 +85,7 @@ test.serial("Installer: constructor requires 'ui5HomeDir'", (t) => {
 	}, {message: `Installer: Missing parameter "ui5HomeDir"`});
 });
 
-test.serial("Installer: constructor requires 'snapshotEndpointUrl' or ENV variable", (t) => {
+test.serial("Installer: constructor requires 'snapshotEndpointUrlCb' or ENV variable", (t) => {
 	const {Installer} = t.context;
 
 	t.throws(() => {
@@ -102,7 +102,7 @@ test.serial("Installer: fetchPackageVersions", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5HomeDir: "/ui5Home/",
-		snapshotEndpointUrl: () => Promise.resolve("endpoint-url")
+		snapshotEndpointUrlCb: () => Promise.resolve("endpoint-url")
 	});
 
 	const registry = await installer.getRegistry();
@@ -130,7 +130,7 @@ test.serial("Installer: fetchPackageVersions throws", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5HomeDir: "/ui5Home/",
-		snapshotEndpointUrl: () => Promise.resolve("endpoint-url")
+		snapshotEndpointUrlCb: () => Promise.resolve("endpoint-url")
 	});
 
 	const registry = await installer.getRegistry();
@@ -151,7 +151,7 @@ test.serial("Installer: _getLockPath", (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5HomeDir: "/ui5Home/",
-		snapshotEndpointUrl: "endpoint-url"
+		snapshotEndpointUrlCb: () => {}
 	});
 
 	const lockPath = installer._getLockPath("package-@openui5/sap.ui.lib1@1.2.3-SNAPSHOT");
@@ -166,7 +166,7 @@ test.serial("Installer: readJson", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5HomeDir: "/ui5Home/",
-		snapshotEndpointUrl: "endpoint-url"
+		snapshotEndpointUrlCb: () => {}
 	});
 
 	t.context.readFileStub.resolves(JSON.stringify(jsonStub));
@@ -182,7 +182,7 @@ test.serial("Installer: installPackage", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5HomeDir: "/ui5Home/",
-		snapshotEndpointUrl: "endpoint-url"
+		snapshotEndpointUrlCb: () => {}
 	});
 
 	sinon.stub(installer, "_fetchArtifactMetadata").resolves({revision: "1.22"});
@@ -216,7 +216,7 @@ test.serial("Installer: installArtifact", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5HomeDir: "/ui5Home/",
-		snapshotEndpointUrl: "endpoint-url"
+		snapshotEndpointUrlCb: () => {}
 	});
 
 	sinon.stub(installer, "_fetchArtifactMetadata").resolves({revision: "1.22"});
@@ -254,7 +254,7 @@ test.serial("Installer: _fetchArtifactMetadata", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5HomeDir: "/ui5Home/",
-		snapshotEndpointUrl: "endpoint-url"
+		snapshotEndpointUrlCb: () => {}
 	});
 
 	sinon.stub(installer, "_synchronize").callsFake( async (pckg, callback) => await callback());
@@ -287,7 +287,7 @@ test.serial("Installer: _fetchArtifactMetadata throws", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5HomeDir: "/ui5Home/",
-		snapshotEndpointUrl: "endpoint-url",
+		snapshotEndpointUrlCb: () => {},
 		cacheMode: "force"
 	});
 
@@ -311,7 +311,7 @@ test.serial("Installer: _getRemoteArtifactMetadata", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5HomeDir: "/ui5Home/",
-		snapshotEndpointUrl: () => Promise.resolve("endpoint-url")
+		snapshotEndpointUrlCb: () => Promise.resolve("endpoint-url")
 	});
 
 	const registry = await installer.getRegistry();
@@ -346,7 +346,7 @@ test.serial("Installer: _getRemoteArtifactMetadata throws", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5HomeDir: "/ui5Home/",
-		snapshotEndpointUrl: () => Promise.resolve("endpoint-url")
+		snapshotEndpointUrlCb: () => Promise.resolve("endpoint-url")
 	});
 
 	const registry = await installer.getRegistry();
@@ -366,7 +366,7 @@ test.serial("Installer: _getRemoteArtifactMetadata throws missing deployment met
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5HomeDir: "/ui5Home/",
-		snapshotEndpointUrl: () => Promise.resolve("endpoint-url")
+		snapshotEndpointUrlCb: () => Promise.resolve("endpoint-url")
 	});
 
 	const registry = await installer.getRegistry();
@@ -395,7 +395,7 @@ test.serial("Installer: _getLocalArtifactMetadata", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5HomeDir: "/ui5Home/",
-		snapshotEndpointUrl: "endpoint-url"
+		snapshotEndpointUrlCb: () => {}
 	});
 
 	sinon.stub(installer, "readJson").resolves({foo: "bar"});
@@ -410,7 +410,7 @@ test.serial("Installer: _getLocalArtifactMetadata file not found", async (t) => 
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5HomeDir: "/ui5Home/",
-		snapshotEndpointUrl: "endpoint-url"
+		snapshotEndpointUrlCb: () => {}
 	});
 
 	sinon.stub(installer, "readJson").throws({code: "ENOENT"});
@@ -429,7 +429,7 @@ test.serial("Installer: _getLocalArtifactMetadata throws", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5HomeDir: "/ui5Home/",
-		snapshotEndpointUrl: "endpoint-url"
+		snapshotEndpointUrlCb: () => {}
 	});
 
 	sinon.stub(installer, "readJson").throws(() => {
@@ -448,7 +448,7 @@ test.serial("Installer: _writeLocalArtifactMetadata", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5HomeDir: "/ui5Home/",
-		snapshotEndpointUrl: "endpoint-url"
+		snapshotEndpointUrlCb: () => {}
 	});
 
 	// const writeJsonStub = sinon.stub(installer, "_writeJson").resolves("/path/to/file");
@@ -471,7 +471,7 @@ test.serial("Installer: _removeStaleRevisions", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5HomeDir: "/ui5Home/",
-		snapshotEndpointUrl: "endpoint-url"
+		snapshotEndpointUrlCb: () => {}
 	});
 
 	const pathForArtifact = sinon.stub(installer, "_getTargetPathForArtifact")
@@ -506,7 +506,7 @@ test.serial("Installer: _pathExists", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5HomeDir: "/ui5Home/",
-		snapshotEndpointUrl: "endpoint-url"
+		snapshotEndpointUrlCb: () => {}
 	});
 
 	statStub.resolves("/target/path/");
@@ -521,7 +521,7 @@ test.serial("Installer: _pathExists file not found", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5HomeDir: "/ui5Home/",
-		snapshotEndpointUrl: "endpoint-url"
+		snapshotEndpointUrlCb: () => {}
 	});
 
 	statStub.throws({code: "ENOENT"});
@@ -536,7 +536,7 @@ test.serial("Installer: _pathExists throws", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5HomeDir: "/ui5Home/",
-		snapshotEndpointUrl: "endpoint-url"
+		snapshotEndpointUrlCb: () => {}
 	});
 
 	statStub.throws(() => {
