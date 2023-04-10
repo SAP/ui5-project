@@ -173,7 +173,8 @@ test.serial("Sapui5MavenSnapshotResolver: handleLibrary throws", async (t) => {
 
 	await t.throwsAsync(resolver.handleLibrary("sap.ui.lib1"), {
 		message:
-			"Metadata is missing GAV information. This might indicate an unsupported SNAPSHOT version.",
+			"Metadata is missing GAV (group, artifact and version) information. "+
+			"This might indicate an unsupported SNAPSHOT version.",
 	});
 });
 
