@@ -21,6 +21,8 @@ test.beforeEach(async (t) => {
 
 	t.context.yesnoStub = sinon.stub();
 	t.context.promisifyStub = sinon.stub();
+	t.context.loggerVerbose = sinon.stub();
+	t.context.loggerWarn = sinon.stub();
 
 	t.context.Sapui5MavenSnapshotResolver = await esmock.p("../../../lib/ui5Framework/Sapui5MavenSnapshotResolver.js", {
 		"../../../lib/ui5Framework/maven/Installer": t.context.InstallerStub,
@@ -28,6 +30,12 @@ test.beforeEach(async (t) => {
 		"node:util": {
 			"promisify": t.context.promisifyStub
 		},
+		"@ui5/logger": {
+			getLogger: () => ({
+				verbose: t.context.loggerVerbose,
+				warning: t.context.loggerWarn,
+			})
+		}
 	});
 });
 
@@ -260,21 +268,55 @@ test.serial("_resolveSnapshotEndpointUrl", async (t) => {
 	t.is(endpoint, "/build-snapshots/", "URL Extracted from settings.xml");
 });
 
-test.serial("_resolveSnapshotEndpointUrl throws", async (t) => {
+test.serial("_resolveSnapshotEndpointUrl fails", async (t) => {
 	const resolveSnapshotEndpointUrl = t.context.Sapui5MavenSnapshotResolver._resolveSnapshotEndpointUrl;
-	const {promisifyStub, yesnoStub} = t.context;
+	const {promisifyStub, yesnoStub, loggerVerbose, loggerWarn} = t.context;
 
 	const readStub = sinon.stub()
 		.onFirstCall().throws({code: "ENOENT"})
-		.onSecondCall().throws(new Error("Error"));
+		.onSecondCall().throws(new Error("Error"))
+		.resolves(`<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+			<profiles>
+				<profile>
+				<id>snapshot.build</id>
+				<pluginRepositories>
+					<pluginRepository>
+					<id>artifactory</id>
+					<url>/build-snapshots/</url>
+					</pluginRepository>
+				</pluginRepositories>
+				</profile>
+			</profiles>
+			</settings>`);
 	promisifyStub.callsFake(() => readStub);
-	yesnoStub.resolves(true);
 
-	await t.throwsAsync(resolveSnapshotEndpointUrl(".m2/settings.xml"), {
-		message: "SnapshotURL not resolved. Settings.xml could not be found in .m2/settings.xml",
-	});
+	await resolveSnapshotEndpointUrl(".m2/settings.xml");
+	t.is(
+		loggerVerbose.getCall(0).args[0],
+		"SnapshotURL not resolved. Settings.xml could not be found in .m2/settings.xml"
+	);
+	t.is(
+		loggerVerbose.getCall(1).args[0],
+		`"snapshot.build" could not be found in .m2/settings.xml`
+	);
 
-	await t.throwsAsync(resolveSnapshotEndpointUrl("settings.xml"), {
-		message: "Failed to read Maven configuration file from settings.xml: Error",
-	});
+	await resolveSnapshotEndpointUrl("settings.xml");
+	t.is(
+		loggerWarn.getCall(0).args[0],
+		"Failed to read Maven configuration file from settings.xml: Error"
+	);
+	t.is(
+		loggerVerbose.getCall(2).args[0],
+		`"snapshot.build" could not be found in settings.xml`
+	);
+
+	yesnoStub.resolves(false);
+	const endpoint = await resolveSnapshotEndpointUrl();
+
+	t.falsy(endpoint, "URL is not extracted after user rejection");
+	t.is(
+		loggerVerbose.getCall(3).args[0],
+		"SnapshotURL not resolved"
+	);
 });
