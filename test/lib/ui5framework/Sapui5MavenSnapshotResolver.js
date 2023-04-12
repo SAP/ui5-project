@@ -274,7 +274,7 @@ test.serial("_resolveSnapshotEndpointUrl throws", async (t) => {
 		message: "SnapshotURL not resolved. Settings.xml could not be found in .m2/settings.xml",
 	});
 
-	await t.throwsAsync(resolveSnapshotEndpointUrl(), {
-		message: "Error",
+	await t.throwsAsync(resolveSnapshotEndpointUrl("settings.xml"), {
+		message: "Failed to read Maven configuration file from settings.xml: Error",
 	});
 });

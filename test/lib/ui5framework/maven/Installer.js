@@ -93,7 +93,7 @@ test.serial("Installer: constructor requires 'snapshotEndpointUrlCb' or ENV vari
 			cwd: "/cwd/",
 			ui5HomeDir: "/ui5Home"
 		});
-	}, {message: `Installer: Missing Snapshot-Endpoint URL`});
+	}, {message: `Installer: Missing Snapshot-Endpoint URL callback parameter`});
 });
 
 test.serial("Installer: fetchPackageVersions", async (t) => {
