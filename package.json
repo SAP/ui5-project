@@ -108,7 +108,7 @@
 		"ajv-errors": "^1.0.1",
 		"chalk": "^4.1.2",
 		"escape-string-regexp": "^4.0.0",
-		"graceful-fs": "^4.2.10",
+		"graceful-fs": "^4.2.11",
 		"js-yaml": "^4.1.0",
 		"libnpmconfig": "^1.2.1",
 		"lockfile": "^1.0.4",
@@ -117,9 +117,9 @@
 		"pretty-hrtime": "^1.0.3",
 		"read-pkg": "^5.2.0",
 		"read-pkg-up": "^7.0.1",
-		"resolve": "^1.22.1",
+		"resolve": "^1.22.2",
 		"rimraf": "^3.0.2",
-		"semver": "^7.3.8"
+		"semver": "^7.4.0"
 	},
 	"devDependencies": {
 		"ava": "^3.15.0",
