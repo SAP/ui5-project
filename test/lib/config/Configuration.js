@@ -111,7 +111,7 @@ test.serial("saveConfig", async (t) => {
 	const writeStub = sinon.stub().resolves();
 	promisifyStub.callsFake(() => writeStub);
 
-	const config = new Configuration({});
+	const config = new Configuration({snapshotEndpointUrl: "https://registry.corp/vendor/build-snapshots/"});
 	await saveConfig(config, "/path/to/save/.ui5rc");
 
 	t.deepEqual(
