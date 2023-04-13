@@ -288,12 +288,12 @@ test.serial("_resolveSnapshotEndpointUrl fails", async (t) => {
 			<profiles>
 				<profile>
 				<id>snapshot.build</id>
-				<pluginRepositories>
-					<pluginRepository>
+				<repositories>
+					<repository>
 					<id>artifactory</id>
 					<url>/build-snapshots/</url>
-					</pluginRepository>
-				</pluginRepositories>
+					</repository>
+				</repositories>
 				</profile>
 			</profiles>
 			</settings>`);
