@@ -23,6 +23,7 @@ test.beforeEach(async (t) => {
 	t.context.promisifyStub = sinon.stub();
 	t.context.loggerVerbose = sinon.stub();
 	t.context.loggerWarn = sinon.stub();
+	t.context.loggerInfo = sinon.stub();
 
 	t.context.Sapui5MavenSnapshotResolver = await esmock.p("../../../lib/ui5Framework/Sapui5MavenSnapshotResolver.js", {
 		"../../../lib/ui5Framework/maven/Installer": t.context.InstallerStub,
@@ -34,6 +35,7 @@ test.beforeEach(async (t) => {
 			getLogger: () => ({
 				verbose: t.context.loggerVerbose,
 				warning: t.context.loggerWarn,
+				info: t.context.loggerInfo,
 			})
 		}
 	});
@@ -244,7 +246,7 @@ test.serial("Sapui5MavenSnapshotResolver: Static fetchAllVersions without option
 
 test.serial("_resolveSnapshotEndpointUrl", async (t) => {
 	const resolveSnapshotEndpointUrl = t.context.Sapui5MavenSnapshotResolver._resolveSnapshotEndpointUrl;
-	const {promisifyStub, yesnoStub} = t.context;
+	const {promisifyStub, yesnoStub, loggerInfo} = t.context;
 
 	const readStub = sinon.stub().resolves(`<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
@@ -266,6 +268,12 @@ test.serial("_resolveSnapshotEndpointUrl", async (t) => {
 	const endpoint = await resolveSnapshotEndpointUrl();
 
 	t.is(endpoint, "/build-snapshots/", "URL Extracted from settings.xml");
+
+	t.is(loggerInfo.getCall(0).args[0],
+		"Using Maven snapshot endpoint URL resolved from Maven configuration file: /build-snapshots/");
+	t.is(loggerInfo.getCall(1).args[0],
+		"Consider persisting this choice by executing the following command: " +
+		"ui5 config set snapshotEndpointUrl /build-snapshots/");
 });
 
 test.serial("_resolveSnapshotEndpointUrl fails", async (t) => {
@@ -294,29 +302,33 @@ test.serial("_resolveSnapshotEndpointUrl fails", async (t) => {
 	await resolveSnapshotEndpointUrl(".m2/settings.xml");
 	t.is(
 		loggerVerbose.getCall(0).args[0],
-		"SnapshotURL not resolved. Settings.xml could not be found in .m2/settings.xml"
+		"Attempting to resolve snapshot endpoint URL from Maven configuration file at .m2/settings.xml..."
 	);
 	t.is(
 		loggerVerbose.getCall(1).args[0],
-		`"snapshot.build" could not be found in .m2/settings.xml`
+		`File does not exist: .m2/settings.xml`
 	);
 
+	loggerVerbose.reset();
+	loggerWarn.reset();
 	await resolveSnapshotEndpointUrl("settings.xml");
+	t.is(
+		loggerVerbose.getCall(0).args[0],
+		"Attempting to resolve snapshot endpoint URL from Maven configuration file at settings.xml..."
+	);
 	t.is(
 		loggerWarn.getCall(0).args[0],
 		"Failed to read Maven configuration file from settings.xml: Error"
 	);
-	t.is(
-		loggerVerbose.getCall(2).args[0],
-		`"snapshot.build" could not be found in settings.xml`
-	);
 
+	loggerVerbose.reset();
+	loggerWarn.reset();
 	yesnoStub.resolves(false);
 	const endpoint = await resolveSnapshotEndpointUrl();
 
 	t.falsy(endpoint, "URL is not extracted after user rejection");
 	t.is(
-		loggerVerbose.getCall(3).args[0],
-		"SnapshotURL not resolved"
+		loggerVerbose.getCall(1).args[0],
+		"User rejected usage of the resolved URL"
 	);
 });
