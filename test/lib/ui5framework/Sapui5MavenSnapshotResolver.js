@@ -39,9 +39,12 @@ test.beforeEach(async (t) => {
 			})
 		}
 	});
+
+	t.context.originalIsTty = process.stdout.isTTY;
 });
 
 test.afterEach.always((t) => {
+	process.stdout.isTTY = t.context.originalIsTty;
 	delete process.env.UI5_MAVEN_SNAPSHOT_ENDPOINT;
 	esmock.purge(t.context.Sapui5MavenSnapshotResolver);
 	sinon.restore();
@@ -250,6 +253,8 @@ test.serial("_resolveSnapshotEndpointUrl", async (t) => {
 	const resolveSnapshotEndpointUrl = t.context.Sapui5MavenSnapshotResolver._resolveSnapshotEndpointUrl;
 	const {promisifyStub, yesnoStub, loggerInfo} = t.context;
 
+	process.stdout.isTTY = true;
+
 	const readStub = sinon.stub().resolves(`<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
 	  <profiles>
@@ -281,6 +286,8 @@ test.serial("_resolveSnapshotEndpointUrl", async (t) => {
 test.serial("_resolveSnapshotEndpointUrl fails", async (t) => {
 	const resolveSnapshotEndpointUrl = t.context.Sapui5MavenSnapshotResolver._resolveSnapshotEndpointUrl;
 	const {promisifyStub, yesnoStub, loggerVerbose, loggerWarn} = t.context;
+
+	process.stdout.isTTY = true;
 
 	const readStub = sinon.stub()
 		.onFirstCall().throws({code: "ENOENT"})
@@ -333,4 +340,37 @@ test.serial("_resolveSnapshotEndpointUrl fails", async (t) => {
 		loggerVerbose.getCall(1).args[0],
 		"User rejected usage of the resolved URL"
 	);
+});
+
+test.serial("_resolveSnapshotEndpointUrl no TTY", async (t) => {
+	const resolveSnapshotEndpointUrl = t.context.Sapui5MavenSnapshotResolver._resolveSnapshotEndpointUrl;
+	const {promisifyStub, yesnoStub, loggerInfo} = t.context;
+
+	process.stdout.isTTY = false;
+
+	const readStub = sinon.stub().resolves(`<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+	  <profiles>
+		<profile>
+		  <id>snapshot.build</id>
+		  <pluginRepositories>
+			<pluginRepository>
+			  <id>artifactory</id>
+			  <url>/build-snapshots/</url>
+			</pluginRepository>
+		  </pluginRepositories>
+		</profile>
+	  </profiles>
+	</settings>`);
+	promisifyStub.callsFake(() => readStub);
+	yesnoStub.resolves(true);
+
+	const endpoint = await resolveSnapshotEndpointUrl(".m2/settings.xml");
+
+	t.is(yesnoStub.callCount, 0, "yesno did not get called");
+	t.is(endpoint, "/build-snapshots/", "URL Extracted from settings.xml");
+
+	t.is(loggerInfo.getCall(0).args[0],
+		"Using Maven snapshot endpoint URL resolved from Maven configuration " +
+		"file at .m2/settings.xml: /build-snapshots/");
 });
