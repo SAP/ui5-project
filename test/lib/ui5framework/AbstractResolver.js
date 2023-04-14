@@ -635,6 +635,84 @@ test.serial("AbstractResolver: Static resolveVersion does not include prerelease
 	}], "fetchAllVersions should be called with expected arguments");
 });
 
+test.serial("AbstractResolver: Static resolveVersion resolves 'latest-snapshot'", async (t) => {
+	const {MyResolver} = t.context;
+	const fetchAllVersionsStub = sinon.stub(MyResolver, "fetchAllVersions")
+		.returns(["1.75.0-SNAPSHOT", "1.75.1-SNAPSHOT", "1.76.0-SNAPSHOT", "1.76.1-SNAPSHOT"]);
+
+	const version = await MyResolver.resolveVersion("latest-snapshot", {
+		cwd: "/cwd",
+		ui5HomeDir: "/ui5HomeDir"
+	});
+
+	t.is(version, "1.76.1-SNAPSHOT", "Resolved version should be correct");
+
+	t.is(fetchAllVersionsStub.callCount, 1, "fetchAllVersions should be called once");
+	t.deepEqual(fetchAllVersionsStub.getCall(0).args, [{
+		cwd: "/cwd",
+		ui5HomeDir: "/ui5HomeDir"
+	}], "fetchAllVersions should be called with expected arguments");
+});
+
+test.serial("AbstractResolver: Static resolveVersion resolves 'MAJOR.MINOR-SNAPSHOT'", async (t) => {
+	const {MyResolver} = t.context;
+	const fetchAllVersionsStub = sinon.stub(MyResolver, "fetchAllVersions")
+		.returns(["1.75.0-SNAPSHOT", "1.75.1-SNAPSHOT", "1.76.0-SNAPSHOT", "1.76.1-SNAPSHOT"]);
+
+	const version = await MyResolver.resolveVersion("1.75-SNAPSHOT", {
+		cwd: "/cwd",
+		ui5HomeDir: "/ui5HomeDir"
+	});
+
+	t.is(version, "1.75.1-SNAPSHOT", "Resolved version should be correct");
+
+	t.is(fetchAllVersionsStub.callCount, 1, "fetchAllVersions should be called once");
+	t.deepEqual(fetchAllVersionsStub.getCall(0).args, [{
+		cwd: "/cwd",
+		ui5HomeDir: "/ui5HomeDir"
+	}], "fetchAllVersions should be called with expected arguments");
+});
+
+test.serial("AbstractResolver: Static resolveVersion resolves 'MAJOR.MINOR.PATCH-SNAPSHOT'", async (t) => {
+	const {MyResolver} = t.context;
+	const fetchAllVersionsStub = sinon.stub(MyResolver, "fetchAllVersions")
+		.returns(["1.75.0-SNAPSHOT", "1.75.1-SNAPSHOT", "1.76.0-SNAPSHOT", "1.76.1-SNAPSHOT"]);
+
+	const version = await MyResolver.resolveVersion("1.75.0-SNAPSHOT", {
+		cwd: "/cwd",
+		ui5HomeDir: "/ui5HomeDir"
+	});
+
+	t.is(version, "1.75.0-SNAPSHOT", "Resolved version should be correct");
+
+	t.is(fetchAllVersionsStub.callCount, 1, "fetchAllVersions should be called once");
+	t.deepEqual(fetchAllVersionsStub.getCall(0).args, [{
+		cwd: "/cwd",
+		ui5HomeDir: "/ui5HomeDir"
+	}], "fetchAllVersions should be called with expected arguments");
+});
+
+test.serial("AbstractResolver: Static resolveVersion includes non-prereleases for 'latest-snapshot'", async (t) => {
+	// Realistically this should never happen, since the Sapui5MavenSnapshotResolver would never return
+	// non-snapshot versions. This test therefore simply illustrates the current behavior for this theoretic case
+	const {MyResolver} = t.context;
+	const fetchAllVersionsStub = sinon.stub(MyResolver, "fetchAllVersions")
+		.returns(["1.76.0", "1.77.0", "1.78.0", "1.79.0-SNAPSHOT", "1.79.1"]);
+
+	const version = await MyResolver.resolveVersion("latest-snapshot", {
+		cwd: "/cwd",
+		ui5HomeDir: "/ui5HomeDir"
+	});
+
+	t.is(version, "1.79.1", "Resolved version should be correct");
+
+	t.is(fetchAllVersionsStub.callCount, 1, "fetchAllVersions should be called once");
+	t.deepEqual(fetchAllVersionsStub.getCall(0).args, [{
+		cwd: "/cwd",
+		ui5HomeDir: "/ui5HomeDir"
+	}], "fetchAllVersions should be called with expected arguments");
+});
+
 test.serial("AbstractResolver: Static resolveVersion without options", async (t) => {
 	const {MyResolver} = t.context;
 	const fetchAllVersionsStub = sinon.stub(MyResolver, "fetchAllVersions")

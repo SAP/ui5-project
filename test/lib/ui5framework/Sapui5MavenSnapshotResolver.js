@@ -191,13 +191,14 @@ test.serial("Sapui5MavenSnapshotResolver: handleLibrary throws", async (t) => {
 test.serial("Sapui5MavenSnapshotResolver: Static fetchAllVersions", async (t) => {
 	const {Sapui5MavenSnapshotResolver} = t.context;
 
-	const expectedVersions = ["1.75.0", "1.75.1", "1.76.0"];
+	const expectedVersions = ["1.75.0-SNAPSHOT", "1.75.1-SNAPSHOT", "1.76.0-SNAPSHOT"];
 	const options = {
 		cwd: "/cwd",
 		ui5HomeDir: "/ui5HomeDir"
 	};
 
 	t.context.fetchPackageVersionsStub.returns(expectedVersions);
+	sinon.stub(Sapui5MavenSnapshotResolver, "createSnapshotEndpointUrlCallback").returns("snapshotEndpointUrlCallback");
 
 	const versions = await Sapui5MavenSnapshotResolver.fetchAllVersions(options);
 
@@ -214,7 +215,7 @@ test.serial("Sapui5MavenSnapshotResolver: Static fetchAllVersions", async (t) =>
 	t.true(t.context.InstallerStub.calledWithNew(), "Installer should be called with new");
 	t.deepEqual(t.context.InstallerStub.getCall(0).args, [{
 		cwd: path.resolve("/cwd"),
-		snapshotEndpointUrlCb: undefined,
+		snapshotEndpointUrlCb: "snapshotEndpointUrlCallback",
 		ui5HomeDir: path.resolve("/ui5HomeDir")
 	}], "Installer should be called with expected arguments");
 });
@@ -222,9 +223,10 @@ test.serial("Sapui5MavenSnapshotResolver: Static fetchAllVersions", async (t) =>
 test.serial("Sapui5MavenSnapshotResolver: Static fetchAllVersions without options", async (t) => {
 	const {Sapui5MavenSnapshotResolver} = t.context;
 
-	const expectedVersions = ["1.75.0", "1.75.1", "1.76.0"];
+	const expectedVersions = ["1.75.0-SNAPSHOT", "1.75.1-SNAPSHOT", "1.76.0-SNAPSHOT"];
 
 	t.context.fetchPackageVersionsStub.returns(expectedVersions);
+	sinon.stub(Sapui5MavenSnapshotResolver, "createSnapshotEndpointUrlCallback").returns("snapshotEndpointUrlCallback");
 
 	const versions = await Sapui5MavenSnapshotResolver.fetchAllVersions();
 
@@ -239,7 +241,7 @@ test.serial("Sapui5MavenSnapshotResolver: Static fetchAllVersions without option
 	t.true(t.context.InstallerStub.calledWithNew(), "Installer should be called with new");
 	t.deepEqual(t.context.InstallerStub.getCall(0).args, [{
 		cwd: process.cwd(),
-		snapshotEndpointUrlCb: undefined,
+		snapshotEndpointUrlCb: "snapshotEndpointUrlCallback",
 		ui5HomeDir: path.join(os.homedir(), ".ui5")
 	}], "Installer should be called with expected arguments");
 });
