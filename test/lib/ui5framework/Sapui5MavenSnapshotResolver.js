@@ -251,8 +251,8 @@ test.serial("Sapui5MavenSnapshotResolver: Static fetchAllVersions without option
 	}], "Installer should be called with expected arguments");
 });
 
-test.serial("_resolveSnapshotEndpointUrl", async (t) => {
-	const resolveSnapshotEndpointUrl = t.context.Sapui5MavenSnapshotResolver._resolveSnapshotEndpointUrl;
+test.serial("_resolveSnapshotEndpointUrlFromMaven", async (t) => {
+	const resolveSnapshotEndpointUrl = t.context.Sapui5MavenSnapshotResolver._resolveSnapshotEndpointUrlFromMaven;
 	const {promisifyStub, yesnoStub, loggerInfo} = t.context;
 
 	process.stdout.isTTY = true;
@@ -285,8 +285,8 @@ test.serial("_resolveSnapshotEndpointUrl", async (t) => {
 		"ui5 config set snapshotEndpointUrl /build-snapshots/");
 });
 
-test.serial("_resolveSnapshotEndpointUrl fails", async (t) => {
-	const resolveSnapshotEndpointUrl = t.context.Sapui5MavenSnapshotResolver._resolveSnapshotEndpointUrl;
+test.serial("_resolveSnapshotEndpointUrlFromMaven fails", async (t) => {
+	const resolveSnapshotEndpointUrl = t.context.Sapui5MavenSnapshotResolver._resolveSnapshotEndpointUrlFromMaven;
 	const {promisifyStub, yesnoStub, loggerVerbose, loggerWarn} = t.context;
 
 	process.stdout.isTTY = true;
@@ -344,9 +344,9 @@ test.serial("_resolveSnapshotEndpointUrl fails", async (t) => {
 	);
 });
 
-test.serial("_resolveSnapshotEndpointUrl no TTY", async (t) => {
-	const resolveSnapshotEndpointUrl = t.context.Sapui5MavenSnapshotResolver._resolveSnapshotEndpointUrl;
-	const {promisifyStub, yesnoStub, loggerInfo} = t.context;
+test.serial("_resolveSnapshotEndpointUrlFromMaven no TTY", async (t) => {
+	const resolveSnapshotEndpointUrl = t.context.Sapui5MavenSnapshotResolver._resolveSnapshotEndpointUrlFromMaven;
+	const {promisifyStub, yesnoStub} = t.context;
 
 	process.stdout.isTTY = false;
 
@@ -369,10 +369,7 @@ test.serial("_resolveSnapshotEndpointUrl no TTY", async (t) => {
 
 	const endpoint = await resolveSnapshotEndpointUrl(".m2/settings.xml");
 
+	t.is(readStub.callCount, 0, "read did not get called");
 	t.is(yesnoStub.callCount, 0, "yesno did not get called");
-	t.is(endpoint, "/build-snapshots/", "URL Extracted from settings.xml");
-
-	t.is(loggerInfo.getCall(0).args[0],
-		"Using Maven snapshot endpoint URL resolved from Maven configuration " +
-		"file at .m2/settings.xml: /build-snapshots/");
+	t.is(endpoint, null, "No URL got extracted");
 });
