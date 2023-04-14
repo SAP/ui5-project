@@ -201,7 +201,8 @@ test.serial("Sapui5MavenSnapshotResolver: Static fetchAllVersions", async (t) =>
 	};
 
 	t.context.fetchPackageVersionsStub.returns(expectedVersions);
-	sinon.stub(Sapui5MavenSnapshotResolver, "createSnapshotEndpointUrlCallback").returns("snapshotEndpointUrlCallback");
+	sinon.stub(Sapui5MavenSnapshotResolver, "_createSnapshotEndpointUrlCallback")
+		.returns("snapshotEndpointUrlCallback");
 
 	const versions = await Sapui5MavenSnapshotResolver.fetchAllVersions(options);
 
@@ -229,7 +230,8 @@ test.serial("Sapui5MavenSnapshotResolver: Static fetchAllVersions without option
 	const expectedVersions = ["1.75.0-SNAPSHOT", "1.75.1-SNAPSHOT", "1.76.0-SNAPSHOT"];
 
 	t.context.fetchPackageVersionsStub.returns(expectedVersions);
-	sinon.stub(Sapui5MavenSnapshotResolver, "createSnapshotEndpointUrlCallback").returns("snapshotEndpointUrlCallback");
+	sinon.stub(Sapui5MavenSnapshotResolver, "_createSnapshotEndpointUrlCallback")
+		.returns("snapshotEndpointUrlCallback");
 
 	const versions = await Sapui5MavenSnapshotResolver.fetchAllVersions();
 
