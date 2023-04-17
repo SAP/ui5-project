@@ -52,7 +52,9 @@ test.beforeEach(async (t) => {
 		"@ui5/logger": ui5Logger,
 		"graceful-fs": {
 			rename: sinon.stub().yieldsAsync(),
-			mkdir: sinon.stub().yieldsAsync()
+		},
+		"../../../../lib/utils/fs.js": {
+			mkdir: sinon.stub().resolves()
 		},
 		"lockfile": {
 			lock: sinon.stub().yieldsAsync(),
