@@ -34,7 +34,7 @@ test.serial("Build configuration with defaults", (t) => {
 	const config = new Configuration({});
 
 	t.deepEqual(config.toJSON(), {
-		snapshotEndpointUrl: undefined
+		mavenSnapshotEndpointUrl: undefined
 	});
 });
 
@@ -43,7 +43,7 @@ test.serial("Overwrite defaults defaults", (t) => {
 	const {Configuration} = t.context;
 
 	const params = {
-		snapshotEndpointUrl: "https://snapshot.url"
+		mavenSnapshotEndpointUrl: "https://snapshot.url"
 	};
 
 	const config = new Configuration(params);
@@ -55,12 +55,12 @@ test.serial("Check getters", (t) => {
 	const {Configuration} = t.context;
 
 	const params = {
-		snapshotEndpointUrl: "https://snapshot.url"
+		mavenSnapshotEndpointUrl: "https://snapshot.url"
 	};
 
 	const config = new Configuration(params);
 
-	t.is(config.getSnapshotEndpointUrl(), params.snapshotEndpointUrl);
+	t.is(config.getMavenSnapshotEndpointUrl(), params.mavenSnapshotEndpointUrl);
 });
 
 
@@ -69,7 +69,7 @@ test.serial("fromFile", async (t) => {
 	const {promisifyStub, sinon} = t.context;
 
 	const ui5rcContents = {
-		snapshotEndpointUrl: "https://snapshot.url"
+		mavenSnapshotEndpointUrl: "https://snapshot.url"
 	};
 	const responseStub = sinon.stub().resolves(JSON.stringify(ui5rcContents));
 	promisifyStub.callsFake(() => responseStub);
@@ -89,7 +89,7 @@ test.serial("fromFile: configuration file not found- fallback to default config"
 	const config = await fromFile("/non-existing/path/.ui5rc");
 
 	t.is(config instanceof Configuration, true, "Created a default configuration");
-	t.is(config.getSnapshotEndpointUrl(), undefined, "Dafault settings");
+	t.is(config.getMavenSnapshotEndpointUrl(), undefined, "Dafault settings");
 });
 
 test.serial("fromFile: throws", async (t) => {
@@ -111,7 +111,7 @@ test.serial("toFile", async (t) => {
 	const writeStub = sinon.stub().resolves();
 	promisifyStub.callsFake(() => writeStub);
 
-	const config = new Configuration({snapshotEndpointUrl: "https://registry.corp/vendor/build-snapshots/"});
+	const config = new Configuration({mavenSnapshotEndpointUrl: "https://registry.corp/vendor/build-snapshots/"});
 	await toFile(config, "/path/to/save/.ui5rc");
 
 	t.deepEqual(
