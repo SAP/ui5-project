@@ -104,15 +104,15 @@ test.serial("fromFile: throws", async (t) => {
 	});
 });
 
-test.serial("saveConfig", async (t) => {
+test.serial("toFile", async (t) => {
 	const {promisifyStub, sinon, Configuration} = t.context;
-	const saveConfig = Configuration.saveConfig;
+	const toFile = Configuration.toFile;
 
 	const writeStub = sinon.stub().resolves();
 	promisifyStub.callsFake(() => writeStub);
 
 	const config = new Configuration({snapshotEndpointUrl: "https://registry.corp/vendor/build-snapshots/"});
-	await saveConfig(config, "/path/to/save/.ui5rc");
+	await toFile(config, "/path/to/save/.ui5rc");
 
 	t.deepEqual(
 		writeStub.getCall(0).args,
