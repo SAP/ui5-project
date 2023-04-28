@@ -57,7 +57,8 @@ test.serial("graphFromPackageDependencies", async (t) => {
 		cwd: "cwd",
 		rootConfiguration: "rootConfiguration",
 		rootConfigPath: "/rootConfigPath",
-		versionOverride: "versionOverride"
+		versionOverride: "versionOverride",
+		cacheMode: "off"
 	});
 
 	t.is(res, "graph");
@@ -81,7 +82,8 @@ test.serial("graphFromPackageDependencies", async (t) => {
 		"enrichProjectGraph got called with graph");
 	t.deepEqual(enrichProjectGraphStub.getCall(0).args[1], {
 		versionOverride: "versionOverride",
-		workspace: undefined
+		workspace: undefined,
+		cacheMode: "off"
 	}, "enrichProjectGraph got called with correct options");
 });
 
@@ -98,6 +100,7 @@ test.serial("graphFromPackageDependencies with workspace name", async (t) => {
 		rootConfigPath: "/rootConfigPath",
 		versionOverride: "versionOverride",
 		workspaceName: "dolphin",
+		cacheMode: "off"
 	});
 
 	t.is(res, "graph");
@@ -128,7 +131,8 @@ test.serial("graphFromPackageDependencies with workspace name", async (t) => {
 		"enrichProjectGraph got called with graph");
 	t.deepEqual(enrichProjectGraphStub.getCall(0).args[1], {
 		versionOverride: "versionOverride",
-		workspace: "workspace"
+		workspace: "workspace",
+		cacheMode: "off"
 	}, "enrichProjectGraph got called with correct options");
 });
 
@@ -225,6 +229,7 @@ test.serial("graphFromPackageDependencies with empty workspace", async (t) => {
 		rootConfigPath: "/rootConfigPath",
 		versionOverride: "versionOverride",
 		workspaceName: "dolphin",
+		cacheMode: "off"
 	});
 
 	t.is(res, "graph");
@@ -255,7 +260,8 @@ test.serial("graphFromPackageDependencies with empty workspace", async (t) => {
 		"enrichProjectGraph got called with graph");
 	t.deepEqual(enrichProjectGraphStub.getCall(0).args[1], {
 		versionOverride: "versionOverride",
-		workspace: null
+		workspace: null,
+		cacheMode: "off"
 	}, "enrichProjectGraph got called with correct options");
 });
 
@@ -290,7 +296,8 @@ test.serial("graphFromStaticFile", async (t) => {
 		filePath: "file/path",
 		rootConfiguration: "rootConfiguration",
 		rootConfigPath: "/rootConfigPath",
-		versionOverride: "versionOverride"
+		versionOverride: "versionOverride",
+		cacheMode: "off"
 	});
 
 	t.is(res, "graph");
@@ -316,7 +323,8 @@ test.serial("graphFromStaticFile", async (t) => {
 	t.is(enrichProjectGraphStub.getCall(0).args[0], "graph",
 		"enrichProjectGraph got called with graph");
 	t.deepEqual(enrichProjectGraphStub.getCall(0).args[1], {
-		versionOverride: "versionOverride"
+		versionOverride: "versionOverride",
+		cacheMode: "off"
 	}, "enrichProjectGraph got called with correct options");
 });
 
@@ -351,7 +359,8 @@ test.serial("usingObject", async (t) => {
 		dependencyTree: "dependencyTree",
 		rootConfiguration: "rootConfiguration",
 		rootConfigPath: "/rootConfigPath",
-		versionOverride: "versionOverride"
+		versionOverride: "versionOverride",
+		cacheMode: "off"
 	});
 
 	t.is(res, "graph");
@@ -371,7 +380,8 @@ test.serial("usingObject", async (t) => {
 	t.is(enrichProjectGraphStub.getCall(0).args[0], "graph",
 		"enrichProjectGraph got called with graph");
 	t.deepEqual(enrichProjectGraphStub.getCall(0).args[1], {
-		versionOverride: "versionOverride"
+		versionOverride: "versionOverride",
+		cacheMode: "off"
 	}, "enrichProjectGraph got called with correct options");
 });
 

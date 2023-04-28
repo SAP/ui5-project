@@ -253,7 +253,8 @@ test.serial("graphFromPackageDependencies with inactive workspace file at custom
 		rootConfigPath: "/rootConfigPath",
 		versionOverride: "versionOverride",
 		workspaceName: "default",
-		workspaceConfigPath: path.join(libraryHPath, "custom-ui5-workspace.yaml")
+		workspaceConfigPath: path.join(libraryHPath, "custom-ui5-workspace.yaml"),
+		cacheMode: "force"
 	});
 
 	t.is(res, "graph");
@@ -276,6 +277,7 @@ test.serial("graphFromPackageDependencies with inactive workspace file at custom
 		"enrichProjectGraph got called with graph");
 	t.deepEqual(enrichProjectGraphStub.getCall(0).args[1], {
 		versionOverride: "versionOverride",
-		workspace: null
+		workspace: null,
+		cacheMode: "force"
 	}, "enrichProjectGraph got called with correct options");
 });

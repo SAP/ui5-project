@@ -107,6 +107,7 @@ test.serial("enrichProjectGraph", async (t) => {
 
 	t.is(t.context.Sapui5ResolverStub.callCount, 1, "Sapui5Resolver#constructor should be called once");
 	t.deepEqual(t.context.Sapui5ResolverStub.getCall(0).args, [{
+		cacheMode: undefined,
 		cwd: dependencyTree.path,
 		version: dependencyTree.configuration.framework.version,
 		providedLibraryMetadata: undefined
@@ -177,7 +178,7 @@ test.serial("enrichProjectGraph: without framework configuration", async (t) => 
 
 test.serial("enrichProjectGraph SNAPSHOT", async (t) => {
 	const {sinon, ui5Framework, utils, Sapui5MavenSnapshotResolverInstallStub} = t.context;
-	process.env.UI5_MAVEN_SNAPSHOT_ENDPOINT = "__url__";
+	process.env.UI5_MAVEN_SNAPSHOT_ENDPOINT_URL = "__url__";
 
 	const dependencyTree = {
 		id: "test1",
@@ -216,7 +217,9 @@ test.serial("enrichProjectGraph SNAPSHOT", async (t) => {
 	const provider = new DependencyTreeProvider({dependencyTree});
 	const projectGraph = await projectGraphBuilder(provider);
 
-	await ui5Framework.enrichProjectGraph(projectGraph);
+	await ui5Framework.enrichProjectGraph(projectGraph, {
+		cacheMode: "force"
+	});
 
 	t.is(getFrameworkLibrariesFromGraphStub.callCount, 1, "getFrameworkLibrariesFromGraph should be called once");
 
@@ -263,7 +266,7 @@ test.serial("enrichProjectGraph SNAPSHOT", async (t) => {
 		"application.a"
 	], "Traversed graph in correct order");
 
-	delete process.env.UI5_MAVEN_SNAPSHOT_ENDPOINT;
+	delete process.env.UI5_MAVEN_SNAPSHOT_ENDPOINT_URL;
 });
 
 test.serial("enrichProjectGraph: With versionOverride", async (t) => {
@@ -313,6 +316,7 @@ test.serial("enrichProjectGraph: With versionOverride", async (t) => {
 
 	t.is(Sapui5ResolverStub.callCount, 1, "Sapui5Resolver#constructor should be called once");
 	t.deepEqual(Sapui5ResolverStub.getCall(0).args, [{
+		cacheMode: undefined,
 		cwd: dependencyTree.path,
 		version: "1.99.9",
 		providedLibraryMetadata: undefined
@@ -451,6 +455,7 @@ test.serial("enrichProjectGraph should resolve framework project with version an
 	t.is(getFrameworkLibrariesFromGraphStub.callCount, 1, "getFrameworkLibrariesFromGrap should be called once");
 	t.is(Sapui5ResolverStub.callCount, 1, "Sapui5Resolver#constructor should be called once");
 	t.deepEqual(Sapui5ResolverStub.getCall(0).args, [{
+		cacheMode: undefined,
 		cwd: dependencyTree.path,
 		version: "1.2.3",
 		providedLibraryMetadata: undefined
@@ -531,6 +536,7 @@ test.serial("enrichProjectGraph should resolve framework project " +
 	t.is(Sapui5ResolverStub.callCount, 1, "Sapui5Resolver#constructor should be called once");
 	t.is(getFrameworkLibrariesFromGraphStub.callCount, 1, "getFrameworkLibrariesFromGraph should be called once");
 	t.deepEqual(Sapui5ResolverStub.getCall(0).args, [{
+		cacheMode: undefined,
 		cwd: dependencyTree.path,
 		version: "1.99.9",
 		providedLibraryMetadata: undefined
@@ -794,6 +800,7 @@ test.serial("enrichProjectGraph should use framework library metadata from works
 
 	t.is(Sapui5ResolverStub.callCount, 1, "Sapui5Resolver#constructor should be called once");
 	t.deepEqual(Sapui5ResolverStub.getCall(0).args, [{
+		cacheMode: undefined,
 		cwd: dependencyTree.path,
 		version: "1.111.1",
 		providedLibraryMetadata: workspaceFrameworkLibraryMetadata
@@ -851,6 +858,7 @@ test.serial("enrichProjectGraph should allow omitting framework version in case 
 
 	t.is(Sapui5ResolverStub.callCount, 1, "Sapui5Resolver#constructor should be called once");
 	t.deepEqual(Sapui5ResolverStub.getCall(0).args, [{
+		cacheMode: undefined,
 		cwd: dependencyTree.path,
 		version: undefined,
 		providedLibraryMetadata: workspaceFrameworkLibraryMetadata
