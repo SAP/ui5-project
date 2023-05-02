@@ -15,7 +15,6 @@ const applicationFPath = path.join(__dirname, "..", "..", "..", "fixtures", "app
 const applicationGPath = path.join(__dirname, "..", "..", "..", "fixtures", "application.g");
 const errApplicationAPath = path.join(__dirname, "..", "..", "..", "fixtures", "err.application.a");
 const cycleDepsBasePath = path.join(__dirname, "..", "..", "..", "fixtures", "cyclic-deps", "node_modules");
-const libraryDPath = path.join(__dirname, "..", "..", "..", "fixtures", "library.d");
 const libraryDOverridePath = path.join(__dirname, "..", "..", "..", "fixtures", "library.d-adtl-deps");
 
 import projectGraphBuilder from "../../../../lib/graph/projectGraphBuilder.js";
@@ -70,13 +69,13 @@ test("AppA: project with collection dependency", async (t) => {
 	]);
 });
 
-test.only("AppA: project with an alias dependency", async (t) => {
+test("AppA: project with an alias dependency", async (t) => {
 	const workspace = {
 		getName: () => "workspace name",
 		getModuleByNodeId: t.context.sinon.stub().resolves(undefined).onFirstCall().resolves({
 			// This version of library.d has an additional dependency to library.f,
 			// which in turn has a dependency to library.g
-			getPath: () => libraryDPath,
+			getPath: () => path.join(applicationAAliasesPath, "node_modules", "extension.a.esm.alias"),
 			getVersion: () => "1.0.0",
 		})
 	};
@@ -84,7 +83,7 @@ test.only("AppA: project with an alias dependency", async (t) => {
 		cwd: applicationAAliasesPath
 	});
 	await testGraphCreationDfs(t, npmProvider, [
-		"library.d.alias",
+		"extension.a.esm.alias",
 		"application.a.aliases",
 	], workspace);
 });
