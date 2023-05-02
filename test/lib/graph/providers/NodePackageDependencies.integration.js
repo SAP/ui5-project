@@ -6,6 +6,7 @@ import sinonGlobal from "sinon";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const applicationAPath = path.join(__dirname, "..", "..", "..", "fixtures", "application.a");
+const applicationAAliasesPath = path.join(__dirname, "..", "..", "..", "fixtures", "application.a.aliases");
 const applicationCPath = path.join(__dirname, "..", "..", "..", "fixtures", "application.c");
 const applicationC2Path = path.join(__dirname, "..", "..", "..", "fixtures", "application.c2");
 const applicationC3Path = path.join(__dirname, "..", "..", "..", "fixtures", "application.c3");
@@ -14,6 +15,7 @@ const applicationFPath = path.join(__dirname, "..", "..", "..", "fixtures", "app
 const applicationGPath = path.join(__dirname, "..", "..", "..", "fixtures", "application.g");
 const errApplicationAPath = path.join(__dirname, "..", "..", "..", "fixtures", "err.application.a");
 const cycleDepsBasePath = path.join(__dirname, "..", "..", "..", "fixtures", "cyclic-deps", "node_modules");
+const libraryDPath = path.join(__dirname, "..", "..", "..", "fixtures", "library.d");
 const libraryDOverridePath = path.join(__dirname, "..", "..", "..", "fixtures", "library.d-adtl-deps");
 
 import projectGraphBuilder from "../../../../lib/graph/projectGraphBuilder.js";
@@ -66,6 +68,25 @@ test("AppA: project with collection dependency", async (t) => {
 		"library.c",
 		"application.a",
 	]);
+});
+
+test.only("AppA: project with an alias dependency", async (t) => {
+	const workspace = {
+		getName: () => "workspace name",
+		getModuleByNodeId: t.context.sinon.stub().resolves(undefined).onFirstCall().resolves({
+			// This version of library.d has an additional dependency to library.f,
+			// which in turn has a dependency to library.g
+			getPath: () => libraryDPath,
+			getVersion: () => "1.0.0",
+		})
+	};
+	const npmProvider = new NodePackageDependenciesProvider({
+		cwd: applicationAAliasesPath
+	});
+	await testGraphCreationDfs(t, npmProvider, [
+		"library.d.alias",
+		"application.a.aliases",
+	], workspace);
 });
 
 test("AppA: project with workspace overrides", async (t) => {
