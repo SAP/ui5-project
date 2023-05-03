@@ -6,6 +6,7 @@ import esmock from "esmock";
 import DependencyTreeProvider from "../../../../lib/graph/providers/DependencyTree.js";
 import projectGraphBuilder from "../../../../lib/graph/projectGraphBuilder.js";
 import Specification from "../../../../lib/specifications/Specification.js";
+import CacheMode from "../../../../lib/ui5Framework/maven/CacheMode.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -218,7 +219,7 @@ test.serial("enrichProjectGraph SNAPSHOT", async (t) => {
 	const projectGraph = await projectGraphBuilder(provider);
 
 	await ui5Framework.enrichProjectGraph(projectGraph, {
-		cacheMode: "force"
+		cacheMode: CacheMode.Force
 	});
 
 	t.is(getFrameworkLibrariesFromGraphStub.callCount, 1, "getFrameworkLibrariesFromGraph should be called once");

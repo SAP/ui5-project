@@ -3,6 +3,7 @@ import {fileURLToPath} from "node:url";
 import path from "node:path";
 import sinonGlobal from "sinon";
 import esmock from "esmock";
+import CacheMode from "../../../lib/ui5Framework/maven/CacheMode.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixturesPath = path.join(__dirname, "..", "..", "fixtures");
@@ -58,7 +59,7 @@ test.serial("graphFromPackageDependencies", async (t) => {
 		rootConfiguration: "rootConfiguration",
 		rootConfigPath: "/rootConfigPath",
 		versionOverride: "versionOverride",
-		cacheMode: "off"
+		cacheMode: CacheMode.Off
 	});
 
 	t.is(res, "graph");
@@ -83,7 +84,7 @@ test.serial("graphFromPackageDependencies", async (t) => {
 	t.deepEqual(enrichProjectGraphStub.getCall(0).args[1], {
 		versionOverride: "versionOverride",
 		workspace: undefined,
-		cacheMode: "off"
+		cacheMode: "Off"
 	}, "enrichProjectGraph got called with correct options");
 });
 
@@ -100,7 +101,7 @@ test.serial("graphFromPackageDependencies with workspace name", async (t) => {
 		rootConfigPath: "/rootConfigPath",
 		versionOverride: "versionOverride",
 		workspaceName: "dolphin",
-		cacheMode: "off"
+		cacheMode: CacheMode.Off
 	});
 
 	t.is(res, "graph");
@@ -132,7 +133,7 @@ test.serial("graphFromPackageDependencies with workspace name", async (t) => {
 	t.deepEqual(enrichProjectGraphStub.getCall(0).args[1], {
 		versionOverride: "versionOverride",
 		workspace: "workspace",
-		cacheMode: "off"
+		cacheMode: "Off"
 	}, "enrichProjectGraph got called with correct options");
 });
 
@@ -229,7 +230,7 @@ test.serial("graphFromPackageDependencies with empty workspace", async (t) => {
 		rootConfigPath: "/rootConfigPath",
 		versionOverride: "versionOverride",
 		workspaceName: "dolphin",
-		cacheMode: "off"
+		cacheMode: CacheMode.Off
 	});
 
 	t.is(res, "graph");
@@ -261,7 +262,7 @@ test.serial("graphFromPackageDependencies with empty workspace", async (t) => {
 	t.deepEqual(enrichProjectGraphStub.getCall(0).args[1], {
 		versionOverride: "versionOverride",
 		workspace: null,
-		cacheMode: "off"
+		cacheMode: "Off"
 	}, "enrichProjectGraph got called with correct options");
 });
 
@@ -297,7 +298,7 @@ test.serial("graphFromStaticFile", async (t) => {
 		rootConfiguration: "rootConfiguration",
 		rootConfigPath: "/rootConfigPath",
 		versionOverride: "versionOverride",
-		cacheMode: "off"
+		cacheMode: CacheMode.Off
 	});
 
 	t.is(res, "graph");
@@ -324,7 +325,7 @@ test.serial("graphFromStaticFile", async (t) => {
 		"enrichProjectGraph got called with graph");
 	t.deepEqual(enrichProjectGraphStub.getCall(0).args[1], {
 		versionOverride: "versionOverride",
-		cacheMode: "off"
+		cacheMode: "Off"
 	}, "enrichProjectGraph got called with correct options");
 });
 
@@ -360,7 +361,7 @@ test.serial("usingObject", async (t) => {
 		rootConfiguration: "rootConfiguration",
 		rootConfigPath: "/rootConfigPath",
 		versionOverride: "versionOverride",
-		cacheMode: "off"
+		cacheMode: "Off"
 	});
 
 	t.is(res, "graph");
@@ -381,7 +382,7 @@ test.serial("usingObject", async (t) => {
 		"enrichProjectGraph got called with graph");
 	t.deepEqual(enrichProjectGraphStub.getCall(0).args[1], {
 		versionOverride: "versionOverride",
-		cacheMode: "off"
+		cacheMode: "Off"
 	}, "enrichProjectGraph got called with correct options");
 });
 
