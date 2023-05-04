@@ -179,7 +179,6 @@ test.serial("enrichProjectGraph: without framework configuration", async (t) => 
 
 test.serial("enrichProjectGraph SNAPSHOT", async (t) => {
 	const {sinon, ui5Framework, utils, Sapui5MavenSnapshotResolverInstallStub} = t.context;
-	process.env.UI5_MAVEN_SNAPSHOT_ENDPOINT_URL = "__url__";
 
 	const dependencyTree = {
 		id: "test1",
@@ -266,8 +265,6 @@ test.serial("enrichProjectGraph SNAPSHOT", async (t) => {
 	t.deepEqual(callbackCalls, [
 		"application.a"
 	], "Traversed graph in correct order");
-
-	delete process.env.UI5_MAVEN_SNAPSHOT_ENDPOINT_URL;
 });
 
 test.serial("enrichProjectGraph: With versionOverride", async (t) => {
