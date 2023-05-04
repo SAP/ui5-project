@@ -73,8 +73,6 @@ test("AppA: project with an alias dependency", async (t) => {
 	const workspace = {
 		getName: () => "workspace name",
 		getModuleByNodeId: t.context.sinon.stub().resolves(undefined).onFirstCall().resolves({
-			// This version of library.d has an additional dependency to library.f,
-			// which in turn has a dependency to library.g
 			getPath: () => path.join(applicationAAliasesPath, "node_modules", "extension.a.esm.alias"),
 			getVersion: () => "1.0.0",
 		})
