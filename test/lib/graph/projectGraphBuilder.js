@@ -674,7 +674,7 @@ test("Dependencies defined through shim", async (t) => {
 	t.deepEqual(graph.getDependencies("project-3"), ["project-2"], "Shimmed dependency has been defined");
 });
 
-test.only("Define external dependency as shims in sub-module", async (t) => {
+test("Define external dependency as shims in sub-module", async (t) => {
 	t.context.getRootNode.resolves(createNode({
 		id: "app",
 		version: "1.0.0",
