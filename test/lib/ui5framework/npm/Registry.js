@@ -3,7 +3,7 @@ import sinonGlobal from "sinon";
 import esmock from "esmock";
 
 test.beforeEach(async (t) => {
-	const sinon = t.context.sinon = sinonGlobal.createSandbox();
+	const sinon = (t.context.sinon = sinonGlobal.createSandbox());
 
 	t.context.pacote = {
 		packument: sinon.stub(),
@@ -11,18 +11,31 @@ test.beforeEach(async (t) => {
 		extract: sinon.stub(),
 	};
 
-	t.context.libnpmconfigReadToJSON = sinon.stub();
-	t.context.libnpmconfig = {
-		read: sinon.stub().returns({
-			toJSON: t.context.libnpmconfigReadToJSON
-		})
-	};
+	class Config {
+		constructor(...args) {
+			t.context.npmConfigConstructor(...args);
+		}
 
+		static get typeDefs() {
+			return {path: "string"};
+		}
+
+		async load() {}
+
+		get flat() {
+			return {};
+		}
+	}
+
+	t.context.npmConfigConstructor = sinon.stub();
+	t.context.npmConfigFlat = sinon.stub(Config.prototype, "flat");
 	t.context.Registry = await esmock.p("../../../../lib/ui5Framework/npm/Registry.js", {
 		"pacote": {
-			default: t.context.pacote
+			"default": t.context.pacote
 		},
-		"libnpmconfig": t.context.libnpmconfig
+		"@npmcli/config": {
+			"default": Config
+		}
 	});
 });
 
@@ -43,7 +56,7 @@ test.serial("Constructor", (t) => {
 });
 
 test.serial("_getPacoteOptions", async (t) => {
-	const {Registry, libnpmconfig, libnpmconfigReadToJSON} = t.context;
+	const {Registry, npmConfigFlat, npmConfigConstructor} = t.context;
 
 	const registry = new Registry({
 		cwd: "cwd",
@@ -58,31 +71,33 @@ test.serial("_getPacoteOptions", async (t) => {
 		fake: "config",
 		agent: false
 	};
-
-	libnpmconfigReadToJSON.returns(npmConfig);
+	npmConfigFlat.value(npmConfig);
 
 	const pacoteOptions = await registry._getPacoteOptions();
 
-	t.is(libnpmconfigReadToJSON.callCount, 1);
-	t.is(libnpmconfig.read.callCount, 1);
-	t.deepEqual(libnpmconfig.read.getCall(0).args, [{
-		cache: "cacheDir",
-	}, {
-		cwd: "cwd"
-	}]);
+	t.is(npmConfigConstructor.callCount, 1);
+	t.deepEqual(npmConfigConstructor.getCall(0).args[0].definitions, {
+		cwd: {
+			default: "cwd",
+			type: "string",
+		},
+		cache: {
+			default: "cacheDir",
+			type: "string",
+		},
+	});
 
 	t.deepEqual(pacoteOptions, expectedPacoteOptions);
 
 	const cachedPacoteOptions = await registry._getPacoteOptions();
 
-	t.is(libnpmconfigReadToJSON.callCount, 1);
-	t.is(libnpmconfig.read.callCount, 1);
+	t.is(npmConfigConstructor.callCount, 1);
 
 	t.deepEqual(cachedPacoteOptions, expectedPacoteOptions);
 });
 
 test.serial("_getPacoteOptions (proxy config set)", async (t) => {
-	const {Registry, libnpmconfig, libnpmconfigReadToJSON} = t.context;
+	const {Registry, npmConfigFlat, npmConfigConstructor} = t.context;
 
 	const registry = new Registry({
 		cwd: "cwd",
@@ -97,30 +112,33 @@ test.serial("_getPacoteOptions (proxy config set)", async (t) => {
 		proxy: "http://localhost:9999"
 	};
 
-	libnpmconfigReadToJSON.returns(npmConfig);
+	npmConfigFlat.value(npmConfig);
 
 	const pacoteOptions = await registry._getPacoteOptions();
 
-	t.is(libnpmconfigReadToJSON.callCount, 1);
-	t.is(libnpmconfig.read.callCount, 1);
-	t.deepEqual(libnpmconfig.read.getCall(0).args, [{
-		cache: "cacheDir",
-	}, {
-		cwd: "cwd"
-	}]);
+	t.is(npmConfigConstructor.callCount, 1);
+	t.deepEqual(npmConfigConstructor.getCall(0).args[0].definitions, {
+		cwd: {
+			default: "cwd",
+			type: "string",
+		},
+		cache: {
+			default: "cacheDir",
+			type: "string",
+		},
+	});
 
 	t.deepEqual(pacoteOptions, expectedPacoteOptions);
 
 	const cachedPacoteOptions = await registry._getPacoteOptions();
 
-	t.is(libnpmconfigReadToJSON.callCount, 1);
-	t.is(libnpmconfig.read.callCount, 1);
+	t.is(npmConfigConstructor.callCount, 1);
 
 	t.deepEqual(cachedPacoteOptions, expectedPacoteOptions);
 });
 
 test.serial("_getPacoteOptions (https-proxy config set)", async (t) => {
-	const {Registry, libnpmconfig, libnpmconfigReadToJSON} = t.context;
+	const {Registry, npmConfigFlat, npmConfigConstructor} = t.context;
 
 	const registry = new Registry({
 		cwd: "cwd",
@@ -135,24 +153,27 @@ test.serial("_getPacoteOptions (https-proxy config set)", async (t) => {
 		httpsProxy: "http://localhost:9999"
 	};
 
-	libnpmconfigReadToJSON.returns(npmConfig);
+	npmConfigFlat.value(npmConfig);
 
 	const pacoteOptions = await registry._getPacoteOptions();
 
-	t.is(libnpmconfigReadToJSON.callCount, 1);
-	t.is(libnpmconfig.read.callCount, 1);
-	t.deepEqual(libnpmconfig.read.getCall(0).args, [{
-		cache: "cacheDir",
-	}, {
-		cwd: "cwd"
-	}]);
+	t.is(npmConfigConstructor.callCount, 1);
+	t.deepEqual(npmConfigConstructor.getCall(0).args[0].definitions, {
+		cwd: {
+			default: "cwd",
+			type: "string",
+		},
+		cache: {
+			default: "cacheDir",
+			type: "string",
+		},
+	});
 
 	t.deepEqual(pacoteOptions, expectedPacoteOptions);
 
 	const cachedPacoteOptions = await registry._getPacoteOptions();
 
-	t.is(libnpmconfigReadToJSON.callCount, 1);
-	t.is(libnpmconfig.read.callCount, 1);
+	t.is(npmConfigConstructor.callCount, 1);
 
 	t.deepEqual(cachedPacoteOptions, expectedPacoteOptions);
 });
