@@ -3,14 +3,20 @@
  */
 export default {
 	/**
-	 * Executes the tests for different types of kind project, e.g. "application", "library" and "theme-library"
+	 * Executes the tests for different types of kind project,
+	 * e.g. "application", "component", library" and "theme-library"
 	 *
 	 * @param {Function} test ava test
 	 * @param {Function} assertValidation assertion function
-	 * @param {string} type one of "application", "library" and "theme-library"
+	 * @param {string} type one of "application", "component", library" and "theme-library"
 	 */
 	defineTests: function(test, assertValidation, type) {
-		["3.0", "2.6", "2.5", "2.4", "2.3", "2.2", "2.1", "2.0"].forEach((specVersion) => {
+		let specVersionsToTest = ["3.1", "3.0", "2.6", "2.5", "2.4", "2.3", "2.2", "2.1", "2.0"];
+		if (type === "component") {
+			// Component type only became available with specVersion 3.1
+			specVersionsToTest = ["3.1"];
+		}
+		specVersionsToTest.forEach((specVersion) => {
 			test(`${type} (specVersion ${specVersion}): framework configuration: OpenUI5`, async (t) => {
 				const config = {
 					"specVersion": specVersion,

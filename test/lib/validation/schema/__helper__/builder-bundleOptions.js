@@ -3,15 +3,20 @@
  */
 export default {
 	/**
-	 * Executes the tests for different kind of projects, e.g. "application", "library"
+	 * Executes the tests for different kind of projects, e.g. "application", "library", "component"
 	 *
 	 * @param {Function} test ava test
 	 * @param {Function} assertValidation assertion function
-	 * @param {string} type one of "application" and "library"
+	 * @param {string} type one of "application" and "library", "component"
 	 */
 	defineTests: function(test, assertValidation, type) {
 		// Version specific tests
-		["3.0"].forEach(function(specVersion) {
+		let specVersionsToTest = ["3.1", "3.0"];
+		if (type === "component") {
+			// Component type only became available with specVersion 3.1
+			specVersionsToTest = ["3.1"];
+		}
+		specVersionsToTest.forEach(function(specVersion) {
 			test(`${type} (specVersion ${specVersion}): builder/bundles/bundleOptions`, async (t) => {
 				await assertValidation(t, {
 					"specVersion": specVersion,

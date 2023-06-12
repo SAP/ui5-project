@@ -13,7 +13,9 @@ export default {
 	 */
 	defineTests: function(test, assertValidation, type, additionalConfiguration) {
 		additionalConfiguration = additionalConfiguration || {};
-
+		if (type === "component") {
+			return;
+		}
 		// version specific tests for customConfiguration
 		test(`${type}: Invalid customConfiguration (specVersion 2.0)`, async (t) => {
 			await assertValidation(t, Object.assign({
