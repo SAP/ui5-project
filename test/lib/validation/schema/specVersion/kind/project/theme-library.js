@@ -46,7 +46,7 @@ test.after.always((t) => {
 });
 
 
-["3.0", "2.6", "2.5", "2.4", "2.3", "2.2", "2.1", "2.0"].forEach(function(specVersion) {
+["3.1", "3.0", "2.6", "2.5", "2.4", "2.3", "2.2", "2.1", "2.0"].forEach(function(specVersion) {
 	test(`Valid configuration (specVersion ${specVersion})`, async (t) => {
 		await assertValidation(t, {
 			"specVersion": specVersion,
@@ -167,7 +167,7 @@ test.after.always((t) => {
 	});
 });
 
-["3.0", "2.6", "2.5"].forEach(function(specVersion) {
+["3.1", "3.0", "2.6", "2.5"].forEach(function(specVersion) {
 	test(`theme-library (specVersion ${specVersion}): builder/settings/includeDependency*`, async (t) => {
 		await assertValidation(t, {
 			"specVersion": specVersion,

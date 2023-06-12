@@ -16,7 +16,7 @@ export default {
 	 */
 	defineTests: function(test, assertValidation, type) {
 		// framework tests
-		if (["application", "library", "theme-library"].includes(type)) {
+		if (["application", "library", "theme-library", "component"].includes(type)) {
 			framework.defineTests(test, assertValidation, type);
 		}
 
@@ -24,12 +24,17 @@ export default {
 		customConfiguration.defineTests(test, assertValidation, type);
 
 		// builder.bundleOptions tests
-		if (["application", "library"].includes(type)) {
+		if (["application", "library", "component"].includes(type)) {
 			bundleOptions.defineTests(test, assertValidation, type);
 		}
 
 		// version specific tests
-		["3.0", "2.6", "2.5", "2.4", "2.3", "2.2", "2.1", "2.0"].forEach((specVersion) => {
+		let specVersionsToTest = ["3.1", "3.0", "2.6", "2.5", "2.4", "2.3", "2.2", "2.1", "2.0"];
+		if (type === "component") {
+			// Component type only became available with specVersion 3.1
+			specVersionsToTest = ["3.1"];
+		}
+		specVersionsToTest.forEach((specVersion) => {
 			// tests for all kinds and version 2.0 and above
 			test(`${type} (specVersion ${specVersion}): No metadata`, async (t) => {
 				await assertValidation(t, {
@@ -260,28 +265,35 @@ export default {
 			});
 		});
 
-		["2.6", "2.5", "2.4", "2.3", "2.2", "2.1", "2.0"].forEach((specVersion) => {
-			test(`${type} (specVersion ${specVersion}): Invalid metadata.name`, async (t) => {
-				await assertValidation(t, {
-					"specVersion": specVersion,
-					"type": type,
-					"metadata": {
-						"name": {}
-					}
-				}, [
-					{
-						dataPath: "/metadata/name",
-						keyword: "type",
-						message: "should be string",
-						params: {
-							type: "string"
+		if (type !== "component") {
+			["2.6", "2.5", "2.4", "2.3", "2.2", "2.1", "2.0"].forEach((specVersion) => {
+				test(`${type} (specVersion ${specVersion}): Invalid metadata.name`, async (t) => {
+					await assertValidation(t, {
+						"specVersion": specVersion,
+						"type": type,
+						"metadata": {
+							"name": {}
 						}
-					}
-				]);
+					}, [
+						{
+							dataPath: "/metadata/name",
+							keyword: "type",
+							message: "should be string",
+							params: {
+								type: "string"
+							}
+						}
+					]);
+				});
 			});
-		});
+		}
 
-		["3.0"].forEach((specVersion) => {
+		let specVersionsToTest2 = ["3.1", "3.0"];
+		if (type === "component") {
+			// Component type only became available with specVersion 3.1
+			specVersionsToTest2 = ["3.1"];
+		}
+		specVersionsToTest2.forEach((specVersion) => {
 			test(`${type} (specVersion ${specVersion}): Invalid metadata.name`, async (t) => {
 				await assertValidation(t, {
 					"specVersion": specVersion,

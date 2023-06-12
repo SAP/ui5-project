@@ -45,7 +45,7 @@ test.after.always((t) => {
 	t.context.ajvCoverage.verify(thresholds);
 });
 
-["3.0", "2.6", "2.5", "2.4", "2.3", "2.2", "2.1", "2.0"].forEach((specVersion) => {
+["3.1", "3.0", "2.6", "2.5", "2.4", "2.3", "2.2", "2.1", "2.0"].forEach((specVersion) => {
 	test(`Valid configuration (specVersion ${specVersion})`, async (t) => {
 		await assertValidation(t, {
 			"specVersion": specVersion,
@@ -144,7 +144,7 @@ test.after.always((t) => {
 	});
 });
 
-["3.0", "2.6", "2.5"].forEach(function(specVersion) {
+["3.1", "3.0", "2.6", "2.5"].forEach(function(specVersion) {
 	test(`Server configuration (specVersion ${specVersion})`, async (t) => {
 		await assertValidation(t, {
 			"specVersion": specVersion,
