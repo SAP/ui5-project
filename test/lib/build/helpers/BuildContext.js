@@ -46,6 +46,7 @@ test("getBuildConfig: Default values", (t) => {
 
 	t.deepEqual(buildContext.getBuildConfig(), {
 		selfContained: false,
+		flatOutput: false,
 		cssVariables: false,
 		jsdoc: false,
 		createBuildManifest: false,
@@ -63,6 +64,7 @@ test("getBuildConfig: Custom values", (t) => {
 		}
 	}, "taskRepository", {
 		selfContained: true,
+		flatOutput: false,
 		cssVariables: true,
 		jsdoc: true,
 		createBuildManifest: false,
@@ -72,6 +74,7 @@ test("getBuildConfig: Custom values", (t) => {
 
 	t.deepEqual(buildContext.getBuildConfig(), {
 		selfContained: true,
+		flatOutput: false,
 		cssVariables: true,
 		jsdoc: true,
 		createBuildManifest: false,
@@ -162,7 +165,59 @@ test("createBuildManifest supported for jsdoc build", (t) => {
 	});
 });
 
-test("getBuildOption", (t) => {
+test("flatOutput not supported for type application", (t) => {
+	const err = t.throws(() => {
+		new BuildContext({
+			getRoot: () => {
+				return {
+					getType: () => "application"
+				};
+			}
+		}, "taskRepository", {
+			flatOutput: true
+		});
+	});
+	t.is(err.message,
+		"Flat build output is currently not supported for projects of type application",
+		"Threw with expected error message");
+});
+
+test("flatOutput not supported for type module", (t) => {
+	const err = t.throws(() => {
+		new BuildContext({
+			getRoot: () => {
+				return {
+					getType: () => "module"
+				};
+			}
+		}, "taskRepository", {
+			flatOutput: true
+		});
+	});
+	t.is(err.message,
+		"Flat build output is currently not supported for projects of type module",
+		"Threw with expected error message");
+});
+
+test("flatOutput not supported for createBuildManifest build", (t) => {
+	const err = t.throws(() => {
+		new BuildContext({
+			getRoot: () => {
+				return {
+					getType: () => "library"
+				};
+			}
+		}, "taskRepository", {
+			createBuildManifest: true,
+			flatOutput: true
+		});
+	});
+	t.is(err.message,
+		"Build manifest creation is not supported in conjunction with flat build output",
+		"Threw with expected error message");
+});
+
+test("getOption", (t) => {
 	const buildContext = new BuildContext("graph", "taskRepository", {
 		cssVariables: "value",
 	});
@@ -171,7 +226,7 @@ test("getBuildOption", (t) => {
 		"Returned correct value for build configuration 'cssVariables'");
 	t.is(buildContext.getOption("selfContained"), undefined,
 		"Returned undefined for build configuration 'selfContained' " +
-		"(not exposed as buold option)");
+		"(not exposed as build option)");
 });
 
 test("createProjectContext", async (t) => {
