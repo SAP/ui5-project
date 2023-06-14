@@ -1,3 +1,4 @@
+import SpecificationVersion from "../../../../../lib/specifications/SpecificationVersion.js";
 import framework from "./framework.js";
 import customConfiguration from "./customConfiguration.js";
 import bundleOptions from "./builder-bundleOptions.js";
@@ -12,7 +13,7 @@ export default {
 	 *
 	 * @param {Function} test ava test
 	 * @param {Function} assertValidation assertion function
-	 * @param {string} type one of "application", "library", "theme-library" and "module"
+	 * @param {string} type one of "application", "component", "library", "theme-library" and "module"
 	 */
 	defineTests: function(test, assertValidation, type) {
 		// framework tests
@@ -29,12 +30,9 @@ export default {
 		}
 
 		// version specific tests
-		let specVersionsToTest = ["3.1", "3.0", "2.6", "2.5", "2.4", "2.3", "2.2", "2.1", "2.0"];
-		if (type === "component") {
-			// Component type only became available with specVersion 3.1
-			specVersionsToTest = ["3.1"];
-		}
-		specVersionsToTest.forEach((specVersion) => {
+		// Component type only became available with specVersion 3.1
+		const range = type === "component" ? ">=3.1" : ">=2.0";
+		SpecificationVersion.getVersionsForRange(range).forEach((specVersion) => {
 			// tests for all kinds and version 2.0 and above
 			test(`${type} (specVersion ${specVersion}): No metadata`, async (t) => {
 				await assertValidation(t, {
@@ -288,12 +286,9 @@ export default {
 			});
 		}
 
-		let specVersionsToTest2 = ["3.1", "3.0"];
-		if (type === "component") {
-			// Component type only became available with specVersion 3.1
-			specVersionsToTest2 = ["3.1"];
-		}
-		specVersionsToTest2.forEach((specVersion) => {
+		// Component type only became available with specVersion 3.1
+		const v3Range = type === "component" ? ">=3.1" : ">=3.0";
+		SpecificationVersion.getVersionsForRange(v3Range).forEach((specVersion) => {
 			test(`${type} (specVersion ${specVersion}): Invalid metadata.name`, async (t) => {
 				await assertValidation(t, {
 					"specVersion": specVersion,

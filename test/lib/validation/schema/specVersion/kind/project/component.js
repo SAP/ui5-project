@@ -1,6 +1,7 @@
 import test from "ava";
 import Ajv from "ajv";
 import ajvErrors from "ajv-errors";
+import SpecificationVersion from "../../../../../../../lib/specifications/SpecificationVersion.js";
 import AjvCoverage from "../../../../../../utils/AjvCoverage.js";
 import {_Validator as Validator} from "../../../../../../../lib/validation/validator.js";
 import ValidationError from "../../../../../../../lib/validation/ValidationError.js";
@@ -45,7 +46,7 @@ test.after.always((t) => {
 	t.context.ajvCoverage.verify(thresholds);
 });
 
-["3.1"].forEach(function(specVersion) {
+SpecificationVersion.getVersionsForRange(">=3.1").forEach(function(specVersion) {
 	test(`Valid configuration (specVersion ${specVersion})`, async (t) => {
 		await assertValidation(t, {
 			"specVersion": specVersion,
