@@ -1,3 +1,5 @@
+import SpecificationVersion from "../../../../../lib/specifications/SpecificationVersion.js";
+
 /**
  * Common test functionality for framework section in config
  */
@@ -11,12 +13,9 @@ export default {
 	 * @param {string} type one of "application", "component", library" and "theme-library"
 	 */
 	defineTests: function(test, assertValidation, type) {
-		let specVersionsToTest = ["3.1", "3.0", "2.6", "2.5", "2.4", "2.3", "2.2", "2.1", "2.0"];
-		if (type === "component") {
-			// Component type only became available with specVersion 3.1
-			specVersionsToTest = ["3.1"];
-		}
-		specVersionsToTest.forEach((specVersion) => {
+		// Component type only became available with specVersion 3.1
+		const range = type === "component" ? ">=3.1" : ">=2.0";
+		SpecificationVersion.getVersionsForRange(range).forEach((specVersion) => {
 			test(`${type} (specVersion ${specVersion}): framework configuration: OpenUI5`, async (t) => {
 				const config = {
 					"specVersion": specVersion,
