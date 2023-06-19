@@ -153,7 +153,7 @@ test.serial("Sapui5MavenSnapshotResolver: handleLibrary", async (t) => {
 			throw new Error(`Unknown install call: ${pkgName}@${version}`);
 		})
 		.withArgs({
-			pkgName: "@openui5/sap.ui.lib1-prebuilt_dist",
+			pkgName: "@openui5/sap.ui.lib1-prebuilt",
 			groupId: "x",
 			artifactId: "y",
 			version: "1.116.0-SNAPSHOT",
@@ -170,7 +170,7 @@ test.serial("Sapui5MavenSnapshotResolver: handleLibrary", async (t) => {
 
 	const metadata = await promises.metadata;
 	t.deepEqual(metadata, {
-		"id": "@openui5/sap.ui.lib1-prebuilt_dist",
+		"id": "@openui5/sap.ui.lib1-prebuilt",
 		"version": "1.116.0-SNAPSHOT",
 		"dependencies": [],
 		"optionalDependencies": []
