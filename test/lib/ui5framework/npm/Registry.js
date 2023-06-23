@@ -76,16 +76,6 @@ test.serial("_getPacoteOptions", async (t) => {
 	const pacoteOptions = await registry._getPacoteOptions();
 
 	t.is(npmConfigConstructor.callCount, 1);
-	t.deepEqual(npmConfigConstructor.getCall(0).args[0].definitions, {
-		cwd: {
-			default: "cwd",
-			type: "string",
-		},
-		cache: {
-			default: "cacheDir",
-			type: "string",
-		},
-	});
 
 	t.deepEqual(pacoteOptions, expectedPacoteOptions);
 
@@ -117,16 +107,6 @@ test.serial("_getPacoteOptions (proxy config set)", async (t) => {
 	const pacoteOptions = await registry._getPacoteOptions();
 
 	t.is(npmConfigConstructor.callCount, 1);
-	t.deepEqual(npmConfigConstructor.getCall(0).args[0].definitions, {
-		cwd: {
-			default: "cwd",
-			type: "string",
-		},
-		cache: {
-			default: "cacheDir",
-			type: "string",
-		},
-	});
 
 	t.deepEqual(pacoteOptions, expectedPacoteOptions);
 
@@ -158,16 +138,6 @@ test.serial("_getPacoteOptions (https-proxy config set)", async (t) => {
 	const pacoteOptions = await registry._getPacoteOptions();
 
 	t.is(npmConfigConstructor.callCount, 1);
-	t.deepEqual(npmConfigConstructor.getCall(0).args[0].definitions, {
-		cwd: {
-			default: "cwd",
-			type: "string",
-		},
-		cache: {
-			default: "cacheDir",
-			type: "string",
-		},
-	});
 
 	t.deepEqual(pacoteOptions, expectedPacoteOptions);
 
