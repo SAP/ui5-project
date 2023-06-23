@@ -43,7 +43,7 @@ test.beforeEach(async (t) => {
 			return {};
 		}
 	}
-	sinon.stub(Config.prototype, "flat").returns({
+	sinon.stub(Config.prototype, "flat").value({
 		registry: "https://registry.fake",
 		cache: path.join(ui5FrameworkBaseDir, "cacache"),
 		proxy: ""
