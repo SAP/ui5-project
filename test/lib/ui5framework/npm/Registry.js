@@ -126,7 +126,7 @@ test.serial("_getPacoteOptions (https-proxy config set)", async (t) => {
 	});
 
 	const npmConfig = {
-		"https-proxy": "http://localhost:9999"
+		"httpsProxy": "http://localhost:9999"
 	};
 
 	const expectedPacoteOptions = {
