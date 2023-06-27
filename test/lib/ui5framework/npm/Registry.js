@@ -35,6 +35,14 @@ test.beforeEach(async (t) => {
 		},
 		"@npmcli/config": {
 			"default": Config
+		},
+		"@npmcli/config/lib/definitions/index.js": {
+			default: {
+				flatten: "flatten",
+				definitions: "definitions",
+				shorthands: "shorthands",
+				defaults: "defaults",
+			}
 		}
 	});
 });
@@ -76,14 +84,16 @@ test.serial("_getPacoteOptions", async (t) => {
 	const pacoteOptions = await registry._getPacoteOptions();
 
 	t.is(npmConfigConstructor.callCount, 1);
+	t.deepEqual(npmConfigConstructor.firstCall.firstArg, {
+		cwd: "cwd",
+		npmPath: "cwd",
+		flatten: "flatten",
+		definitions: "definitions",
+		shorthands: "shorthands",
+		defaults: "defaults",
+	});
 
 	t.deepEqual(pacoteOptions, expectedPacoteOptions);
-
-	const cachedPacoteOptions = await registry._getPacoteOptions();
-
-	t.is(npmConfigConstructor.callCount, 1);
-
-	t.deepEqual(cachedPacoteOptions, expectedPacoteOptions);
 });
 
 test.serial("_getPacoteOptions (proxy config set)", async (t) => {
@@ -109,12 +119,6 @@ test.serial("_getPacoteOptions (proxy config set)", async (t) => {
 	t.is(npmConfigConstructor.callCount, 1);
 
 	t.deepEqual(pacoteOptions, expectedPacoteOptions);
-
-	const cachedPacoteOptions = await registry._getPacoteOptions();
-
-	t.is(npmConfigConstructor.callCount, 1);
-
-	t.deepEqual(cachedPacoteOptions, expectedPacoteOptions);
 });
 
 test.serial("_getPacoteOptions (https-proxy config set)", async (t) => {
@@ -140,12 +144,6 @@ test.serial("_getPacoteOptions (https-proxy config set)", async (t) => {
 	t.is(npmConfigConstructor.callCount, 1);
 
 	t.deepEqual(pacoteOptions, expectedPacoteOptions);
-
-	const cachedPacoteOptions = await registry._getPacoteOptions();
-
-	t.is(npmConfigConstructor.callCount, 1);
-
-	t.deepEqual(cachedPacoteOptions, expectedPacoteOptions);
 });
 
 test.serial("_getPacote", async (t) => {
