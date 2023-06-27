@@ -165,3 +165,26 @@ test.serial("_getPacote", async (t) => {
 	t.is(pacote, t.context.pacote);
 	t.is(pacoteOptions, expectedPacoteOptions);
 });
+
+test.serial("_getPacote caching", async (t) => {
+	const {Registry, sinon} = t.context;
+
+	const registry = new Registry({
+		cwd: "cwd",
+		cacheDir: "cacheDir"
+	});
+
+	const expectedPacoteOptions = {"fake": "options"};
+
+	const getPacoteOptionsStub = sinon.stub(registry, "_getPacoteOptions").resolves(expectedPacoteOptions);
+
+	const {pacote, pacoteOptions} = await registry._getPacote();
+
+	t.is(pacote, t.context.pacote);
+	t.is(pacoteOptions, expectedPacoteOptions);
+
+	await registry._getPacote();
+	await registry._getPacote();
+
+	t.is(getPacoteOptionsStub.callCount, 1, "_getPacoteOptions got called once");
+});
