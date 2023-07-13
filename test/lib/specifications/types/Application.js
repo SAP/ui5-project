@@ -9,8 +9,6 @@ import Application from "../../../../lib/specifications/types/Application.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const applicationAPath = path.join(__dirname, "..", "..", "..", "fixtures", "application.a");
 const applicationHPath = path.join(__dirname, "..", "..", "..", "fixtures", "application.h");
-const ENOENT_ERROR = new Error();
-ENOENT_ERROR.code = "ENOENT";
 
 test.beforeEach((t) => {
 	t.context.sinon = sinonGlobal.createSandbox();
@@ -491,7 +489,7 @@ test("_getNamespace: Correct fallback to manifest.appdescr_variant if manifest.j
 	const {projectInput, sinon} = t.context;
 	const project = await Specification.create(projectInput);
 	const _getManifestStub = sinon.stub(project, "_getManifest")
-		.onFirstCall().rejects(new Error("", {cause: ENOENT_ERROR}))
+		.onFirstCall().rejects({code: "ENOENT"})
 		.onSecondCall().resolves({id: "my.id"});
 
 	const namespace = await project._getNamespace();
@@ -506,7 +504,7 @@ test("_getNamespace: Correct error message if fallback to manifest.appdescr_vari
 	const {projectInput, sinon} = t.context;
 	const project = await Specification.create(projectInput);
 	const _getManifestStub = sinon.stub(project, "_getManifest")
-		.onFirstCall().rejects(new Error("", {cause: ENOENT_ERROR}))
+		.onFirstCall().rejects({code: "ENOENT"})
 		.onSecondCall().rejects(new Error("EPON: Pony Error"));
 
 	const error = await t.throwsAsync(project._getNamespace());
@@ -522,8 +520,8 @@ test("_getNamespace: Correct error message if fallback to manifest.appdescr_vari
 	const {projectInput, sinon} = t.context;
 	const project = await Specification.create(projectInput);
 	const _getManifestStub = sinon.stub(project, "_getManifest")
-		.onFirstCall().rejects(new Error("No such stable or directory: manifest.json", {cause: ENOENT_ERROR}))
-		.onSecondCall().rejects(new Error("", {cause: ENOENT_ERROR})); // both files are missing
+		.onFirstCall().rejects({message: "No such stable or directory: manifest.json", code: "ENOENT"})
+		.onSecondCall().rejects({code: "ENOENT"}); // both files are missing
 
 	const error = await t.throwsAsync(project._getNamespace());
 	t.deepEqual(error.message,
@@ -586,10 +584,9 @@ test.serial("_getManifest: File does not exist", async (t) => {
 
 	const error = await t.throwsAsync(project._getManifest("/does-not-exist.json"));
 	t.is(error.message,
-		"Failed to read /does-not-exist.json for project application.a: " +
 		"Could not find resource /does-not-exist.json in project application.a",
 		"Rejected with correct error message");
-	t.is(error.cause.code, "ENOENT");
+	t.is(error.code, "ENOENT");
 });
 
 test.serial("_getManifest: result is cached", async (t) => {
