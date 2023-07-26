@@ -135,6 +135,26 @@ test.serial("toFile", async (t) => {
 	);
 });
 
+test.serial("toFile with custom .ui5rc destination via ENV var", async (t) => {
+	const {promisifyStub, sinon, Configuration} = t.context;
+	const toFile = Configuration.toFile;
+
+	process.env.UI5_DATA_DIR = "/custom/ui5rc/destination";
+	const writeStub = sinon.stub().resolves();
+	promisifyStub.callsFake(() => writeStub);
+
+	const config = new Configuration({mavenSnapshotEndpointUrl: "https://registry.corp/vendor/build-snapshots/"});
+	await toFile(config);
+
+	delete process.env.UI5_DATA_DIR;
+
+	t.deepEqual(
+		writeStub.getCall(0).args,
+		["/custom/ui5rc/destination/.ui5rc", JSON.stringify(config.toJson())],
+		"Write config to path"
+	);
+});
+
 test.serial("toFile: throws", async (t) => {
 	const {promisifyStub, sinon, Configuration} = t.context;
 	const toFile = Configuration.toFile;
