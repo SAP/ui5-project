@@ -28,13 +28,14 @@ test.afterEach.always((t) => {
 	esmock.purge(t.context.Configuration);
 });
 
-test.serial("Build configuration with defaults", (t) => {
+test("Build configuration with defaults", (t) => {
 	const {Configuration} = t.context;
 
 	const config = new Configuration({});
 
 	t.deepEqual(config.toJson(), {
-		mavenSnapshotEndpointUrl: undefined
+		mavenSnapshotEndpointUrl: undefined,
+		ui5DataDir: undefined,
 	});
 });
 
@@ -43,7 +44,8 @@ test.serial("Overwrite defaults defaults", (t) => {
 	const {Configuration} = t.context;
 
 	const params = {
-		mavenSnapshotEndpointUrl: "https://snapshot.url"
+		mavenSnapshotEndpointUrl: "https://snapshot.url",
+		ui5DataDir: "/custom/data/dir"
 	};
 
 	const config = new Configuration(params);
@@ -55,12 +57,14 @@ test.serial("Check getters", (t) => {
 	const {Configuration} = t.context;
 
 	const params = {
-		mavenSnapshotEndpointUrl: "https://snapshot.url"
+		mavenSnapshotEndpointUrl: "https://snapshot.url",
+		ui5DataDir: "/custom/data/dir"
 	};
 
 	const config = new Configuration(params);
 
 	t.is(config.getMavenSnapshotEndpointUrl(), params.mavenSnapshotEndpointUrl);
+	t.is(config.getUi5DataDir(), params.ui5DataDir);
 });
 
 
@@ -69,7 +73,8 @@ test.serial("fromFile", async (t) => {
 	const {promisifyStub, sinon} = t.context;
 
 	const ui5rcContents = {
-		mavenSnapshotEndpointUrl: "https://snapshot.url"
+		mavenSnapshotEndpointUrl: "https://snapshot.url",
+		ui5DataDir: "/custom/data/dir"
 	};
 	const responseStub = sinon.stub().resolves(JSON.stringify(ui5rcContents));
 	promisifyStub.callsFake(() => responseStub);
@@ -90,6 +95,7 @@ test.serial("fromFile: configuration file not found - fallback to default config
 
 	t.is(config instanceof Configuration, true, "Created a default configuration");
 	t.is(config.getMavenSnapshotEndpointUrl(), undefined, "Default settings");
+	t.is(config.getUi5DataDir(), undefined, "Default settings");
 });
 
 
@@ -104,6 +110,25 @@ test.serial("fromFile: empty configuration file - fallback to default config", a
 
 	t.is(config instanceof Configuration, true, "Created a default configuration");
 	t.is(config.getMavenSnapshotEndpointUrl(), undefined, "Default settings");
+	t.is(config.getUi5DataDir(), undefined, "Default settings");
+});
+
+test.serial("fromFile: ui5DataDir set via ENV variable", async (t) => {
+	const {promisifyStub, sinon, Configuration} = t.context;
+	const fromFile = Configuration.fromFile;
+
+	process.env.UI5_DATA_DIR = "/custom/ui5rc/destination";
+
+	const responseStub = sinon.stub().resolves("");
+	promisifyStub.callsFake(() => responseStub);
+
+	const config = await fromFile("/non-existing/path/.ui5rc");
+
+	t.is(config instanceof Configuration, true, "Created a default configuration");
+	t.is(config.getMavenSnapshotEndpointUrl(), undefined, "Default settings");
+	t.is(config.getUi5DataDir(), "/custom/ui5rc/destination/.ui5", "ui5DataDir is resolved via the ENV Variable");
+
+	delete process.env.UI5_DATA_DIR;
 });
 
 test.serial("fromFile: throws", async (t) => {
@@ -131,26 +156,6 @@ test.serial("toFile", async (t) => {
 	t.deepEqual(
 		writeStub.getCall(0).args,
 		["/path/to/save/.ui5rc", JSON.stringify(config.toJson())],
-		"Write config to path"
-	);
-});
-
-test.serial("toFile with custom .ui5rc destination via ENV var", async (t) => {
-	const {promisifyStub, sinon, Configuration} = t.context;
-	const toFile = Configuration.toFile;
-
-	process.env.UI5_DATA_DIR = "/custom/ui5rc/destination";
-	const writeStub = sinon.stub().resolves();
-	promisifyStub.callsFake(() => writeStub);
-
-	const config = new Configuration({mavenSnapshotEndpointUrl: "https://registry.corp/vendor/build-snapshots/"});
-	await toFile(config);
-
-	delete process.env.UI5_DATA_DIR;
-
-	t.deepEqual(
-		writeStub.getCall(0).args,
-		["/custom/ui5rc/destination/.ui5rc", JSON.stringify(config.toJson())],
 		"Write config to path"
 	);
 });
