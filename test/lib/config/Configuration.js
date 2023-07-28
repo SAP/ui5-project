@@ -28,7 +28,7 @@ test.afterEach.always((t) => {
 	esmock.purge(t.context.Configuration);
 });
 
-test("Build configuration with defaults", (t) => {
+test.serial("Build configuration with defaults", (t) => {
 	const {Configuration} = t.context;
 
 	const config = new Configuration({});
