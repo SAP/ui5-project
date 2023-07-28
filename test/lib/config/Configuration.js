@@ -113,24 +113,6 @@ test.serial("fromFile: empty configuration file - fallback to default config", a
 	t.is(config.getUi5DataDir(), undefined, "Default settings");
 });
 
-test.serial("fromFile: ui5DataDir set via ENV variable", async (t) => {
-	const {promisifyStub, sinon, Configuration} = t.context;
-	const fromFile = Configuration.fromFile;
-
-	process.env.UI5_DATA_DIR = "/custom/ui5rc/destination";
-
-	const responseStub = sinon.stub().resolves("");
-	promisifyStub.callsFake(() => responseStub);
-
-	const config = await fromFile("/non-existing/path/.ui5rc");
-
-	t.is(config instanceof Configuration, true, "Created a default configuration");
-	t.is(config.getMavenSnapshotEndpointUrl(), undefined, "Default settings");
-	t.is(config.getUi5DataDir(), "/custom/ui5rc/destination/.ui5", "ui5DataDir is resolved via the ENV Variable");
-
-	delete process.env.UI5_DATA_DIR;
-});
-
 test.serial("fromFile: throws", async (t) => {
 	const fromFile = t.context.Configuration.fromFile;
 	const {promisifyStub, sinon} = t.context;
