@@ -123,27 +123,6 @@ test("Type module (no kind)", async (t) => {
 	});
 });
 
-test("Type component", async (t) => {
-	await assertValidation(t, {
-		"specVersion": "3.1",
-		"kind": "project",
-		"type": "component",
-		"metadata": {
-			"name": "my-component"
-		}
-	});
-});
-
-test("Type component (no kind)", async (t) => {
-	await assertValidation(t, {
-		"specVersion": "3.1",
-		"type": "component",
-		"metadata": {
-			"name": "my-component"
-		}
-	});
-});
-
 test("No type", async (t) => {
 	await assertValidation(t, {
 		"specVersion": "2.0",
@@ -192,7 +171,6 @@ test("Invalid type", async (t) => {
 		params: {
 			allowedValues: [
 				"application",
-				"component",
 				"library",
 				"theme-library",
 				"module",

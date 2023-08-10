@@ -13,7 +13,6 @@
 		"type": {
 			"enum": [
 				"application",
-				"component",
 				"library",
 				"theme-library",
 				"module"
@@ -63,16 +62,6 @@
 					},
 					"then": {
 						"$ref": "project/module.json"
-					},
-					"else": {
-						"if": {
-							"properties": {
-								"type": {"const": "component"}
-							}
-						},
-						"then": {
-							"$ref": "project/component.json"
-						}
 					}
 				}
 			}

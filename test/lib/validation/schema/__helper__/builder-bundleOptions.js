@@ -5,16 +5,15 @@ import SpecificationVersion from "../../../../../lib/specifications/Specificatio
  */
 export default {
 	/**
-	 * Executes the tests for different kind of projects, e.g. "application", "component", "library"
+	 * Executes the tests for different kind of projects, e.g. "application", "library"
 	 *
 	 * @param {Function} test ava test
 	 * @param {Function} assertValidation assertion function
-	 * @param {string} type one of "application", "component" and "library"
+	 * @param {string} type one of "application", "library"
 	 */
 	defineTests: function(test, assertValidation, type) {
-		// Version specific tests (component type only became available with specVersion 3.1)
-		const range = type === "component" ? ">=3.1" : ">=3.0";
-		SpecificationVersion.getVersionsForRange(range).forEach(function(specVersion) {
+		// Version specific tests
+		SpecificationVersion.getVersionsForRange(">=3.0").forEach(function(specVersion) {
 			test(`${type} (specVersion ${specVersion}): builder/bundles/bundleOptions`, async (t) => {
 				await assertValidation(t, {
 					"specVersion": specVersion,
