@@ -418,4 +418,25 @@ SpecificationVersion.getVersionsForRange(">=3.0").forEach(function(specVersion) 
 	});
 });
 
+SpecificationVersion.getVersionsForRange(">=3.1").forEach(function(specVersion) {
+	test(`Builder resource excludes (specVersion ${specVersion})`, async (t) => {
+		await assertValidation(t, {
+			"specVersion": specVersion,
+			"kind": "project",
+			"type": "module",
+			"metadata": {
+				"name": "my-module"
+			},
+			"builder": {
+				"resources": {
+					"excludes": [
+						"/resources/some/project/name/test_results/**",
+						"!/test-resources/some/project/name/demo-app/**"
+					]
+				}
+			}
+		});
+	});
+});
+
 project.defineTests(test, assertValidation, "module");
