@@ -145,6 +145,7 @@ test("Invalid type", async (t) => {
 			params: {
 				allowedValues: [
 					"application",
+					"component",
 					"library",
 					"theme-library",
 					"module"
