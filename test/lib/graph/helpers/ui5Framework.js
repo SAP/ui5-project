@@ -51,10 +51,17 @@ test.beforeEach(async (t) => {
 	t.context.Sapui5MavenSnapshotResolverResolveVersionStub = sinon.stub();
 	t.context.Sapui5MavenSnapshotResolverStub.resolveVersion = t.context.Sapui5MavenSnapshotResolverResolveVersionStub;
 
+	t.context.ConfigurationStub = {
+		fromFile: sinon.stub().resolves({
+			getUi5DataDir: sinon.stub().returns(undefined)
+		})
+	};
+
 	t.context.ui5Framework = await esmock.p("../../../../lib/graph/helpers/ui5Framework.js", {
 		"@ui5/logger": ui5Logger,
 		"../../../../lib/ui5Framework/Sapui5Resolver.js": t.context.Sapui5ResolverStub,
 		"../../../../lib/ui5Framework/Sapui5MavenSnapshotResolver.js": t.context.Sapui5MavenSnapshotResolverStub,
+		"../../../../lib/config/Configuration.js": t.context.ConfigurationStub,
 	});
 	t.context.utils = t.context.ui5Framework._utils;
 });
