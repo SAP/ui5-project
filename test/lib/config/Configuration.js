@@ -28,6 +28,14 @@ test.afterEach.always((t) => {
 	esmock.purge(t.context.Configuration);
 });
 
+test.serial("Available configuration settings", (t) => {
+	const {Configuration} = t.context;
+	t.deepEqual(Configuration.SETTINGS, [
+		"mavenSnapshotEndpointUrl",
+		"ui5DataDir"
+	]);
+});
+
 test.serial("Build configuration with defaults", (t) => {
 	const {Configuration} = t.context;
 
@@ -38,7 +46,6 @@ test.serial("Build configuration with defaults", (t) => {
 		ui5DataDir: undefined,
 	});
 });
-
 
 test.serial("Overwrite defaults defaults", (t) => {
 	const {Configuration} = t.context;
