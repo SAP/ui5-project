@@ -60,6 +60,18 @@ test.serial("Overwrite defaults defaults", (t) => {
 	t.deepEqual(config.toJson(), params);
 });
 
+test.serial("Unknown configuration option", (t) => {
+	const {Configuration} = t.context;
+
+	const params = {
+		unknown: "foo"
+	};
+
+	t.throws(() => new Configuration(params), {
+		message: `Unknown configuration option 'unknown'`
+	});
+});
+
 test.serial("Check getters", (t) => {
 	const {Configuration} = t.context;
 
