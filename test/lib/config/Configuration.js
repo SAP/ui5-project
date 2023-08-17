@@ -28,9 +28,9 @@ test.afterEach.always((t) => {
 	esmock.purge(t.context.Configuration);
 });
 
-test.serial("Available configuration settings", (t) => {
+test.serial("Configuration options", (t) => {
 	const {Configuration} = t.context;
-	t.deepEqual(Configuration.SETTINGS, [
+	t.deepEqual(Configuration.OPTIONS, [
 		"mavenSnapshotEndpointUrl",
 		"ui5DataDir"
 	]);
