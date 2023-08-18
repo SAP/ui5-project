@@ -125,7 +125,7 @@ test.beforeEach(async (t) => {
 		"../../../../lib/specifications/Specification.js": t.context.Specification
 	});
 
-	// Stub os homedir to prevent that the actual ~/.ui5rc from being used in tests
+	// Stub os homedir to prevent the actual ~/.ui5rc from being used in tests
 	t.context.Configuration = await esmock.p("../../../../lib/config/Configuration.js", {
 		"node:os": {
 			homedir: sinon.stub().returns(path.join(fakeBaseDir, "homedir"))
