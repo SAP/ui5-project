@@ -114,6 +114,15 @@ test("Standard build", async (t) => {
 				cssVariables: undefined
 			}
 		},
+		generateBundle: {
+			taskFunction: async () => {},
+		},
+		generateComponentPreload: {
+			taskFunction: async () => {},
+		},
+		generateThemeDesignerResources: {
+			taskFunction: async () => {},
+		},
 		generateResourcesJson: {
 			requiresDependencies: true
 		}
@@ -241,6 +250,15 @@ test("Standard build with legacy spec version", (t) => {
 				cssVariables: undefined
 			}
 		},
+		generateBundle: {
+			taskFunction: async () => {},
+		},
+		generateComponentPreload: {
+			taskFunction: async () => {},
+		},
+		generateThemeDesignerResources: {
+			taskFunction: async () => {},
+		},
 		generateResourcesJson: {
 			requiresDependencies: true
 		}
@@ -360,6 +378,12 @@ test("Custom bundles", async (t) => {
 				inputPattern: "/resources/project/b/themes/*/library.source.less",
 				cssVariables: undefined
 			}
+		},
+		generateComponentPreload: {
+			taskFunction: async () => {},
+		},
+		generateThemeDesignerResources: {
+			taskFunction: async () => {},
 		},
 		generateResourcesJson: {
 			requiresDependencies: true
