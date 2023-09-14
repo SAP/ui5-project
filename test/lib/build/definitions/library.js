@@ -630,3 +630,93 @@ test("buildThemes: CSS Variables enabled", (t) => {
 	t.is(taskUtil.getBuildOption.getCall(0).args[0], "cssVariables",
 		"taskUtil#getBuildOption got called with correct argument");
 });
+
+test("Standard build: mocked functions for skipped tasks", async (t) => {
+	const {project, taskUtil, getTask} = t.context;
+	project.getJsdocExcludes = () => ["**.html"];
+
+	const tasks = library({
+		project, taskUtil, getTask
+	});
+	const generateComponentPreloadTaskDefinition = tasks.get("generateComponentPreload");
+	const generateBundleTaskDefinition = tasks.get("generateBundle");
+	const generateThemeDesignerResourcesTaskDefinition = tasks.get("generateThemeDesignerResources");
+	t.deepEqual(Object.fromEntries(tasks), {
+		escapeNonAsciiCharacters: {
+			options: {
+				encoding: "UTF-412", pattern: "/**/*.properties"
+			}
+		},
+		replaceCopyright: {
+			options: {
+				copyright: "copyright",
+				pattern: "/**/*.{js,library,css,less,theme,html}"
+			}
+		},
+		replaceVersion: {
+			options: {
+				version: "version",
+				pattern: "/**/*.{js,json,library,css,less,theme,html}"
+			}
+		},
+		replaceBuildtime: {
+			options: {
+				pattern: "/resources/sap/ui/Global.js"
+			}
+		},
+		generateJsdoc: {
+			requiresDependencies: true,
+			taskFunction: async () => {},
+		},
+		executeJsdocSdkTransformation: {
+			requiresDependencies: true,
+			options: {
+				dotLibraryPattern: "/resources/**/*.library"
+			}
+		},
+		minify: {
+			options: {
+				pattern: [
+					"/resources/**/*.js",
+					"!**/*.support.js",
+				]
+			}
+		},
+		generateLibraryManifest: {},
+		generateLibraryPreload: {
+			options: {
+				excludes: [], skipBundles: []
+			}
+		},
+		buildThemes: {
+			requiresDependencies: true,
+			options: {
+				projectName: "project.b",
+				librariesPattern: undefined,
+				themesPattern: undefined,
+				inputPattern: "/resources/project/b/themes/*/library.source.less",
+				cssVariables: undefined
+			}
+		},
+		generateBundle: {
+			taskFunction: async () => {}
+		},
+		generateComponentPreload: {
+			taskFunction: async () => {},
+		},
+		generateThemeDesignerResources: {
+			taskFunction: async () => {},
+		},
+		generateResourcesJson: {
+			requiresDependencies: true
+		}
+	}, "Correct task definitions");
+
+	const compPreloadResult = await generateComponentPreloadTaskDefinition.taskFunction();
+	const bundleResult = await generateBundleTaskDefinition.taskFunction();
+	const genThemeResult = await generateThemeDesignerResourcesTaskDefinition.taskFunction();
+
+	t.is(compPreloadResult, undefined, "Empty function used");
+	t.is(bundleResult, undefined, "Empty function used");
+	t.is(genThemeResult, undefined, "Empty function used");
+});

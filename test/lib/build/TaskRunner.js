@@ -246,6 +246,7 @@ test("_initTasks: Project of type 'library'", async (t) => {
 		"generateLibraryPreload",
 		"generateBundle",
 		"buildThemes",
+		"generateThemeDesignerResources",
 		"generateResourcesJson"
 	], "Correct standard tasks");
 });
@@ -290,6 +291,7 @@ test("_initTasks: Project of type 'theme-library'", async (t) => {
 		"replaceCopyright",
 		"replaceVersion",
 		"buildThemes",
+		"generateThemeDesignerResources",
 		"generateResourcesJson"
 	], "Correct standard tasks");
 });

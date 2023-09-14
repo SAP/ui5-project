@@ -72,6 +72,9 @@ test("Standard build", (t) => {
 		},
 		generateResourcesJson: {
 			requiresDependencies: true
+		},
+		generateThemeDesignerResources: {
+			taskFunction: async () => {}
 		}
 	}, "Correct task definitions");
 
@@ -128,6 +131,9 @@ test("Standard build for non root project", (t) => {
 		},
 		generateResourcesJson: {
 			requiresDependencies: true
+		},
+		generateThemeDesignerResources: {
+			taskFunction: async () => {}
 		}
 	}, "Correct task definitions");
 
