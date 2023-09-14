@@ -41,12 +41,13 @@ test.beforeEach((t) => {
 	t.context.getTask = sinon.stub();
 });
 
-test("Standard build", (t) => {
+test("Standard build", async (t) => {
 	const {project, taskUtil, getTask} = t.context;
 
 	const tasks = themeLibrary({
 		project, taskUtil, getTask
 	});
+	const generateThemeDesignerResourcesTaskFunction = tasks.get("generateThemeDesignerResources");
 	t.deepEqual(Object.fromEntries(tasks), {
 		replaceCopyright: {
 			options: {
@@ -81,6 +82,9 @@ test("Standard build", (t) => {
 	t.is(taskUtil.getBuildOption.callCount, 1, "taskUtil#getBuildOption got called once");
 	t.is(taskUtil.getBuildOption.getCall(0).args[0], "cssVariables",
 		"taskUtil#getBuildOption got called with correct argument");
+
+	const result = await generateThemeDesignerResourcesTaskFunction.taskFunction();
+	t.is(result, undefined, "Empty function used");
 });
 
 test("Standard build (framework project)", (t) => {
