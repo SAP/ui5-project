@@ -115,13 +115,13 @@ test("Standard build", async (t) => {
 			}
 		},
 		generateBundle: {
-			taskFunction: async () => {},
+			taskFunction: null
 		},
 		generateComponentPreload: {
-			taskFunction: async () => {},
+			taskFunction: null
 		},
 		generateThemeDesignerResources: {
-			taskFunction: async () => {},
+			taskFunction: null
 		},
 		generateResourcesJson: {
 			requiresDependencies: true
@@ -251,13 +251,13 @@ test("Standard build with legacy spec version", (t) => {
 			}
 		},
 		generateBundle: {
-			taskFunction: async () => {},
+			taskFunction: null
 		},
 		generateComponentPreload: {
-			taskFunction: async () => {},
+			taskFunction: null
 		},
 		generateThemeDesignerResources: {
-			taskFunction: async () => {},
+			taskFunction: null
 		},
 		generateResourcesJson: {
 			requiresDependencies: true
@@ -380,10 +380,10 @@ test("Custom bundles", async (t) => {
 			}
 		},
 		generateComponentPreload: {
-			taskFunction: async () => {},
+			taskFunction: null
 		},
 		generateThemeDesignerResources: {
-			taskFunction: async () => {},
+			taskFunction: null
 		},
 		generateResourcesJson: {
 			requiresDependencies: true
@@ -699,24 +699,20 @@ test("Standard build: mocked functions for skipped tasks", async (t) => {
 			}
 		},
 		generateBundle: {
-			taskFunction: async () => {}
+			taskFunction: null
 		},
 		generateComponentPreload: {
-			taskFunction: async () => {},
+			taskFunction: null
 		},
 		generateThemeDesignerResources: {
-			taskFunction: async () => {},
+			taskFunction: null
 		},
 		generateResourcesJson: {
 			requiresDependencies: true
 		}
 	}, "Correct task definitions");
 
-	const compPreloadResult = await generateComponentPreloadTaskDefinition.taskFunction();
-	const bundleResult = await generateBundleTaskDefinition.taskFunction();
-	const genThemeResult = await generateThemeDesignerResourcesTaskDefinition.taskFunction();
-
-	t.is(compPreloadResult, undefined, "Empty function used");
-	t.is(bundleResult, undefined, "Empty function used");
-	t.is(genThemeResult, undefined, "Empty function used");
+	t.is(generateComponentPreloadTaskDefinition.taskFunction, null, "taskFunction is explicitly set to null");
+	t.is(generateBundleTaskDefinition.taskFunction, null, "taskFunction is explicitly set to null");
+	t.is(generateThemeDesignerResourcesTaskDefinition.taskFunction, null, "taskFunction is explicitly set to null");
 });

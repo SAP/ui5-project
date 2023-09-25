@@ -75,7 +75,7 @@ test("Standard build", async (t) => {
 			requiresDependencies: true
 		},
 		generateThemeDesignerResources: {
-			taskFunction: async () => {}
+			taskFunction: null
 		}
 	}, "Correct task definitions");
 
@@ -83,8 +83,7 @@ test("Standard build", async (t) => {
 	t.is(taskUtil.getBuildOption.getCall(0).args[0], "cssVariables",
 		"taskUtil#getBuildOption got called with correct argument");
 
-	const result = await generateThemeDesignerResourcesTaskFunction.taskFunction();
-	t.is(result, undefined, "Empty function used");
+	t.is(generateThemeDesignerResourcesTaskFunction.taskFunction, null, "taskFunction is explicitly set to null");
 });
 
 test("Standard build (framework project)", (t) => {
@@ -137,7 +136,7 @@ test("Standard build for non root project", (t) => {
 			requiresDependencies: true
 		},
 		generateThemeDesignerResources: {
-			taskFunction: async () => {}
+			taskFunction: null
 		}
 	}, "Correct task definitions");
 
