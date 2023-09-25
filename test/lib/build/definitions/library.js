@@ -631,7 +631,7 @@ test("buildThemes: CSS Variables enabled", (t) => {
 		"taskUtil#getBuildOption got called with correct argument");
 });
 
-test("Standard build: mocked functions for skipped tasks", async (t) => {
+test("Standard build: nulled taskFunction to skip tasks", (t) => {
 	const {project, taskUtil, getTask} = t.context;
 	project.getJsdocExcludes = () => ["**.html"];
 
