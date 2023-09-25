@@ -41,7 +41,7 @@ test.beforeEach((t) => {
 	t.context.getTask = sinon.stub();
 });
 
-test("Standard build", async (t) => {
+test("Standard build", (t) => {
 	const {project, taskUtil, getTask} = t.context;
 
 	const tasks = themeLibrary({
