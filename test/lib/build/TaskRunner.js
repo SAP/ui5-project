@@ -1250,6 +1250,45 @@ test("Custom task: requiredDependenciesCallback returns Array instead of Set", a
 	}, "Threw with expected error message");
 });
 
+test("Custom task attached to a disabled task", async (t) => {
+	const {graph, taskUtil, taskRepository, TaskRunner, projectBuildLogger, sinon, customTask} = t.context;
+
+	const project = getMockProject("application");
+	const customTaskFnStub = sinon.stub();
+	project.getBundles = emptyarray;
+	project.getCustomTasks = () => [
+		{name: "myTask", afterTask: "generateBundle", configuration: "dog"}
+	];
+
+	taskRepository.getTask = sinon.stub().returns({task: sinon.stub()});
+	customTask.getTask = () => customTaskFnStub;
+
+	const taskRunner = new TaskRunner({
+		project, graph, taskUtil, taskRepository, log: projectBuildLogger, buildConfig
+	});
+
+	await taskRunner.runTasks();
+
+	const setTasksArgs = projectBuildLogger.setTasks.firstCall.args[0];
+	t.true(setTasksArgs.includes("myTask"), "Custom task 'myTask' is queried");
+	t.is(customTaskFnStub.calledOnce, true, "Custom task 'myTask' is executed");
+	t.false(setTasksArgs.includes("generateBundle"),
+		"generateBundle standard task is excluded from the execution list");
+
+	t.deepEqual(
+		setTasksArgs,
+		[
+			"escapeNonAsciiCharacters",
+			"replaceCopyright",
+			"replaceVersion",
+			"minify",
+			"generateFlexChangesBundle",
+			"generateComponentPreload",
+			"myTask",
+		],
+		"Correct tasks execution");
+});
+
 test.serial("_addTask", async (t) => {
 	const {sinon, graph, taskUtil, taskRepository, TaskRunner, projectBuildLogger} = t.context;
 
