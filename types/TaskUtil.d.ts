@@ -4,6 +4,7 @@ declare module "@ui5/project/build/helpers/TaskUtil" {
 
 	// Mock some of the types, so it would be easier to follow
 	type ui5_fs_resourceFactory = object
+	type ui5_fs_Resource = object
 	type ProjectInterface = object
 
 	type StandardBuildTags = {
