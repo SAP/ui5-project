@@ -1,4 +1,3 @@
-// Reference multiple definitions, so they could act like a bundle
+export declare interface ProjectGraph { }
 
-/// <reference path="ui5_project.d.ts" />
-/// <reference path="TaskUtil.d.ts" />
+export declare function graphFromPackageDependencies(settings: Record<string, string | number | boolean>): ProjectGraph;

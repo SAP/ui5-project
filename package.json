@@ -29,9 +29,14 @@
 		"./validation/ValidationError": "./lib/validation/ValidationError.js",
 		"./graph/ProjectGraph": "./lib/graph/ProjectGraph.js",
 		"./graph/projectGraphBuilder": "./lib/graph/projectGraphBuilder.js",
-		"./graph": "./lib/graph/graph.js",
+		"./graph": {
+			"default": "./lib/graph/graph.js",
+			"types": "./types/index.d.ts"
+		},
 		"./package.json": "./package.json",
-		"./types": "./types/index.d.ts"
+		"./build/helpers/*": {
+			"types": "./types/*.d.ts"
+		}
 	},
 	"engines": {
 		"node": "^16.18.0 || >=18.12.0",
