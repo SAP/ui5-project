@@ -12,7 +12,7 @@
 	"then": {
 		"additionalProperties": false,
 		"properties": {
-			"specVersion": { "enum": ["3.0", "3.1"] },
+			"specVersion": { "enum": ["3.2"] },
 			"kind": {
 				"enum": ["project", null]
 			},
