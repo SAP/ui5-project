@@ -727,7 +727,7 @@ test("_executeCleanupTasks", async (t) => {
 	const executeCleanupTasksStub = sinon.stub(builder._buildContext, "executeCleanupTasks");
 	await builder._executeCleanupTasks();
 	t.is(executeCleanupTasksStub.callCount, 1, "BuildContext#executeCleanupTasks got called once");
-	t.deepEqual(executeCleanupTasksStub.getCall(0).args, [],
+	t.deepEqual(executeCleanupTasksStub.getCall(0).args, [undefined],
 		"BuildContext#executeCleanupTasks got called with no arguments");
 });
 
