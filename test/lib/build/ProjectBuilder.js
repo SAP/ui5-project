@@ -729,6 +729,14 @@ test("_executeCleanupTasks", async (t) => {
 	t.is(executeCleanupTasksStub.callCount, 1, "BuildContext#executeCleanupTasks got called once");
 	t.deepEqual(executeCleanupTasksStub.getCall(0).args, [undefined],
 		"BuildContext#executeCleanupTasks got called with no arguments");
+
+	// reset stub
+	executeCleanupTasksStub.reset();
+	// Call with enforcement flag
+	await builder._executeCleanupTasks(true);
+	t.is(executeCleanupTasksStub.callCount, 1, "BuildContext#executeCleanupTasks got called once");
+	t.deepEqual(executeCleanupTasksStub.getCall(0).args, [true],
+		"BuildContext#executeCleanupTasks got called with force flag");
 });
 
 test("instantiate new logger for every ProjectBuilder", async (t) => {
