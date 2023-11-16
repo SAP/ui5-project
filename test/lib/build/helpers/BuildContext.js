@@ -182,6 +182,23 @@ test("flatOutput not supported for type application", (t) => {
 		"Threw with expected error message");
 });
 
+test("flatOutput not supported for type theme-library", (t) => {
+	const err = t.throws(() => {
+		new BuildContext({
+			getRoot: () => {
+				return {
+					getType: () => "theme-library"
+				};
+			}
+		}, "taskRepository", {
+			flatOutput: true
+		});
+	});
+	t.is(err.message,
+		"Flat build output is currently not supported for projects of type theme-library",
+		"Threw with expected error message");
+});
+
 test("flatOutput not supported for type module", (t) => {
 	const err = t.throws(() => {
 		new BuildContext({
