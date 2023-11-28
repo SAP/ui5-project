@@ -165,7 +165,7 @@ test("createBuildManifest supported for jsdoc build", (t) => {
 	});
 });
 
-test("flatOutput not supported for type application", (t) => {
+test("flatOutput=false not supported for type application", (t) => {
 	const err = t.throws(() => {
 		new BuildContext({
 			getRoot: () => {
@@ -174,12 +174,11 @@ test("flatOutput not supported for type application", (t) => {
 				};
 			}
 		}, "taskRepository", {
-			flatOutput: true
+			flatOutput: false
 		});
 	});
 	t.is(err.message,
-		"Flat build output is currently not supported for projects of type application",
-		"Threw with expected error message");
+		"Projects of type application support only flat output");
 });
 
 test("flatOutput not supported for type theme-library", (t) => {
