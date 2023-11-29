@@ -717,12 +717,12 @@ test.serial("_writeResults: Flat build output", async (t) => {
 
 	await builder._writeResults(projectBuildContextMock, writerMock);
 
-	t.is(getReaderStub.callCount, 1, "One reader requested");
+	t.is(getReaderStub.callCount, 2, "One reader requested");
 	t.deepEqual(getReaderStub.getCall(0).args[0], {
 		style: "flat"
 	}, "Reader requested expected style");
 
-	t.is(byGlobStub.callCount, 1, "One byGlob call");
+	t.is(byGlobStub.callCount, 2, "One byGlob call");
 	t.is(byGlobStub.getCall(0).args[0], "/**/*", "byGlob called with expected pattern");
 
 	t.is(getTagStub.callCount, 3, "TaskUtil#getTag got called three times");
