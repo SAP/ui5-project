@@ -1,5 +1,6 @@
 import test from "ava";
 import sinon from "sinon";
+import OutputStyleEnum from "../../../../lib/build/helpers/ProjectBuilderOutputStyle.js";
 
 test.afterEach.always((t) => {
 	sinon.restore();
@@ -46,7 +47,7 @@ test("getBuildConfig: Default values", (t) => {
 
 	t.deepEqual(buildContext.getBuildConfig(), {
 		selfContained: false,
-		outputStyle: "Default",
+		outputStyle: OutputStyleEnum.Default,
 		cssVariables: false,
 		jsdoc: false,
 		createBuildManifest: false,
@@ -64,7 +65,7 @@ test("getBuildConfig: Custom values", (t) => {
 		}
 	}, "taskRepository", {
 		selfContained: true,
-		outputStyle: "Namespace",
+		outputStyle: OutputStyleEnum.Namespace,
 		cssVariables: true,
 		jsdoc: true,
 		createBuildManifest: false,
@@ -74,7 +75,7 @@ test("getBuildConfig: Custom values", (t) => {
 
 	t.deepEqual(buildContext.getBuildConfig(), {
 		selfContained: true,
-		outputStyle: "Namespace",
+		outputStyle: OutputStyleEnum.Namespace,
 		cssVariables: true,
 		jsdoc: true,
 		createBuildManifest: false,
@@ -174,7 +175,7 @@ test("outputStyle='Namespace' not supported for type application", (t) => {
 				};
 			}
 		}, "taskRepository", {
-			outputStyle: "Namespace"
+			outputStyle: OutputStyleEnum.Namespace
 		});
 	});
 	t.is(err.message,
@@ -190,7 +191,7 @@ test("outputStyle='Flat' not supported for type theme-library", (t) => {
 				};
 			}
 		}, "taskRepository", {
-			outputStyle: "Flat"
+			outputStyle: OutputStyleEnum.Flat
 		});
 	});
 	t.is(err.message,
@@ -207,7 +208,7 @@ test("outputStyle='Flat' not supported for type module", (t) => {
 				};
 			}
 		}, "taskRepository", {
-			outputStyle: "Flat"
+			outputStyle: OutputStyleEnum.Flat
 		});
 	});
 	t.is(err.message,
@@ -225,7 +226,7 @@ test("outputStyle='Flat' not supported for createBuildManifest build", (t) => {
 			}
 		}, "taskRepository", {
 			createBuildManifest: true,
-			outputStyle: "Flat"
+			outputStyle: OutputStyleEnum.Flat
 		});
 	});
 	t.is(err.message,

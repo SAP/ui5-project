@@ -3,6 +3,7 @@ import sinonGlobal from "sinon";
 import path from "node:path";
 import esmock from "esmock";
 import {setLogLevel} from "@ui5/logger";
+import OutputStyleEnum from "../../../lib/build/helpers/ProjectBuilderOutputStyle.js";
 
 function noop() {}
 
@@ -636,7 +637,7 @@ test.serial("_writeResults: Create build manifest", async (t) => {
 		"createBuildManifest got called with correct project");
 	t.deepEqual(createBuildManifestStub.getCall(0).args[1], {
 		createBuildManifest: true,
-		outputStyle: "Default",
+		outputStyle: OutputStyleEnum.Default,
 		cssVariables: false,
 		excludedTasks: [],
 		includedTasks: [],
@@ -676,7 +677,7 @@ test.serial("_writeResults: Flat build output", async (t) => {
 	const builder = new ProjectBuilder({
 		graph, taskRepository,
 		buildConfig: {
-			outputStyle: "Flat",
+			outputStyle: OutputStyleEnum.Flat,
 			otherBuildConfig: "yes"
 		}
 	});
