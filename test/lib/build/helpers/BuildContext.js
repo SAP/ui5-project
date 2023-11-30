@@ -46,7 +46,7 @@ test("getBuildConfig: Default values", (t) => {
 
 	t.deepEqual(buildContext.getBuildConfig(), {
 		selfContained: false,
-		flatOutput: false,
+		outputStyle: "Default",
 		cssVariables: false,
 		jsdoc: false,
 		createBuildManifest: false,
@@ -64,7 +64,7 @@ test("getBuildConfig: Custom values", (t) => {
 		}
 	}, "taskRepository", {
 		selfContained: true,
-		flatOutput: false,
+		outputStyle: "Namespace",
 		cssVariables: true,
 		jsdoc: true,
 		createBuildManifest: false,
@@ -74,7 +74,7 @@ test("getBuildConfig: Custom values", (t) => {
 
 	t.deepEqual(buildContext.getBuildConfig(), {
 		selfContained: true,
-		flatOutput: false,
+		outputStyle: "Namespace",
 		cssVariables: true,
 		jsdoc: true,
 		createBuildManifest: false,
@@ -165,7 +165,7 @@ test("createBuildManifest supported for jsdoc build", (t) => {
 	});
 });
 
-test("flatOutput=false not supported for type application", (t) => {
+test("outputStyle='Namespace' not supported for type application", (t) => {
 	const err = t.throws(() => {
 		new BuildContext({
 			getRoot: () => {
@@ -174,14 +174,14 @@ test("flatOutput=false not supported for type application", (t) => {
 				};
 			}
 		}, "taskRepository", {
-			flatOutput: false
+			outputStyle: "Namespace"
 		});
 	});
 	t.is(err.message,
 		"Projects of type application support only flat output");
 });
 
-test("flatOutput not supported for type theme-library", (t) => {
+test("outputStyle='Flat' not supported for type theme-library", (t) => {
 	const err = t.throws(() => {
 		new BuildContext({
 			getRoot: () => {
@@ -190,7 +190,7 @@ test("flatOutput not supported for type theme-library", (t) => {
 				};
 			}
 		}, "taskRepository", {
-			flatOutput: true
+			outputStyle: "Flat"
 		});
 	});
 	t.is(err.message,
@@ -198,7 +198,7 @@ test("flatOutput not supported for type theme-library", (t) => {
 		"Threw with expected error message");
 });
 
-test("flatOutput not supported for type module", (t) => {
+test("outputStyle='Flat' not supported for type module", (t) => {
 	const err = t.throws(() => {
 		new BuildContext({
 			getRoot: () => {
@@ -207,7 +207,7 @@ test("flatOutput not supported for type module", (t) => {
 				};
 			}
 		}, "taskRepository", {
-			flatOutput: true
+			outputStyle: "Flat"
 		});
 	});
 	t.is(err.message,
@@ -215,7 +215,7 @@ test("flatOutput not supported for type module", (t) => {
 		"Threw with expected error message");
 });
 
-test("flatOutput not supported for createBuildManifest build", (t) => {
+test("outputStyle='Flat' not supported for createBuildManifest build", (t) => {
 	const err = t.throws(() => {
 		new BuildContext({
 			getRoot: () => {
@@ -225,7 +225,7 @@ test("flatOutput not supported for createBuildManifest build", (t) => {
 			}
 		}, "taskRepository", {
 			createBuildManifest: true,
-			flatOutput: true
+			outputStyle: "Flat"
 		});
 	});
 	t.is(err.message,

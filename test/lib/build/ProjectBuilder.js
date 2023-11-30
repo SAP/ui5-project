@@ -636,7 +636,7 @@ test.serial("_writeResults: Create build manifest", async (t) => {
 		"createBuildManifest got called with correct project");
 	t.deepEqual(createBuildManifestStub.getCall(0).args[1], {
 		createBuildManifest: true,
-		flatOutput: false,
+		outputStyle: "Default",
 		cssVariables: false,
 		excludedTasks: [],
 		includedTasks: [],
@@ -676,7 +676,7 @@ test.serial("_writeResults: Flat build output", async (t) => {
 	const builder = new ProjectBuilder({
 		graph, taskRepository,
 		buildConfig: {
-			flatOutput: true,
+			outputStyle: "Flat",
 			otherBuildConfig: "yes"
 		}
 	});
