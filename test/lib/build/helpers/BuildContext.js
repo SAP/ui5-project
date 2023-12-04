@@ -166,8 +166,8 @@ test("createBuildManifest supported for jsdoc build", (t) => {
 	});
 });
 
-test("outputStyle='Namespace' not supported for type application", (t) => {
-	const err = t.throws(() => {
+test("outputStyle='Namespace' supported for type application", (t) => {
+	t.notThrows(() => {
 		new BuildContext({
 			getRoot: () => {
 				return {
@@ -178,8 +178,6 @@ test("outputStyle='Namespace' not supported for type application", (t) => {
 			outputStyle: OutputStyleEnum.Namespace
 		});
 	});
-	t.is(err.message,
-		"Projects of type application support only flat output");
 });
 
 test("outputStyle='Flat' not supported for type theme-library", (t) => {
