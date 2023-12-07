@@ -696,7 +696,7 @@ test.serial("_writeResults: Flat build output", async (t) => {
 	const getReaderStub = sinon.stub().returns({
 		byGlob: byGlobStub
 	});
-	const mockProject = getMockProject("library", "c");
+	const mockProject = getMockProject("library", "a");
 	mockProject.getReader = getReaderStub;
 
 	const getTagStub = sinon.stub().returns(false).onFirstCall().returns(true);

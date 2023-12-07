@@ -23,27 +23,38 @@ test("Missing parameters", (t) => {
 });
 
 test("getRootProject", (t) => {
-	const buildContext = new BuildContext({
-		getRoot: () => "pony"
-	}, "taskRepository");
+	const rootProjectStub = sinon.stub()
+		.onFirstCall().returns({getType: () => "library"})
+		.returns("pony");
+	const graph = {getRoot: rootProjectStub};
+	const buildContext = new BuildContext(graph, "taskRepository");
 
 	t.is(buildContext.getRootProject(), "pony", "Returned correct value");
 });
 
 test("getGraph", (t) => {
-	const buildContext = new BuildContext("graph", "taskRepository");
+	const graph = {
+		getRoot: () => ({getType: () => "library"}),
+	};
+	const buildContext = new BuildContext(graph, "taskRepository");
 
-	t.is(buildContext.getGraph(), "graph", "Returned correct value");
+	t.deepEqual(buildContext.getGraph(), graph, "Returned correct value");
 });
 
 test("getTaskRepository", (t) => {
-	const buildContext = new BuildContext("graph", "taskRepository");
+	const graph = {
+		getRoot: () => ({getType: () => "library"}),
+	};
+	const buildContext = new BuildContext(graph, "taskRepository");
 
 	t.is(buildContext.getTaskRepository(), "taskRepository", "Returned correct value");
 });
 
 test("getBuildConfig: Default values", (t) => {
-	const buildContext = new BuildContext("graph", "taskRepository");
+	const graph = {
+		getRoot: () => ({getType: () => "library"}),
+	};
+	const buildContext = new BuildContext(graph, "taskRepository");
 
 	t.deepEqual(buildContext.getBuildConfig(), {
 		selfContained: false,
@@ -193,8 +204,8 @@ test("outputStyle='Flat' not supported for type theme-library", (t) => {
 		});
 	});
 	t.is(err.message,
-		"Flat build output is currently not supported for projects of type theme-library",
-		"Threw with expected error message");
+		"Flat build output is currently not supported since a theme-library " +
+		"almost always has more than one namespace.You can use only the Default build output for this project type.");
 });
 
 test("outputStyle='Flat' not supported for type module", (t) => {
@@ -210,8 +221,9 @@ test("outputStyle='Flat' not supported for type module", (t) => {
 		});
 	});
 	t.is(err.message,
-		"Flat build output is currently not supported for projects of type module",
-		"Threw with expected error message");
+		"Flat build output is currently not supported since modules have"+
+		" explicit path mappings configured and no namespace concept.You can use only "+
+		"the Default build output for this project type.");
 });
 
 test("outputStyle='Flat' not supported for createBuildManifest build", (t) => {
@@ -233,7 +245,10 @@ test("outputStyle='Flat' not supported for createBuildManifest build", (t) => {
 });
 
 test("getOption", (t) => {
-	const buildContext = new BuildContext("graph", "taskRepository", {
+	const graph = {
+		getRoot: () => ({getType: () => "library"}),
+	};
+	const buildContext = new BuildContext(graph, "taskRepository", {
 		cssVariables: "value",
 	});
 
@@ -245,7 +260,10 @@ test("getOption", (t) => {
 });
 
 test("createProjectContext", async (t) => {
-	const buildContext = new BuildContext("graph", "taskRepository");
+	const graph = {
+		getRoot: () => ({getType: () => "library"}),
+	};
+	const buildContext = new BuildContext(graph, "taskRepository");
 	const projectBuildContext = await buildContext.createProjectContext({
 		project: {
 			getName: () => "project",
@@ -258,7 +276,10 @@ test("createProjectContext", async (t) => {
 });
 
 test("executeCleanupTasks", async (t) => {
-	const buildContext = new BuildContext("graph", "taskRepository");
+	const graph = {
+		getRoot: () => ({getType: () => "library"}),
+	};
+	const buildContext = new BuildContext(graph, "taskRepository");
 
 	const executeCleanupTasks = sinon.stub().resolves();
 
