@@ -204,8 +204,9 @@ test("outputStyle='Flat' not supported for type theme-library", (t) => {
 		});
 	});
 	t.is(err.message,
-		"Flat build output is currently not supported since a theme-library " +
-		"almost always has more than one namespace.You can use only the Default build output for this project type.");
+		"Flat build output style is currently not supported for projects of typetheme-library since they" +
+		" commonly have more than one namespace. Currently only the Default output style is supported" +
+		" for this project type.");
 });
 
 test("outputStyle='Flat' not supported for type module", (t) => {
@@ -221,9 +222,9 @@ test("outputStyle='Flat' not supported for type module", (t) => {
 		});
 	});
 	t.is(err.message,
-		"Flat build output is currently not supported since modules have"+
-		" explicit path mappings configured and no namespace concept.You can use only "+
-		"the Default build output for this project type.");
+		"Flat build output style is currently not supported for projects of typemodule. " +
+		"Their path mappings configuration can't be mapped to any namespace.Currently only the " +
+		"Default output style is supported for this project type.");
 });
 
 test("outputStyle='Flat' not supported for createBuildManifest build", (t) => {
