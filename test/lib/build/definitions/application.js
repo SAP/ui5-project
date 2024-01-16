@@ -72,7 +72,7 @@ test("Standard build", (t) => {
 				]
 			}
 		},
-		transformManifest: {},
+		enrichManifest: {},
 		generateFlexChangesBundle: {},
 		generateComponentPreload: {
 			options: {
@@ -152,7 +152,7 @@ test("Standard build with legacy spec version", (t) => {
 				]
 			}
 		},
-		transformManifest: {},
+		enrichManifest: {},
 		generateFlexChangesBundle: {},
 		generateComponentPreload: {
 			options: {
@@ -265,7 +265,7 @@ test("Custom bundles", async (t) => {
 				]
 			}
 		},
-		transformManifest: {},
+		enrichManifest: {},
 		generateFlexChangesBundle: {},
 		generateComponentPreload: {
 			options: {
