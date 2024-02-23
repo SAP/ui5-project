@@ -58,12 +58,13 @@ test.serial("graphFromPackageDependencies", async (t) => {
 		rootConfiguration: "rootConfiguration",
 		rootConfigPath: "/rootConfigPath",
 		versionOverride: "versionOverride",
-		cacheMode: CacheMode.Off
+		cacheMode: CacheMode.Off,
+		workspaceName: null
 	});
 
 	t.is(res, "graph");
 
-	t.is(createWorkspaceStub.callCount, 1, "createWorkspace did not get called");
+	t.is(createWorkspaceStub.callCount, 0, "createWorkspace did not get called");
 	t.is(npmProviderConstructorStub.callCount, 1, "NPM provider constructor got called once");
 	t.deepEqual(npmProviderConstructorStub.getCall(0).args[0], {
 		cwd: path.join(__dirname, "..", "..", "..", "cwd"),
@@ -74,15 +75,15 @@ test.serial("graphFromPackageDependencies", async (t) => {
 	t.is(projectGraphBuilderStub.callCount, 1, "projectGraphBuilder got called once");
 	t.true(projectGraphBuilderStub.getCall(0).args[0] instanceof MockNpmProvider,
 		"projectGraphBuilder got called with correct provider instance");
-	t.is(projectGraphBuilderStub.getCall(0).args[1], "workspace",
-		"projectGraphBuilder got called with \"default\" workspace");
+	t.is(projectGraphBuilderStub.getCall(0).args[1], undefined,
+		"projectGraphBuilder got called with an empty workspace");
 
 	t.is(enrichProjectGraphStub.callCount, 1, "enrichProjectGraph got called once");
 	t.is(enrichProjectGraphStub.getCall(0).args[0], "graph",
 		"enrichProjectGraph got called with graph");
 	t.deepEqual(enrichProjectGraphStub.getCall(0).args[1], {
 		versionOverride: "versionOverride",
-		workspace: "workspace",
+		workspace: undefined,
 		cacheMode: "Off"
 	}, "enrichProjectGraph got called with correct options");
 });
@@ -147,7 +148,8 @@ test.serial("graphFromPackageDependencies with workspace object", async (t) => {
 		rootConfiguration: "rootConfiguration",
 		rootConfigPath: "/rootConfigPath",
 		versionOverride: "versionOverride",
-		workspaceConfiguration: "workspaceConfiguration"
+		workspaceConfiguration: "workspaceConfiguration",
+		workspaceName: null
 	});
 
 	t.is(res, "graph");
@@ -156,7 +158,7 @@ test.serial("graphFromPackageDependencies with workspace object", async (t) => {
 	t.deepEqual(createWorkspaceStub.getCall(0).args[0], {
 		cwd: path.join(__dirname, "..", "..", "..", "cwd"),
 		configPath: "ui5-workspace.yaml",
-		name: "default",
+		name: null,
 		configObject: "workspaceConfiguration"
 	}, "createWorkspace called with correct parameters");
 });
