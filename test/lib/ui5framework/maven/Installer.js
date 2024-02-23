@@ -73,7 +73,7 @@ test.serial("constructor", (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: () => {}
 	});
 	t.true(installer instanceof Installer, "Constructor returns instance of class");
@@ -84,14 +84,14 @@ test.serial("constructor", (t) => {
 	t.is(installer._lockDir, path.join("/ui5Home/", "framework", "locks"));
 });
 
-test.serial("constructor requires 'ui5HomeDir'", (t) => {
+test.serial("constructor requires 'ui5DataDir'", (t) => {
 	const {Installer} = t.context;
 
 	t.throws(() => {
 		new Installer({
 			cwd: "/cwd/"
 		});
-	}, {message: `Installer: Missing parameter "ui5HomeDir"`});
+	}, {message: `Installer: Missing parameter "ui5DataDir"`});
 });
 
 test.serial("constructor requires 'snapshotEndpointUrlCb'", (t) => {
@@ -100,7 +100,7 @@ test.serial("constructor requires 'snapshotEndpointUrlCb'", (t) => {
 	t.throws(() => {
 		new Installer({
 			cwd: "/cwd/",
-			ui5HomeDir: "/ui5Home"
+			ui5DataDir: "/ui5Home"
 		});
 	}, {message: `Installer: Missing Snapshot-Endpoint URL callback parameter`});
 });
@@ -110,7 +110,7 @@ test.serial("getRegistry", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: () => Promise.resolve("endpoint-url")
 	});
 
@@ -132,7 +132,7 @@ test.serial("getRegistry: Missing endpoint URL", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: () => Promise.resolve(null)
 	});
 
@@ -151,7 +151,7 @@ test.serial("fetchPackageVersions", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: () => Promise.resolve("endpoint-url")
 	});
 
@@ -178,7 +178,7 @@ test.serial("fetchPackageVersions throws", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: () => Promise.resolve("endpoint-url")
 	});
 
@@ -198,7 +198,7 @@ test.serial("_getLockPath", (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: () => {}
 	});
 
@@ -213,7 +213,7 @@ test.serial("readJson", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: () => {}
 	});
 
@@ -229,7 +229,7 @@ test.serial("installPackage", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: () => {}
 	});
 
@@ -285,7 +285,7 @@ test.serial("installPackage: No classifier", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: () => {}
 	});
 
@@ -341,7 +341,7 @@ test.serial("installPackage: Already installed", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: () => {}
 	});
 
@@ -374,7 +374,7 @@ test.serial("installPackage: Already installed only after lock acquired", async 
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: () => {}
 	});
 
@@ -409,7 +409,7 @@ test.serial("installArtifact", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: async () => "url"
 	});
 
@@ -471,7 +471,7 @@ test.serial("installArtifact: Target revision provided", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: async () => "url"
 	});
 
@@ -527,7 +527,7 @@ test.serial("installArtifact: Already installed", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: () => {}
 	});
 
@@ -567,7 +567,7 @@ test.serial("installArtifact: Already installed only after lock acquired", async
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: () => {}
 	});
 
@@ -609,7 +609,7 @@ test.serial("_fetchArtifactMetadata", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: () => {}
 	});
 
@@ -646,7 +646,7 @@ test.serial("_fetchArtifactMetadata: Cached", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: () => {},
 	});
 
@@ -682,7 +682,7 @@ test.serial("_fetchArtifactMetadata: Cache available but disabled", async (t) =>
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: () => {},
 		cacheMode: "Off"
 	});
@@ -718,7 +718,7 @@ test.serial("_fetchArtifactMetadata: Cache outdated but enforced", async (t) => 
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: () => {},
 		cacheMode: "Force"
 	});
@@ -755,7 +755,7 @@ test.serial("_fetchArtifactMetadata throws", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: () => {},
 		cacheMode: "Force"
 	});
@@ -779,7 +779,7 @@ test.serial("_getRemoteArtifactMetadata", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: () => Promise.resolve("endpoint-url")
 	});
 
@@ -813,7 +813,7 @@ test.serial("_getRemoteArtifactMetadata throws", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: () => Promise.resolve("endpoint-url")
 	});
 
@@ -832,7 +832,7 @@ test.serial("_getRemoteArtifactMetadata throws missing deployment metadata", asy
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: () => Promise.resolve("endpoint-url")
 	});
 
@@ -870,7 +870,7 @@ test.serial("_getLocalArtifactMetadata", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: () => {}
 	});
 
@@ -885,7 +885,7 @@ test.serial("_getLocalArtifactMetadata file not found", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: () => {}
 	});
 
@@ -904,7 +904,7 @@ test.serial("_getLocalArtifactMetadata throws", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: () => {}
 	});
 
@@ -923,7 +923,7 @@ test.serial("_writeLocalArtifactMetadata", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: () => {}
 	});
 
@@ -946,7 +946,7 @@ test.serial("_removeStaleRevisions", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: () => {}
 	});
 
@@ -981,7 +981,7 @@ test.serial("_pathExists", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: () => {}
 	});
 
@@ -998,7 +998,7 @@ test.serial("_pathExists file not found", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: () => {}
 	});
 
@@ -1013,7 +1013,7 @@ test.serial("_pathExists throws", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: () => {}
 	});
 
@@ -1031,7 +1031,7 @@ test.serial("_projectExists", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: () => {}
 	});
 
@@ -1049,7 +1049,7 @@ test.serial("_projectExists: Does not exist", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: () => {}
 	});
 
@@ -1067,7 +1067,7 @@ test.serial("_projectExists: Throws", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/",
+		ui5DataDir: "/ui5Home/",
 		snapshotEndpointUrlCb: () => {}
 	});
 

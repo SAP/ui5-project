@@ -52,7 +52,7 @@ test.serial("Installer: constructor", (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/"
+		ui5DataDir: "/ui5Home/"
 	});
 	t.true(installer instanceof Installer, "Constructor returns instance of class");
 	t.is(installer._packagesDir, path.join("/ui5Home/", "framework", "packages"));
@@ -65,19 +65,19 @@ test.serial("Installer: constructor requires 'cwd'", (t) => {
 
 	t.throws(() => {
 		new Installer({
-			ui5HomeDir: "/ui5Home/"
+			ui5DataDir: "/ui5Home/"
 		});
 	}, {message: `Installer: Missing parameter "cwd"`});
 });
 
-test.serial("Installer: constructor requires 'ui5HomeDir'", (t) => {
+test.serial("Installer: constructor requires 'ui5DataDir'", (t) => {
 	const {Installer} = t.context;
 
 	t.throws(() => {
 		new Installer({
 			cwd: "/cwd/"
 		});
-	}, {message: `Installer: Missing parameter "ui5HomeDir"`});
+	}, {message: `Installer: Missing parameter "ui5DataDir"`});
 });
 
 test.serial("Installer: fetchPackageVersions", async (t) => {
@@ -85,7 +85,7 @@ test.serial("Installer: fetchPackageVersions", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/"
+		ui5DataDir: "/ui5Home/"
 	});
 
 	const registry = installer.getRegistry();
@@ -119,7 +119,7 @@ test.serial("Installer: _getLockPath", (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/"
+		ui5DataDir: "/ui5Home/"
 	});
 
 	const lockPath = installer._getLockPath("lo/ck-n@me");
@@ -132,7 +132,7 @@ test.serial("Installer: _getLockPath with illegal characters", (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/"
+		ui5DataDir: "/ui5Home/"
 	});
 
 	t.throws(() => installer._getLockPath("lock.näme"), {
@@ -148,7 +148,7 @@ test.serial("Installer: fetchPackageManifest (without existing package.json)", a
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/"
+		ui5DataDir: "/ui5Home/"
 	});
 
 	const mockedManifest = {
@@ -219,7 +219,7 @@ test.serial("Installer: fetchPackageManifest (with existing package.json)", asyn
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/"
+		ui5DataDir: "/ui5Home/"
 	});
 
 	const mockedManifest = {
@@ -280,7 +280,7 @@ test.serial("Installer: fetchPackageManifest (readJson throws error)", async (t)
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/"
+		ui5DataDir: "/ui5Home/"
 	});
 
 	const registry = installer.getRegistry();
@@ -315,7 +315,7 @@ test.serial("Installer: _synchronize", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/"
+		ui5DataDir: "/ui5Home/"
 	});
 
 	t.context.lockStub.yieldsAsync();
@@ -358,7 +358,7 @@ test.serial("Installer: _synchronize should unlock when callback promise has res
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/"
+		ui5DataDir: "/ui5Home/"
 	});
 
 	t.context.lockStub.yieldsAsync();
@@ -384,7 +384,7 @@ test.serial("Installer: _synchronize should throw when locking fails", async (t)
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/"
+		ui5DataDir: "/ui5Home/"
 	});
 
 	t.context.lockStub.yieldsAsync(new Error("Locking error"));
@@ -406,7 +406,7 @@ test.serial("Installer: _synchronize should still unlock when callback throws an
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/"
+		ui5DataDir: "/ui5Home/"
 	});
 
 	t.context.lockStub.yieldsAsync();
@@ -430,7 +430,7 @@ test.serial("Installer: _synchronize should still unlock when callback rejects w
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/"
+		ui5DataDir: "/ui5Home/"
 	});
 
 	t.context.lockStub.yieldsAsync();
@@ -454,7 +454,7 @@ test.serial("Installer: installPackage with new package", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/"
+		ui5DataDir: "/ui5Home/"
 	});
 
 	t.context.lockStub.yieldsAsync();
@@ -534,7 +534,7 @@ test.serial("Installer: installPackage with already installed package", async (t
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/"
+		ui5DataDir: "/ui5Home/"
 	});
 
 	t.context.lockStub.yieldsAsync();
@@ -588,7 +588,7 @@ test.serial("Installer: installPackage with install already in progress", async 
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/"
+		ui5DataDir: "/ui5Home/"
 	});
 
 	t.context.lockStub.yieldsAsync();
@@ -650,7 +650,7 @@ test.serial("Installer: installPackage with new package and existing target and 
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/"
+		ui5DataDir: "/ui5Home/"
 	});
 
 	t.context.lockStub.yieldsAsync();
@@ -735,7 +735,7 @@ test.serial("Installer: _pathExists - exists", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/"
+		ui5DataDir: "/ui5Home/"
 	});
 
 	const res = await installer._pathExists(__dirname);
@@ -750,7 +750,7 @@ test.serial("Installer: _pathExists - does not exist", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/"
+		ui5DataDir: "/ui5Home/"
 	});
 
 	const notFoundError = new Error("Not found");
@@ -769,7 +769,7 @@ test.serial("Installer: _pathExists - re-throws unexpected errors", async (t) =>
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/"
+		ui5DataDir: "/ui5Home/"
 	});
 
 	const notFoundError = new Error("Pony Error");
@@ -789,7 +789,7 @@ test.serial("Installer: Registry throws", (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5HomeDir: "/ui5Home/"
+		ui5DataDir: "/ui5Home/"
 	});
 
 	installer._cwd = null;
