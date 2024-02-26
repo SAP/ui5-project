@@ -72,14 +72,14 @@ test.beforeEach(async (t) => {
 	t.context.AbstractResolver = await esmock.p("../../../lib/ui5Framework/AbstractResolver.js", {
 		"@ui5/logger": ui5Logger,
 		"node:os": {
-			homedir: sinon.stub().returns(path.join(fakeBaseDir, "homedir"))
+			homedir: sinon.stub().returns(path.join(fakeBaseDir, "datadir"))
 		},
 	});
 
 	t.context.Sapui5Resolver = await esmock.p("../../../lib/ui5Framework/Sapui5Resolver.js", {
 		"@ui5/logger": ui5Logger,
 		"node:os": {
-			homedir: sinon.stub().returns(path.join(fakeBaseDir, "homedir"))
+			homedir: sinon.stub().returns(path.join(fakeBaseDir, "datadir"))
 		},
 		"../../../lib/ui5Framework/AbstractResolver.js": t.context.AbstractResolver,
 		"../../../lib/ui5Framework/npm/Installer.js": t.context.Installer
