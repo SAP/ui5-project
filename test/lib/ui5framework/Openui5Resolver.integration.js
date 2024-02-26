@@ -122,14 +122,14 @@ test.serial("resolveVersion", async (t) => {
 		});
 
 	const defaultCwd = process.cwd();
-	const defaultUi5HomeDir = path.join(fakeBaseDir, "homedir", ".ui5");
+	const defaultUi5DataDir = path.join(fakeBaseDir, "datadir", ".ui5");
 
 	// Generic testing without and with options argument
 	const optionsArguments = [
 		undefined,
 		{
 			cwd: path.join(fakeBaseDir, "custom-cwd"),
-			ui5DataDir: path.join(fakeBaseDir, "custom-homedir", ".ui5")
+			ui5DataDir: path.join(fakeBaseDir, "custom-datadir", ".ui5")
 		}
 	];
 	for (const options of optionsArguments) {
@@ -191,7 +191,7 @@ test.serial("resolveVersion", async (t) => {
 			cwd: options?.cwd ?? defaultCwd
 		})));
 		t.true(pacote.packument.alwaysCalledWithMatch("@openui5/sap.ui.core", {
-			cache: path.join(options?.ui5DataDir ?? defaultUi5HomeDir, "framework", "cacache")
+			cache: path.join(options?.ui5DataDir ?? defaultUi5DataDir, "framework", "cacache")
 		}));
 	}
 
