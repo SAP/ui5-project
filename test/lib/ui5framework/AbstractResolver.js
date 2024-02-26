@@ -95,7 +95,7 @@ test("AbstractResolver: Defaults 'cwd' to process.cwd()", (t) => {
 	const {MyResolver} = t.context;
 	const resolver = new MyResolver({
 		version: "1.75.0",
-		ui5DataDir: "/ui5home"
+		ui5DataDir: "/ui5data"
 	});
 	t.is(resolver._cwd, process.cwd(), "Should default to process.cwd()");
 });
