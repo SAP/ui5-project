@@ -99,7 +99,7 @@ test("Standard build", async (t) => {
 			}
 		},
 		generateLibraryManifest: {},
-		enrichManifest: {},
+		enhanceManifest: {},
 		generateLibraryPreload: {
 			options: {
 				excludes: [], skipBundles: []
@@ -236,7 +236,7 @@ test("Standard build with legacy spec version", (t) => {
 			}
 		},
 		generateLibraryManifest: {},
-		enrichManifest: {},
+		enhanceManifest: {},
 		generateLibraryPreload: {
 			options: {
 				excludes: [], skipBundles: []
@@ -358,7 +358,7 @@ test("Custom bundles", async (t) => {
 			}
 		},
 		generateLibraryManifest: {},
-		enrichManifest: {},
+		enhanceManifest: {},
 		generateLibraryPreload: {
 			options: {
 				excludes: [],
@@ -686,7 +686,7 @@ test("Standard build: nulled taskFunction to skip tasks", (t) => {
 			}
 		},
 		generateLibraryManifest: {},
-		enrichManifest: {},
+		enhanceManifest: {},
 		generateLibraryPreload: {
 			options: {
 				excludes: [], skipBundles: []
