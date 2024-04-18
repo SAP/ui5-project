@@ -58,7 +58,9 @@ function getMockProject(type) {
 		getCustomTasks: () => [],
 		hasBuildManifest: () => false,
 		getWorkspace: () => "workspace",
-		isFrameworkProject: () => false
+		isFrameworkProject: () => false,
+		sealWorkspace: noop,
+		createNewResourceVersion: noop,
 	};
 }
 
