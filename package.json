@@ -121,7 +121,7 @@
 	},
 	"dependencies": {
 		"@npmcli/config": "^8.3.1",
-		"@ui5/builder": "^3.4.0",
+		"@ui5/builder": "^3.4.1",
 		"@ui5/fs": "^3.0.5",
 		"@ui5/logger": "^3.0.0",
 		"ajv": "^6.12.6",
@@ -139,7 +139,7 @@
 		"read-pkg": "^8.1.0",
 		"read-pkg-up": "^10.1.0",
 		"resolve": "^1.22.8",
-		"rimraf": "^5.0.6",
+		"rimraf": "^5.0.7",
 		"semver": "^7.6.2",
 		"xml2js": "^0.6.2",
 		"yesno": "^0.4.0"
