@@ -29,7 +29,6 @@ export default {
 								"optimize": false,
 								"decorateBootstrapModule": false,
 								"addTryCatchRestartWrapper": true,
-								"usePredefineCalls": true,
 								"numberOfParts": 8,
 								"sourceMap": false
 							}
@@ -82,7 +81,6 @@ export default {
 								"optimize": "invalid value",
 								"decorateBootstrapModule": {"invalid": "value"},
 								"addTryCatchRestartWrapper": ["invalid value"],
-								"usePredefineCalls": 12,
 								"numberOfParts": true,
 								"sourceMap": 55
 							}
@@ -110,15 +108,6 @@ export default {
 						keyword: "type",
 						dataPath:
 							"/builder/bundles/0/bundleOptions/addTryCatchRestartWrapper",
-						params: {
-							type: "boolean",
-						},
-						message: "should be boolean"
-					},
-					{
-						keyword: "type",
-						dataPath:
-							"/builder/bundles/0/bundleOptions/usePredefineCalls",
 						params: {
 							type: "boolean",
 						},

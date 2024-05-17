@@ -107,8 +107,7 @@ SpecificationVersion.getVersionsForRange(">=2.0").forEach(function(specVersion) 
 						"bundleOptions": {
 							"optimize": true,
 							"decorateBootstrapModule": true,
-							"addTryCatchRestartWrapper": true,
-							"usePredefineCalls": true
+							"addTryCatchRestartWrapper": true
 						}
 					},
 					{

@@ -397,10 +397,6 @@
 					"type": "boolean",
 					"default": false
 				},
-				"usePredefineCalls": {
-					"type": "boolean",
-					"default": false
-				},
 				"numberOfParts": {
 					"type": "number",
 					"default": 1
@@ -420,10 +416,6 @@
 					"default": true
 				},
 				"addTryCatchRestartWrapper": {
-					"type": "boolean",
-					"default": false
-				},
-				"usePredefineCalls": {
 					"type": "boolean",
 					"default": false
 				},
