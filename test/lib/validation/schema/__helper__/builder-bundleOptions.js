@@ -133,7 +133,7 @@ export default {
 				]);
 			});
 		});
-		
+
 		SpecificationVersion.getVersionsForRange("3.0 - 3.2").forEach(function(specVersion) {
 			test(`${type} (specVersion ${specVersion}): builder/bundles/bundleOptions`, async (t) => {
 				await assertValidation(t, {
