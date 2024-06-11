@@ -72,6 +72,7 @@ test("(instance) satisfies", (t) => {
 	t.is(new SpecificationVersion("2.2").satisfies(">=2.2"), true);
 	t.is(new SpecificationVersion("2.3").satisfies(">=2.2"), true);
 	t.is(new SpecificationVersion("3.1").satisfies(">=2.2"), true);
+	t.is(new SpecificationVersion("4.0").satisfies(">=2.2"), true);
 
 	// range: > 1.0
 	t.is(new SpecificationVersion("1.0").satisfies("> 1.0"), false);
