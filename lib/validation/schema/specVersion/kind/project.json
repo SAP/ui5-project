@@ -450,9 +450,9 @@
 								"default": false
 							},
 							"if": {
+								"$comment": "Add async prop only if mode = 'require'",
 								"properties": {
-									"mode": { "enum": ["require"] },
-									"$comment": "Only applicable if mode = 'require'"
+									"mode": { "enum": ["require"] }
 								}
 							},
 							"then": {
