@@ -46,7 +46,7 @@ test.after.always((t) => {
 	t.context.ajvCoverage.verify(thresholds);
 });
 
-SpecificationVersion.getVersionsForRange(">=2.0").forEach(function(specVersion) {
+SpecificationVersion.getVersionsForRange("2.0 - 3.2").forEach(function(specVersion) {
 	test(`library (specVersion ${specVersion}): Valid configuration`, async (t) => {
 		await assertValidation(t, {
 			"specVersion": specVersion,

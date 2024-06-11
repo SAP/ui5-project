@@ -13,7 +13,7 @@ export default {
 	 */
 	defineTests: function(test, assertValidation, type) {
 		// Version specific tests
-		SpecificationVersion.getVersionsForRange(">=3.0").forEach(function(specVersion) {
+		SpecificationVersion.getVersionsForRange("3.0 - 3.2").forEach(function(specVersion) {
 			test(`${type} (specVersion ${specVersion}): builder/bundles/bundleOptions`, async (t) => {
 				await assertValidation(t, {
 					"specVersion": specVersion,
