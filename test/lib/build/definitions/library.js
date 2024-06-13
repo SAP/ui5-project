@@ -282,7 +282,10 @@ test("Custom bundles", async (t) => {
 		},
 		bundleOptions: {
 			optimize: true,
-			usePredefinedCalls: true
+			addTryCatchRestartWrapper: false,
+			decorateBootstrapModule: true,
+			numberOfParts: 1,
+			usePredefineCalls: false,
 		}
 	}, {
 		bundleDefinition: {
@@ -298,7 +301,10 @@ test("Custom bundles", async (t) => {
 		},
 		bundleOptions: {
 			optimize: false,
-			usePredefinedCalls: true
+			addTryCatchRestartWrapper: false,
+			decorateBootstrapModule: true,
+			numberOfParts: 1,
+			usePredefineCalls: false,
 		}
 	}];
 
@@ -424,7 +430,10 @@ test("Custom bundles", async (t) => {
 			},
 			bundleOptions: {
 				optimize: true,
-				usePredefinedCalls: true
+				addTryCatchRestartWrapper: false,
+				decorateBootstrapModule: true,
+				numberOfParts: 1,
+				usePredefineCalls: false,
 			}
 		}
 	}, "generateBundle task got called with correct arguments");
@@ -452,7 +461,10 @@ test("Custom bundles", async (t) => {
 			},
 			bundleOptions: {
 				optimize: false,
-				usePredefinedCalls: true
+				addTryCatchRestartWrapper: false,
+				decorateBootstrapModule: true,
+				numberOfParts: 1,
+				usePredefineCalls: false,
 			}
 		}
 	}, "generateBundle task got called with correct arguments");
@@ -519,7 +531,10 @@ test("generateComponentPreload with custom paths, excludes and custom bundle", (
 		},
 		bundleOptions: {
 			optimize: true,
-			usePredefinedCalls: true
+			addTryCatchRestartWrapper: false,
+			decorateBootstrapModule: true,
+			numberOfParts: 1,
+			usePredefineCalls: false,
 		}
 	}];
 
