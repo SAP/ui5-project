@@ -39,7 +39,6 @@ test.beforeEach((t) => {
 		getInterface: sinon.stub()
 	};
 
-	
 	t.context.getTask = sinon.stub();
 });
 
