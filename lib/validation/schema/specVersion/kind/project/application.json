@@ -76,7 +76,7 @@
 					"additionalProperties": true
 				}
 			}
-		}, 
+		},
 		"else": {
 
 			"if": {
