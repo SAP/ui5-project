@@ -34,13 +34,14 @@ function getMockProject() {
 }
 
 test.beforeEach((t) => {
+	t.context.project = getMockProject();
 	t.context.taskUtil = {
+		getProject: sinon.stub().returns(t.context.project),
 		isRootProject: sinon.stub().returns(true),
 		getBuildOption: sinon.stub(),
 		getInterface: sinon.stub()
 	};
 
-	t.context.project = getMockProject();
 	t.context.getTask = sinon.stub();
 });
 
@@ -277,8 +278,7 @@ test("Custom bundles", async (t) => {
 					"project/b/sectionsA/",
 					"!project/b/sectionsA/section2**",
 				]
-			}],
-			sort: true
+			}]
 		},
 		bundleOptions: {
 			optimize: true,
@@ -294,8 +294,7 @@ test("Custom bundles", async (t) => {
 					"project/b/sectionsB/",
 					"!project/b/sectionsB/section2**",
 				]
-			}],
-			sort: true
+			}]
 		},
 		bundleOptions: {
 			optimize: false,
@@ -415,9 +414,13 @@ test("Custom bundles", async (t) => {
 					filters: [
 						"project/b/sectionsA/",
 						"!project/b/sectionsA/section2**",
-					]
-				}],
-				sort: true
+					],
+					declareRawModules: false,
+					renderer: false,
+					resolve: false,
+					resolveConditional: false,
+					sort: true,
+				}]
 			},
 			bundleOptions: {
 				optimize: true,
@@ -439,9 +442,13 @@ test("Custom bundles", async (t) => {
 					filters: [
 						"project/b/sectionsB/",
 						"!project/b/sectionsB/section2**",
-					]
-				}],
-				sort: true
+					],
+					declareRawModules: false,
+					renderer: false,
+					resolve: false,
+					resolveConditional: false,
+					sort: true,
+				}]
 			},
 			bundleOptions: {
 				optimize: false,
@@ -508,8 +515,7 @@ test("generateComponentPreload with custom paths, excludes and custom bundle", (
 					"project/b/sectionsA/",
 					"!project/b/sectionsA/section2**",
 				]
-			}],
-			sort: true
+			}]
 		},
 		bundleOptions: {
 			optimize: true,
