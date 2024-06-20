@@ -50,7 +50,7 @@ export default {
 						"builder": {
 							"bundles": [{
 								"bundleOptions": {
-									"debugMode": true
+									"usePredefineCalls": true
 								}
 							}]
 						}
