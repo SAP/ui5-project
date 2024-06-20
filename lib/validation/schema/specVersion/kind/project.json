@@ -412,53 +412,97 @@
 				},
 				"sections": {
 					"type": "array",
-					"items": {
-						"type": "object",
-						"additionalProperties": false,
-						"required": ["mode", "filters"],
-						"properties": {
-							"name": {
-								"type": "string"
-							},
+					"if": {
+						"$comment": "Add async prop only if mode = 'require'",
+						"items": {
+							"type": "object",
 							"mode": {
-								"enum": ["raw", "preload", "require", "provided", "bundleInfo", "depCache"]
-							},
-							"filters": {
-								"type": "array",
-								"items": {
+								"enum": ["require"]
+							}
+						}
+					},
+					"then": {
+						"items": {
+							"type": "object",
+							"additionalProperties": false,
+							"required": ["mode", "filters"],
+							"properties": {
+								"name": {
 									"type": "string"
-								}
-							},
-							"resolve": {
-								"type": "boolean",
-								"default": false
-							},
-							"resolveConditional": {
-								"type": "boolean",
-								"default": false
-							},
-							"renderer": {
-								"type": "boolean",
-								"default": false
-							},
-							"sort": {
-								"type": "boolean",
-								"default": true
-							},
-							"declareRawModules": {
-								"type": "boolean",
-								"default": false
-							},
-							"if": {
-								"$comment": "Add async prop only if mode = 'require'",
-								"properties": {
-									"mode": { "enum": ["require"] }
-								}
-							},
-							"then": {
+								},
+								"mode": {
+									"enum": ["raw", "preload", "require", "provided", "bundleInfo", "depCache"]
+								},
+								"filters": {
+									"type": "array",
+									"items": {
+										"type": "string"
+									}
+								},
+								"resolve": {
+									"type": "boolean",
+									"default": false
+								},
+								"resolveConditional": {
+									"type": "boolean",
+									"default": false
+								},
+								"renderer": {
+									"type": "boolean",
+									"default": false
+								},
+								"sort": {
+									"type": "boolean",
+									"default": true
+								},
+								"declareRawModules": {
+									"type": "boolean",
+									"default": false
+								},
 								"async": {
 									"type": "boolean",
 									"default": true
+								}
+							}
+						}
+					},
+					"else": {
+						"items": {
+							"type": "object",
+							"additionalProperties": false,
+							"required": ["mode", "filters"],
+							"properties": {
+								"name": {
+									"type": "string"
+								},
+								"mode": {
+									"enum": ["raw", "preload", "require", "provided", "bundleInfo", "depCache"]
+								},
+								"filters": {
+									"type": "array",
+									"items": {
+										"type": "string"
+									}
+								},
+								"resolve": {
+									"type": "boolean",
+									"default": false
+								},
+								"resolveConditional": {
+									"type": "boolean",
+									"default": false
+								},
+								"renderer": {
+									"type": "boolean",
+									"default": false
+								},
+								"sort": {
+									"type": "boolean",
+									"default": true
+								},
+								"declareRawModules": {
+									"type": "boolean",
+									"default": false
 								}
 							}
 						}

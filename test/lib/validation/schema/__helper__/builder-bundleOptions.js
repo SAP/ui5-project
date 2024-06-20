@@ -59,7 +59,7 @@ export default {
 							keyword: "additionalProperties",
 							dataPath: "/builder/bundles/0/bundleOptions",
 							params: {
-								additionalProperty: "debugMode",
+								additionalProperty: "usePredefineCalls",
 							},
 							message: "should NOT have additional properties",
 						},
