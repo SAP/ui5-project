@@ -132,7 +132,8 @@ SpecificationVersion.getVersionsForRange(">=4.0").forEach(function(specVersion) 
 									"filters": [
 										"ui5loader-autoconfig.js"
 									],
-									"resolve": true
+									"resolve": true,
+									"async": false
 								}
 							]
 						},
