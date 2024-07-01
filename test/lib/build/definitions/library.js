@@ -77,7 +77,7 @@ test("Standard build", async (t) => {
 		},
 		replaceBuildtime: {
 			options: {
-				pattern: "/resources/sap/ui/Global.js"
+				pattern: "/resources/sap/ui/{Global,core/Core}.js"
 			}
 		},
 		generateJsdoc: {
@@ -213,7 +213,7 @@ test("Standard build with legacy spec version", (t) => {
 		},
 		replaceBuildtime: {
 			options: {
-				pattern: "/resources/sap/ui/Global.js"
+				pattern: "/resources/sap/ui/{Global,core/Core}.js"
 			}
 		},
 		generateJsdoc: {
@@ -334,7 +334,7 @@ test("Custom bundles", async (t) => {
 		},
 		replaceBuildtime: {
 			options: {
-				pattern: "/resources/sap/ui/Global.js"
+				pattern: "/resources/sap/ui/{Global,core/Core}.js"
 			}
 		},
 		generateJsdoc: {
@@ -661,7 +661,7 @@ test("Standard build: nulled taskFunction to skip tasks", (t) => {
 		},
 		replaceBuildtime: {
 			options: {
-				pattern: "/resources/sap/ui/Global.js"
+				pattern: "/resources/sap/ui/{Global,core/Core}.js"
 			}
 		},
 		generateJsdoc: {
