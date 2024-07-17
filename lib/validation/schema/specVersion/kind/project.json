@@ -418,7 +418,8 @@
 								"mode": {
 									"const": "require"
 								}
-							}
+							},
+							"$comment": "Add async prop only if mode = 'require'"
 						}, 
 						"then": {
 							"type": "object",
