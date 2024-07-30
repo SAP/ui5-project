@@ -162,7 +162,6 @@
 		"depcheck": "^1.4.7",
 		"docdash": "^2.0.2",
 		"eslint": "^9.8.0",
-		"eslint-config-google": "^0.14.0",
 		"eslint-plugin-ava": "^14.0.0",
 		"eslint-plugin-jsdoc": "^48.11.0",
 		"esmock": "^2.6.7",
