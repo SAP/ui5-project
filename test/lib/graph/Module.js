@@ -408,6 +408,62 @@ test("Legacy patches are applied", async (t) => {
 			.map(testLegacyLibrary));
 });
 
+test("Environment variables in configuration", async (t) => {
+	const testEnvVars = ["testEnvVarForString", "testEnvVarForObject", "testEnvVarForArray"].map(
+		(testEnvVar, index) => {
+			const wrapper = {
+				name: testEnvVar,
+				oldValue: process.env[testEnvVar],
+				newValue: `testValue${index}`,
+			};
+			process.env[testEnvVar] = wrapper.newValue;
+			return wrapper;
+		}
+	);
+	try {
+		const ui5Module = new Module({
+			id: "application.a.id",
+			version: "1.0.0",
+			modulePath: applicationAPath,
+			configuration: {
+				specVersion: "2.6",
+				type: "application",
+				metadata: {
+					name: "application.a-object",
+				},
+				customConfiguration: {
+					stringWithEnvVar: `env:${testEnvVars[0].name}`,
+					objectWithEnvVar: {
+						someKey: `env:${testEnvVars[1].name}`,
+					},
+					arrayWithEnvVar: ["a", `env:${testEnvVars[2].name}`, "c"]
+				},
+			},
+		});
+		const {project} = await ui5Module.getSpecifications();
+		t.deepEqual(
+			project.getCustomConfiguration(),
+			{
+				stringWithEnvVar: testEnvVars[0].newValue,
+				objectWithEnvVar: {
+					someKey: testEnvVars[1].newValue,
+				},
+				arrayWithEnvVar: ["a", testEnvVars[2].newValue, "c"],
+			},
+			"Environment variable is filled in"
+		);
+	} finally {
+		// Reset all env vars back to their value previous to testing
+		testEnvVars.forEach((wrapper) => {
+			if (wrapper.oldValue === undefined) {
+				delete process.env[wrapper.name];
+			} else {
+				process.env[wrapper.name] = wrapper.oldValue;
+			}
+		});
+	}
+});
+
 test("Invalid configuration in file", async (t) => {
 	const ui5Module = new Module({
 		id: "application.a.id",
