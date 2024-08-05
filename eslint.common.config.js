@@ -1,22 +1,11 @@
-import {fixupConfigRules, fixupPluginRules} from "@eslint/compat";
 import jsdoc from "eslint-plugin-jsdoc";
 import ava from "eslint-plugin-ava";
 import globals from "globals";
-import path from "node:path";
-import {fileURLToPath} from "node:url";
 import js from "@eslint/js";
-import {FlatCompat} from "@eslint/eslintrc";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const compat = new FlatCompat({
-	baseDirectory: __dirname,
-	recommendedConfig: js.configs.recommended,
-	allConfig: js.configs.all
-});
+import google from "eslint-config-google";
 
 export default [{
-	ignores: [
+	ignores: [ // Common ignore patterns across all tooling repos
 		"**/coverage/",
 		"test/tmp/",
 		"test/expected/",
@@ -24,10 +13,11 @@ export default [{
 		"**/docs/",
 		"**/jsdocs/",
 	],
-}, ...fixupConfigRules(compat.extends("eslint:recommended", "plugin:ava/recommended", "google")), {
+}, js.configs.recommended, google, ava.configs["flat/recommended"], {
+	name: "Common ESLint config used for all tooling repos",
+
 	plugins: {
 		jsdoc,
-		ava: fixupPluginRules(ava),
 	},
 
 	languageOptions: {
@@ -75,6 +65,11 @@ export default [{
 
 		"comma-dangle": "off",
 		"no-tabs": "off",
+		"no-console": 2, // Disallow console.log()
+		"no-eval": 2,
+		// The following rule must be disabled as of ESLint 9.
+		// It's removed and causes issues when present
+		// https://eslint.org/docs/latest/rules/valid-jsdoc
 		"valid-jsdoc": 0,
 		"jsdoc/check-examples": 0,
 		"jsdoc/check-param-names": 2,
@@ -100,4 +95,5 @@ export default [{
 		"jsdoc/valid-types": 0,
 		"ava/assertion-arguments": 0,
 	},
-}];
+}
+];
