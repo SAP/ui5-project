@@ -40,11 +40,16 @@ const log = getLogger("generateProjectGraph");
  * 		Parameter <code>workspaceName</code> can either be omitted or has to match with the given configuration name
  * @returns {Promise<@ui5/project/graph/ProjectGraph>} Promise resolving to a Project Graph instance
  */
-export async function graphFromPackageDependencies({
-	cwd, rootConfiguration, rootConfigPath,
-	versionOverride, cacheMode, resolveFrameworkDependencies = true,
-	workspaceName="default",
-	workspaceConfiguration, workspaceConfigPath = "ui5-workspace.yaml"
+export async function graphFromPackageDependencies({ cwd, rootConfiguration, rootConfigPath, versionOverride, cacheMode, resolveFrameworkDependencies = true, workspaceName = "default", workspaceConfiguration, workspaceConfigPath = "ui5-workspace.yaml" }: {
+    cwd?: string;
+    rootConfiguration?: object;
+    rootConfigPath?: string;
+    versionOverride?: string;
+    resolveFrameworkDependencies?: boolean;
+    workspaceConfiguration: object;
+    workspaceName?: string | null;
+    cacheMode?: string;
+    workspaceConfigPath?: string;
 }) {
 	log.verbose(`Creating project graph using npm provider...`);
 	const {
@@ -104,10 +109,14 @@ export async function graphFromPackageDependencies({
  *		Whether framework dependencies should be added to the graph
  * @returns {Promise<@ui5/project/graph/ProjectGraph>} Promise resolving to a Project Graph instance
  */
-export async function graphFromStaticFile({
-	filePath = "projectDependencies.yaml", cwd,
-	rootConfiguration, rootConfigPath,
-	versionOverride, cacheMode, resolveFrameworkDependencies = true
+export async function graphFromStaticFile({ filePath = "projectDependencies.yaml", cwd, rootConfiguration, rootConfigPath, versionOverride, cacheMode, resolveFrameworkDependencies = true }: {
+    filePath?: object;
+    cwd?: string;
+    rootConfiguration?: object;
+    rootConfigPath?: string;
+    versionOverride?: string;
+    cacheMode?: string;
+    resolveFrameworkDependencies?: string;
 }) {
 	log.verbose(`Creating project graph using static file...`);
 	const {
@@ -156,11 +165,7 @@ export async function graphFromStaticFile({
  *		Whether framework dependencies should be added to the graph
  * @returns {Promise<@ui5/project/graph/ProjectGraph>} Promise resolving to a Project Graph instance
 */
-export async function graphFromObject({
-	dependencyTree, cwd,
-	rootConfiguration, rootConfigPath,
-	versionOverride, cacheMode, resolveFrameworkDependencies = true
-}) {
+export async function graphFromObject({ dependencyTree, cwd, rootConfiguration, rootConfigPath, versionOverride, cacheMode, resolveFrameworkDependencies = true }: object) {
 	log.verbose(`Creating project graph using object...`);
 	const {
 		default: DependencyTreeProvider

@@ -24,7 +24,7 @@ class Openui5Resolver extends AbstractResolver {
 	 * @param {string} [options.packagesDir] Where to install packages
 	 * @param {string} [options.stagingDir] The staging directory for the packages
 	 */
-	constructor(options) {
+	constructor(options: any) {
 		super(options);
 
 		const {cacheDir, packagesDir, stagingDir} = options;

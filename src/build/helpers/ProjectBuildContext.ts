@@ -60,7 +60,7 @@ class ProjectBuildContext {
 	 * @returns {@ui5/project/specifications/Project|undefined}
 	 *					project instance or undefined if the project is unknown to the graph
 	 */
-	getProject(projectName) {
+	getProject(projectName?: string) {
 		if (projectName) {
 			return this._buildContext.getGraph().getProject(projectName);
 		}
@@ -74,7 +74,7 @@ class ProjectBuildContext {
 	 * @returns {string[]} Names of all direct dependencies
 	 * @throws {Error} If the requested project is unknown to the graph
 	 */
-	getDependencies(projectName) {
+	getDependencies(projectName?: string) {
 		return this._buildContext.getGraph().getDependencies(projectName || this._project.getName());
 	}
 

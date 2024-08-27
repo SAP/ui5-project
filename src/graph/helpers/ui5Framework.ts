@@ -289,7 +289,10 @@ export default {
 	 * @returns {Promise<@ui5/project/graph/ProjectGraph>}
 	 *   Promise resolving with the given graph instance to allow method chaining
 	 */
-	enrichProjectGraph: async function(projectGraph, options = {}) {
+	enrichProjectGraph: async function(projectGraph, options: {
+    versionOverride?: string;
+    cacheMode?: string;
+} = {}) {
 		const {workspace, cacheMode} = options;
 		const rootProject = projectGraph.getRoot();
 		const frameworkName = rootProject.getFrameworkName();

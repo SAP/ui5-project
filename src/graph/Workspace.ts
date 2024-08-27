@@ -52,7 +52,9 @@ class Workspace {
 	 * @param {@ui5/project/graph/Workspace~Configuration} options.configuration
 	 *   Workspace configuration
 	 */
-	constructor({cwd, configuration}) {
+	constructor({ cwd, configuration }: {
+    cwd: string;
+}) {
 		if (!cwd) {
 			throw new Error(`Could not create Workspace: Missing or empty parameter 'cwd'`);
 		}
@@ -70,51 +72,22 @@ class Workspace {
 	 * @public
 	 * @returns {string} Name of this workspace configuration
 	 */
-	getName() {
+	public getName() {
 		return this.#configuration.metadata.name;
 	}
 
-	/**
-	 * Returns an array of [Module]{@ui5/project/graph/Module} instances found in the configured
-	 * dependency-management resolution paths of this workspace, sorted by module ID.
-	 *
-	 * @public
-	 * @returns {Promise<@ui5/project/graph/Module[]>}
-	 *   Array of Module instances sorted by module ID
-	 */
-	async getModules() {
+	public async getModules() {
 		const {moduleIdMap} = await this._getResolvedModules();
 		const sortedMap = new Map([...moduleIdMap].sort((a, b) => String(a[0]).localeCompare(b[0])));
 		return Array.from(sortedMap.values());
 	}
 
-	/**
-	 * For a given project name (e.g. the value of the <code>metadata.name</code> property in a ui5.yaml),
-	 * returns a [Module]{@ui5/project/graph/Module} instance or <code>undefined</code> depending on whether the project
-	 * has been found in the configured dependency-management resolution paths of this workspace
-	 *
-	 * @public
-	 * @param {string} projectName Name of the project
-	 * @returns {Promise<@ui5/project/graph/Module|undefined>}
-	 *   Module instance, or <code>undefined</code> if none is found
-	 */
-	async getModuleByProjectName(projectName) {
+	public async getModuleByProjectName(projectName: string) {
 		const {projectNameMap} = await this._getResolvedModules();
 		return projectNameMap.get(projectName);
 	}
 
-	/**
-	 * For a given node id (e.g. the value of the name property in a package.json),
-	 * returns a [Module]{@ui5/project/graph/Module} instance or <code>undefined</code> depending on whether the module
-	 * has been found in the configured dependency-management resolution paths of this workspace
-	 * and contains at least one project or extension
-	 *
-	 * @public
-	 * @param {string} nodeId Node ID of the module
-	 * @returns {Promise<@ui5/project/graph/Module|undefined>}
-	 *   Module instance, or <code>undefined</code> if none is found
-	 */
-	async getModuleByNodeId(nodeId) {
+	public async getModuleByNodeId(nodeId: string) {
 		const {moduleIdMap} = await this._getResolvedModules();
 		return moduleIdMap.get(nodeId);
 	}
@@ -252,14 +225,7 @@ class Workspace {
 		}
 	}
 
-	/**
-	 * Reads the package.json file and returns its content
-	 *
-	 * @private
-	 * @param {string} modulePath Path to the module containing the package.json
-	 * @returns {object} Package json content
-	 */
-	async _readPackageJson(modulePath) {
+	private async _readPackageJson(modulePath: string) {
 		const content = await readFile(path.join(modulePath, "package.json"), "utf8");
 		return JSON.parse(content);
 	}

@@ -49,7 +49,7 @@ class TaskUtil {
 	 * @param {@ui5/project/build/helpers/ProjectBuildContext} parameters.projectBuildContext ProjectBuildContext
 	 * @public
 	 */
-	constructor({projectBuildContext}) {
+	constructor({ projectBuildContext }: object) {
 		this._projectBuildContext = projectBuildContext;
 		/**
 		 * @member {@ui5/project/build/helpers/TaskUtil~StandardBuildTags}
@@ -84,7 +84,7 @@ class TaskUtil {
 	 * @param {string|boolean|integer} [value=true] Tag value. Must be primitive
 	 * @public
 	 */
-	setTag(resource, tag, value) {
+	public setTag(resource, tag: string, value?: string | boolean | integer) {
 		if (typeof resource === "string") {
 			throw new Error("Deprecated parameter: " +
 				"Since UI5 Tooling 3.0, #setTag requires a resource instance. Strings are no longer accepted");
@@ -107,7 +107,7 @@ class TaskUtil {
 	 * 										<code>undefined</code> if no value is available
 	 * @public
 	 */
-	getTag(resource, tag) {
+	public getTag(resource, tag: string) {
 		if (typeof resource === "string") {
 			throw new Error("Deprecated parameter: " +
 				"Since UI5 Tooling 3.0, #getTag requires a resource instance. Strings are no longer accepted");
@@ -128,7 +128,7 @@ class TaskUtil {
 	 * @param {string} tag Tag
 	 * @public
 	 */
-	clearTag(resource, tag) {
+	public clearTag(resource, tag: string) {
 		if (typeof resource === "string") {
 			throw new Error("Deprecated parameter: " +
 				"Since UI5 Tooling 3.0, #clearTag requires a resource instance. Strings are no longer accepted");
@@ -147,7 +147,7 @@ class TaskUtil {
 	 * @returns {boolean} <code>true</code> if the currently built project is the root project
 	 * @public
 	 */
-	isRootProject() {
+	public isRootProject() {
 		return this._projectBuildContext.isRootProject();
 	}
 
@@ -159,7 +159,7 @@ class TaskUtil {
 	 * @returns {any|undefined} The build option (or undefined)
 	 * @private
 	 */
-	getBuildOption(key) {
+	private getBuildOption(key: string) {
 		return this._projectBuildContext.getOption(key);
 	}
 
@@ -186,7 +186,7 @@ class TaskUtil {
 	 * 									register; it will be waited for if it returns a Promise
 	 * @public
 	 */
-	registerCleanupTask(callback) {
+	public registerCleanupTask(callback) {
 		return this._projectBuildContext.registerCleanupTask(callback);
 	}
 
@@ -226,7 +226,7 @@ class TaskUtil {
 	 * if the project name is unknown or the provided resource is not associated with any project.
 	 * @public
 	 */
-	getProject(projectNameOrResource) {
+	public getProject(projectNameOrResource) {
 		if (projectNameOrResource) {
 			if (typeof projectNameOrResource === "string" || projectNameOrResource instanceof String) {
 				// A project name has been provided
@@ -253,7 +253,7 @@ class TaskUtil {
 	 * @throws {Error} If the requested project is unknown to the graph
 	 * @public
 	 */
-	getDependencies(projectName) {
+	public getDependencies(projectName?: string) {
 		return this._projectBuildContext.getDependencies(projectName);
 	}
 

@@ -29,7 +29,11 @@ class Installer extends AbstractInstaller {
 	 * 	Example: <code>https://registry.corp/vendor/build-snapshots/</code>
 	 * @param {module:@ui5/project/ui5Framework/maven/CacheMode} [parameters.cacheMode=Default] Cache mode to use
 	 */
-	constructor({ui5DataDir, snapshotEndpointUrlCb, cacheMode = CacheMode.Default}) {
+	constructor({ ui5DataDir, snapshotEndpointUrlCb, cacheMode = CacheMode.Default }: {
+    ui5DataDir: string;
+    snapshotEndpointUrlCb: Function;
+    cacheMode?: string;
+}) {
 		super(ui5DataDir);
 
 		this._artifactsDir = path.join(ui5DataDir, "framework", "artifacts");
@@ -116,7 +120,14 @@ class Installer extends AbstractInstaller {
 	 * @param {string} [coordinates.pkgName] npm package name the artifact corresponds to (if any)
 	 * @returns {@ui5/project/ui5Framework/maven/Installer~LocalMetadata}
 	 */
-	async _fetchArtifactMetadata(coordinates) {
+	async _fetchArtifactMetadata(coordinates: {
+    groupId: string;
+    artifactId: string;
+    version: string;
+    classifier: string | null;
+    extension: string;
+    pkgName?: string;
+}) {
 		const fsId = this._generateFsIdFromCoordinates(coordinates);
 		const logId = this._generateLogIdFromCoordinates(coordinates);
 		return this._synchronize("metadata-" + fsId, async () => {
@@ -180,7 +191,13 @@ class Installer extends AbstractInstaller {
 	 * @param {string} coordinates.extension Extension of the requested artifact
 	 * @returns {@ui5/project/ui5Framework/maven/Installer~LocalMetadata}
 	 */
-	async _getRemoteArtifactMetadata({groupId, artifactId, version, classifier, extension}) {
+	async _getRemoteArtifactMetadata({ groupId, artifactId, version, classifier, extension }: {
+    groupId: string;
+    artifactId: string;
+    version: string;
+    classifier: string | null;
+    extension: string;
+}) {
 		const reg = await this.getRegistry();
 		const metadata = await reg.requestMavenMetadata({groupId, artifactId, version});
 
@@ -222,7 +239,7 @@ class Installer extends AbstractInstaller {
 	 * @param {string} id File System identifier for the artifact. Typically derived from the coordinates
 	 * @returns {@ui5/project/ui5Framework/maven/Installer~LocalMetadata}
 	 */
-	async _getLocalArtifactMetadata(id) {
+	async _getLocalArtifactMetadata(id: string) {
 		try {
 			return await this.readJson(path.join(this._metadataDir, `${id}.json`));
 		} catch (err) {
@@ -298,7 +315,14 @@ class Installer extends AbstractInstaller {
 	 * @param {string} parameters.extension Extension of the requested artifact
 	 * @returns {@ui5/project/ui5Framework/maven/Installer~InstalledPackage}
 	 */
-	async installPackage({pkgName, groupId, artifactId, version, classifier, extension}) {
+	async installPackage({ pkgName, groupId, artifactId, version, classifier, extension }: {
+    pkgName: string;
+    groupId: string;
+    artifactId: string;
+    version: string;
+    classifier: string | null;
+    extension: string;
+}) {
 		const {revision} = await this._fetchArtifactMetadata({
 			pkgName, groupId, artifactId, version, classifier, extension
 		});
@@ -382,7 +406,14 @@ class Installer extends AbstractInstaller {
 	 * 	If not provided, the latest revision will be determined from the registry metadata.
 	 * @returns {@ui5/project/ui5Framework/maven/Installer~InstalledArtifact}
 	 */
-	async installArtifact({groupId, artifactId, version, classifier, extension, revision}) {
+	async installArtifact({ groupId, artifactId, version, classifier, extension, revision }: {
+    groupId: string;
+    artifactId: string;
+    version: string;
+    classifier: string | null;
+    extension: string;
+    revision?: string;
+}) {
 		if (!revision) {
 			const metadata = await this._fetchArtifactMetadata({
 				groupId, artifactId, version, classifier, extension
@@ -497,7 +528,14 @@ class Installer extends AbstractInstaller {
 	 * @param {string} [parameters.revision] Optional revision of the artifact
 	 * @returns {string} A unique identifier for the provided combination of parameters
 	 */
-	_generateFsIdFromCoordinates({groupId, artifactId, version, classifier, extension, revision}) {
+	_generateFsIdFromCoordinates({ groupId, artifactId, version, classifier, extension, revision }: {
+    groupId: string;
+    artifactId: string;
+    extension: string;
+    classifier?: string;
+    version?: string;
+    revision?: string;
+}) {
 		// Using underscores instead of colons, since the colon is a reserved character for
 		// filenames on Windows and macOS
 		const optionalClassifier = classifier ? `${classifier}.` : "";
@@ -516,7 +554,14 @@ class Installer extends AbstractInstaller {
 	 * @param {string} [parameters.revision] Optional revision of the artifact
 	 * @returns {string} A string with the Maven-typical formatting of the provided coordinates
 	 */
-	_generateLogIdFromCoordinates({groupId, artifactId, version, classifier, extension, revision}) {
+	_generateLogIdFromCoordinates({ groupId, artifactId, version, classifier, extension, revision }: {
+    groupId: string;
+    artifactId: string;
+    version: string;
+    extension: string;
+    classifier?: string;
+    revision?: string;
+}) {
 		const optionalClassifier = classifier ? `${classifier}.` : "";
 		return `${groupId}:${artifactId}:${revision || version}:${optionalClassifier}${extension}`;
 	}

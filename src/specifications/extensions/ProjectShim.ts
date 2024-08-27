@@ -19,29 +19,25 @@ class ProjectShim extends Extension {
 	/**
 	* @public
 	*/
-	getDependencyShims() {
+	public getDependencyShims() {
 		return this._config.shims.dependencies || {};
 	}
 
 	/**
 	* @public
 	*/
-	getConfigurationShims() {
+	public getConfigurationShims() {
 		return this._config.shims.configurations || {};
 	}
 
 	/**
 	* @public
 	*/
-	getCollectionShims() {
+	public getCollectionShims() {
 		return this._config.shims.collections || {};
 	}
 
-	/* === Internals === */
-	/**
-	 * @private
-	*/
-	async _validateConfig() {
+	private async _validateConfig() {
 		if (this._config.shims.collections) {
 			const {
 				default: path

@@ -34,7 +34,7 @@ class Library extends ComponentProject {
 	*
 	* @private
 	*/
-	getLibraryPreloadExcludes() {
+	private getLibraryPreloadExcludes() {
 		return this._config.builder && this._config.builder.libraryPreload &&
 			this._config.builder.libraryPreload.excludes || [];
 	}
@@ -42,7 +42,7 @@ class Library extends ComponentProject {
 	/**
 	* @private
 	*/
-	getJsdocExcludes() {
+	private getJsdocExcludes() {
 		return this._config.builder && this._config.builder.jsdoc && this._config.builder.jsdoc.excludes || [];
 	}
 
@@ -52,7 +52,7 @@ class Library extends ComponentProject {
 	 * @public
 	 * @returns {string} Absolute path to the source directory of the project
 	 */
-	getSourcePath() {
+	public getSourcePath() {
 		return fsPath.join(this.getRootPath(), this._srcPath);
 	}
 
@@ -63,7 +63,7 @@ class Library extends ComponentProject {
 	* @param {string[]} excludes List of glob patterns to exclude
 	* @returns {@ui5/fs/ReaderCollection} Reader collection
 	*/
-	_getSourceReader(excludes) {
+	_getSourceReader(excludes: string[]) {
 		// TODO: Throw for libraries with additional namespaces like sap.ui.core?
 		let virBasePath = "/resources/";
 		if (!this._isSourceNamespaced) {
@@ -86,7 +86,7 @@ class Library extends ComponentProject {
 	* @param {string[]} excludes List of glob patterns to exclude
 	* @returns {@ui5/fs/ReaderCollection} Reader collection
 	*/
-	_getTestReader(excludes) {
+	_getTestReader(excludes: string[]) {
 		if (!this._testPathExists) {
 			return null;
 		}
@@ -123,12 +123,7 @@ class Library extends ComponentProject {
 		});
 	}
 
-	/* === Internals === */
-	/**
-	 * @private
-	 * @param {object} config Configuration object
-	*/
-	async _configureAndValidatePaths(config) {
+	private async _configureAndValidatePaths(config: object) {
 		await super._configureAndValidatePaths(config);
 
 		if (config.resources && config.resources.configuration && config.resources.configuration.paths) {
@@ -153,12 +148,7 @@ class Library extends ComponentProject {
 			`    /test-resources/ => ${this._testPath}${this._testPathExists ? "" : " [does not exist]"}`);
 	}
 
-	/**
-	 * @private
-	 * @param {object} config Configuration object
-	 * @param {object} buildDescription Cache metadata object
-	*/
-	async _parseConfiguration(config, buildDescription) {
+	private async _parseConfiguration(config: object, buildDescription: object) {
 		await super._parseConfiguration(config, buildDescription);
 
 		if (buildDescription) {

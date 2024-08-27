@@ -14,7 +14,10 @@ class Registry {
 	 * @param {string} parameters.cwd Current working directory
 	 * @param {string} parameters.cacheDir Cache directory
 	 */
-	constructor({cwd, cacheDir}) {
+	constructor({ cwd, cacheDir }: {
+    cwd: string;
+    cacheDir: string;
+}) {
 		if (!cwd) {
 			throw new Error(`Registry: Missing parameter "cwd"`);
 		}

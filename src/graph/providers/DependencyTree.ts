@@ -31,7 +31,7 @@ class DependencyTree {
 	 * @param {string} [options.rootConfigPath]
 	 *		Configuration file to use for the root module instead the default ui5.yaml
 	 */
-	constructor({dependencyTree, rootConfiguration, rootConfigPath}) {
+	constructor({ dependencyTree, rootConfiguration, rootConfigPath }: object) {
 		if (!dependencyTree) {
 			throw new Error(`Failed to instantiate DependencyTree provider: Missing parameter 'dependencyTree'`);
 		}

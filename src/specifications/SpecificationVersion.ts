@@ -25,7 +25,7 @@ class SpecificationVersion {
 	 * @param {string} specVersion Specification Version to use for all comparison operations
 	 * @throws {Error} Throws if provided Specification Version is not supported by this version of @ui5/project
 	 */
-	constructor(specVersion) {
+	constructor(specVersion: string) {
 		this.#specVersion = specVersion;
 		this.#semverVersion = getSemverCompatibleVersion(specVersion); // Throws for unsupported versions
 	}
@@ -36,7 +36,7 @@ class SpecificationVersion {
 	 * @public
 	 * @returns {string} Specification Version
 	 */
-	toString() {
+	public toString() {
 		return this.#specVersion;
 	}
 
@@ -46,7 +46,7 @@ class SpecificationVersion {
 	 * @public
 	 * @returns {integer} Major version
 	 */
-	major() {
+	public major() {
 		return semver.major(this.#semverVersion);
 	}
 
@@ -56,7 +56,7 @@ class SpecificationVersion {
 	 * @public
 	 * @returns {integer} Minor version
 	 */
-	minor() {
+	public minor() {
 		return semver.minor(this.#semverVersion);
 	}
 
@@ -68,7 +68,7 @@ class SpecificationVersion {
 	 * for example <code>2.2 - 2.4</code> or <code>=3.0</code>
 	 * @returns {boolean} True if the instance's Specification Version falls into the provided range
 	 */
-	satisfies(range) {
+	public satisfies(range: string) {
 		return semver.satisfies(this.#semverVersion, range);
 	}
 
@@ -79,7 +79,7 @@ class SpecificationVersion {
 	 * @param {string} testVersion A Specification Version to compare the instance's Specification Version to
 	 * @returns {boolean} True if the instance's Specification Version is greater than the provided version
 	 */
-	gt(testVersion) {
+	public gt(testVersion: string) {
 		return handleSemverComparator(semver.gt, this.#semverVersion, testVersion);
 	}
 
@@ -90,7 +90,7 @@ class SpecificationVersion {
 	 * @param {string} testVersion A Specification Version to compare the instance's Specification Version to
 	 * @returns {boolean} True if the instance's Specification Version is greater than or equal to the provided version
 	 */
-	gte(testVersion) {
+	public gte(testVersion: string) {
 		return handleSemverComparator(semver.gte, this.#semverVersion, testVersion);
 	}
 
@@ -101,7 +101,7 @@ class SpecificationVersion {
 	 * @param {string} testVersion A Specification Version to compare the instance's Specification Version to
 	 * @returns {boolean} True if the instance's Specification Version is smaller than the provided version
 	 */
-	lt(testVersion) {
+	public lt(testVersion: string) {
 		return handleSemverComparator(semver.lt, this.#semverVersion, testVersion);
 	}
 
@@ -112,7 +112,7 @@ class SpecificationVersion {
 	 * @param {string} testVersion A Specification Version to compare the instance's Specification Version to
 	 * @returns {boolean} True if the instance's Specification Version is smaller than or equal to the provided version
 	 */
-	lte(testVersion) {
+	public lte(testVersion: string) {
 		return handleSemverComparator(semver.lte, this.#semverVersion, testVersion);
 	}
 
@@ -123,7 +123,7 @@ class SpecificationVersion {
 	 * @param {string} testVersion A Specification Version to compare the instance's Specification Version to
 	 * @returns {boolean} True if the instance's Specification Version is equal to the provided version
 	 */
-	eq(testVersion) {
+	public eq(testVersion: string) {
 		return handleSemverComparator(semver.eq, this.#semverVersion, testVersion);
 	}
 
@@ -134,147 +134,60 @@ class SpecificationVersion {
 	 * @param {string} testVersion A Specification Version to compare the instance's Specification Version to
 	 * @returns {boolean} True if the instance's Specification Version is not equal to the provided version
 	 */
-	neq(testVersion) {
+	public neq(testVersion: string) {
 		return handleSemverComparator(semver.neq, this.#semverVersion, testVersion);
 	}
 
-	/**
-	 * Test whether the provided Specification Version is supported by this version of @ui5/project
-	 *
-	 * @public
-	 * @param {string} testVersion A Specification Version to compare the instance's Specification Version to
-	 * @returns {boolean} True if the provided Specification Version is supported
-	 */
-	static isSupportedSpecVersion(testVersion) {
+	public static isSupportedSpecVersion(testVersion: string) {
 		return SUPPORTED_VERSIONS.includes(testVersion);
 	}
 
-	/**
-	 * Returns the major-version of the provided Specification Version
-	 *
-	 * @public
-	 * @param {string} specVersion Specification Version
-	 * @returns {integer} Major version
-	 */
-	static major(specVersion) {
+	public static major(specVersion: string) {
 		const comparator = new SpecificationVersion(specVersion);
 		return comparator.major();
 	}
 
-	/**
-	 * Returns the minor-version of the provided Specification Version
-	 *
-	 * @public
-	 * @param {string} specVersion Specification Version
-	 * @returns {integer} Minor version
-	 */
-	static minor(specVersion) {
+	public static minor(specVersion: string) {
 		const comparator = new SpecificationVersion(specVersion);
 		return comparator.minor();
 	}
 
-	/**
-	 * Test whether the provided Specification Version falls into the provided range
-	 *
-	 * @public
-	 * @param {string} specVersion Specification Version
-	 * @param {string} range [Semver]{@link https://www.npmjs.com/package/semver}-style version range,
-	 * for example <code>2.2 - 2.4</code>
-	 * @returns {boolean} True if the provided Specification Version falls into the provided range
-	 */
-	static satisfies(specVersion, range) {
+	public static satisfies(specVersion: string, range: string) {
 		const comparator = new SpecificationVersion(specVersion);
 		return comparator.satisfies(range);
 	}
 
-	/**
-	 * Test whether the provided Specification Version is greater than the provided test version
-	 *
-	 * @public
-	 * @param {string} specVersion Specification Version
-	 * @param {string} testVersion A Specification Version to compare the provided Specification Version to
-	 * @returns {boolean} True if the provided Specification Version is greater than the provided version
-	 */
-	static gt(specVersion, testVersion) {
+	public static gt(specVersion: string, testVersion: string) {
 		const comparator = new SpecificationVersion(specVersion);
 		return comparator.gt(testVersion);
 	}
 
-	/**
-	 * Test whether the provided Specification Version is greater than or equal to the provided test version
-	 *
-	 * @public
-	 * @param {string} specVersion Specification Version
-	 * @param {string} testVersion A Specification Version to compare the provided Specification Version to
-	 * @returns {boolean} True if the provided Specification Version is greater than or equal to the provided version
-	 */
-	static gte(specVersion, testVersion) {
+	public static gte(specVersion: string, testVersion: string) {
 		const comparator = new SpecificationVersion(specVersion);
 		return comparator.gte(testVersion);
 	}
 
-	/**
-	 * Test whether the provided Specification Version is smaller than the provided test version
-	 *
-	 * @public
-	 * @param {string} specVersion Specification Version
-	 * @param {string} testVersion A Specification Version to compare the provided Specification Version to
-	 * @returns {boolean} True if the provided Specification Version is smaller than the provided version
-	 */
-	static lt(specVersion, testVersion) {
+	public static lt(specVersion: string, testVersion: string) {
 		const comparator = new SpecificationVersion(specVersion);
 		return comparator.lt(testVersion);
 	}
 
-	/**
-	 * Test whether the provided Specification Version is smaller than or equal to the provided test version
-	 *
-	 * @public
-	 * @param {string} specVersion Specification Version
-	 * @param {string} testVersion A Specification Version to compare the provided Specification Version to
-	 * @returns {boolean} True if the provided Specification Version is smaller than or equal to the provided version
-	 */
-	static lte(specVersion, testVersion) {
+	public static lte(specVersion: string, testVersion: string) {
 		const comparator = new SpecificationVersion(specVersion);
 		return comparator.lte(testVersion);
 	}
 
-	/**
-	 * Test whether the provided Specification Version is equal to the provided test version
-	 *
-	 * @public
-	 * @param {string} specVersion Specification Version
-	 * @param {string} testVersion A Specification Version to compare the provided Specification Version to
-	 * @returns {boolean} True if the provided Specification Version is equal to the provided version
-	 */
-	static eq(specVersion, testVersion) {
+	public static eq(specVersion: string, testVersion: string) {
 		const comparator = new SpecificationVersion(specVersion);
 		return comparator.eq(testVersion);
 	}
 
-	/**
-	 * Test whether the provided Specification Version is not equal to the provided test version
-	 *
-	 * @public
-	 * @param {string} specVersion Specification Version
-	 * @param {string} testVersion A Specification Version to compare the provided Specification Version to
-	 * @returns {boolean} True if the provided Specification Version is not equal to the provided version
-	 */
-	static neq(specVersion, testVersion) {
+	public static neq(specVersion: string, testVersion: string) {
 		const comparator = new SpecificationVersion(specVersion);
 		return comparator.neq(testVersion);
 	}
 
-	/**
-	 * Creates an array of Specification Versions that match with the provided range. This is mainly used
-	 * for testing purposes. I.e. to execute identical tests for a range of specification versions.
-	 *
-	 * @public
-	 * @param {string} range [Semver]{@link https://www.npmjs.com/package/semver}-style version range,
-	 * for example <code>2.2 - 2.4</code> or <code>=3.0</code>
-	 * @returns {string[]} Array of versions that match the specified range
-	 */
-	static getVersionsForRange(range) {
+	public static getVersionsForRange(range: string) {
 		return SUPPORTED_VERSIONS.filter((specVersion) => {
 			const comparator = new SpecificationVersion(specVersion);
 			return comparator.satisfies(range);

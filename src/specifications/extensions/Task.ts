@@ -16,26 +16,15 @@ class Task extends Extension {
 		super(parameters);
 	}
 
-	/* === Attributes === */
-	/**
-	* @public
-	*/
-	async getTask() {
+	public async getTask() {
 		return (await this._getImplementation()).task;
 	}
 
-	/**
-	* @public
-	*/
-	async getRequiredDependenciesCallback() {
+	public async getRequiredDependenciesCallback() {
 		return (await this._getImplementation()).determineRequiredDependencies;
 	}
 
-	/* === Internals === */
-	/**
-	 * @private
-	*/
-	async _getImplementation() {
+	private async _getImplementation() {
 		const taskPath = path.join(this.getRootPath(), this._config.task.path);
 		const {default: task, determineRequiredDependencies} = await import(pathToFileURL(taskPath));
 		return {
@@ -43,10 +32,7 @@ class Task extends Extension {
 		};
 	}
 
-	/**
-	 * @private
-	*/
-	async _validateConfig() {
+	private async _validateConfig() {
 		// TODO: Move to validator
 		if (/--\d+$/.test(this.getName())) {
 			throw new Error(`Task name must not end with '--<number>'`);

@@ -31,21 +31,21 @@ class ComponentProject extends Project {
 	 * @public
 	 * @returns {string} Project namespace in slash notation (e.g. <code>my/project/name</code>)
 	 */
-	getNamespace() {
+	public getNamespace() {
 		return this._namespace;
 	}
 
 	/**
 	* @private
 	*/
-	getCopyright() {
+	private getCopyright() {
 		return this._config.metadata.copyright;
 	}
 
 	/**
 	* @private
 	*/
-	getComponentPreloadPaths() {
+	private getComponentPreloadPaths() {
 		return this._config.builder && this._config.builder.componentPreload &&
 			this._config.builder.componentPreload.paths || [];
 	}
@@ -53,7 +53,7 @@ class ComponentProject extends Project {
 	/**
 	* @private
 	*/
-	getComponentPreloadNamespaces() {
+	private getComponentPreloadNamespaces() {
 		return this._config.builder && this._config.builder.componentPreload &&
 			this._config.builder.componentPreload.namespaces || [];
 	}
@@ -61,7 +61,7 @@ class ComponentProject extends Project {
 	/**
 	* @private
 	*/
-	getComponentPreloadExcludes() {
+	private getComponentPreloadExcludes() {
 		return this._config.builder && this._config.builder.componentPreload &&
 			this._config.builder.componentPreload.excludes || [];
 	}
@@ -69,7 +69,7 @@ class ComponentProject extends Project {
 	/**
 	* @private
 	*/
-	getMinificationExcludes() {
+	private getMinificationExcludes() {
 		return this._config.builder && this._config.builder.minification &&
 			this._config.builder.minification.excludes || [];
 	}
@@ -77,14 +77,14 @@ class ComponentProject extends Project {
 	/**
 	* @private
 	*/
-	getBundles() {
+	private getBundles() {
 		return this._config.builder && this._config.builder.bundles || [];
 	}
 
 	/**
 	* @private
 	*/
-	getPropertiesFileSourceEncoding() {
+	private getPropertiesFileSourceEncoding() {
 		return this._config.resources && this._config.resources.configuration &&
 			this._config.resources.configuration.propertiesFileSourceEncoding || "UTF-8";
 	}
@@ -123,7 +123,9 @@ class ComponentProject extends Project {
 	 *   Can be "buildtime", "dist", "runtime" or "flat"
 	 * @returns {@ui5/fs/ReaderCollection} A reader collection instance
 	 */
-	getReader({style = "buildtime"} = {}) {
+	public getReader({ style = "buildtime" }: {
+    style?: string;
+} = {}) {
 		// TODO: Additional style 'ABAP' using "sap.platform.abap".uri from manifest.json?
 
 		// Apply builder excludes to all styles but "runtime"
@@ -189,7 +191,7 @@ class ComponentProject extends Project {
 	 * @public
 	 * @returns {@ui5/fs/ReaderCollection} A reader collection instance
 	 */
-	getWorkspace() {
+	public getWorkspace() {
 		// Workspace is always of style "buildtime"
 		// Therefore builder resource-excludes are always to be applied
 		const excludes = this.getBuilderResourcesExcludes();
@@ -287,12 +289,7 @@ class ComponentProject extends Project {
 		});
 	}
 
-	/* === Internals === */
-	/**
-	 * @private
-	 * @param {object} config Configuration object
-	*/
-	async _parseConfiguration(config) {
+	private async _parseConfiguration(config: object) {
 		await super._parseConfiguration(config);
 	}
 
@@ -308,7 +305,7 @@ class ComponentProject extends Project {
 	 * @param {string} value String to check
 	 * @returns {boolean} True if given string contains a maven placeholder
 	 */
-	_hasMavenPlaceholder(value) {
+	_hasMavenPlaceholder(value: string) {
 		return !!value.match(/^\$\{(.*)\}$/);
 	}
 
@@ -318,7 +315,7 @@ class ComponentProject extends Project {
 	 * @param {string} value String containing a maven placeholder
 	 * @returns {Promise<string>} Resolved string
 	 */
-	async _resolveMavenPlaceholder(value) {
+	async _resolveMavenPlaceholder(value: string) {
 		const parts = value && value.match(/^\$\{(.*)\}$/);
 		if (parts) {
 			this._log.verbose(

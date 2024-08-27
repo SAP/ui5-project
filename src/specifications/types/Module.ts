@@ -27,7 +27,7 @@ class Module extends Project {
 	 * @public
 	 * @throws {Error} Projects of type module have more than one source path
 	 */
-	getSourcePath() {
+	public getSourcePath() {
 		throw new Error(`Projects of type module have more than one source path`);
 	}
 
@@ -65,7 +65,9 @@ class Module extends Project {
 	 *   Can be "buildtime", "dist", "runtime" or "flat"
 	 * @returns {@ui5/fs/ReaderCollection} A reader collection instance
 	 */
-	getReader({style = "buildtime"} = {}) {
+	public getReader({ style = "buildtime" }: {
+    style?: string;
+} = {}) {
 		// Apply builder excludes to all styles but "runtime"
 		const excludes = style === "runtime" ? [] : this.getBuilderResourcesExcludes();
 
@@ -97,7 +99,7 @@ class Module extends Project {
 	 * @public
 	 * @returns {@ui5/fs/ReaderCollection} A reader collection instance
 	 */
-	getWorkspace() {
+	public getWorkspace() {
 		const reader = this.getReader();
 
 		const writer = this._getWriter();
@@ -117,12 +119,7 @@ class Module extends Project {
 		return this._writer;
 	}
 
-	/* === Internals === */
-	/**
-	 * @private
-	 * @param {object} config Configuration object
-	*/
-	async _configureAndValidatePaths(config) {
+	private async _configureAndValidatePaths(config: object) {
 		await super._configureAndValidatePaths(config);
 
 		this._log.verbose(`Path mapping for module project ${this.getName()}:`);

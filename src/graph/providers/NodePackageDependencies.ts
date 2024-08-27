@@ -30,7 +30,11 @@ class NodePackageDependencies {
 	 * @param {string} [options.rootConfigPath]
 	 *		Configuration file to use for the root module instead the default ui5.yaml
 	 */
-	constructor({cwd, rootConfiguration, rootConfigPath}) {
+	constructor({ cwd, rootConfiguration, rootConfigPath }: {
+    cwd: string;
+    rootConfiguration?: object;
+    rootConfigPath?: string;
+}) {
 		this._cwd = cwd;
 		this._rootConfiguration = rootConfiguration;
 		this._rootConfigPath = rootConfigPath;
@@ -117,7 +121,7 @@ class NodePackageDependencies {
 	 * 	{@link https://github.com/npm/rfcs/blob/main/implemented/0001-package-aliases.md}
 	 * @returns {Promise<object>}
 	 */
-	async _getNode(modulePath, optional, nameAlias) {
+	async _getNode(modulePath: string, optional: boolean, nameAlias?: string) {
 		log.verbose(`Reading package.json in directory ${modulePath}...`);
 		const packageJson = await readPackage({
 			cwd: modulePath,

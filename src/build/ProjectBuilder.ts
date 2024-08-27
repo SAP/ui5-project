@@ -101,7 +101,7 @@ class ProjectBuilder {
 	 * @param {@ui5/project/build/ProjectBuilder~BuildConfiguration} [parameters.buildConfig] Build configuration
 	 * @param {@ui5/builder/tasks/taskRepository} parameters.taskRepository Task Repository module to use
 	 */
-	constructor({graph, buildConfig, taskRepository}) {
+	constructor({ graph, buildConfig, taskRepository }: object) {
 		if (!graph) {
 			throw new Error(`Missing parameter 'graph'`);
 		}
@@ -118,29 +118,12 @@ class ProjectBuilder {
 		this.#log = new BuildLogger("ProjectBuilder");
 	}
 
-	/**
-	 * Executes a project build, including all necessary or requested dependencies
-	 *
-	 * @public
-	 * @param {object} parameters Parameters
-	 * @param {string} parameters.destPath Target path
-	 * @param {boolean} [parameters.cleanDest=false] Decides whether project should clean the target path before build
-	 * @param {Array.<string|RegExp>} [parameters.includedDependencies=[]]
-	 *   List of names of projects to include in the build result
-	 *   If the wildcard '*' is provided, all dependencies will be included in the build result.
-	 * @param {Array.<string|RegExp>} [parameters.excludedDependencies=[]]
-	 *   List of names of projects to exclude from the build result.
-	 * @param {@ui5/project/build/ProjectBuilder~DependencyIncludes} [parameters.dependencyIncludes]
-	 *   Alternative to the <code>includedDependencies</code> and <code>excludedDependencies</code> parameters.
-	 *   Allows for a more sophisticated configuration for defining which dependencies should be
-	 *   part of the build result. If this is provided, the other mentioned parameters are ignored.
-	 * @returns {Promise} Promise resolving once the build has finished
-	 */
-	async build({
-		destPath, cleanDest = false,
-		includedDependencies = [], excludedDependencies = [],
-		dependencyIncludes
-	}) {
+	public async build({ destPath, cleanDest = false, includedDependencies = [], excludedDependencies = [], dependencyIncludes }: {
+    destPath: string;
+    cleanDest?: boolean;
+    includedDependencies?: Array<string | RegExp>;
+    excludedDependencies?: Array<string | RegExp>;
+}) {
 		if (!destPath) {
 			throw new Error(`Missing parameter 'destPath'`);
 		}
@@ -503,7 +486,7 @@ class ProjectBuilder {
 	 * @param {Array} startTime Array provided by <code>process.hrtime()</code>
 	 * @returns {string} Difference between now and the provided time array as formatted string
 	 */
-	_getElapsedTime(startTime) {
+	private _getElapsedTime(startTime: Array<any>) {
 		const timeDiff = process.hrtime(startTime);
 		return prettyHrtime(timeDiff);
 	}

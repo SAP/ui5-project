@@ -41,7 +41,7 @@ class Application extends ComponentProject {
 	 * @public
 	 * @returns {string} Absolute path to the source directory of the project
 	 */
-	getSourcePath() {
+	public getSourcePath() {
 		return fsPath.join(this.getRootPath(), this._webappPath);
 	}
 
@@ -52,7 +52,7 @@ class Application extends ComponentProject {
 	* @param {string[]} excludes List of glob patterns to exclude
 	* @returns {@ui5/fs/ReaderCollection} Reader collection
 	*/
-	_getSourceReader(excludes) {
+	_getSourceReader(excludes: string[]) {
 		return createReader({
 			fsBasePath: this.getSourcePath(),
 			virBasePath: `/resources/${this._namespace}/`,
@@ -81,12 +81,7 @@ class Application extends ComponentProject {
 		});
 	}
 
-	/* === Internals === */
-	/**
-	 * @private
-	 * @param {object} config Configuration object
-	*/
-	async _configureAndValidatePaths(config) {
+	private async _configureAndValidatePaths(config: object) {
 		await super._configureAndValidatePaths(config);
 
 		if (config.resources && config.resources.configuration &&
@@ -104,12 +99,7 @@ class Application extends ComponentProject {
 		}
 	}
 
-	/**
-	 * @private
-	 * @param {object} config Configuration object
-	 * @param {object} buildDescription Cache metadata object
-	*/
-	async _parseConfiguration(config, buildDescription) {
+	private async _parseConfiguration(config: object, buildDescription: object) {
 		await super._parseConfiguration(config, buildDescription);
 
 		if (buildDescription) {
@@ -217,7 +207,7 @@ class Application extends ComponentProject {
 	 * @param {string} filePath Name of the JSON file to read. Typically "manifest.json" or "manifest.appdescr_variant"
 	 * @returns {Promise<object>} resolves with an object containing the content requested manifest file
 	 */
-	async _getManifest(filePath) {
+	async _getManifest(filePath: string) {
 		if (this._pManifests[filePath]) {
 			return this._pManifests[filePath];
 		}

@@ -133,7 +133,17 @@ async function _validateAndSetDefaults(schemaName, options) {
  *   when the validation fails.
  * @returns {Promise<undefined>} Returns a Promise that resolves when the validation succeeds
  */
-export async function validate(options) {
+export async function validate(options: {
+    config: object;
+    project: {
+        id: string;
+    };
+    yaml?: {
+        path: string;
+        source: string;
+        documentIndex?: number;
+    };
+}) {
 	await _validate("ui5", options);
 }
 
@@ -156,7 +166,17 @@ export async function validate(options) {
  *   when the validation fails.
  * @returns {Promise<options>} Returns a Promise that resolves when the validation succeeds
  */
-export async function getDefaults(options) {
+export async function getDefaults(options: {
+    config: object;
+    project: {
+        id: string;
+    };
+    yaml?: {
+        path: string;
+        source: string;
+        documentIndex?: number;
+    };
+}) {
 	return await _validateAndSetDefaults("ui5", options);
 }
 
@@ -171,7 +191,10 @@ export async function getDefaults(options) {
  * @param {module:@ui5/project/specifications/Project} project The project to get metadata from
  * @returns {Promise<object>} The enhanced BundleDefinition & BundleOptions
  */
-export async function enhanceBundlesWithDefaults(bundles, project) {
+export async function enhanceBundlesWithDefaults(bundles: {
+    bundleDefinition: object;
+    bundleOptions?: object;
+}, project: object) {
 	const config = {
 		specVersion: `${project.getSpecVersion()}`,
 		type: `${project.getType()}`,
@@ -200,7 +223,14 @@ export async function enhanceBundlesWithDefaults(bundles, project) {
  *   when the validation fails.
  * @returns {Promise<undefined>} Returns a Promise that resolves when the validation succeeds
  */
-export async function validateWorkspace(options) {
+export async function validateWorkspace(options: {
+    config: object;
+    yaml?: {
+        path: string;
+        source: string;
+        documentIndex?: number;
+    };
+}) {
 	await _validate("ui5-workspace", options);
 }
 

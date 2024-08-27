@@ -41,12 +41,7 @@ async function getFlattenedDependencyTree(graph) {
  * @returns {{includedDependencies:string[],excludedDependencies:string[]}} An object containing the
  *   'includedDependencies' and 'excludedDependencies'
  */
-async function createDependencyLists(graph, {
-	includeAllDependencies = false,
-	includeDependency = [], includeDependencyRegExp = [], includeDependencyTree = [],
-	excludeDependency = [], excludeDependencyRegExp = [], excludeDependencyTree = [],
-	defaultIncludeDependency = [], defaultIncludeDependencyRegExp = [], defaultIncludeDependencyTree = []
-}) {
+async function createDependencyLists(graph, { includeAllDependencies = false, includeDependency = [], includeDependencyRegExp = [], includeDependencyTree = [], excludeDependency = [], excludeDependencyRegExp = [], excludeDependencyTree = [], defaultIncludeDependency = [], defaultIncludeDependencyRegExp = [], defaultIncludeDependencyTree = [] }) {
 	if (
 		!includeAllDependencies &&
 		!includeDependency.length && !includeDependencyRegExp.length && !includeDependencyTree.length &&

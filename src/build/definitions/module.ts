@@ -7,6 +7,10 @@
  * @param {object} parameters.taskUtil
  * @param {Function} parameters.getTask
  */
-export default function({project, taskUtil, getTask}) {
+export default function({ project, taskUtil, getTask }: {
+    project: object;
+    taskUtil: object;
+    getTask: Function;
+}) {
 	return new Map();
 }

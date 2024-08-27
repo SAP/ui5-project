@@ -15,7 +15,7 @@ class AbstractInstaller {
 	 * @param {string} ui5DataDir UI5 home directory location. This will be used to store packages,
 	 * metadata and configuration used by the resolvers.
 	 */
-	constructor(ui5DataDir) {
+	constructor(ui5DataDir: string) {
 		if (new.target === AbstractInstaller) {
 			throw new TypeError("Class 'AbstractInstaller' is abstract");
 		}

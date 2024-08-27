@@ -37,7 +37,7 @@ class Sapui5MavenSnapshotResolver extends AbstractResolver {
 	 * @param {module:@ui5/project/ui5Framework/maven/CacheMode} [options.cacheMode=Default]
 	 * Cache mode to use
 	 */
-	constructor(options) {
+	constructor(options: any) {
 		super(options);
 
 		const {
@@ -205,7 +205,7 @@ class Sapui5MavenSnapshotResolver extends AbstractResolver {
 	 * 				If not provided, the default location is used
 	 * @returns {Promise<string>} The resolved snapshot.build URL from ~/.m2/settings.xml
 	 */
-	static async _resolveSnapshotEndpointUrlFromMaven(settingsXML) {
+	static async _resolveSnapshotEndpointUrlFromMaven(settingsXML?: string) {
 		if (!process.stdout.isTTY) {
 			// We can't prompt the user if stdout is non-interactive (i.e. in CI environments)
 			// Therefore skip resolution from Maven settings.xml altogether

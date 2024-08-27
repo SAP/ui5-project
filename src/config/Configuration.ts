@@ -28,7 +28,10 @@ class Configuration {
 	 * @param {string} [configuration.mavenSnapshotEndpointUrl]
 	 * @param {string} [configuration.ui5DataDir]
 	 */
-	constructor(configuration) {
+	constructor(configuration: {
+    mavenSnapshotEndpointUrl?: string;
+    ui5DataDir?: string;
+}) {
 		// Initialize map with undefined values for every option so that they are
 		// returned via toJson()
 		Configuration.OPTIONS.forEach((key) => this.#options.set(key, undefined));
@@ -48,7 +51,7 @@ class Configuration {
 	 * @public
 	 * @returns {string}
 	 */
-	getMavenSnapshotEndpointUrl() {
+	public getMavenSnapshotEndpointUrl() {
 		return this.#options.get("mavenSnapshotEndpointUrl");
 	}
 
@@ -58,7 +61,7 @@ class Configuration {
 	 * @public
 	 * @returns {string}
 	 */
-	getUi5DataDir() {
+	public getUi5DataDir() {
 		return this.#options.get("ui5DataDir");
 	}
 
@@ -66,19 +69,11 @@ class Configuration {
 	 * @public
 	 * @returns {object} The configuration in a JSON format
 	 */
-	toJson() {
+	public toJson() {
 		return Object.fromEntries(this.#options);
 	}
 
-	/**
-	 * Creates Configuration from a JSON file
-	 *
-	 * @public
-	 * @static
-	 * @param {string} [filePath="~/.ui5rc"] Path to configuration JSON file
-	 * @returns {Promise<@ui5/project/config/Configuration>} Configuration instance
-	 */
-	static async fromFile(filePath) {
+	public static async fromFile(filePath?: string) {
 		filePath = filePath || path.resolve(path.join(os.homedir(), ".ui5rc"));
 
 		const {default: fs} = await import("graceful-fs");
@@ -107,16 +102,7 @@ class Configuration {
 		return new Configuration(config);
 	}
 
-	/**
-	 * Saves Configuration to a JSON file
-	 *
-	 * @public
-	 * @static
-	 * @param {@ui5/project/config/Configuration} config Configuration to save
-	 * @param {string} [filePath="~/.ui5rc"] Path to configuration JSON file
-	 * @returns {Promise<void>}
-	 */
-	static async toFile(config, filePath) {
+	public static async toFile(config, filePath?: string) {
 		filePath = filePath || path.resolve(path.join(os.homedir(), ".ui5rc"));
 
 		const {default: fs} = await import("graceful-fs");

@@ -34,7 +34,7 @@ class AbstractResolver {
 	 * Otherwise an error is thrown.
 	 */
 	/* eslint-enable max-len */
-	constructor({cwd, version, sources, ui5DataDir, providedLibraryMetadata}) {
+	constructor({ cwd, version, sources, ui5DataDir, providedLibraryMetadata }: any) {
 		if (new.target === AbstractResolver) {
 			throw new TypeError("Class 'AbstractResolver' is abstract");
 		}
@@ -126,68 +126,7 @@ class AbstractResolver {
 		errors.push(...results.filter(($) => $));
 	}
 
-	/**
-	 * Library metadata entry
-	 *
-	 * @example
-	 * const libraryMetadataEntry = {
-	 *		"id": "@openui5/sap.ui.core",
-	 *		"version": "1.75.0",
-	 *		"path": "~/.ui5/framework/packages/@openui5/sap.ui.core/1.75.0",
-	 *		"dependencies": [],
-	 *		"optionalDependencies": []
-	 * };
-	 *
-	 * @public
-	 * @typedef {object} @ui5/project/ui5Framework/AbstractResolver~LibraryMetadataEntry
-	 * @property {string} id Identifier
-	 * @property {string} version Version
-	 * @property {string} path Path
-	 * @property {string[]} dependencies List of dependency ids
-	 * @property {string[]} optionalDependencies List of optional dependency ids
-	 */
-
-	/**
-	 * Install result
-	 *
-	 * @example
-	 * const resolverInstallResult = {
-	 * 	"libraryMetadata": {
-	 * 		"sap.ui.core": {
-	 * 			// ...
-	 * 		},
-	 * 		"sap.m": {
-	 * 			// ...
-	 * 		}
-	 * 	}
-	 * };
-	 *
-	 * @public
-	 * @typedef {object} @ui5/project/ui5Framework/AbstractResolver~ResolverInstallResult
-	 * @property {object.<string, @ui5/project/ui5Framework/AbstractResolver~LibraryMetadataEntry>} libraryMetadata
-	 *   Object containing all installed libraries with library name as key
-	 */
-
-	/**
-	 * Installs the provided libraries and their dependencies
-	 *
-	 * @example
-	 * const resolver = new Sapui5Resolver({version: "1.76.0"});
-	 * // Or for OpenUI5:
-	 * // const resolver = new Openui5Resolver({version: "1.76.0"});
-	 *
-	 * resolver.install(["sap.ui.core", "sap.m"]).then(({libraryMetadata}) => {
-	 * 	// Installation done
-	 * }).catch((err) => {
-	 * 	// Handle installation errors
-	 * });
-	 *
-	 * @public
-	 * @param {string[]} libraryNames List of library names to be installed
-	 * @returns {@ui5/project/ui5Framework/AbstractResolver~ResolverInstallResult}
-	 *   Resolves with an object containing the <code>libraryMetadata</code>
-	 */
-	async install(libraryNames) {
+	public async install(libraryNames: string[]) {
 		const libraryMetadata = Object.create(null);
 		const errors = [];
 

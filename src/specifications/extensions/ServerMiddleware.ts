@@ -16,20 +16,12 @@ class ServerMiddleware extends Extension {
 		super(parameters);
 	}
 
-	/* === Attributes === */
-	/**
-	* @public
-	*/
-	async getMiddleware() {
+	public async getMiddleware() {
 		const middlewarePath = path.join(this.getRootPath(), this._config.middleware.path);
 		const {default: middleware} = await import(pathToFileURL(middlewarePath));
 		return middleware;
 	}
-	/* === Internals === */
-	/**
-	 * @private
-	*/
-	async _validateConfig() {
+	private async _validateConfig() {
 		// TODO: Move to validator
 		if (/--\d+$/.test(this.getName())) {
 			throw new Error(`Server middleware name must not end with '--<number>'`);

@@ -11,7 +11,7 @@
  * 			Build configuration
  * @returns {Array} List of tasks to be executed
  */
-export default function composeTaskList(allTasks, {selfContained, jsdoc, includedTasks, excludedTasks}) {
+export default function composeTaskList(allTasks: string[], { selfContained, jsdoc, includedTasks, excludedTasks }: object) {
 	let selectedTasks = allTasks.reduce((list, key) => {
 		list[key] = true;
 		return list;

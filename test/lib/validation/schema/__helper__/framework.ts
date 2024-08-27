@@ -12,7 +12,7 @@ export default {
 	 * @param {Function} assertValidation assertion function
 	 * @param {string} type one of "application", library" and "theme-library"
 	 */
-	defineTests: function(test, assertValidation, type) {
+	defineTests: function(test: Function, assertValidation: Function, type: string) {
 		SpecificationVersion.getVersionsForRange(">=2.0").forEach((specVersion) => {
 			test(`${type} (specVersion ${specVersion}): framework configuration: OpenUI5`, async (t) => {
 				const config = {

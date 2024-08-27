@@ -11,7 +11,7 @@ export default {
 	 * @param {Function} assertValidation assertion function
 	 * @param {string} type one of "application", "library"
 	 */
-	defineTests: function(test, assertValidation, type) {
+	defineTests: function(test: Function, assertValidation: Function, type: string) {
 		// Version specific tests
 		SpecificationVersion.getVersionsForRange(">=4.0").forEach(function(specVersion) {
 			test(`${type} (specVersion ${specVersion}): builder/bundles/bundleOptions`, async (t) => {

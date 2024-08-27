@@ -21,7 +21,10 @@ class TaskRunner {
 	 * @param {@ui5/project/build/ProjectBuilder~BuildConfiguration} parameters.buildConfig
 	 * 			Build configuration
 	 */
-	constructor({graph, project, log, taskUtil, taskRepository, buildConfig}) {
+	constructor({ graph, project, log, taskUtil, taskRepository, buildConfig }: {
+    graph: object;
+    project: object;
+}) {
 		if (!graph || !project || !log || !taskUtil || !taskRepository || !buildConfig) {
 			throw new Error("TaskRunner: One or more mandatory parameters not provided");
 		}
@@ -169,7 +172,11 @@ class TaskRunner {
 	 * @param {object} [parameters.options]
 	 * @param {Function} [parameters.taskFunction]
 	 */
-	_addTask(taskName, {requiresDependencies = false, options = {}, taskFunction} = {}) {
+	_addTask(taskName: string, { requiresDependencies = false, options = {}, taskFunction }: {
+    requiresDependencies?: boolean;
+    options?: object;
+    taskFunction?: Function;
+} = {}) {
 		if (this._tasks[taskName]) {
 			throw new Error(`Failed to add duplicate task ${taskName} for project ${this._project.getName()}`);
 		}
@@ -210,11 +217,7 @@ class TaskRunner {
 		this._taskExecutionOrder.push(taskName);
 	}
 
-	/**
-	 *
-	 * @private
-	 */
-	async _addCustomTasks() {
+	private async _addCustomTasks() {
 		const projectCustomTasks = this._project.getCustomTasks();
 		if (!projectCustomTasks || projectCustomTasks.length === 0) {
 			return; // No custom tasks defined
@@ -224,13 +227,7 @@ class TaskRunner {
 			await this._addCustomTask(projectCustomTasks[i]);
 		}
 	}
-	/**
-	 * Adds custom tasks to execute
-	 *
-	 * @private
-	 * @param {object} taskDef
-	 */
-	async _addCustomTask(taskDef) {
+	private async _addCustomTask(taskDef: object) {
 		const project = this._project;
 		const graph = this._graph;
 		const taskUtil = this._taskUtil;
@@ -432,16 +429,7 @@ class TaskRunner {
 		};
 	}
 
-	/**
-	 * Adds progress related functionality to task function.
-	 *
-	 * @private
-	 * @param {string} taskName Name of the task
-	 * @param {Function} taskFunction Function which executed the task
-	 * @param {object} taskParams Base parameters for all tasks
-	 * @returns {Promise} Resolves when task has finished
-	 */
-	async _executeTask(taskName, taskFunction, taskParams) {
+	private async _executeTask(taskName: string, taskFunction: Function, taskParams: object) {
 		this._log.startTask(taskName);
 		this._taskStart = performance.now();
 		await taskFunction(taskParams, this._log);

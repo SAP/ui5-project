@@ -14,7 +14,7 @@ export default {
 	 *  "application", "library", "theme-library" and "module"
 	 * @param {object} additionalConfiguration additional configuration content
 	 */
-	defineTests: function(test, assertValidation, type, additionalConfiguration) {
+	defineTests: function(test: Function, assertValidation: Function, type: string, additionalConfiguration: object) {
 		additionalConfiguration = additionalConfiguration || {};
 		// version specific tests for customConfiguration
 		test(`${type}: Invalid customConfiguration (specVersion 2.0)`, async (t) => {

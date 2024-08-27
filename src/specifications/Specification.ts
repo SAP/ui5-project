@@ -13,19 +13,12 @@ import SpecificationVersion from "./SpecificationVersion.js";
  * @hideconstructor
  */
 class Specification {
-	/**
-	 * Create a Specification instance for the given parameters
-	 *
-	 * @param {object} parameters
-	 * @param {string} parameters.id Unique ID
-	 * @param {string} parameters.version Version
-	 * @param {string} parameters.modulePath Absolute File System path to access resources
-	 * @param {object} parameters.configuration
-	 *   Type-dependent configuration object. Typically defined in a ui5.yaml
-	 * @static
-	 * @public
-	 */
-	static async create(parameters) {
+	public static async create(parameters: {
+    id: string;
+    version: string;
+    modulePath: string;
+    configuration: object;
+}) {
 		if (!parameters.configuration) {
 			throw new Error(
 				`Unable to create Specification instance: Missing configuration parameter`);
@@ -77,7 +70,12 @@ class Specification {
 	 * @param {string} parameters.modulePath Absolute File System path to access resources
 	 * @param {object} parameters.configuration Configuration object
 	 */
-	async init({id, version, modulePath, configuration}) {
+	async init({ id, version, modulePath, configuration }: {
+    id: string;
+    version: string;
+    modulePath: string;
+    configuration: object;
+}) {
 		if (!id) {
 			throw new Error(`Could not create Specification: Missing or empty parameter 'id'`);
 		}
@@ -170,7 +168,7 @@ class Specification {
 	 * @public
 	 * @returns {string} Specification ID
 	 */
-	getId() {
+	public getId() {
 		return this.__id;
 	}
 
@@ -180,7 +178,7 @@ class Specification {
 	 * @public
 	 * @returns {string} Specification name
 	 */
-	getName() {
+	public getName() {
 		return this._name;
 	}
 
@@ -190,7 +188,7 @@ class Specification {
 	 * @public
 	 * @returns {string} Specification kind
 	 */
-	getKind() {
+	public getKind() {
 		return this._kind;
 	}
 
@@ -202,7 +200,7 @@ class Specification {
 	 * @public
 	 * @returns {string} Specification type
 	 */
-	getType() {
+	public getType() {
 		return this._type;
 	}
 
@@ -212,7 +210,7 @@ class Specification {
 	 * @public
 	 * @returns {@ui5/project/specifications/SpecificationVersion}
 	 */
-	getSpecVersion() {
+	public getSpecVersion() {
 		return this._specVersion;
 	}
 
@@ -222,7 +220,7 @@ class Specification {
 	 * @public
 	 * @returns {string} Project version
 	 */
-	getVersion() {
+	public getVersion() {
 		return this._version;
 	}
 
@@ -232,7 +230,7 @@ class Specification {
 	 * @public
 	 * @returns {string} Project root path
 	 */
-	getRootPath() {
+	public getRootPath() {
 		return this._modulePath;
 	}
 
@@ -247,7 +245,9 @@ class Specification {
 	 *   Whether to apply any excludes defined in an optional .gitignore in the root directory
 	 * @returns {@ui5/fs/ReaderCollection} Reader collection
 	*/
-	getRootReader({useGitignore=true} = {}) {
+	public getRootReader({ useGitignore = true }: {
+    useGitignore?: object;
+} = {}) {
 		return createReader({
 			fsBasePath: this.getRootPath(),
 			virBasePath: "/",
@@ -256,13 +256,7 @@ class Specification {
 		});
 	}
 
-	/* === Internals === */
-	/* === Helper === */
-	/**
-	 * @private
-	 * @param {string} dirPath Directory path, relative to the specification root
-	*/
-	async _dirExists(dirPath) {
+	private async _dirExists(dirPath: string) {
 		const resource = await this.getRootReader().byPath(dirPath, {nodir: false});
 		if (resource && resource.getStatInfo().isDirectory()) {
 			return true;

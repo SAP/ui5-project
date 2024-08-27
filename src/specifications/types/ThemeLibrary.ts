@@ -25,7 +25,7 @@ class ThemeLibrary extends Project {
 	/**
 	* @private
 	*/
-	getCopyright() {
+	private getCopyright() {
 		return this._config.metadata.copyright;
 	}
 
@@ -35,7 +35,7 @@ class ThemeLibrary extends Project {
 	 * @public
 	 * @returns {string} Absolute path to the source directory of the project
 	 */
-	getSourcePath() {
+	public getSourcePath() {
 		return fsPath.join(this.getRootPath(), this._srcPath);
 	}
 
@@ -72,7 +72,9 @@ class ThemeLibrary extends Project {
 	 *   Can be "buildtime", "dist", "runtime" or "flat"
 	 * @returns {@ui5/fs/ReaderCollection} A reader collection instance
 	 */
-	getReader({style = "buildtime"} = {}) {
+	public getReader({ style = "buildtime" }: {
+    style?: string;
+} = {}) {
 		// Apply builder excludes to all styles but "runtime"
 		const excludes = style === "runtime" ? [] : this.getBuilderResourcesExcludes();
 
@@ -114,7 +116,7 @@ class ThemeLibrary extends Project {
 	* @public
 	* @returns {@ui5/fs/DuplexCollection} DuplexCollection
 	*/
-	getWorkspace() {
+	public getWorkspace() {
 		const reader = this.getReader();
 
 		const writer = this._getWriter();
@@ -135,12 +137,7 @@ class ThemeLibrary extends Project {
 		return this._writer;
 	}
 
-	/* === Internals === */
-	/**
-	 * @private
-	 * @param {object} config Configuration object
-	*/
-	async _configureAndValidatePaths(config) {
+	private async _configureAndValidatePaths(config: object) {
 		await super._configureAndValidatePaths(config);
 
 		if (config.resources && config.resources.configuration && config.resources.configuration.paths) {

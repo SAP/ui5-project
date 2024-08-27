@@ -25,7 +25,12 @@ class Extension extends Specification {
 	 * @param {string} parameters.modulePath File System path to access resources
 	 * @param {object} parameters.configuration Configuration object
 	 */
-	async init(parameters) {
+	async init(parameters: {
+    id: string;
+    version: string;
+    modulePath: string;
+    configuration: object;
+}) {
 		await super.init(parameters);
 
 		try {

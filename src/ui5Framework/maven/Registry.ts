@@ -11,7 +11,9 @@ class Registry {
 	 * @param {object} parameters Parameters
 	 * @param {string} parameters.endpointUrl Maven's endpoint URL
 	 */
-	constructor({endpointUrl}) {
+	constructor({ endpointUrl }: {
+    endpointUrl: string;
+}) {
 		if (!endpointUrl) {
 			throw new Error(`Registry: Missing parameter "endpointUrl"`);
 		}
@@ -33,7 +35,11 @@ class Registry {
 	 * 	(and timestamps) deployed for that SNAPSHOT.
 	 * 	If not provided, the resulting metadata will list all versions available for the artifact.
 	 */
-	async requestMavenMetadata({groupId, artifactId, version}) {
+	async requestMavenMetadata({ groupId, artifactId, version }: {
+    groupId: string;
+    artifactId: string;
+    version?: string;
+}) {
 		try {
 			const optionalVersion = version ? version + "/" : "";
 			const url = this._endpointUrl +

@@ -29,7 +29,13 @@ class Project extends Specification {
 	 * @param {object} parameters.configuration Configuration object
 	 * @param {object} [parameters.buildManifest] Build metadata object
 	 */
-	async init(parameters) {
+	async init(parameters: {
+    id: string;
+    version: string;
+    modulePath: string;
+    configuration: object;
+    buildManifest?: object;
+}) {
 		await super.init(parameters);
 
 		this._buildManifest = parameters.buildManifest;
@@ -48,7 +54,7 @@ class Project extends Specification {
 	 * @public
 	 * @returns {string|null} Project namespace in slash notation (e.g. <code>my/project/name</code>) or null
 	 */
-	getNamespace() {
+	public getNamespace() {
 		// Default namespace for general Projects:
 		// Their resources should be structured with globally unique paths, hence their namespace is undefined
 		return null;
@@ -60,7 +66,7 @@ class Project extends Specification {
 	 * @public
 	 * @returns {boolean} True if the project is a framework project
 	 */
-	isFrameworkProject() {
+	public isFrameworkProject() {
 		const id = this.getId();
 		return id.startsWith("@openui5/") || id.startsWith("@sapui5/");
 	}
@@ -71,7 +77,7 @@ class Project extends Specification {
 	 * @public
 	 * @returns {object} Custom Configuration
 	 */
-	getCustomConfiguration() {
+	public getCustomConfiguration() {
 		return this._config.customConfiguration;
 	}
 
@@ -83,7 +89,7 @@ class Project extends Specification {
 	 * @returns {string} Absolute path to the source directory of the project
 	 * @throws {Error} In case a project has multiple source directories
 	 */
-	getSourcePath() {
+	public getSourcePath() {
 		throw new Error(`getSourcePath must be implemented by subclass ${this.constructor.name}`);
 	}
 
@@ -93,7 +99,7 @@ class Project extends Specification {
 	 * @public
 	 * @returns {string} Framework name configuration, either <code>OpenUI5</code> or <code>SAPUI5</code>
 	 */
-	getFrameworkName() {
+	public getFrameworkName() {
 		return this._config.framework?.name;
 	}
 
@@ -103,7 +109,7 @@ class Project extends Specification {
 	 * @public
 	 * @returns {string} Framework version configuration, e.g <code>1.110.0</code>
 	 */
-	getFrameworkVersion() {
+	public getFrameworkVersion() {
 		return this._config.framework?.version;
 	}
 
@@ -125,7 +131,7 @@ class Project extends Specification {
 	 * @public
 	 * @returns {@ui5/project/specifications/Project~FrameworkDependency[]} Framework dependencies configuration
 	 */
-	getFrameworkDependencies() {
+	public getFrameworkDependencies() {
 		return this._config.framework?.libraries || [];
 	}
 
@@ -135,7 +141,7 @@ class Project extends Specification {
 	 * @private
 	 * @returns {boolean} True if the project is flagged as deprecated
 	 */
-	isDeprecated() {
+	private isDeprecated() {
 		return !!this._config.metadata.deprecated;
 	}
 
@@ -145,7 +151,7 @@ class Project extends Specification {
 	 * @private
 	 * @returns {boolean} True if the project is flagged as SAP-internal
 	 */
-	isSapInternal() {
+	private isSapInternal() {
 		return !!this._config.metadata.sapInternal;
 	}
 
@@ -155,7 +161,7 @@ class Project extends Specification {
 	 * @private
 	 * @returns {boolean} True if the project allows for using SAP-internal projects
 	 */
-	getAllowSapInternal() {
+	private getAllowSapInternal() {
 		return !!this._config.metadata.allowSapInternal;
 	}
 
@@ -165,7 +171,7 @@ class Project extends Specification {
 	 * @private
 	 * @returns {string[]} BuilderResourcesExcludes configuration
 	 */
-	getBuilderResourcesExcludes() {
+	private getBuilderResourcesExcludes() {
 		return this._config.builder?.resources?.excludes || [];
 	}
 
@@ -175,7 +181,7 @@ class Project extends Specification {
 	 * @private
 	 * @returns {object[]} CustomTasks configuration
 	 */
-	getCustomTasks() {
+	private getCustomTasks() {
 		return this._config.builder?.customTasks || [];
 	}
 
@@ -185,7 +191,7 @@ class Project extends Specification {
 	 * @private
 	 * @returns {object[]} CustomMiddleware configuration
 	 */
-	getCustomMiddleware() {
+	private getCustomMiddleware() {
 		return this._config.server?.customMiddleware || [];
 	}
 
@@ -195,7 +201,7 @@ class Project extends Specification {
 	 * @private
 	 * @returns {object} ServerSettings configuration
 	 */
-	getServerSettings() {
+	private getServerSettings() {
 		return this._config.server?.settings;
 	}
 
@@ -205,7 +211,7 @@ class Project extends Specification {
 	 * @private
 	 * @returns {object} BuilderSettings configuration
 	 */
-	getBuilderSettings() {
+	private getBuilderSettings() {
 		return this._config.builder?.settings;
 	}
 
@@ -215,7 +221,7 @@ class Project extends Specification {
 	 * @private
 	 * @returns {object|null} BuildManifest configuration or null if none is available
 	 */
-	getBuildManifest() {
+	private getBuildManifest() {
 		return this._buildManifest || null;
 	}
 
@@ -249,7 +255,9 @@ class Project extends Specification {
 	 *   Can be "buildtime", "dist", "runtime" or "flat"
 	 * @returns {@ui5/fs/ReaderCollection} Reader collection allowing access to all resources of the project
 	 */
-	getReader(options) {
+	public getReader(options?: {
+    style?: string;
+}) {
 		throw new Error(`getReader must be implemented by subclass ${this.constructor.name}`);
 	}
 
@@ -271,22 +279,13 @@ class Project extends Specification {
 	* @public
 	* @returns {@ui5/fs/DuplexCollection} DuplexCollection
 	*/
-	getWorkspace() {
+	public getWorkspace() {
 		throw new Error(`getWorkspace must be implemented by subclass ${this.constructor.name}`);
 	}
 
-	/* === Internals === */
-	/**
-	 * @private
-	 * @param {object} config Configuration object
-	*/
-	async _configureAndValidatePaths(config) {}
+	private async _configureAndValidatePaths(config: object) {}
 
-	/**
-	 * @private
-	 * @param {object} config Configuration object
-	*/
-	async _parseConfiguration(config) {}
+	private async _parseConfiguration(config: object) {}
 }
 
 export default Project;

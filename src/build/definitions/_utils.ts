@@ -12,7 +12,7 @@
  *   Prefix to be added to the excludes to make them absolute. The prefix must have a leading and a
  *   trailing "/".
  */
-export function enhancePatternWithExcludes(patterns, excludes, patternPrefix) {
+export function enhancePatternWithExcludes(patterns: string[], excludes: string[], patternPrefix: string) {
 	excludes.forEach((exclude) => {
 		if (exclude.startsWith("!")) {
 			patterns.push(`${patternPrefix}${exclude.slice(1)}`);

@@ -13,7 +13,7 @@ export default {
 	 * @param {string} type one of "project-shim", "server-middleware" and "task"
 	 * @param {object} additionalConfiguration additional configuration content
 	 */
-	defineTests: function(test, assertValidation, type, additionalConfiguration) {
+	defineTests: function(test: Function, assertValidation: Function, type: string, additionalConfiguration: object) {
 		additionalConfiguration = additionalConfiguration || {};
 		additionalConfiguration = Object.assign({"kind": "extension"}, additionalConfiguration);
 

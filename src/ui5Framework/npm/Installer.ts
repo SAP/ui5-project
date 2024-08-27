@@ -21,7 +21,13 @@ class Installer extends AbstractInstaller {
 	 * @param {string} [parameters.stagingDir="${ui5DataDir}/framework/staging"] The staging directory for the packages
 	 * @param {string} [parameters.cacheDir="${ui5DataDir}/framework/cacache"] Where to store temp/cached packages.
 	 */
-	constructor({cwd, ui5DataDir, packagesDir, stagingDir, cacheDir}) {
+	constructor({ cwd, ui5DataDir, packagesDir, stagingDir, cacheDir }: {
+    cwd: string;
+    ui5DataDir: string;
+    packagesDir?: string;
+    stagingDir?: string;
+    cacheDir?: string;
+}) {
 		super(ui5DataDir);
 		if (!cwd) {
 			throw new Error(`Installer: Missing parameter "cwd"`);

@@ -15,7 +15,7 @@ export default {
 	 * @param {Function} assertValidation assertion function
 	 * @param {string} type one of "application", "library", "theme-library" and "module"
 	 */
-	defineTests: function(test, assertValidation, type) {
+	defineTests: function(test: Function, assertValidation: Function, type: string) {
 		// framework tests
 		if (["application", "library", "theme-library"].includes(type)) {
 			framework.defineTests(test, assertValidation, type);

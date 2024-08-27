@@ -41,7 +41,12 @@ class Module {
 	 * @param {@ui5/project/graph.ShimCollection} [parameters.shimCollection]
 	 *						Collection of shims that might be relevant for this module
 	 */
-	constructor({id, version, modulePath, configPath, configuration = [], shimCollection}) {
+	constructor({ id, version, modulePath, configPath, configuration = [], shimCollection }: {
+    id: string;
+    version: string;
+    modulePath: string;
+    configPath?: string;
+}) {
 		if (!id) {
 			throw new Error(`Could not create Module: Missing or empty parameter 'id'`);
 		}
