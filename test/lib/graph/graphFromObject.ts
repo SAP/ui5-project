@@ -2,7 +2,7 @@ import test from "ava";
 import path from "node:path";
 import sinonGlobal from "sinon";
 import esmock from "esmock";
-import ValidationError from "../../../lib/validation/ValidationError.js";
+import ValidationError from "../../../src/validation/ValidationError.js";
 
 const __dirname = import.meta.dirname;
 
@@ -31,8 +31,8 @@ test.beforeEach(async (t) => {
 		isLevelEnabled: () => true,
 	};
 
-	t.context.graph = await esmock.p("../../../lib/graph/graph.js", {
-		"../../../lib/graph/projectGraphBuilder": await esmock("../../../lib/graph/projectGraphBuilder.js", {
+	t.context.graph = await esmock.p("../../../src/graph/graph.js", {
+		"../../../src/graph/projectGraphBuilder": await esmock("../../../src/graph/projectGraphBuilder.js", {
 			"@ui5/logger": {
 				getLogger: sinon.stub().withArgs("graph:projectGraphBuilder").returns(t.context.log),
 			},

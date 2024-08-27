@@ -2,7 +2,7 @@ import path from "node:path";
 import test from "ava";
 import sinonGlobal from "sinon";
 import esmock from "esmock";
-import Specification from "../../../lib/specifications/Specification.js";
+import Specification from "../../../src/specifications/Specification.js";
 
 const __dirname = import.meta.dirname;
 
@@ -74,7 +74,7 @@ test.beforeEach(async (t) => {
 		isLevelEnabled: () => true,
 	};
 
-	t.context.ProjectGraph = await esmock.p("../../../lib/graph/ProjectGraph.js", {
+	t.context.ProjectGraph = await esmock.p("../../../src/graph/ProjectGraph.js", {
 		"@ui5/logger": {
 			getLogger: sinon.stub().withArgs("graph:ProjectGraph").returns(t.context.log),
 		},

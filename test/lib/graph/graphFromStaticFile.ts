@@ -2,7 +2,7 @@ import test from "ava";
 import path from "node:path";
 import sinonGlobal from "sinon";
 
-import {graphFromStaticFile} from "../../../lib/graph/graph.js";
+import {graphFromStaticFile} from "../../../src/graph/graph.js";
 
 const __dirname = import.meta.dirname;
 

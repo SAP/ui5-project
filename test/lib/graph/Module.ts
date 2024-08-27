@@ -1,7 +1,7 @@
 import test from "ava";
 import sinon from "sinon";
 import path from "node:path";
-import Module from "../../../lib/graph/Module.js";
+import Module from "../../../src/graph/Module.js";
 
 const __dirname = import.meta.dirname;
 

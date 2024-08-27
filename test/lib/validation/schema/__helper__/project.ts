@@ -1,4 +1,4 @@
-import SpecificationVersion from "../../../../../lib/specifications/SpecificationVersion.js";
+import SpecificationVersion from "../../../../../src/specifications/SpecificationVersion.js";
 import framework from "./framework.js";
 import customConfiguration from "./customConfiguration.js";
 import bundleOptions from "./builder-bundleOptions.js";

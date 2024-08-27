@@ -3,7 +3,7 @@ import sinonGlobal from "sinon";
 import path from "node:path";
 import esmock from "esmock";
 import {setLogLevel} from "@ui5/logger";
-import OutputStyleEnum from "../../../lib/build/helpers/ProjectBuilderOutputStyle.js";
+import OutputStyleEnum from "../../../src/build/helpers/ProjectBuilderOutputStyle.js";
 
 function noop() {}
 
@@ -72,7 +72,7 @@ test.beforeEach(async (t) => {
 		}),
 	};
 
-	t.context.ProjectBuilder = await esmock("../../../lib/build/ProjectBuilder.js");
+	t.context.ProjectBuilder = await esmock("../../../src/build/ProjectBuilder.js");
 });
 
 test.afterEach.always((t) => {
@@ -272,7 +272,7 @@ test.serial("build: Multiple projects", async (t) => {
 		t.is(moduleName, "ProjectBuilder", "BuildLogger created with expected moduleName");
 		return buildLoggerMock;
 	}
-	const ProjectBuilder = await esmock("../../../lib/build/ProjectBuilder.js", {
+	const ProjectBuilder = await esmock("../../../src/build/ProjectBuilder.js", {
 		"@ui5/logger/internal/loggers/Build": CreateBuildLoggerMock,
 	});
 
@@ -440,8 +440,8 @@ test.serial("_getProjectFilter with dependencyIncludes", async (t) => {
 		includedDependencies: ["project.b", "project.c"],
 		excludedDependencies: ["project.d", "project.e", "project.a"],
 	});
-	const ProjectBuilder = await esmock("../../../lib/build/ProjectBuilder.js", {
-		"../../../lib/build/helpers/composeProjectList.js": composeProjectListStub,
+	const ProjectBuilder = await esmock("../../../src/build/ProjectBuilder.js", {
+		"../../../src/build/helpers/composeProjectList.js": composeProjectListStub,
 	});
 
 	const builder = new ProjectBuilder({graph, taskRepository});
@@ -471,8 +471,8 @@ test.serial("_getProjectFilter with explicit include/exclude", async (t) => {
 		includedDependencies: ["project.b", "project.c"],
 		excludedDependencies: ["project.d", "project.e", "project.a"],
 	});
-	const ProjectBuilder = await esmock("../../../lib/build/ProjectBuilder.js", {
-		"../../../lib/build/helpers/composeProjectList.js": composeProjectListStub,
+	const ProjectBuilder = await esmock("../../../src/build/ProjectBuilder.js", {
+		"../../../src/build/helpers/composeProjectList.js": composeProjectListStub,
 	});
 
 	const builder = new ProjectBuilder({graph, taskRepository});
@@ -573,8 +573,8 @@ test.serial("_writeResults: Create build manifest", async (t) => {
 
 	const createBuildManifestStub = sinon.stub().returns({build: "manifest"});
 	const createResourceStub = sinon.stub().returns("build manifest resource");
-	const ProjectBuilder = await esmock.p("../../../lib/build/ProjectBuilder.js", {
-		"../../../lib/build/helpers/createBuildManifest.js": createBuildManifestStub,
+	const ProjectBuilder = await esmock.p("../../../src/build/ProjectBuilder.js", {
+		"../../../src/build/helpers/createBuildManifest.js": createBuildManifestStub,
 		"@ui5/fs/resourceFactory": {
 			createResource: createResourceStub,
 		},
@@ -766,7 +766,7 @@ test("instantiate new logger for every ProjectBuilder", async (t) => {
 
 	const {graph, taskRepository, sinon} = t.context;
 	const createBuildLoggerMockSpy = sinon.spy(CreateBuildLoggerMock);
-	const ProjectBuilder = await esmock("../../../lib/build/ProjectBuilder.js", {
+	const ProjectBuilder = await esmock("../../../src/build/ProjectBuilder.js", {
 		"@ui5/logger/internal/loggers/Build": createBuildLoggerMockSpy,
 	});
 

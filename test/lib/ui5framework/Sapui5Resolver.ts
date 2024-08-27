@@ -3,7 +3,7 @@ import sinon from "sinon";
 import esmock from "esmock";
 import path from "node:path";
 import os from "node:os";
-import Openui5Resolver from "../../../lib/ui5Framework/Openui5Resolver.js";
+import Openui5Resolver from "../../../src/ui5Framework/Openui5Resolver.js";
 
 test.beforeEach(async (t) => {
 	t.context.InstallerStub = sinon.stub();
@@ -22,8 +22,8 @@ test.beforeEach(async (t) => {
 		};
 	});
 
-	t.context.Sapui5Resolver = await esmock("../../../lib/ui5Framework/Sapui5Resolver.js", {
-		"../../../lib/ui5Framework/npm/Installer": t.context.InstallerStub,
+	t.context.Sapui5Resolver = await esmock("../../../src/ui5Framework/Sapui5Resolver.js", {
+		"../../../src/ui5Framework/npm/Installer": t.context.InstallerStub,
 	});
 });
 

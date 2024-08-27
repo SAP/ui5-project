@@ -2,14 +2,14 @@ import test from "ava";
 import esmock from "esmock";
 import path from "node:path";
 import sinon from "sinon";
-import Specification from "../../../lib/specifications/Specification.js";
-import Application from "../../../lib/specifications/types/Application.js";
-import Library from "../../../lib/specifications/types/Library.js";
-import ThemeLibrary from "../../../lib/specifications/types/ThemeLibrary.js";
-import Module from "../../../lib/specifications/types/Module.js";
-import Task from "../../../lib/specifications/extensions/Task.js";
-import ProjectShim from "../../../lib/specifications/extensions/ProjectShim.js";
-import ServerMiddleware from "../../../lib/specifications/extensions/ServerMiddleware.js";
+import Specification from "../../../src/specifications/Specification.js";
+import Application from "../../../src/specifications/types/Application.js";
+import Library from "../../../src/specifications/types/Library.js";
+import ThemeLibrary from "../../../src/specifications/types/ThemeLibrary.js";
+import Module from "../../../src/specifications/types/Module.js";
+import Task from "../../../src/specifications/extensions/Task.js";
+import ProjectShim from "../../../src/specifications/extensions/ProjectShim.js";
+import ServerMiddleware from "../../../src/specifications/extensions/ServerMiddleware.js";
 
 const __dirname = import.meta.dirname;
 
@@ -379,7 +379,7 @@ test("getRootReader: Default parameters", async (t) => {
 	// Therefore we just come up with our own subclass that can be instantiated right away:
 
 	const createReaderStub = sinon.stub();
-	const Specification = await esmock("../../../lib/specifications/Specification.js", {
+	const Specification = await esmock("../../../src/specifications/Specification.js", {
 		"@ui5/fs/resourceFactory": {
 			createReader: createReaderStub,
 		},
@@ -400,7 +400,7 @@ test("getRootReader: Default parameters", async (t) => {
 
 test("getRootReader: Custom parameters", async (t) => {
 	const createReaderStub = sinon.stub();
-	const Specification = await esmock("../../../lib/specifications/Specification.js", {
+	const Specification = await esmock("../../../src/specifications/Specification.js", {
 		"@ui5/fs/resourceFactory": {
 			createReader: createReaderStub,
 		},

@@ -14,8 +14,8 @@ test.beforeEach(async (t) => {
 	t.context.renameStub = sinon.stub().yieldsAsync();
 	t.context.statStub = sinon.stub().yieldsAsync();
 
-	t.context.AbstractResolver = await esmock.p("../../../../lib/ui5Framework/AbstractInstaller.js", {
-		"../../../../lib/utils/fs.js": {
+	t.context.AbstractResolver = await esmock.p("../../../../src/ui5Framework/AbstractInstaller.js", {
+		"../../../../src/utils/fs.js": {
 			mkdirp: t.context.mkdirpStub,
 		},
 		"rimraf": {
@@ -26,9 +26,9 @@ test.beforeEach(async (t) => {
 			unlock: t.context.unlockStub,
 		},
 	});
-	t.context.Installer = await esmock.p("../../../../lib/ui5Framework/npm/Installer.js", {
-		"../../../../lib/ui5Framework/AbstractInstaller.js": t.context.AbstractResolver,
-		"../../../../lib/utils/fs.js": {
+	t.context.Installer = await esmock.p("../../../../src/ui5Framework/npm/Installer.js", {
+		"../../../../src/ui5Framework/AbstractInstaller.js": t.context.AbstractResolver,
+		"../../../../src/utils/fs.js": {
 			mkdirp: t.context.mkdirpStub,
 		},
 		"rimraf": {

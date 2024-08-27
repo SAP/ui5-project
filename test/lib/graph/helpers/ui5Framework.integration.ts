@@ -2,7 +2,7 @@ import test from "ava";
 import sinonGlobal from "sinon";
 import esmock from "esmock";
 import path from "node:path";
-import DependencyTreeProvider from "../../../../lib/graph/providers/DependencyTree.js";
+import DependencyTreeProvider from "../../../../src/graph/providers/DependencyTree.js";
 
 const __dirname = import.meta.dirname;
 
@@ -47,7 +47,7 @@ test.beforeEach(async (t) => {
 		proxy: "",
 	});
 
-	t.context.Registry = await esmock.p("../../../../lib/ui5Framework/npm/Registry.js", {
+	t.context.Registry = await esmock.p("../../../../src/ui5Framework/npm/Registry.js", {
 		"@ui5/logger": ui5Logger,
 		"pacote": t.context.pacote,
 		"@npmcli/config": {
@@ -55,9 +55,9 @@ test.beforeEach(async (t) => {
 		},
 	});
 
-	const AbstractInstaller = await esmock.p("../../../../lib/ui5Framework/AbstractInstaller.js", {
+	const AbstractInstaller = await esmock.p("../../../../src/ui5Framework/AbstractInstaller.js", {
 		"@ui5/logger": ui5Logger,
-		"../../../../lib/utils/fs.js": {
+		"../../../../src/utils/fs.js": {
 			mkdirp: sinon.stub().resolves(),
 		},
 		"lockfile": {
@@ -66,45 +66,45 @@ test.beforeEach(async (t) => {
 		},
 	});
 
-	t.context.Installer = await esmock.p("../../../../lib/ui5Framework/npm/Installer.js", {
+	t.context.Installer = await esmock.p("../../../../src/ui5Framework/npm/Installer.js", {
 		"@ui5/logger": ui5Logger,
 		"graceful-fs": {
 			rename: sinon.stub().yieldsAsync(),
 		},
-		"../../../../lib/utils/fs.js": {
+		"../../../../src/utils/fs.js": {
 			mkdirp: sinon.stub().resolves(),
 		},
-		"../../../../lib/ui5Framework/npm/Registry.js": t.context.Registry,
-		"../../../../lib/ui5Framework/AbstractInstaller.js": AbstractInstaller,
+		"../../../../src/ui5Framework/npm/Registry.js": t.context.Registry,
+		"../../../../src/ui5Framework/AbstractInstaller.js": AbstractInstaller,
 	});
 
-	t.context.AbstractResolver = await esmock.p("../../../../lib/ui5Framework/AbstractResolver.js", {
+	t.context.AbstractResolver = await esmock.p("../../../../src/ui5Framework/AbstractResolver.js", {
 		"@ui5/logger": ui5Logger,
 		"node:os": {
 			homedir: sinon.stub().returns(path.join(fakeBaseDir, "homedir")),
 		},
 	});
 
-	t.context.Openui5Resolver = await esmock.p("../../../../lib/ui5Framework/Openui5Resolver.js", {
+	t.context.Openui5Resolver = await esmock.p("../../../../src/ui5Framework/Openui5Resolver.js", {
 		"@ui5/logger": ui5Logger,
 		"node:os": {
 			homedir: sinon.stub().returns(path.join(fakeBaseDir, "homedir")),
 		},
-		"../../../../lib/ui5Framework/AbstractResolver.js": t.context.AbstractResolver,
-		"../../../../lib/ui5Framework/npm/Installer.js": t.context.Installer,
+		"../../../../src/ui5Framework/AbstractResolver.js": t.context.AbstractResolver,
+		"../../../../src/ui5Framework/npm/Installer.js": t.context.Installer,
 	});
 
-	t.context.Sapui5Resolver = await esmock.p("../../../../lib/ui5Framework/Sapui5Resolver.js", {
+	t.context.Sapui5Resolver = await esmock.p("../../../../src/ui5Framework/Sapui5Resolver.js", {
 		"@ui5/logger": ui5Logger,
 		"node:os": {
 			homedir: sinon.stub().returns(path.join(fakeBaseDir, "homedir")),
 		},
-		"../../../../lib/ui5Framework/AbstractResolver.js": t.context.AbstractResolver,
-		"../../../../lib/ui5Framework/npm/Installer.js": t.context.Installer,
+		"../../../../src/ui5Framework/AbstractResolver.js": t.context.AbstractResolver,
+		"../../../../src/ui5Framework/npm/Installer.js": t.context.Installer,
 	});
 
-	t.context.Application = await esmock.p("../../../../lib/specifications/types/Application.js");
-	t.context.Library = await esmock.p("../../../../lib/specifications/types/Library.js");
+	t.context.Application = await esmock.p("../../../../src/specifications/types/Application.js");
+	t.context.Library = await esmock.p("../../../../src/specifications/types/Library.js");
 
 	// Stub specification internal checks since none of the projects actually exist on disk
 	sinon.stub(t.context.Application.prototype, "_configureAndValidatePaths").resolves();
@@ -112,35 +112,35 @@ test.beforeEach(async (t) => {
 	sinon.stub(t.context.Application.prototype, "_parseConfiguration").resolves();
 	sinon.stub(t.context.Library.prototype, "_parseConfiguration").resolves();
 
-	t.context.Specification = await esmock.p("../../../../lib/specifications/Specification.js", {
+	t.context.Specification = await esmock.p("../../../../src/specifications/Specification.js", {
 		"@ui5/logger": ui5Logger,
-		"../../../../lib/specifications/types/Application.js": t.context.Application,
-		"../../../../lib/specifications/types/Library.js": t.context.Library,
+		"../../../../src/specifications/types/Application.js": t.context.Application,
+		"../../../../src/specifications/types/Library.js": t.context.Library,
 	});
 
-	t.context.Module = await esmock.p("../../../../lib/graph/Module.js", {
+	t.context.Module = await esmock.p("../../../../src/graph/Module.js", {
 		"@ui5/logger": ui5Logger,
-		"../../../../lib/specifications/Specification.js": t.context.Specification,
+		"../../../../src/specifications/Specification.js": t.context.Specification,
 	});
 
 	// Stub os homedir to prevent the actual ~/.ui5rc from being used in tests
-	t.context.Configuration = await esmock.p("../../../../lib/config/Configuration.js", {
+	t.context.Configuration = await esmock.p("../../../../src/config/Configuration.js", {
 		"node:os": {
 			homedir: sinon.stub().returns(path.join(fakeBaseDir, "homedir")),
 		},
 	});
 
-	t.context.ui5Framework = await esmock.p("../../../../lib/graph/helpers/ui5Framework.js", {
+	t.context.ui5Framework = await esmock.p("../../../../src/graph/helpers/ui5Framework.js", {
 		"@ui5/logger": ui5Logger,
-		"../../../../lib/graph/Module.js": t.context.Module,
-		"../../../../lib/ui5Framework/Openui5Resolver.js": t.context.Openui5Resolver,
-		"../../../../lib/ui5Framework/Sapui5Resolver.js": t.context.Sapui5Resolver,
-		"../../../../lib/config/Configuration.js": t.context.Configuration,
+		"../../../../src/graph/Module.js": t.context.Module,
+		"../../../../src/ui5Framework/Openui5Resolver.js": t.context.Openui5Resolver,
+		"../../../../src/ui5Framework/Sapui5Resolver.js": t.context.Sapui5Resolver,
+		"../../../../src/config/Configuration.js": t.context.Configuration,
 	});
 
-	t.context.projectGraphBuilder = await esmock.p("../../../../lib/graph/projectGraphBuilder.js", {
+	t.context.projectGraphBuilder = await esmock.p("../../../../src/graph/projectGraphBuilder.js", {
 		"@ui5/logger": ui5Logger,
-		"../../../../lib/graph/Module.js": t.context.Module,
+		"../../../../src/graph/Module.js": t.context.Module,
 	});
 });
 

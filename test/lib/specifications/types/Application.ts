@@ -2,8 +2,8 @@ import test from "ava";
 import path from "node:path";
 import {createResource} from "@ui5/fs/resourceFactory";
 import sinonGlobal from "sinon";
-import Specification from "../../../../lib/specifications/Specification.js";
-import Application from "../../../../lib/specifications/types/Application.js";
+import Specification from "../../../../src/specifications/Specification.js";
+import Application from "../../../../src/specifications/types/Application.js";
 
 const __dirname = import.meta.dirname;
 const applicationAPath = path.join(__dirname, "..", "..", "..", "fixtures", "application.a");

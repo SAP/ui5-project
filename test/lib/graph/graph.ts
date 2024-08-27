@@ -2,7 +2,7 @@ import test from "ava";
 import path from "node:path";
 import sinonGlobal from "sinon";
 import esmock from "esmock";
-import CacheMode from "../../../lib/ui5Framework/maven/CacheMode.js";
+import CacheMode from "../../../src/ui5Framework/maven/CacheMode.js";
 
 const __dirname = import.meta.dirname;
 const fixturesPath = path.join(__dirname, "..", "..", "fixtures");
@@ -30,12 +30,12 @@ test.beforeEach(async (t) => {
 
 	t.context.projectGraphBuilderStub = sinon.stub().resolves("graph");
 	t.context.enrichProjectGraphStub = sinon.stub();
-	t.context.graph = await esmock.p("../../../lib/graph/graph.js", {
-		"../../../lib/graph/providers/NodePackageDependencies.js": t.context.MockNpmProvider,
-		"../../../lib/graph/providers/DependencyTree.js": t.context.DummyDependencyTreeProvider,
-		"../../../lib/graph/helpers/createWorkspace.js": t.context.createWorkspaceStub,
-		"../../../lib/graph/projectGraphBuilder.js": t.context.projectGraphBuilderStub,
-		"../../../lib/graph/helpers/ui5Framework.js": {
+	t.context.graph = await esmock.p("../../../src/graph/graph.js", {
+		"../../../src/graph/providers/NodePackageDependencies.js": t.context.MockNpmProvider,
+		"../../../src/graph/providers/DependencyTree.js": t.context.DummyDependencyTreeProvider,
+		"../../../src/graph/helpers/createWorkspace.js": t.context.createWorkspaceStub,
+		"../../../src/graph/projectGraphBuilder.js": t.context.projectGraphBuilderStub,
+		"../../../src/graph/helpers/ui5Framework.js": {
 			enrichProjectGraph: t.context.enrichProjectGraphStub,
 		},
 	});

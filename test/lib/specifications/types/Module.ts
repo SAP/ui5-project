@@ -1,7 +1,7 @@
 import test from "ava";
 import path from "node:path";
 import sinonGlobal from "sinon";
-import Specification from "../../../../lib/specifications/Specification.js";
+import Specification from "../../../../src/specifications/Specification.js";
 
 const __dirname = import.meta.dirname;
 const moduleAPath = path.join(__dirname, "..", "..", "..", "fixtures", "module.a");
@@ -38,7 +38,7 @@ test.afterEach.always((t) => {
 
 test("Correct class", async (t) => {
 	const {projectInput} = t.context;
-	const {default: Module} = await import("../../../../lib/specifications/types/Module.js");
+	const {default: Module} = await import("../../../../src/specifications/types/Module.js");
 	const project = await Specification.create(projectInput);
 	t.true(project instanceof Module, `Is an instance of the Module class`);
 });

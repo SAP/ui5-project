@@ -1,8 +1,8 @@
 import test from "ava";
 import path from "node:path";
 import sinon from "sinon";
-import Specification from "../../../../lib/specifications/Specification.js";
-import ProjectShim from "../../../../lib/specifications/extensions/ProjectShim.js";
+import Specification from "../../../../src/specifications/Specification.js";
+import ProjectShim from "../../../../src/specifications/extensions/ProjectShim.js";
 
 function clone(obj) {
 	return JSON.parse(JSON.stringify(obj));

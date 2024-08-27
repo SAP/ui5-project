@@ -16,7 +16,7 @@ test.beforeEach(async (t) => {
 
 	t.context.fsCreateWriteStreamStub = sinon.stub().resolves();
 
-	t.context.Registry = await esmock.p("../../../../lib/ui5Framework/maven/Registry.js", {
+	t.context.Registry = await esmock.p("../../../../src/ui5Framework/maven/Registry.js", {
 		"make-fetch-happen": t.context.fetchStub,
 		"node:stream/promises": {
 			pipeline: t.context.streamPipelineStub,

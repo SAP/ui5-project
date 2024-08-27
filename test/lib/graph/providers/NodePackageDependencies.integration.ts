@@ -16,8 +16,8 @@ const errApplicationAPath = path.join(__dirname, "..", "..", "..", "fixtures", "
 const cycleDepsBasePath = path.join(__dirname, "..", "..", "..", "fixtures", "cyclic-deps", "node_modules");
 const libraryDOverridePath = path.join(__dirname, "..", "..", "..", "fixtures", "library.d-adtl-deps");
 
-import projectGraphBuilder from "../../../../lib/graph/projectGraphBuilder.js";
-import NodePackageDependenciesProvider from "../../../../lib/graph/providers/NodePackageDependencies.js";
+import projectGraphBuilder from "../../../../src/graph/projectGraphBuilder.js";
+import NodePackageDependenciesProvider from "../../../../src/graph/providers/NodePackageDependencies.js";
 
 test.beforeEach((t) => {
 	t.context.sinon = sinonGlobal.createSandbox();

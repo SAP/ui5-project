@@ -8,7 +8,7 @@ test.beforeEach(async (t) => {
 	};
 	const getLoggerStub = sinon.stub().withArgs("build:helpers:composeTaskList").returns(t.context.log);
 
-	t.context.composeTaskList = await esmock("../../../../lib/build/helpers/composeTaskList.js", {
+	t.context.composeTaskList = await esmock("../../../../src/build/helpers/composeTaskList.js", {
 		"@ui5/logger": {
 			getLogger: getLoggerStub,
 		},

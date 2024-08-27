@@ -2,7 +2,7 @@ import test from "ava";
 import path from "node:path";
 import sinonGlobal from "sinon";
 import esmock from "esmock";
-import projectGraphBuilder from "../../../lib/graph/projectGraphBuilder.js";
+import projectGraphBuilder from "../../../src/graph/projectGraphBuilder.js";
 
 const __dirname = import.meta.dirname;
 
@@ -117,7 +117,7 @@ test.serial("Correct warnings logged", async (t) => {
 	const {sinon, getRootNode, getDependencies, provider} = t.context;
 	const logWarnStub = sinon.stub();
 
-	const projectGraphBuilder = await esmock("../../../lib/graph/projectGraphBuilder.js", {
+	const projectGraphBuilder = await esmock("../../../src/graph/projectGraphBuilder.js", {
 		"@ui5/logger": {
 			getLogger: sinon.stub()
 				.withArgs("graph:projectGraphBuilder").returns({
@@ -167,7 +167,7 @@ test.serial("No warnings logged", async (t) => {
 	const {sinon, getRootNode, getDependencies} = t.context;
 	const logWarnStub = sinon.stub();
 
-	const projectGraphBuilder = await esmock("../../../lib/graph/projectGraphBuilder.js", {
+	const projectGraphBuilder = await esmock("../../../src/graph/projectGraphBuilder.js", {
 		"@ui5/logger": {
 			getLogger: sinon.stub()
 				.withArgs("graph:projectGraphBuilder").returns({

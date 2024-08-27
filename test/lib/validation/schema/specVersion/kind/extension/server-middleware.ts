@@ -1,10 +1,10 @@
 import test from "ava";
 import Ajv from "ajv";
 import ajvErrors from "ajv-errors";
-import SpecificationVersion from "../../../../../../../lib/specifications/SpecificationVersion.js";
+import SpecificationVersion from "../../../../../../../src/specifications/SpecificationVersion.js";
 import AjvCoverage from "../../../../../../utils/AjvCoverage.js";
-import {_Validator as Validator} from "../../../../../../../lib/validation/validator.js";
-import ValidationError from "../../../../../../../lib/validation/ValidationError.js";
+import {_Validator as Validator} from "../../../../../../../src/validation/validator.js";
+import ValidationError from "../../../../../../../src/validation/ValidationError.js";
 import extension from "../../../__helper__/extension.js";
 
 async function assertValidation(t, config, expectedErrors = undefined) {

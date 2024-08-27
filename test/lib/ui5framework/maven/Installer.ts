@@ -37,8 +37,8 @@ test.beforeEach(async (t) => {
 		requestArtifact: t.context.registryRequestArtifactStub,
 	});
 
-	t.context.AbstractInstaller = await esmock.p("../../../../lib/ui5Framework/AbstractInstaller.js", {
-		"../../../../lib/utils/fs.js": {
+	t.context.AbstractInstaller = await esmock.p("../../../../src/ui5Framework/AbstractInstaller.js", {
+		"../../../../src/utils/fs.js": {
 			mkdirp: t.context.mkdirpStub,
 		},
 		"lockfile": {
@@ -47,10 +47,10 @@ test.beforeEach(async (t) => {
 		},
 	});
 
-	t.context.Installer = await esmock.p("../../../../lib/ui5Framework/maven/Installer.js", {
-		"../../../../lib/ui5Framework/maven/Registry.js": t.context.RegistryConstructorStub,
-		"../../../../lib/ui5Framework/AbstractInstaller.js": t.context.AbstractInstaller,
-		"../../../../lib/utils/fs.js": {
+	t.context.Installer = await esmock.p("../../../../src/ui5Framework/maven/Installer.js", {
+		"../../../../src/ui5Framework/maven/Registry.js": t.context.RegistryConstructorStub,
+		"../../../../src/ui5Framework/AbstractInstaller.js": t.context.AbstractInstaller,
+		"../../../../src/utils/fs.js": {
 			mkdirp: t.context.mkdirpStub,
 		},
 		"node:util": {

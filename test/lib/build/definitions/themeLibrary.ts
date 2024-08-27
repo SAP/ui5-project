@@ -1,6 +1,6 @@
 import test from "ava";
 import sinon from "sinon";
-import themeLibrary from "../../../../lib/build/definitions/themeLibrary.js";
+import themeLibrary from "../../../../src/build/definitions/themeLibrary.js";
 
 function emptyarray() {
 	return [];

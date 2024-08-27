@@ -2,7 +2,7 @@ import test from "ava";
 import sinon from "sinon";
 import esmock from "esmock";
 import path from "node:path";
-import {graphFromObject} from "../../../../lib/graph/graph.js";
+import {graphFromObject} from "../../../../src/graph/graph.js";
 
 const __dirname = import.meta.dirname;
 
@@ -16,7 +16,7 @@ test.beforeEach(async (t) => {
 	t.context.log = {
 		warn: sinon.stub(),
 	};
-	t.context.composeProjectList = await esmock("../../../../lib/build/helpers/composeProjectList", {
+	t.context.composeProjectList = await esmock("../../../../src/build/helpers/composeProjectList", {
 		"@ui5/logger": {
 			getLogger: sinon.stub().withArgs("build:helpers:composeProjectList").returns(t.context.log),
 		},

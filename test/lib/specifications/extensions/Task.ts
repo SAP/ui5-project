@@ -1,8 +1,8 @@
 import test from "ava";
 import path from "node:path";
 import sinon from "sinon";
-import Specification from "../../../../lib/specifications/Specification.js";
-import Task from "../../../../lib/specifications/extensions/Task.js";
+import Specification from "../../../../src/specifications/Specification.js";
+import Task from "../../../../src/specifications/extensions/Task.js";
 
 function clone(obj) {
 	return JSON.parse(JSON.stringify(obj));

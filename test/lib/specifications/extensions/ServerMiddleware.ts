@@ -1,8 +1,8 @@
 import test from "ava";
 import path from "node:path";
 import sinon from "sinon";
-import Specification from "../../../../lib/specifications/Specification.js";
-import ServerMiddleware from "../../../../lib/specifications/extensions/ServerMiddleware.js";
+import Specification from "../../../../src/specifications/Specification.js";
+import ServerMiddleware from "../../../../src/specifications/extensions/ServerMiddleware.js";
 
 function clone(obj) {
 	return JSON.parse(JSON.stringify(obj));

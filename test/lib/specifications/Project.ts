@@ -1,7 +1,7 @@
 import test from "ava";
 import path from "node:path";
 import chalk from "chalk";
-import Specification from "../../../lib/specifications/Specification.js";
+import Specification from "../../../src/specifications/Specification.js";
 
 function clone(obj) {
 	return JSON.parse(JSON.stringify(obj));

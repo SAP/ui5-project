@@ -1,8 +1,8 @@
 import test from "ava";
 import path from "node:path";
 import semver from "semver";
-import createBuildManifest from "../../../../lib/build/helpers/createBuildManifest.js";
-import Specification from "../../../../lib/specifications/Specification.js";
+import createBuildManifest from "../../../../src/build/helpers/createBuildManifest.js";
+import Specification from "../../../../src/specifications/Specification.js";
 
 const __dirname = import.meta.dirname;
 

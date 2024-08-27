@@ -1,5 +1,5 @@
 import test from "ava";
-import moduleDefinition from "../../../../lib/build/definitions/module.js";
+import moduleDefinition from "../../../../src/build/definitions/module.js";
 
 test("Standard build", (t) => {
 	const tasks = moduleDefinition({});

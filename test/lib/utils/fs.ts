@@ -1,7 +1,7 @@
 import test from "ava";
 import path from "node:path";
 import {stat} from "node:fs/promises";
-import {mkdirp} from "../../../lib/utils/fs.js";
+import {mkdirp} from "../../../src/utils/fs.js";
 
 const __dirname = import.meta.dirname;
 

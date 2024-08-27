@@ -2,7 +2,7 @@ import path from "node:path";
 import test from "ava";
 import sinonGlobal from "sinon";
 import esmock from "esmock";
-import Module from "../../../lib/graph/Module.js";
+import Module from "../../../src/graph/Module.js";
 
 const __dirname = import.meta.dirname;
 const libraryD = path.join(__dirname, "..", "..", "fixtures", "library.d");
@@ -35,7 +35,7 @@ test.beforeEach(async (t) => {
 		isLevelEnabled: () => true,
 	};
 
-	t.context.Workspace = await esmock("../../../lib/graph/Workspace.js", {
+	t.context.Workspace = await esmock("../../../src/graph/Workspace.js", {
 		"@ui5/logger": {
 			getLogger: sinon.stub().withArgs("graph:Workspace").returns(t.context.log),
 		},

@@ -2,10 +2,10 @@ import path from "node:path";
 import test from "ava";
 import sinonGlobal from "sinon";
 import esmock from "esmock";
-import DependencyTreeProvider from "../../../../lib/graph/providers/DependencyTree.js";
-import projectGraphBuilder from "../../../../lib/graph/projectGraphBuilder.js";
-import Specification from "../../../../lib/specifications/Specification.js";
-import CacheMode from "../../../../lib/ui5Framework/maven/CacheMode.js";
+import DependencyTreeProvider from "../../../../src/graph/providers/DependencyTree.js";
+import projectGraphBuilder from "../../../../src/graph/projectGraphBuilder.js";
+import Specification from "../../../../src/specifications/Specification.js";
+import CacheMode from "../../../../src/ui5Framework/maven/CacheMode.js";
 
 const __dirname = import.meta.dirname;
 
@@ -62,11 +62,11 @@ test.beforeEach(async (t) => {
 		}),
 	};
 
-	t.context.ui5Framework = await esmock.p("../../../../lib/graph/helpers/ui5Framework.js", {
+	t.context.ui5Framework = await esmock.p("../../../../src/graph/helpers/ui5Framework.js", {
 		"@ui5/logger": ui5Logger,
-		"../../../../lib/ui5Framework/Sapui5Resolver.js": t.context.Sapui5ResolverStub,
-		"../../../../lib/ui5Framework/Sapui5MavenSnapshotResolver.js": t.context.Sapui5MavenSnapshotResolverStub,
-		"../../../../lib/config/Configuration.js": t.context.ConfigurationStub,
+		"../../../../src/ui5Framework/Sapui5Resolver.js": t.context.Sapui5ResolverStub,
+		"../../../../src/ui5Framework/Sapui5MavenSnapshotResolver.js": t.context.Sapui5MavenSnapshotResolverStub,
+		"../../../../src/config/Configuration.js": t.context.ConfigurationStub,
 	});
 	t.context.utils = t.context.ui5Framework._utils;
 });

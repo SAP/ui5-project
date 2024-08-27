@@ -19,8 +19,8 @@ test.beforeEach(async (t) => {
 		};
 	});
 
-	t.context.Openui5Resolver = await esmock("../../../lib/ui5Framework/Openui5Resolver.js", {
-		"../../../lib/ui5Framework/npm/Installer": t.context.InstallerStub,
+	t.context.Openui5Resolver = await esmock("../../../src/ui5Framework/Openui5Resolver.js", {
+		"../../../src/ui5Framework/npm/Installer": t.context.InstallerStub,
 	});
 });
 

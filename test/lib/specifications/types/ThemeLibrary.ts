@@ -1,7 +1,7 @@
 import test from "ava";
 import path from "node:path";
 import sinonGlobal from "sinon";
-import Specification from "../../../../lib/specifications/Specification.js";
+import Specification from "../../../../src/specifications/Specification.js";
 
 const __dirname = import.meta.dirname;
 const themeLibraryEPath = path.join(__dirname, "..", "..", "..", "fixtures", "theme.library.e");
@@ -30,7 +30,7 @@ test.afterEach.always((t) => {
 
 test("Correct class", async (t) => {
 	const {projectInput} = t.context;
-	const {default: ThemeLibrary} = await import("../../../../lib/specifications/types/ThemeLibrary.js");
+	const {default: ThemeLibrary} = await import("../../../../src/specifications/types/ThemeLibrary.js");
 	const project = await Specification.create(projectInput);
 	t.true(project instanceof ThemeLibrary, `Is an instance of the ThemeLibrary class`);
 });

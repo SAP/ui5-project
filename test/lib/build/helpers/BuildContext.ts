@@ -1,12 +1,12 @@
 import test from "ava";
 import sinon from "sinon";
-import OutputStyleEnum from "../../../../lib/build/helpers/ProjectBuilderOutputStyle.js";
+import OutputStyleEnum from "../../../../src/build/helpers/ProjectBuilderOutputStyle.js";
 
 test.afterEach.always((t) => {
 	sinon.restore();
 });
 
-import BuildContext from "../../../../lib/build/helpers/BuildContext.js";
+import BuildContext from "../../../../src/build/helpers/BuildContext.js";
 
 test("Missing parameters", (t) => {
 	const error1 = t.throws(() => {

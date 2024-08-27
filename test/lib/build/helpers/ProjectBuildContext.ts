@@ -12,7 +12,7 @@ test.afterEach.always((t) => {
 	sinon.restore();
 });
 
-import ProjectBuildContext from "../../../../lib/build/helpers/ProjectBuildContext.js";
+import ProjectBuildContext from "../../../../src/build/helpers/ProjectBuildContext.js";
 
 test("Missing parameters", (t) => {
 	t.throws(() => {
@@ -140,7 +140,7 @@ test.serial("getResourceTagCollection", async (t) => {
 		}
 	}
 
-	const ProjectBuildContext = await esmock("../../../../lib/build/helpers/ProjectBuildContext.js", {
+	const ProjectBuildContext = await esmock("../../../../src/build/helpers/ProjectBuildContext.js", {
 		"@ui5/fs/internal/ResourceTagCollection": DummyResourceTagCollection,
 	});
 	const projectBuildContext = new ProjectBuildContext({
@@ -336,8 +336,8 @@ test.serial("getTaskRunner", async (t) => {
 			}, "TaskRunner created with expected constructor arguments");
 		}
 	}
-	const ProjectBuildContext = await esmock("../../../../lib/build/helpers/ProjectBuildContext.js", {
-		"../../../../lib/build/TaskRunner.js": TaskRunnerMock,
+	const ProjectBuildContext = await esmock("../../../../src/build/helpers/ProjectBuildContext.js", {
+		"../../../../src/build/TaskRunner.js": TaskRunnerMock,
 	});
 
 	const projectBuildContext = new ProjectBuildContext({
@@ -377,9 +377,9 @@ test.serial("createProjectContext", async (t) => {
 			t.is(_taskRunner, taskRunner);
 		}
 	}
-	const BuildContext = await esmock("../../../../lib/build/helpers/BuildContext.js", {
-		"../../../../lib/build/helpers/ProjectBuildContext.js": ProjectContextMock,
-		"../../../../lib/build/TaskRunner.js": {
+	const BuildContext = await esmock("../../../../src/build/helpers/BuildContext.js", {
+		"../../../../src/build/helpers/ProjectBuildContext.js": ProjectContextMock,
+		"../../../../src/build/TaskRunner.js": {
 			create: sinon.stub().resolves(taskRunner),
 		},
 	});

@@ -25,13 +25,13 @@ test.beforeEach(async (t) => {
 	t.context.loggerWarn = sinon.stub();
 	t.context.loggerInfo = sinon.stub();
 
-	t.context.Configuration = await esmock.p("../../../lib/config/Configuration.js", {});
+	t.context.Configuration = await esmock.p("../../../src/config/Configuration.js", {});
 	t.context.configFromFile = sinon.stub(t.context.Configuration, "fromFile")
 		.resolves(new t.context.Configuration({}));
 	t.context.configToFile = sinon.stub(t.context.Configuration, "toFile").resolves();
 
-	t.context.Sapui5MavenSnapshotResolver = await esmock.p("../../../lib/ui5Framework/Sapui5MavenSnapshotResolver.js", {
-		"../../../lib/ui5Framework/maven/Installer": t.context.InstallerStub,
+	t.context.Sapui5MavenSnapshotResolver = await esmock.p("../../../src/ui5Framework/Sapui5MavenSnapshotResolver.js", {
+		"../../../src/ui5Framework/maven/Installer": t.context.InstallerStub,
 		"yesno": t.context.yesnoStub,
 		"node:util": {
 			promisify: t.context.promisifyStub,
@@ -43,7 +43,7 @@ test.beforeEach(async (t) => {
 				info: t.context.loggerInfo,
 			}),
 		},
-		"../../../lib/config/Configuration": t.context.Configuration,
+		"../../../src/config/Configuration": t.context.Configuration,
 	});
 
 	t.context.originalIsTty = process.stdout.isTTY;

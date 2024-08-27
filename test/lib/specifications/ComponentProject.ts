@@ -1,7 +1,7 @@
 import test from "ava";
 import path from "node:path";
 import sinon from "sinon";
-import Specification from "../../../lib/specifications/Specification.js";
+import Specification from "../../../src/specifications/Specification.js";
 
 function clone(o) {
 	return JSON.parse(JSON.stringify(o));

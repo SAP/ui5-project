@@ -1,7 +1,7 @@
 import test from "ava";
 import sinon from "sinon";
 import chalk from "chalk";
-import ValidationError from "../../../lib/validation/ValidationError.js";
+import ValidationError from "../../../src/validation/ValidationError.js";
 
 test.afterEach.always((t) => {
 	sinon.restore();

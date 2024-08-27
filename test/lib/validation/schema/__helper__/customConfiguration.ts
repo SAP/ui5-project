@@ -1,4 +1,4 @@
-import SpecificationVersion from "../../../../../lib/specifications/SpecificationVersion.js";
+import SpecificationVersion from "../../../../../src/specifications/SpecificationVersion.js";
 
 /**
  * Common test functionality for customConfiguration section in config

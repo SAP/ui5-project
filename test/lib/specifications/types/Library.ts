@@ -1,7 +1,7 @@
 import test from "ava";
 import path from "node:path";
 import sinonGlobal from "sinon";
-import Library from "../../../../lib/specifications/types/Library.js";
+import Library from "../../../../src/specifications/types/Library.js";
 
 const __dirname = import.meta.dirname;
 const libraryDPath = path.join(__dirname, "..", "..", "..", "fixtures", "library.d");

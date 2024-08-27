@@ -7,7 +7,7 @@ test.beforeEach(async (t) => {
 
 	t.context.readPackageUp = sinon.stub();
 
-	t.context.NodePackageDependencies = await esmock("../../../../lib/graph/providers/NodePackageDependencies.js", {
+	t.context.NodePackageDependencies = await esmock("../../../../src/graph/providers/NodePackageDependencies.js", {
 		"read-package-up": {
 			readPackageUp: t.context.readPackageUp,
 		},

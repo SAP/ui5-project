@@ -1,5 +1,5 @@
 import test from "ava";
-import ShimCollection from "../../../lib/graph/ShimCollection.js";
+import ShimCollection from "../../../src/graph/ShimCollection.js";
 
 test("Add shims", (t) => {
 	const collection = new ShimCollection();

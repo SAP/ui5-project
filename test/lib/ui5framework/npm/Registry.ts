@@ -29,7 +29,7 @@ test.beforeEach(async (t) => {
 
 	t.context.npmConfigConstructor = sinon.stub();
 	t.context.npmConfigFlat = sinon.stub(Config.prototype, "flat");
-	t.context.Registry = await esmock.p("../../../../lib/ui5Framework/npm/Registry.js", {
+	t.context.Registry = await esmock.p("../../../../src/ui5Framework/npm/Registry.js", {
 		"pacote": {
 			default: t.context.pacote,
 		},

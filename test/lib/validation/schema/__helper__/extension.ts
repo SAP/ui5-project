@@ -1,4 +1,4 @@
-import SpecificationVersion from "../../../../../lib/specifications/SpecificationVersion.js";
+import SpecificationVersion from "../../../../../src/specifications/SpecificationVersion.js";
 import customConfiguration from "./customConfiguration.js";
 
 /**

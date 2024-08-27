@@ -6,7 +6,7 @@ import esmock from "esmock";
 
 test.beforeEach(async (t) => {
 	t.context.osHomeDirStub = sinon.stub().callsFake(() => os.homedir());
-	t.context.AbstractResolver = await esmock.p("../../../lib/ui5Framework/AbstractResolver.js", {
+	t.context.AbstractResolver = await esmock.p("../../../src/ui5Framework/AbstractResolver.js", {
 		"node:os": {
 			homedir: t.context.osHomeDirStub,
 		},

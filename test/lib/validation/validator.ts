@@ -8,7 +8,7 @@ test.beforeEach(async (t) => {
 	const Ajv = t.context.Ajv = sinon.stub();
 	const ajvErrors = t.context.ajvErrors = sinon.stub();
 
-	t.context.validatorModule = await esmock.p("../../../lib/validation/validator.js", {
+	t.context.validatorModule = await esmock.p("../../../src/validation/validator.js", {
 		"ajv": Ajv,
 		"ajv-errors": ajvErrors,
 	});
@@ -56,7 +56,7 @@ test("validateWorkspace function calls Validator#validate method without project
 });
 
 test("validateWorkspace throw an Error", async (t) => {
-	const {validateWorkspace} = await esmock("../../../lib/validation/validator.js");
+	const {validateWorkspace} = await esmock("../../../src/validation/validator.js");
 	const config = {config: true};
 	const yaml = {yaml: true};
 

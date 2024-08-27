@@ -18,8 +18,8 @@ test.beforeEach(async (t) => {
 	}
 	t.context.MockWorkspace = MockWorkspace;
 
-	t.context.createWorkspace = await esmock("../../../../lib/graph/helpers/createWorkspace", {
-		"../../../../lib/graph/Workspace.js": t.context.MockWorkspace,
+	t.context.createWorkspace = await esmock("../../../../src/graph/helpers/createWorkspace", {
+		"../../../../src/graph/Workspace.js": t.context.MockWorkspace,
 	});
 });
 

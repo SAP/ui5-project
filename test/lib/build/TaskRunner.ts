@@ -123,7 +123,7 @@ test.beforeEach(async (t) => {
 			.returns("reader collection"),
 	};
 
-	t.context.TaskRunner = await esmock("../../../lib/build/TaskRunner.js", {
+	t.context.TaskRunner = await esmock("../../../src/build/TaskRunner.js", {
 		"@ui5/logger": t.context.logger,
 		"@ui5/fs/resourceFactory": t.context.resourceFactory,
 	});

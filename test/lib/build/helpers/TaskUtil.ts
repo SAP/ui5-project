@@ -1,7 +1,7 @@
 import test from "ava";
 import sinon from "sinon";
-import TaskUtil from "../../../../lib/build/helpers/TaskUtil.js";
-import SpecificationVersion from "../../../../lib/specifications/SpecificationVersion.js";
+import TaskUtil from "../../../../src/build/helpers/TaskUtil.js";
+import SpecificationVersion from "../../../../src/specifications/SpecificationVersion.js";
 
 test.afterEach.always((t) => {
 	sinon.restore();

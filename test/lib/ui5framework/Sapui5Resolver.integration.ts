@@ -38,7 +38,7 @@ test.beforeEach(async (t) => {
 		},
 	});
 
-	t.context.Registry = await esmock.p("../../../lib/ui5Framework/npm/Registry.js", {
+	t.context.Registry = await esmock.p("../../../src/ui5Framework/npm/Registry.js", {
 		"@ui5/logger": ui5Logger,
 		"pacote": t.context.pacote,
 		"@npmcli/config": {
@@ -46,9 +46,9 @@ test.beforeEach(async (t) => {
 		},
 	});
 
-	const AbstractInstaller = await esmock.p("../../../lib/ui5Framework/AbstractInstaller.js", {
+	const AbstractInstaller = await esmock.p("../../../src/ui5Framework/AbstractInstaller.js", {
 		"@ui5/logger": ui5Logger,
-		"../../../lib/utils/fs.js": {
+		"../../../src/utils/fs.js": {
 			mkdirp: sinon.stub().resolves(),
 		},
 		"lockfile": {
@@ -57,32 +57,32 @@ test.beforeEach(async (t) => {
 		},
 	});
 
-	t.context.Installer = await esmock.p("../../../lib/ui5Framework/npm/Installer.js", {
+	t.context.Installer = await esmock.p("../../../src/ui5Framework/npm/Installer.js", {
 		"@ui5/logger": ui5Logger,
 		"graceful-fs": {
 			rename: sinon.stub().yieldsAsync(),
 		},
-		"../../../lib/utils/fs.js": {
+		"../../../src/utils/fs.js": {
 			mkdirp: sinon.stub().resolves(),
 		},
-		"../../../lib/ui5Framework/npm/Registry.js": t.context.Registry,
-		"../../../lib/ui5Framework/AbstractInstaller.js": AbstractInstaller,
+		"../../../src/ui5Framework/npm/Registry.js": t.context.Registry,
+		"../../../src/ui5Framework/AbstractInstaller.js": AbstractInstaller,
 	});
 
-	t.context.AbstractResolver = await esmock.p("../../../lib/ui5Framework/AbstractResolver.js", {
+	t.context.AbstractResolver = await esmock.p("../../../src/ui5Framework/AbstractResolver.js", {
 		"@ui5/logger": ui5Logger,
 		"node:os": {
 			homedir: sinon.stub().returns(path.join(fakeBaseDir, "datadir")),
 		},
 	});
 
-	t.context.Sapui5Resolver = await esmock.p("../../../lib/ui5Framework/Sapui5Resolver.js", {
+	t.context.Sapui5Resolver = await esmock.p("../../../src/ui5Framework/Sapui5Resolver.js", {
 		"@ui5/logger": ui5Logger,
 		"node:os": {
 			homedir: sinon.stub().returns(path.join(fakeBaseDir, "datadir")),
 		},
-		"../../../lib/ui5Framework/AbstractResolver.js": t.context.AbstractResolver,
-		"../../../lib/ui5Framework/npm/Installer.js": t.context.Installer,
+		"../../../src/ui5Framework/AbstractResolver.js": t.context.AbstractResolver,
+		"../../../src/ui5Framework/npm/Installer.js": t.context.Installer,
 	});
 });
 
