@@ -13,6 +13,6 @@ test("enhancePatternWithExcludes", (t) => {
 		"!/prefix/a",
 		"/prefix/b",
 		"!/prefix/c",
-		"/prefix/d"
+		"/prefix/d",
 	]);
 });

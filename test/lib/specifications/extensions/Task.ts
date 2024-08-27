@@ -22,12 +22,12 @@ const basicCjsTaskInput = {
 		kind: "extension",
 		type: "task",
 		metadata: {
-			name: "task-a"
+			name: "task-a",
 		},
 		task: {
-			path: "lib/extensionModule.js"
-		}
-	}
+			path: "lib/extensionModule.js",
+		},
+	},
 };
 
 const basicEsmTaskInput = {
@@ -39,12 +39,12 @@ const basicEsmTaskInput = {
 		kind: "extension",
 		type: "task",
 		metadata: {
-			name: "task-a"
+			name: "task-a",
 		},
 		task: {
-			path: "lib/extensionModule.js"
-		}
-	}
+			path: "lib/extensionModule.js",
+		},
+	},
 };
 
 test.afterEach.always((t) => {

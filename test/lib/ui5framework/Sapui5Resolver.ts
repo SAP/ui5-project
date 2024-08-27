@@ -18,12 +18,12 @@ test.beforeEach(async (t) => {
 			fetchPackageVersions: t.context.fetchPackageVersionsStub,
 			installPackage: t.context.installPackageStub,
 			getTargetDirForPackage: t.context.getTargetDirForPackageStub,
-			readJson: t.context.readJsonStub
+			readJson: t.context.readJsonStub,
 		};
 	});
 
 	t.context.Sapui5Resolver = await esmock("../../../lib/ui5Framework/Sapui5Resolver.js", {
-		"../../../lib/ui5Framework/npm/Installer": t.context.InstallerStub
+		"../../../lib/ui5Framework/npm/Installer": t.context.InstallerStub,
 	});
 });
 
@@ -37,7 +37,7 @@ test.serial(
 
 		const resolver = new Sapui5Resolver({
 			cwd: "/test-project/",
-			version: "1.75.0"
+			version: "1.75.0",
 		});
 
 		t.context.getTargetDirForPackageStub.callsFake(({pkgName, version}) => {
@@ -45,22 +45,22 @@ test.serial(
 				`getTargetDirForPackage stub called with unknown arguments pkgName: ${pkgName}, version: ${version}}`);
 		}).withArgs({
 			pkgName: "@sapui5/distribution-metadata",
-			version: "1.75.0"
+			version: "1.75.0",
 		}).returns(path.join("/path", "to", "distribution-metadata", "1.75.0"));
 		t.context.installPackageStub.withArgs({
 			pkgName: "@sapui5/distribution-metadata",
-			version: "1.75.0"
+			version: "1.75.0",
 		}).resolves({pkgPath: path.join("/path", "to", "distribution-metadata", "1.75.0")});
 
 		const expectedMetadata = {
 			libraries: {
 				"sap.ui.foo": {
-					"npmPackageName": "@openui5/sap.ui.foo",
-					"version": "1.75.0",
-					"dependencies": [],
-					"optionalDependencies": []
-				}
-			}
+					npmPackageName: "@openui5/sap.ui.foo",
+					version: "1.75.0",
+					dependencies: [],
+					optionalDependencies: [],
+				},
+			},
 		};
 		t.context.readJsonStub
 			.withArgs(path.join("/path", "to", "distribution-metadata", "1.75.0", "metadata.json"))
@@ -88,19 +88,19 @@ test.serial("Sapui5Resolver: handleLibrary", async (t) => {
 
 	const resolver = new Sapui5Resolver({
 		cwd: "/test-project/",
-		version: "1.75.0"
+		version: "1.75.0",
 	});
 
 	const loadDistMetadataStub = sinon.stub(resolver, "loadDistMetadata");
 	loadDistMetadataStub.resolves({
 		libraries: {
 			"sap.ui.lib1": {
-				"npmPackageName": "@openui5/sap.ui.lib1",
-				"version": "1.75.0",
-				"dependencies": [],
-				"optionalDependencies": []
-			}
-		}
+				npmPackageName: "@openui5/sap.ui.lib1",
+				version: "1.75.0",
+				dependencies: [],
+				optionalDependencies: [],
+			},
+		},
 	});
 
 	t.context.installPackageStub
@@ -109,7 +109,6 @@ test.serial("Sapui5Resolver: handleLibrary", async (t) => {
 		})
 		.withArgs({pkgName: "@openui5/sap.ui.lib1", version: "1.75.0"}).resolves({pkgPath: "/foo/sap.ui.lib1"});
 
-
 	const promises = await resolver.handleLibrary("sap.ui.lib1");
 
 	t.true(promises.metadata instanceof Promise, "Metadata promise should be returned");
@@ -117,10 +116,10 @@ test.serial("Sapui5Resolver: handleLibrary", async (t) => {
 
 	const metadata = await promises.metadata;
 	t.deepEqual(metadata, {
-		"id": "@openui5/sap.ui.lib1",
-		"version": "1.75.0",
-		"dependencies": [],
-		"optionalDependencies": []
+		id: "@openui5/sap.ui.lib1",
+		version: "1.75.0",
+		dependencies: [],
+		optionalDependencies: [],
 	}, "Expected library metadata should be returned");
 
 	t.deepEqual(await promises.install, {pkgPath: "/foo/sap.ui.lib1"}, "Install should resolve with expected object");
@@ -132,7 +131,7 @@ test.serial("Sapui5Resolver: Static _getInstaller", (t) => {
 
 	const options = {
 		cwd: "/cwd",
-		ui5DataDir: "/ui5DataDir"
+		ui5DataDir: "/ui5DataDir",
 	};
 
 	const installer = Sapui5Resolver._getInstaller(options);
@@ -142,7 +141,7 @@ test.serial("Sapui5Resolver: Static _getInstaller", (t) => {
 	t.is(installer, t.context.InstallerStub.getCall(0).returnValue, "Installer instance is returned");
 	t.deepEqual(t.context.InstallerStub.getCall(0).args, [{
 		cwd: path.resolve("/cwd"),
-		ui5DataDir: path.resolve("/ui5DataDir")
+		ui5DataDir: path.resolve("/ui5DataDir"),
 	}], "Installer should be called with expected arguments");
 });
 
@@ -156,7 +155,7 @@ test.serial("Sapui5Resolver: Static _getInstaller without options", (t) => {
 	t.is(installer, t.context.InstallerStub.getCall(0).returnValue, "Installer instance is returned");
 	t.deepEqual(t.context.InstallerStub.getCall(0).args, [{
 		cwd: process.cwd(),
-		ui5DataDir: path.join(os.homedir(), ".ui5")
+		ui5DataDir: path.join(os.homedir(), ".ui5"),
 	}], "Installer should be called with expected arguments");
 });
 
@@ -207,28 +206,28 @@ test.serial(
 
 		const resolver = new Sapui5Resolver({
 			cwd: "/test-project/",
-			version: "1.77.7"
+			version: "1.77.7",
 		});
 
 		const openui5LibraryMetadata = {
-			"id": "@openui5/sap.ui.lib3",
-			"version": "1.77.4",
-			"dependencies": [
-				"@openui5/sap.ui.lib1"
+			id: "@openui5/sap.ui.lib3",
+			version: "1.77.4",
+			dependencies: [
+				"@openui5/sap.ui.lib1",
 			],
-			"optionalDependencies": [
-				"@openui5/sap.ui.lib2"
-			]
+			optionalDependencies: [
+				"@openui5/sap.ui.lib2",
+			],
 		};
 		const expectedMetadata = {
-			"npmPackageName": "@openui5/sap.ui.lib3",
-			"version": "1.77.4",
-			"dependencies": [
-				"@openui5/sap.ui.lib1"
+			npmPackageName: "@openui5/sap.ui.lib3",
+			version: "1.77.4",
+			dependencies: [
+				"@openui5/sap.ui.lib1",
 			],
-			"optionalDependencies": [
-				"@openui5/sap.ui.lib2"
-			]
+			optionalDependencies: [
+				"@openui5/sap.ui.lib2",
+			],
 		};
 
 		const openui5GetLibraryMetadataStub = sinon.stub(Openui5Resolver.prototype, "getLibraryMetadata");
@@ -238,12 +237,12 @@ test.serial(
 		loadDistMetadataStub.resolves({
 			libraries: {
 				"sap.ui.lib1": {
-					"npmPackageName": "@openui5/sap.ui.lib1",
-					"version": "1.77.4",
-					"dependencies": [],
-					"optionalDependencies": []
-				}
-			}
+					npmPackageName: "@openui5/sap.ui.lib1",
+					version: "1.77.4",
+					dependencies: [],
+					optionalDependencies: [],
+				},
+			},
 		});
 
 		const metadata = await resolver.getLibraryMetadata("sap.ui.lib1");

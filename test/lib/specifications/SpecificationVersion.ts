@@ -23,7 +23,7 @@ test.serial("Invalid specVersion", (t) => {
 	t.throws(() => {
 		new SpecificationVersion("2.5");
 	}, {
-		message: unsupportedSpecVersionText("2.5")
+		message: unsupportedSpecVersionText("2.5"),
 	}, "Threw with expected error message");
 
 	t.is(isSupportedSpecVersionStub.callCount, 1, "Static isSupportedSpecVersionStub has been called once");
@@ -228,36 +228,36 @@ test("(static) low level comparator", (t) => {
 test("(static) getVersionsForRange", (t) => {
 	// range: 1.x
 	t.deepEqual(SpecificationVersion.getVersionsForRange("1.x"), [
-		"1.0", "1.1"
+		"1.0", "1.1",
 	]);
 
 	// range: ^2.2
 	t.deepEqual(SpecificationVersion.getVersionsForRange("^2.2"), [
-		"2.2", "2.3", "2.4", "2.5", "2.6"
+		"2.2", "2.3", "2.4", "2.5", "2.6",
 	]);
 
 	// range: >=2.2
 	t.deepEqual(SpecificationVersion.getVersionsForRange(">=2.2"), [
 		"2.2", "2.3", "2.4", "2.5", "2.6",
-		"3.0", "3.1", "3.2", "4.0"
+		"3.0", "3.1", "3.2", "4.0",
 	]);
 
 	// range: > 1.0
 	t.deepEqual(SpecificationVersion.getVersionsForRange("> 1.0"), [
 		"1.1",
 		"2.0", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6",
-		"3.0", "3.1", "3.2", "4.0"
+		"3.0", "3.1", "3.2", "4.0",
 	]);
 
 	// range: 2.2 - 2.4
 	t.deepEqual(SpecificationVersion.getVersionsForRange("2.2 - 2.4"), [
-		"2.2", "2.3", "2.4"
+		"2.2", "2.3", "2.4",
 	]);
 
 	// range: 0.1 || 1.0 - 1.1 || ^2.5
 	t.deepEqual(SpecificationVersion.getVersionsForRange("0.1 || 1.0 - 1.1 || ^2.5"), [
 		"0.1", "1.0", "1.1",
-		"2.5", "2.6"
+		"2.5", "2.6",
 	]);
 
 	// Incorrect range returns empty array

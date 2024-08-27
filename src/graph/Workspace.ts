@@ -9,33 +9,25 @@ import {validateWorkspace} from "../validation/validator.js";
 const readFile = promisify(fs.readFile);
 const log = getLogger("graph:Workspace");
 
-
 /**
  * Workspace configuration. For details, refer to the
  * [UI5 Workspaces documentation]{@link https://sap.github.io/ui5-tooling/v4/pages/Workspace/#configuration}
  *
- * @public
- * @typedef {object} @ui5/project/graph/Workspace~Configuration
- * @property {string} node.specVersion Workspace Specification Version
- * @property {object} node.metadata
- * @property {string} node.metadata.name Name of the workspace configuration
- * @property {object} node.dependencyManagement
- * @property {@ui5/project/graph/Workspace~DependencyManagementResolutions[]} node.dependencyManagement.resolutions
+ * node.specVersion Workspace Specification Version
+ *
+ * node.metadata.name Name of the workspace configuration
+ *
  */
 
 /**
  * A resolution entry for the dependency management section of the workspace configuration
  *
- * @public
- * @typedef {object} @ui5/project/graph/Workspace~DependencyManagementResolution
- * @property {string} path Relative path to use for the workspace resolution process
+ * path Relative path to use for the workspace resolution process
  */
 
 /**
  * UI5 Workspace
  *
- * @public
- * @class
  * @alias @ui5/project/graph/Workspace
  */
 class Workspace {
@@ -45,16 +37,15 @@ class Workspace {
 	#cwd;
 
 	/**
-	 * @public
-	 * @param {object} options
-	 * @param {string} options.cwd Path to use for resolving all paths of the workspace configuration from.
+	 * @param options
+	 * @param options.cwd Path to use for resolving all paths of the workspace configuration from.
 	 *   This should contain platform-specific path separators (i.e. must not be POSIX on non-POSIX systems)
-	 * @param {@ui5/project/graph/Workspace~Configuration} options.configuration
+	 * @param options.configuration
 	 *   Workspace configuration
 	 */
-	constructor({ cwd, configuration }: {
-    cwd: string;
-}) {
+	constructor({cwd, configuration}: {
+		cwd: string;
+	}) {
 		if (!cwd) {
 			throw new Error(`Could not create Workspace: Missing or empty parameter 'cwd'`);
 		}
@@ -69,8 +60,7 @@ class Workspace {
 	/**
 	 * Get the name of this workspace
 	 *
-	 * @public
-	 * @returns {string} Name of this workspace configuration
+	 * @returns Name of this workspace configuration
 	 */
 	public getName() {
 		return this.#configuration.metadata.name;
@@ -106,7 +96,7 @@ class Workspace {
 		if (!resolutions?.length) {
 			return {
 				projectNameMap: new Map(),
-				moduleIdMap: new Map()
+				moduleIdMap: new Map(),
 			};
 		}
 
@@ -143,7 +133,7 @@ class Workspace {
 		}));
 		return {
 			projectNameMap,
-			moduleIdMap
+			moduleIdMap,
 		};
 	}
 
@@ -177,7 +167,7 @@ class Workspace {
 		const packageWorkspaceConfig = pkg.ui5?.workspaces || pkg.workspaces;
 		if (packageWorkspaceConfig?.length) {
 			log.verbose(`Module ${pkg.name} provides a package.json workspaces configuration. ` +
-				`Ignoring the module and resolving workspaces instead...`);
+			`Ignoring the module and resolving workspaces instead...`);
 			const staticPatterns = [];
 			// Split provided patterns into dynamic and static patterns
 			// This is necessary, since fast-glob currently behaves different from
@@ -220,7 +210,7 @@ class Workspace {
 			return [new Module({
 				id: pkg.name,
 				version: pkg.version,
-				modulePath: nodePath
+				modulePath: nodePath,
 			})];
 		}
 	}
@@ -235,7 +225,7 @@ class Workspace {
 			return;
 		}
 		await validateWorkspace({
-			config: this.#configuration
+			config: this.#configuration,
 		});
 		this.#configValidated = true;
 	}

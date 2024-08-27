@@ -11,7 +11,7 @@ test.beforeEach(async (t) => {
 
 	t.context.fetchStub = sinon.stub().resolves({
 		ok: true,
-		buffer: sinon.stub().resolves("<metadata>Some metadata</metadata>")
+		buffer: sinon.stub().resolves("<metadata>Some metadata</metadata>"),
 	});
 
 	t.context.fsCreateWriteStreamStub = sinon.stub().resolves();
@@ -19,14 +19,14 @@ test.beforeEach(async (t) => {
 	t.context.Registry = await esmock.p("../../../../lib/ui5Framework/maven/Registry.js", {
 		"make-fetch-happen": t.context.fetchStub,
 		"node:stream/promises": {
-			"pipeline": t.context.streamPipelineStub
+			pipeline: t.context.streamPipelineStub,
 		},
 		"node:util": {
-			"promisify": t.context.promisifyStub
+			promisify: t.context.promisifyStub,
 		},
 		"graceful-fs": {
-			"createWriteStream": t.context.fsCreateWriteStreamStub
-		}
+			createWriteStream: t.context.fsCreateWriteStreamStub,
+		},
 	});
 });
 
@@ -40,7 +40,7 @@ test.serial("Registry: constructor", (t) => {
 
 	const reg = new Registry({
 		cwd: "/cwd/",
-		endpointUrl: "some-url"
+		endpointUrl: "some-url",
 	});
 	t.true(reg instanceof Registry, "Constructor returns instance of class");
 	t.is(reg._endpointUrl, "some-url/");
@@ -61,7 +61,7 @@ test.serial("Registry: requestMavenMetadata", async (t) => {
 
 	const reg = new Registry({
 		cwd: "/cwd/",
-		endpointUrl: "some-url"
+		endpointUrl: "some-url",
 	});
 
 	const resolvedMetadata = await reg.requestMavenMetadata({
@@ -80,7 +80,7 @@ test.serial("Registry: requestMavenMetadata bad request", async (t) => {
 
 	const reg = new Registry({
 		cwd: "/cwd/",
-		endpointUrl: "some-url"
+		endpointUrl: "some-url",
 	});
 
 	await t.throwsAsync(
@@ -104,20 +104,20 @@ test.serial("Registry: requestMavenMetadata not found", async (t) => {
 
 	const reg = new Registry({
 		cwd: "/cwd/",
-		endpointUrl: "some-url"
+		endpointUrl: "some-url",
 	});
 
 	await t.throwsAsync(
 		reg.requestMavenMetadata({
 			groupId: "ui5.corp",
-			artifactId: "great-thing"
+			artifactId: "great-thing",
 		}),
 		{
 			message:
 				"Failed to connect to Maven registry at some-url/. " +
-				"Please check the correct endpoint URL is maintained and can be reached. "+
+				"Please check the correct endpoint URL is maintained and can be reached. " +
 				"You can change the configured URL " +
-				"using the following command: 'ui5 config set mavenSnapshotEndpointUrl <url>'"
+				"using the following command: 'ui5 config set mavenSnapshotEndpointUrl <url>'",
 		}
 	);
 });
@@ -127,14 +127,14 @@ test.serial("Registry: requestMavenMetadata No metadata/bad xml", async (t) => {
 
 	const reg = new Registry({
 		cwd: "/cwd/",
-		endpointUrl: "some-url"
+		endpointUrl: "some-url",
 	});
 
 	promisifyStub.callsFake((fn) => promisify(fn)); // Use the native promisify
 
 	fetchStub.resolves({
 		ok: true,
-		buffer: sinon.stub().resolves("<metadata></metadata>")
+		buffer: sinon.stub().resolves("<metadata></metadata>"),
 	});
 
 	await t.throwsAsync(
@@ -149,7 +149,7 @@ test.serial("Registry: requestMavenMetadata No metadata/bad xml", async (t) => {
 				"Empty or unexpected response body:\n" +
 				"<metadata></metadata>\n" +
 				"Parsed as:\n" +
-				"{\"metadata\":\"\"}"
+				"{\"metadata\":\"\"}",
 		}
 	);
 });
@@ -159,19 +159,19 @@ test.serial("Registry: requestArtifact", async (t) => {
 
 	fetchStub.resolves({
 		ok: true,
-		body: "content body"
+		body: "content body",
 	});
 
 	const reg = new Registry({
 		cwd: "/cwd/",
-		endpointUrl: "some-url"
+		endpointUrl: "some-url",
 	});
 
 	await reg.requestArtifact({
 		groupId: "ui5.corp",
 		artifactId: "great-thing",
 		revision: "2",
-		extension: "jar"
+		extension: "jar",
 	}, "/target/path/");
 
 	t.is(streamPipelineStub.callCount, 1, "Pipeline is called");
@@ -187,7 +187,7 @@ test.serial("Registry: requestArtifact bad request", async (t) => {
 
 	const reg = new Registry({
 		cwd: "/cwd/",
-		endpointUrl: "some-url"
+		endpointUrl: "some-url",
 	});
 
 	await t.throwsAsync(
@@ -197,7 +197,7 @@ test.serial("Registry: requestArtifact bad request", async (t) => {
 			revision: "2",
 			version: "2",
 			classifier: "classifier",
-			extension: "jar"
+			extension: "jar",
 		}, "/target/path/"),
 		{
 			message:
@@ -214,7 +214,7 @@ test.serial("Registry: requestArtifact not found", async (t) => {
 
 	const reg = new Registry({
 		cwd: "/cwd/",
-		endpointUrl: "some-url"
+		endpointUrl: "some-url",
 	});
 
 	await t.throwsAsync(
@@ -232,9 +232,9 @@ test.serial("Registry: requestArtifact not found", async (t) => {
 		{
 			message:
 				"Failed to connect to Maven registry at some-url/. " +
-				"Please check the correct endpoint URL is maintained and can be reached. "+
+				"Please check the correct endpoint URL is maintained and can be reached. " +
 				"You can change the configured URL " +
-				"using the following command: 'ui5 config set mavenSnapshotEndpointUrl <url>'"
+				"using the following command: 'ui5 config set mavenSnapshotEndpointUrl <url>'",
 		}
 	);
 });

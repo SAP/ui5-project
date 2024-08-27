@@ -42,34 +42,34 @@ test.beforeEach(async (t) => {
 		traverseBreadthFirst: async (start, callback) => {
 			if (callback) {
 				await callback({
-					project: getMockProject("library", "c")
+					project: getMockProject("library", "c"),
 				});
 				return;
 			}
 			await start({
-				project: getMockProject("library", "a")
+				project: getMockProject("library", "a"),
 			});
 			await start({
-				project: getMockProject("library", "c")
+				project: getMockProject("library", "c"),
 			});
 			await start({
-				project: getMockProject("library", "b")
+				project: getMockProject("library", "b"),
 			});
 		},
 		traverseDepthFirst: async (callback) => {
 			await callback({
-				project: getMockProject("library", "a")
+				project: getMockProject("library", "a"),
 			});
 			await callback({
-				project: getMockProject("library", "b")
+				project: getMockProject("library", "b"),
 			});
 			await callback({
-				project: getMockProject("library", "c")
+				project: getMockProject("library", "c"),
 			});
 		},
 		getProject: sinon.stub().callsFake((projectName) => {
 			return getMockProject(...projectName.split("."));
-		})
+		}),
 	};
 
 	t.context.ProjectBuilder = await esmock("../../../lib/build/ProjectBuilder.js");
@@ -111,7 +111,7 @@ test("build", async (t) => {
 			};
 		},
 		requiresBuild: requiresBuildStub,
-		getProject: sinon.stub().returns(getMockProject("library"))
+		getProject: sinon.stub().returns(getMockProject("library")),
 	};
 	const createRequiredBuildContextsStub = sinon.stub(builder, "_createRequiredBuildContexts")
 		.resolves(new Map().set("project.a", projectBuildContextMock));
@@ -125,19 +125,19 @@ test("build", async (t) => {
 	await builder.build({
 		destPath: "dest/path",
 		includedDependencies: ["dep a"],
-		excludedDependencies: ["dep b"]
+		excludedDependencies: ["dep b"],
 	});
 
 	t.is(getProjectFilterStub.callCount, 1, "_getProjectFilter got called once");
 	t.deepEqual(getProjectFilterStub.getCall(0).args[0], {
 		explicitIncludes: ["dep a"],
 		explicitExcludes: ["dep b"],
-		dependencyIncludes: undefined
+		dependencyIncludes: undefined,
 	}, "_getProjectFilter got called with correct arguments");
 
 	t.is(createRequiredBuildContextsStub.callCount, 1, "_createRequiredBuildContexts got called once");
 	t.deepEqual(createRequiredBuildContextsStub.getCall(0).args[0], [
-		"project.a", "project.b", "project.c"
+		"project.a", "project.b", "project.c",
 	], "_createRequiredBuildContexts got called with correct arguments");
 
 	t.is(requiresBuildStub.callCount, 1, "ProjectBuildContext#requiresBuild got called once");
@@ -166,7 +166,7 @@ test("build: Missing dest parameter", async (t) => {
 		destPath: "dest/path",
 		dependencyIncludes: "dependencyIncludes",
 		includedDependencies: ["dep a"],
-		excludedDependencies: ["dep b"]
+		excludedDependencies: ["dep b"],
 	}));
 
 	t.is(err.message,
@@ -182,7 +182,7 @@ test("build: Too many dependency parameters", async (t) => {
 
 	const err = await t.throwsAsync(builder.build({
 		includedDependencies: ["dep a"],
-		excludedDependencies: ["dep b"]
+		excludedDependencies: ["dep b"],
 	}));
 
 	t.is(err.message, "Missing parameter 'destPath'", "Threw with expected error message");
@@ -193,15 +193,15 @@ test("build: createBuildManifest in conjunction with dependencies", async (t) =>
 	t.context.getRootTypeStub = sinon.stub().returns("library");
 	const builder = new ProjectBuilder({graph, taskRepository,
 		buildConfig: {
-			createBuildManifest: true
-		}
+			createBuildManifest: true,
+		},
 	});
 
 	const filterProjectStub = sinon.stub().returns(true);
 	sinon.stub(builder, "_getProjectFilter").resolves(filterProjectStub);
 	const err = await t.throwsAsync(builder.build({
 		destPath: "dest/path",
-		includedDependencies: ["dep a"]
+		includedDependencies: ["dep a"],
 	}));
 
 	t.is(err.message,
@@ -224,10 +224,10 @@ test("build: Failure", async (t) => {
 		requiresBuild: requiresBuildStub,
 		getTaskRunner: () => {
 			return {
-				runTasks: runTasksStub
+				runTasks: runTasksStub,
 			};
 		},
-		getProject: sinon.stub().returns(getMockProject("library"))
+		getProject: sinon.stub().returns(getMockProject("library")),
 	};
 	sinon.stub(builder, "_createRequiredBuildContexts")
 		.resolves(new Map().set("project.a", projectBuildContextMock));
@@ -240,7 +240,7 @@ test("build: Failure", async (t) => {
 	const err = await t.throwsAsync(builder.build({
 		destPath: "dest/path",
 		includedDependencies: ["dep a"],
-		excludedDependencies: ["dep b"]
+		excludedDependencies: ["dep b"],
 	}));
 
 	t.is(err.message, "Some Error", "Threw with expected error message");
@@ -273,7 +273,7 @@ test.serial("build: Multiple projects", async (t) => {
 		return buildLoggerMock;
 	}
 	const ProjectBuilder = await esmock("../../../lib/build/ProjectBuilder.js", {
-		"@ui5/logger/internal/loggers/Build": CreateBuildLoggerMock
+		"@ui5/logger/internal/loggers/Build": CreateBuildLoggerMock,
 	});
 
 	const builder = new ProjectBuilder({graph, taskRepository});
@@ -286,36 +286,36 @@ test.serial("build: Multiple projects", async (t) => {
 	const requiresBuildCStub = sinon.stub().returns(true);
 	const getBuildMetadataStub = sinon.stub().returns({
 		timestamp: "2022-07-28T12:00:00.000Z",
-		age: "xx days"
+		age: "xx days",
 	});
 	const runTasksStub = sinon.stub().resolves();
 	const projectBuildContextMockA = {
 		getTaskRunner: () => {
 			return {
-				runTasks: runTasksStub
+				runTasks: runTasksStub,
 			};
 		},
 		requiresBuild: requiresBuildAStub,
-		getProject: sinon.stub().returns(getMockProject("library", "a"))
+		getProject: sinon.stub().returns(getMockProject("library", "a")),
 	};
 	const projectBuildContextMockB = {
 		getTaskRunner: () => {
 			return {
-				runTasks: runTasksStub
+				runTasks: runTasksStub,
 			};
 		},
 		getBuildMetadata: getBuildMetadataStub,
 		requiresBuild: requiresBuildBStub,
-		getProject: sinon.stub().returns(getMockProject("library", "b"))
+		getProject: sinon.stub().returns(getMockProject("library", "b")),
 	};
 	const projectBuildContextMockC = {
 		getTaskRunner: () => {
 			return {
-				runTasks: runTasksStub
+				runTasks: runTasksStub,
 			};
 		},
 		requiresBuild: requiresBuildCStub,
-		getProject: sinon.stub().returns(getMockProject("library", "c"))
+		getProject: sinon.stub().returns(getMockProject("library", "c")),
 	};
 	const createRequiredBuildContextsStub = sinon.stub(builder, "_createRequiredBuildContexts")
 		.resolves(new Map()
@@ -332,7 +332,7 @@ test.serial("build: Multiple projects", async (t) => {
 	setLogLevel("verbose");
 	await builder.build({
 		destPath: path.join("dest", "path"),
-		dependencyIncludes: "dependencyIncludes"
+		dependencyIncludes: "dependencyIncludes",
 	});
 	setLogLevel("info");
 
@@ -340,12 +340,12 @@ test.serial("build: Multiple projects", async (t) => {
 	t.deepEqual(getProjectFilterStub.getCall(0).args[0], {
 		explicitIncludes: [],
 		explicitExcludes: [],
-		dependencyIncludes: "dependencyIncludes"
+		dependencyIncludes: "dependencyIncludes",
 	}, "_getProjectFilter got called with correct arguments");
 
 	t.is(createRequiredBuildContextsStub.callCount, 1, "_createRequiredBuildContexts got called once");
 	t.deepEqual(createRequiredBuildContextsStub.getCall(0).args[0], [
-		"project.b", "project.c"
+		"project.b", "project.c",
 	], "_createRequiredBuildContexts got called with correct arguments");
 
 	t.is(requiresBuildAStub.callCount, 1, "TaskRunner#requiresBuild got called once times for library.a");
@@ -408,9 +408,9 @@ test("_createRequiredBuildContexts", async (t) => {
 		requiresBuild: requiresBuildStub,
 		getTaskRunner: () => {
 			return {
-				getRequiredDependencies: getRequiredDependenciesStub
+				getRequiredDependencies: getRequiredDependenciesStub,
 			};
-		}
+		},
 	};
 	const createProjectContextStub = sinon.stub(builder._buildContext, "createProjectContext")
 		.returns(projectBuildContextMock);
@@ -441,7 +441,7 @@ test.serial("_getProjectFilter with dependencyIncludes", async (t) => {
 		excludedDependencies: ["project.d", "project.e", "project.a"],
 	});
 	const ProjectBuilder = await esmock("../../../lib/build/ProjectBuilder.js", {
-		"../../../lib/build/helpers/composeProjectList.js": composeProjectListStub
+		"../../../lib/build/helpers/composeProjectList.js": composeProjectListStub,
 	});
 
 	const builder = new ProjectBuilder({graph, taskRepository});
@@ -472,7 +472,7 @@ test.serial("_getProjectFilter with explicit include/exclude", async (t) => {
 		excludedDependencies: ["project.d", "project.e", "project.a"],
 	});
 	const ProjectBuilder = await esmock("../../../lib/build/ProjectBuilder.js", {
-		"../../../lib/build/helpers/composeProjectList.js": composeProjectListStub
+		"../../../lib/build/helpers/composeProjectList.js": composeProjectListStub,
 	});
 
 	const builder = new ProjectBuilder({graph, taskRepository});
@@ -505,23 +505,23 @@ test("_writeResults", async (t) => {
 		graph, taskRepository,
 		buildConfig: {
 			createBuildManifest: false,
-			otherBuildConfig: "yes"
-		}
+			otherBuildConfig: "yes",
+		},
 	});
 
 	const mockResources = [{
 		_resourceName: "resource.a",
-		getPath: () => "resource.a"
+		getPath: () => "resource.a",
 	}, {
 		_resourceName: "resource.b",
-		getPath: () => "resource.b"
+		getPath: () => "resource.b",
 	}, {
 		_resourceName: "resource.c",
-		getPath: () => "resource.c"
+		getPath: () => "resource.c",
 	}];
 	const byGlobStub = sinon.stub().resolves(mockResources);
 	const getReaderStub = sinon.stub().returns({
-		byGlob: byGlobStub
+		byGlob: byGlobStub,
 	});
 	const mockProject = getMockProject("library", "c");
 	mockProject.getReader = getReaderStub;
@@ -534,20 +534,20 @@ test("_writeResults", async (t) => {
 				isRootProject: () => false,
 				getTag: getTagStub,
 				STANDARD_TAGS: {
-					OmitFromBuildResult: "OmitFromBuildResultTag"
-				}
+					OmitFromBuildResult: "OmitFromBuildResultTag",
+				},
 			};
-		}
+		},
 	};
 	const writerMock = {
-		write: sinon.stub().resolves()
+		write: sinon.stub().resolves(),
 	};
 
 	await builder._writeResults(projectBuildContextMock, writerMock);
 
 	t.is(getReaderStub.callCount, 1, "One reader requested");
 	t.deepEqual(getReaderStub.getCall(0).args[0], {
-		style: "dist"
+		style: "dist",
 	}, "Reader requested expected style");
 
 	t.is(byGlobStub.callCount, 1, "One byGlob call");
@@ -571,36 +571,36 @@ test.serial("_writeResults: Create build manifest", async (t) => {
 	t.context.getRootTypeStub = sinon.stub().returns("library");
 	const {graph, taskRepository} = t.context;
 
-	const createBuildManifestStub = sinon.stub().returns({"build": "manifest"});
+	const createBuildManifestStub = sinon.stub().returns({build: "manifest"});
 	const createResourceStub = sinon.stub().returns("build manifest resource");
 	const ProjectBuilder = await esmock.p("../../../lib/build/ProjectBuilder.js", {
 		"../../../lib/build/helpers/createBuildManifest.js": createBuildManifestStub,
 		"@ui5/fs/resourceFactory": {
-			createResource: createResourceStub
-		}
+			createResource: createResourceStub,
+		},
 	});
 
 	const builder = new ProjectBuilder({
 		graph, taskRepository,
 		buildConfig: {
 			createBuildManifest: true,
-			otherBuildConfig: "yes"
-		}
+			otherBuildConfig: "yes",
+		},
 	});
 
 	const mockResources = [{
 		_resourceName: "resource.a",
-		getPath: () => "resource.a"
+		getPath: () => "resource.a",
 	}, {
 		_resourceName: "resource.b",
-		getPath: () => "resource.b"
+		getPath: () => "resource.b",
 	}, {
 		_resourceName: "resource.c",
-		getPath: () => "resource.c"
+		getPath: () => "resource.c",
 	}];
 	const byGlobStub = sinon.stub().resolves(mockResources);
 	const getReaderStub = sinon.stub().returns({
-		byGlob: byGlobStub
+		byGlob: byGlobStub,
 	});
 	const mockProject = getMockProject("library", "c");
 	mockProject.getReader = getReaderStub;
@@ -613,20 +613,20 @@ test.serial("_writeResults: Create build manifest", async (t) => {
 				isRootProject: () => true,
 				getTag: getTagStub,
 				STANDARD_TAGS: {
-					OmitFromBuildResult: "OmitFromBuildResultTag"
-				}
+					OmitFromBuildResult: "OmitFromBuildResultTag",
+				},
 			};
-		}
+		},
 	};
 	const writerMock = {
-		write: sinon.stub().resolves()
+		write: sinon.stub().resolves(),
 	};
 
 	await builder._writeResults(projectBuildContextMock, writerMock);
 
 	t.is(getReaderStub.callCount, 1, "One reader requested");
 	t.deepEqual(getReaderStub.getCall(0).args[0], {
-		style: "buildtime"
+		style: "buildtime",
 	}, "Reader requested expected style");
 
 	t.is(byGlobStub.callCount, 1, "One byGlob call");
@@ -650,7 +650,7 @@ test.serial("_writeResults: Create build manifest", async (t) => {
 		path: "/.ui5/build-manifest.json",
 		string: `{
 	"build": "manifest"
-}`
+}`,
 	}, "Build manifest resource has been created with correct arguments");
 
 	t.is(getTagStub.callCount, 3, "TaskUtil#getTag got called three times");
@@ -678,23 +678,23 @@ test.serial("_writeResults: Flat build output", async (t) => {
 		graph, taskRepository,
 		buildConfig: {
 			outputStyle: OutputStyleEnum.Flat,
-			otherBuildConfig: "yes"
-		}
+			otherBuildConfig: "yes",
+		},
 	});
 
 	const mockResources = [{
 		_resourceName: "resource.a",
-		getPath: () => "resource.a"
+		getPath: () => "resource.a",
 	}, {
 		_resourceName: "resource.b",
-		getPath: () => "resource.b"
+		getPath: () => "resource.b",
 	}, {
 		_resourceName: "resource.c",
-		getPath: () => "resource.c"
+		getPath: () => "resource.c",
 	}];
 	const byGlobStub = sinon.stub().resolves(mockResources);
 	const getReaderStub = sinon.stub().returns({
-		byGlob: byGlobStub
+		byGlob: byGlobStub,
 	});
 	const mockProject = getMockProject("library", "a");
 	mockProject.getReader = getReaderStub;
@@ -707,20 +707,20 @@ test.serial("_writeResults: Flat build output", async (t) => {
 				isRootProject: () => true,
 				getTag: getTagStub,
 				STANDARD_TAGS: {
-					OmitFromBuildResult: "OmitFromBuildResultTag"
-				}
+					OmitFromBuildResult: "OmitFromBuildResultTag",
+				},
 			};
-		}
+		},
 	};
 	const writerMock = {
-		write: sinon.stub().resolves()
+		write: sinon.stub().resolves(),
 	};
 
 	await builder._writeResults(projectBuildContextMock, writerMock);
 
 	t.is(getReaderStub.callCount, 2, "One reader requested");
 	t.deepEqual(getReaderStub.getCall(0).args[0], {
-		style: "flat"
+		style: "flat",
 	}, "Reader requested expected style");
 
 	t.is(byGlobStub.callCount, 2, "One byGlob call");
@@ -738,7 +738,6 @@ test.serial("_writeResults: Flat build output", async (t) => {
 	t.is(writerMock.write.getCall(0).args[0], mockResources[1], "Write got called with second resource");
 	t.is(writerMock.write.getCall(1).args[0], mockResources[2], "Write got called with third resource");
 });
-
 
 test("_executeCleanupTasks", async (t) => {
 	const {graph, taskRepository, ProjectBuilder, sinon} = t.context;
@@ -768,7 +767,7 @@ test("instantiate new logger for every ProjectBuilder", async (t) => {
 	const {graph, taskRepository, sinon} = t.context;
 	const createBuildLoggerMockSpy = sinon.spy(CreateBuildLoggerMock);
 	const ProjectBuilder = await esmock("../../../lib/build/ProjectBuilder.js", {
-		"@ui5/logger/internal/loggers/Build": createBuildLoggerMockSpy
+		"@ui5/logger/internal/loggers/Build": createBuildLoggerMockSpy,
 	});
 
 	new ProjectBuilder({graph, taskRepository});
@@ -776,7 +775,6 @@ test("instantiate new logger for every ProjectBuilder", async (t) => {
 
 	t.is(createBuildLoggerMockSpy.callCount, 2, "BuildLogger is instantiated for every ProjectBuilder instance");
 });
-
 
 function getProcessListenerCount() {
 	return ["SIGHUP", "SIGINT", "SIGTERM", "SIGBREAK"].map((eventName) => {
@@ -794,7 +792,7 @@ test("_registerCleanupSigHooks/_deregisterCleanupSigHooks", (t) => {
 	t.deepEqual(Object.keys(signals), ["SIGHUP", "SIGINT", "SIGTERM", "SIGBREAK"],
 		"Returned four signal listeners");
 
-	t.deepEqual(getProcessListenerCount(), listenersBefore.map((x) => x+1),
+	t.deepEqual(getProcessListenerCount(), listenersBefore.map((x) => x + 1),
 		"For every signal one new listener got registered");
 
 	builder._deregisterCleanupSigHooks(signals);

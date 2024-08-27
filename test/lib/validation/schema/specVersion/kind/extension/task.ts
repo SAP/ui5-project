@@ -12,7 +12,7 @@ async function assertValidation(t, config, expectedErrors = undefined) {
 	if (expectedErrors) {
 		const validationError = await t.throwsAsync(validation, {
 			instanceOf: ValidationError,
-			name: "ValidationError"
+			name: "ValidationError",
 		});
 		validationError.errors.forEach((error) => {
 			delete error.schemaPath;
@@ -31,7 +31,7 @@ async function assertValidation(t, config, expectedErrors = undefined) {
 test.before((t) => {
 	t.context.validator = new Validator({Ajv, ajvErrors, schemaName: "ui5"});
 	t.context.ajvCoverage = new AjvCoverage(t.context.validator.ajv, {
-		includes: ["schema/specVersion/kind/extension/task.json"]
+		includes: ["schema/specVersion/kind/extension/task.json"],
 	});
 });
 
@@ -41,23 +41,23 @@ test.after.always((t) => {
 		statements: 70,
 		branches: 55,
 		functions: 100,
-		lines: 70
+		lines: 70,
 	};
 	t.context.ajvCoverage.verify(thresholds);
 });
 
-SpecificationVersion.getVersionsForRange(">=3.0").forEach(function(specVersion) {
+SpecificationVersion.getVersionsForRange(">=3.0").forEach(function (specVersion) {
 	test(`Invalid extension name (specVersion ${specVersion})`, async (t) => {
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"kind": "extension",
-			"type": "task",
-			"metadata": {
-				"name": "illegal-🦜"
+			specVersion: specVersion,
+			kind: "extension",
+			type: "task",
+			metadata: {
+				name: "illegal-🦜",
 			},
-			"task": {
-				"path": "/bar"
-			}
+			task: {
+				path: "/bar",
+			},
 		}, [{
 			dataPath: "/metadata/name",
 			keyword: "errorMessage",
@@ -69,20 +69,20 @@ SpecificationVersion.getVersionsForRange(">=3.0").forEach(function(specVersion) 
 					message: `should match pattern "^(?:@[0-9a-z-_.]+\\/)?[a-z][0-9a-z-_.]*$"`,
 					params: {
 						pattern: "^(?:@[0-9a-z-_.]+\\/)?[a-z][0-9a-z-_.]*$",
-					}
-				}]
+					},
+				}],
 			},
 		}]);
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"kind": "extension",
-			"type": "task",
-			"metadata": {
-				"name": "a"
+			specVersion: specVersion,
+			kind: "extension",
+			type: "task",
+			metadata: {
+				name: "a",
 			},
-			"task": {
-				"path": "/bar"
-			}
+			task: {
+				path: "/bar",
+			},
 		}, [{
 			dataPath: "/metadata/name",
 			keyword: "errorMessage",
@@ -94,20 +94,20 @@ SpecificationVersion.getVersionsForRange(">=3.0").forEach(function(specVersion) 
 					message: "should NOT be shorter than 3 characters",
 					params: {
 						limit: 3,
-					}
-				}]
+					},
+				}],
 			},
 		}]);
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"kind": "extension",
-			"type": "task",
-			"metadata": {
-				"name": "a".repeat(81)
+			specVersion: specVersion,
+			kind: "extension",
+			type: "task",
+			metadata: {
+				name: "a".repeat(81),
 			},
-			"task": {
-				"path": "/bar"
-			}
+			task: {
+				path: "/bar",
+			},
 		}, [{
 			dataPath: "/metadata/name",
 			keyword: "errorMessage",
@@ -119,17 +119,17 @@ SpecificationVersion.getVersionsForRange(">=3.0").forEach(function(specVersion) 
 					message: "should NOT be longer than 80 characters",
 					params: {
 						limit: 80,
-					}
-				}]
+					},
+				}],
 			},
 		}]);
 	});
 });
 
 const additionalConfiguration = {
-	"task": {
-		"path": "/foo"
-	}
+	task: {
+		path: "/foo",
+	},
 };
 
 extension.defineTests(test, assertValidation, "task", additionalConfiguration);

@@ -20,7 +20,7 @@ test.afterEach.always((t) => {
 
 test("Application H: Traverse project graph breadth first", async (t) => {
 	const projectGraph = await graphFromStaticFile({
-		cwd: applicationHPath
+		cwd: applicationHPath,
 	});
 	const callbackStub = t.context.sinon.stub().resolves();
 	await projectGraph.traverseBreadthFirst(callbackStub);
@@ -37,7 +37,7 @@ test("Application H: Traverse project graph breadth first", async (t) => {
 
 test("Throws error if file not found", async (t) => {
 	const err = await t.throwsAsync(graphFromStaticFile({
-		cwd: notExistingPath
+		cwd: notExistingPath,
 	}));
 	t.is(err.message,
 		`Failed to load dependency tree configuration from path ` +
@@ -49,7 +49,7 @@ test("Throws error if file not found", async (t) => {
 test("Throws for missing id", async (t) => {
 	const err = await t.throwsAsync(graphFromStaticFile({
 		cwd: applicationHPath,
-		filePath: "projectDependencies-missing-id.yaml"
+		filePath: "projectDependencies-missing-id.yaml",
 	}));
 	t.is(err.message,
 		`Failed to load dependency tree configuration from path ` +
@@ -61,7 +61,7 @@ test("Throws for missing id", async (t) => {
 test("Throws for missing version", async (t) => {
 	const err = await t.throwsAsync(graphFromStaticFile({
 		cwd: applicationHPath,
-		filePath: "projectDependencies-missing-version.yaml"
+		filePath: "projectDependencies-missing-version.yaml",
 	}));
 	t.is(err.message,
 		`Failed to load dependency tree configuration from path ` +
@@ -73,7 +73,7 @@ test("Throws for missing version", async (t) => {
 test("Throws for missing path", async (t) => {
 	const err = await t.throwsAsync(graphFromStaticFile({
 		cwd: applicationHPath,
-		filePath: "projectDependencies-missing-path.yaml"
+		filePath: "projectDependencies-missing-path.yaml",
 	}));
 	t.is(err.message,
 		`Failed to load dependency tree configuration from path ` +
@@ -89,24 +89,24 @@ test("rootConfiguration", async (t) => {
 			specVersion: "2.6",
 			type: "application",
 			metadata: {
-				name: "application.a"
+				name: "application.a",
 			},
 			customConfiguration: {
-				rootConfigurationTest: true
-			}
-		}
+				rootConfigurationTest: true,
+			},
+		},
 	});
 	t.deepEqual(projectGraph.getRoot().getCustomConfiguration(), {
-		rootConfigurationTest: true
+		rootConfigurationTest: true,
 	});
 });
 
 test("rootConfig", async (t) => {
 	const projectGraph = await graphFromStaticFile({
 		cwd: applicationHPath,
-		rootConfigPath: "../application.a/ui5-test-configPath.yaml"
+		rootConfigPath: "../application.a/ui5-test-configPath.yaml",
 	});
 	t.deepEqual(projectGraph.getRoot().getCustomConfiguration(), {
-		configPathTest: true
+		configPathTest: true,
 	});
 });

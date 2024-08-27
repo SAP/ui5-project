@@ -5,10 +5,7 @@ import * as resourceFactory from "@ui5/fs/resourceFactory";
 /**
  * ThemeLibrary
  *
- * @public
- * @class
  * @alias @ui5/project/specifications/types/ThemeLibrary
- * @extends @ui5/project/specifications/Project
  * @hideconstructor
  */
 class ThemeLibrary extends Project {
@@ -23,8 +20,7 @@ class ThemeLibrary extends Project {
 
 	/* === Attributes === */
 	/**
-	* @private
-	*/
+	 */
 	private getCopyright() {
 		return this._config.metadata.copyright;
 	}
@@ -32,8 +28,7 @@ class ThemeLibrary extends Project {
 	/**
 	 * Get the path of the project's source directory
 	 *
-	 * @public
-	 * @returns {string} Absolute path to the source directory of the project
+	 * @returns Absolute path to the source directory of the project
 	 */
 	public getSourcePath() {
 		return fsPath.join(this.getRootPath(), this._srcPath);
@@ -66,15 +61,14 @@ class ThemeLibrary extends Project {
 	 *
 	 * Resource readers always use POSIX-style paths.
 	 *
-	 * @public
-	 * @param {object} [options]
-	 * @param {string} [options.style=buildtime] Path style to access resources.
+	 * @param [options]
+	 * @param [options.style] Path style to access resources.
 	 *   Can be "buildtime", "dist", "runtime" or "flat"
-	 * @returns {@ui5/fs/ReaderCollection} A reader collection instance
+	 * @returns A reader collection instance
 	 */
-	public getReader({ style = "buildtime" }: {
-    style?: string;
-} = {}) {
+	public getReader({style = "buildtime"}: {
+		style?: string;
+	} = {}) {
 		// Apply builder excludes to all styles but "runtime"
 		const excludes = style === "runtime" ? [] : this.getBuilderResourcesExcludes();
 
@@ -83,7 +77,7 @@ class ThemeLibrary extends Project {
 			virBasePath: "/resources/",
 			name: `Runtime resources reader for theme-library project ${this.getName()}`,
 			project: this,
-			excludes
+			excludes,
 		});
 		if (this._testPathExists) {
 			const testReader = resourceFactory.createReader({
@@ -91,38 +85,37 @@ class ThemeLibrary extends Project {
 				virBasePath: "/test-resources/",
 				name: `Runtime test-resources reader for theme-library project ${this.getName()}`,
 				project: this,
-				excludes
+				excludes,
 			});
 			reader = resourceFactory.createReaderCollection({
 				name: `Reader collection for theme-library project ${this.getName()}`,
-				readers: [reader, testReader]
+				readers: [reader, testReader],
 			});
 		}
 		const writer = this._getWriter();
 
 		return resourceFactory.createReaderCollectionPrioritized({
 			name: `Reader/Writer collection for project ${this.getName()}`,
-			readers: [writer, reader]
+			readers: [writer, reader],
 		});
 	}
 
 	/**
-	* Get a [DuplexCollection]{@link @ui5/fs/DuplexCollection} for accessing and modifying a
-	* project's resources.
-	*
-	* This is always of style <code>buildtime</code>, wich for theme libraries is identical to style
-	* <code>runtime</code>.
-	*
-	* @public
-	* @returns {@ui5/fs/DuplexCollection} DuplexCollection
-	*/
+	 * Get a [DuplexCollection]{@link @ui5/fs/DuplexCollection} for accessing and modifying a
+	 * project's resources.
+	 *
+	 * This is always of style <code>buildtime</code>, wich for theme libraries is identical to style
+	 * <code>runtime</code>.
+	 *
+	 * @returns DuplexCollection
+	 */
 	public getWorkspace() {
 		const reader = this.getReader();
 
 		const writer = this._getWriter();
 		return resourceFactory.createWorkspace({
 			reader,
-			writer
+			writer,
 		});
 	}
 
@@ -130,7 +123,7 @@ class ThemeLibrary extends Project {
 		if (!this._writer) {
 			this._writer = resourceFactory.createAdapter({
 				virBasePath: "/",
-				project: this
+				project: this,
 			});
 		}
 
@@ -140,7 +133,7 @@ class ThemeLibrary extends Project {
 	private async _configureAndValidatePaths(config: object) {
 		await super._configureAndValidatePaths(config);
 
-		if (config.resources && config.resources.configuration && config.resources.configuration.paths) {
+		if (config.resources?.configuration?.paths) {
 			if (config.resources.configuration.paths.src) {
 				this._srcPath = config.resources.configuration.paths.src;
 			}

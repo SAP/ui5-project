@@ -19,8 +19,8 @@ test.beforeEach((t) => {
 			specVersion: "2.3",
 			kind: "project",
 			type: "application",
-			metadata: {name: "application.a"}
-		}
+			metadata: {name: "application.a"},
+		},
 	};
 
 	t.context.applicationHInput = {
@@ -35,11 +35,11 @@ test.beforeEach((t) => {
 			resources: {
 				configuration: {
 					paths: {
-						webapp: "webapp"
-					}
-				}
-			}
-		}
+						webapp: "webapp",
+					},
+				},
+			},
+		},
 	};
 });
 
@@ -78,8 +78,8 @@ test("getCachebusterSignatureType: Configuration", async (t) => {
 	const {projectInput} = t.context;
 	projectInput.configuration.builder = {
 		cachebuster: {
-			signatureType: "hash"
-		}
+			signatureType: "hash",
+		},
 	};
 	const project = await Specification.create(projectInput);
 	t.is(project.getCachebusterSignatureType(), "hash",
@@ -119,8 +119,8 @@ test("Access project resources via reader w/ builder excludes", async (t) => {
 
 	projectInput.configuration.builder = {
 		resources: {
-			excludes: ["**/manifest.json"]
-		}
+			excludes: ["**/manifest.json"],
+		},
 	};
 	const excludesProject = await Specification.create(projectInput);
 
@@ -160,8 +160,8 @@ test("Access project resources via workspace w/ builder excludes", async (t) => 
 
 	projectInput.configuration.builder = {
 		resources: {
-			excludes: ["**/manifest.json"]
-		}
+			excludes: ["**/manifest.json"],
+		},
 	};
 	const excludesProject = await Specification.create(projectInput);
 
@@ -181,8 +181,8 @@ test("Access project resources w/ absolute builder excludes", async (t) => {
 
 	projectInput.configuration.builder = {
 		resources: {
-			excludes: ["/resources/id1/manifest.json"]
-		}
+			excludes: ["/resources/id1/manifest.json"],
+		},
 	};
 	const excludesProject = await Specification.create(projectInput);
 
@@ -228,8 +228,8 @@ test("Access project resources w/ relative builder excludes", async (t) => {
 
 	projectInput.configuration.builder = {
 		resources: {
-			excludes: ["manifest.json"]
-		}
+			excludes: ["manifest.json"],
+		},
 	};
 	const excludesProject = await Specification.create(projectInput);
 
@@ -275,8 +275,8 @@ test("Access project resources w/ legacy builder excludes", async (t) => {
 
 	projectInput.configuration.builder = {
 		resources: {
-			excludes: ["/manifest.json"]
-		}
+			excludes: ["/manifest.json"],
+		},
 	};
 	const excludesProject = await Specification.create(projectInput);
 
@@ -350,14 +350,13 @@ test("Modify project resources via workspace and access via flat and runtime rea
 	t.is(await runtimeGlobResult[0].getString(), newContent, "Found resource (byGlob) has expected (changed) content");
 });
 
-
 test("Read and write resources outside of app namespace", async (t) => {
 	const {projectInput} = t.context;
 	const project = await Specification.create(projectInput);
 	const workspace = project.getWorkspace();
 
 	await workspace.write(createResource({
-		path: "/resources/my-custom-bundle.js"
+		path: "/resources/my-custom-bundle.js",
 	}));
 
 	const buildtimeReader = project.getReader({style: "buildtime"});
@@ -411,11 +410,11 @@ test("_configureAndValidatePaths: Custom webapp directory", async (t) => {
 			resources: {
 				configuration: {
 					paths: {
-						webapp: "webapp-properties.componentName"
-					}
-				}
-			}
-		}
+						webapp: "webapp-properties.componentName",
+					},
+				},
+			},
+		},
 	};
 
 	const project = await Specification.create(projectInput);
@@ -428,9 +427,9 @@ test("_configureAndValidatePaths: Webapp directory does not exist", async (t) =>
 	projectInput.configuration.resources = {
 		configuration: {
 			paths: {
-				webapp: "does/not/exist"
-			}
-		}
+				webapp: "does/not/exist",
+			},
+		},
 	};
 	const err = await t.throwsAsync(Specification.create(projectInput));
 
@@ -564,12 +563,12 @@ test("_getManifest: invalid JSON", async (t) => {
 	const project = await Specification.create(projectInput);
 
 	const byPathStub = sinon.stub().resolves({
-		getString: async () => "no json"
+		getString: async () => "no json",
 	});
 
 	project._getRawSourceReader = () => {
 		return {
-			byPath: byPathStub
+			byPath: byPathStub,
 		};
 	};
 
@@ -596,12 +595,12 @@ test.serial("_getManifest: result is cached", async (t) => {
 	const project = await Specification.create(projectInput);
 
 	const byPathStub = sinon.stub().resolves({
-		getString: async () => `{"pony": "no unicorn"}`
+		getString: async () => `{"pony": "no unicorn"}`,
 	});
 
 	project._getRawSourceReader = () => {
 		return {
-			byPath: byPathStub
+			byPath: byPathStub,
 		};
 	};
 
@@ -622,12 +621,12 @@ test.serial("_getManifest: Caches successes and failures", async (t) => {
 		.onFirstCall().rejects(new Error("EPON: Pony Error"))
 		.onSecondCall().resolves(`{"pony": "no unicorn"}`);
 	const byPathStub = sinon.stub().resolves({
-		getString: getStringStub
+		getString: getStringStub,
 	});
 
 	project._getRawSourceReader = () => {
 		return {
-			byPath: byPathStub
+			byPath: byPathStub,
 		};
 	};
 
@@ -677,5 +676,5 @@ test("namespace: detect namespace from pom.xml via ${appId} from properties", as
 
 	const error = await t.throwsAsync(Specification.create(applicationHInput));
 	t.deepEqual(error.message, "Failed to resolve namespace of project application.h: \"${appId}\"" +
-		" couldn't be resolved from maven property \"appId\" of pom.xml of project application.h");
+	" couldn't be resolved from maven property \"appId\" of pom.xml of project application.h");
 });

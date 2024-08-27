@@ -14,17 +14,17 @@ export default {
 	 *  "application", "library", "theme-library" and "module"
 	 * @param {object} additionalConfiguration additional configuration content
 	 */
-	defineTests: function(test: Function, assertValidation: Function, type: string, additionalConfiguration: object) {
+	defineTests: function (test: Function, assertValidation: Function, type: string, additionalConfiguration: object) {
 		additionalConfiguration = additionalConfiguration || {};
 		// version specific tests for customConfiguration
 		test(`${type}: Invalid customConfiguration (specVersion 2.0)`, async (t) => {
 			await assertValidation(t, Object.assign({
-				"specVersion": "2.0",
-				"type": type,
-				"metadata": {
-					"name": "my-" + type
+				specVersion: "2.0",
+				type: type,
+				metadata: {
+					name: "my-" + type,
 				},
-				"customConfiguration": {}
+				customConfiguration: {},
 			}, additionalConfiguration), [
 				{
 					dataPath: "",
@@ -32,24 +32,24 @@ export default {
 					message: "should NOT have additional properties",
 					params: {
 						additionalProperty: "customConfiguration",
-					}
-				}
+					},
+				},
 			]);
 		});
 
 		SpecificationVersion.getVersionsForRange(">=2.1").forEach((specVersion) => {
 			test(`${type}: Valid customConfiguration (specVersion ${specVersion})`, async (t) => {
-				await assertValidation(t, Object.assign( {
-					"specVersion": specVersion,
-					"type": type,
-					"metadata": {
-						"name": "my-" + type
+				await assertValidation(t, Object.assign({
+					specVersion: specVersion,
+					type: type,
+					metadata: {
+						name: "my-" + type,
 					},
-					"customConfiguration": {
-						"foo": "bar"
-					}
+					customConfiguration: {
+						foo: "bar",
+					},
 				}, additionalConfiguration));
 			});
 		});
-	}
+	},
 };

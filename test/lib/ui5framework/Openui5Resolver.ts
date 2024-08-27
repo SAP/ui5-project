@@ -15,12 +15,12 @@ test.beforeEach(async (t) => {
 			fetchPackageDistTags: t.context.fetchPackageDistTags,
 			fetchPackageManifest: t.context.fetchPackageManifestStub,
 			fetchPackageVersions: t.context.fetchPackageVersionsStub,
-			installPackage: t.context.installPackageStub
+			installPackage: t.context.installPackageStub,
 		};
 	});
 
 	t.context.Openui5Resolver = await esmock("../../../lib/ui5Framework/Openui5Resolver.js", {
-		"../../../lib/ui5Framework/npm/Installer": t.context.InstallerStub
+		"../../../lib/ui5Framework/npm/Installer": t.context.InstallerStub,
 	});
 });
 
@@ -44,7 +44,7 @@ test.serial("Openui5Resolver: getLibraryMetadata", async (t) => {
 
 	const resolver = new Openui5Resolver({
 		cwd: "/test-project/",
-		version: "1.75.0"
+		version: "1.75.0",
 	});
 
 	t.context.fetchPackageManifestStub
@@ -54,11 +54,11 @@ test.serial("Openui5Resolver: getLibraryMetadata", async (t) => {
 		.withArgs({pkgName: "@openui5/sap.ui.lib1", version: "1.75.0"}).resolves({})
 		.withArgs({pkgName: "@openui5/sap.ui.lib2", version: "1.75.0"}).resolves({
 			dependencies: {
-				"sap.ui.lib3": "1.2.3"
+				"sap.ui.lib3": "1.2.3",
 			},
 			devDependencies: {
-				"sap.ui.lib4": "4.5.6"
-			}
+				"sap.ui.lib4": "4.5.6",
+			},
 		});
 
 	async function assert(libraryName, expectedMetadata) {
@@ -82,18 +82,18 @@ test.serial("Openui5Resolver: getLibraryMetadata", async (t) => {
 		id: "@openui5/sap.ui.lib1",
 		version: "1.75.0",
 		dependencies: [],
-		optionalDependencies: []
+		optionalDependencies: [],
 	});
 
 	await assert("sap.ui.lib2", {
 		id: "@openui5/sap.ui.lib2",
 		version: "1.75.0",
 		dependencies: [
-			"sap.ui.lib3"
+			"sap.ui.lib3",
 		],
 		optionalDependencies: [
-			"sap.ui.lib4"
-		]
+			"sap.ui.lib4",
+		],
 	});
 
 	t.is(t.context.fetchPackageManifestStub.callCount, 2, "fetchPackageManifest should be called twice");
@@ -104,7 +104,7 @@ test.serial("Openui5Resolver: handleLibrary", async (t) => {
 
 	const resolver = new Openui5Resolver({
 		cwd: "/test-project/",
-		version: "1.75.0"
+		version: "1.75.0",
 	});
 
 	const getLibraryMetadataStub = sinon.stub(resolver, "getLibraryMetadata");
@@ -113,10 +113,10 @@ test.serial("Openui5Resolver: handleLibrary", async (t) => {
 			throw new Error("getLibraryMetadata stub called with unknown libraryName: " + libraryName);
 		})
 		.withArgs("sap.ui.lib1").resolves({
-			"id": "@openui5/sap.ui.lib1",
-			"version": "1.75.0",
-			"dependencies": [],
-			"optionalDependencies": []
+			id: "@openui5/sap.ui.lib1",
+			version: "1.75.0",
+			dependencies: [],
+			optionalDependencies: [],
 		});
 
 	t.context.installPackageStub
@@ -132,10 +132,10 @@ test.serial("Openui5Resolver: handleLibrary", async (t) => {
 
 	const metadata = await promises.metadata;
 	t.deepEqual(metadata, {
-		"id": "@openui5/sap.ui.lib1",
-		"version": "1.75.0",
-		"dependencies": [],
-		"optionalDependencies": []
+		id: "@openui5/sap.ui.lib1",
+		version: "1.75.0",
+		dependencies: [],
+		optionalDependencies: [],
 	}, "Expected library metadata should be returned");
 
 	t.deepEqual(await promises.install, {pkgPath: "/foo/sap.ui.lib1"}, "Install should resolve with expected object");
@@ -146,7 +146,7 @@ test.serial("Openui5Resolver: Static _getInstaller", (t) => {
 
 	const options = {
 		cwd: "/cwd",
-		ui5DataDir: "/ui5DataDir"
+		ui5DataDir: "/ui5DataDir",
 	};
 
 	const installer = Openui5Resolver._getInstaller(options);
@@ -156,7 +156,7 @@ test.serial("Openui5Resolver: Static _getInstaller", (t) => {
 	t.is(installer, t.context.InstallerStub.getCall(0).returnValue, "Installer instance is returned");
 	t.deepEqual(t.context.InstallerStub.getCall(0).args, [{
 		cwd: path.resolve("/cwd"),
-		ui5DataDir: path.resolve("/ui5DataDir")
+		ui5DataDir: path.resolve("/ui5DataDir"),
 	}], "Installer should be called with expected arguments");
 });
 
@@ -170,7 +170,7 @@ test.serial("Openui5Resolver: Static _getInstaller without options", (t) => {
 	t.is(installer, t.context.InstallerStub.getCall(0).returnValue, "Installer instance is returned");
 	t.deepEqual(t.context.InstallerStub.getCall(0).args, [{
 		cwd: process.cwd(),
-		ui5DataDir: path.join(os.homedir(), ".ui5")
+		ui5DataDir: path.join(os.homedir(), ".ui5"),
 	}], "Installer should be called with expected arguments");
 });
 

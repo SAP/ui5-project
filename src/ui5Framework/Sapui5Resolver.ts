@@ -11,21 +11,18 @@ const DIST_PKG_NAME = "@sapui5/distribution-metadata";
 /**
  * Resolver for the SAPUI5 framework
  *
- * @public
- * @class
  * @alias @ui5/project/ui5Framework/Sapui5Resolver
- * @extends @ui5/project/ui5Framework/AbstractResolver
  */
 class Sapui5Resolver extends AbstractResolver {
 	/**
-	 * @param {*} options options
-	 * @param {string} options.version SAPUI5 version to use
-	 * @param {string} [options.cwd=process.cwd()] Working directory to resolve configurations like .npmrc
-	 * @param {string} [options.ui5DataDir="~/.ui5"] UI5 home directory location. This will be used to store packages,
+	 * @param options options
+	 * @param options.version SAPUI5 version to use
+	 * @param [options.cwd] Working directory to resolve configurations like .npmrc
+	 * @param [options.ui5DataDir] UI5 home directory location. This will be used to store packages,
 	 * metadata and configuration used by the resolvers. Relative to `process.cwd()`
-	 * @param {string} [options.cacheDir] Where to store temp/cached packages.
-	 * @param {string} [options.packagesDir] Where to install packages
-	 * @param {string} [options.stagingDir] The staging directory for packages
+	 * @param [options.cacheDir] Where to store temp/cached packages.
+	 * @param [options.packagesDir] Where to install packages
+	 * @param [options.stagingDir] The staging directory for packages
 	 */
 	constructor(options: any) {
 		super(options);
@@ -35,10 +32,11 @@ class Sapui5Resolver extends AbstractResolver {
 		this._installer = new Installer({
 			cwd: this._cwd,
 			ui5DataDir: this._ui5DataDir,
-			cacheDir, packagesDir, stagingDir
+			cacheDir, packagesDir, stagingDir,
 		});
 		this._loadDistMetadata = null;
 	}
+
 	loadDistMetadata() {
 		if (!this._loadDistMetadata) {
 			this._loadDistMetadata = Promise.resolve().then(async () => {
@@ -47,7 +45,7 @@ class Sapui5Resolver extends AbstractResolver {
 				const pkgName = DIST_PKG_NAME;
 				const {pkgPath} = await this._installer.installPackage({
 					pkgName,
-					version
+					version,
 				});
 
 				const metadata = await this._installer.readJson(path.join(pkgPath, "metadata.json"));
@@ -56,6 +54,7 @@ class Sapui5Resolver extends AbstractResolver {
 		}
 		return this._loadDistMetadata;
 	}
+
 	async getLibraryMetadata(libraryName) {
 		const distMetadata = await this.loadDistMetadata();
 		const metadata = distMetadata.libraries[libraryName];
@@ -65,7 +64,7 @@ class Sapui5Resolver extends AbstractResolver {
 		}
 
 		if (metadata.npmPackageName.startsWith("@openui5/") &&
-				semver.satisfies(this._version, "1.77.x")) {
+			semver.satisfies(this._version, "1.77.x")) {
 			// TODO: Remove this workaround once SAPUI5 1.77.x isn't used anymore.
 			//       As of Dec 2022 there are still ~80 downloads per week (npmjs.com stats).
 			// 1.77.x (at least 1.77.0-1.77.2) distribution metadata.json is missing
@@ -75,19 +74,20 @@ class Sapui5Resolver extends AbstractResolver {
 			const {default: Openui5Resolver} = await import("./Openui5Resolver.js");
 			const openui5Resolver = new Openui5Resolver({
 				cwd: this._cwd,
-				version: metadata.version
+				version: metadata.version,
 			});
 			const openui5Metadata = await openui5Resolver.getLibraryMetadata(libraryName);
 			return {
 				npmPackageName: openui5Metadata.id,
 				version: openui5Metadata.version,
 				dependencies: openui5Metadata.dependencies,
-				optionalDependencies: openui5Metadata.optionalDependencies
+				optionalDependencies: openui5Metadata.optionalDependencies,
 			};
 		}
 
 		return metadata;
 	}
+
 	async handleLibrary(libraryName) {
 		const metadata = await this.getLibraryMetadata(libraryName);
 
@@ -96,15 +96,16 @@ class Sapui5Resolver extends AbstractResolver {
 				id: metadata.npmPackageName,
 				version: metadata.version,
 				dependencies: metadata.dependencies,
-				optionalDependencies: metadata.optionalDependencies
+				optionalDependencies: metadata.optionalDependencies,
 			}),
 			// Trigger installation of package
 			install: this._installer.installPackage({
 				pkgName: metadata.npmPackageName,
-				version: metadata.version
-			})
+				version: metadata.version,
+			}),
 		};
 	}
+
 	static async fetchAllVersions(options) {
 		const installer = this._getInstaller(options);
 		return await installer.fetchPackageVersions({pkgName: DIST_PKG_NAME});
@@ -119,8 +120,9 @@ class Sapui5Resolver extends AbstractResolver {
 		return new Installer({
 			cwd: cwd ? path.resolve(cwd) : process.cwd(),
 			ui5DataDir:
-				ui5DataDir ? path.resolve(ui5DataDir) :
-					path.join(os.homedir(), ".ui5")
+				ui5DataDir ?
+					path.resolve(ui5DataDir) :
+					path.join(os.homedir(), ".ui5"),
 		});
 	}
 }

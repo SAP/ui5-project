@@ -1,6 +1,11 @@
 import {getLogger} from "@ui5/logger";
 const log = getLogger("ui5Framework:npm:Registry");
 
+/**
+ *
+ * @param config
+ * @param configName
+ */
 function logConfig(config, configName) {
 	const configValue = config[configName];
 	if (configValue) {
@@ -10,14 +15,14 @@ function logConfig(config, configName) {
 
 class Registry {
 	/**
-	 * @param {object} parameters Parameters
-	 * @param {string} parameters.cwd Current working directory
-	 * @param {string} parameters.cacheDir Cache directory
+	 * @param parameters Parameters
+	 * @param parameters.cwd Current working directory
+	 * @param parameters.cacheDir Cache directory
 	 */
-	constructor({ cwd, cacheDir }: {
-    cwd: string;
-    cacheDir: string;
-}) {
+	constructor({cwd, cacheDir}: {
+		cwd: string;
+		cacheDir: string;
+	}) {
 		if (!cwd) {
 			throw new Error(`Registry: Missing parameter "cwd"`);
 		}
@@ -27,15 +32,18 @@ class Registry {
 		this._cwd = cwd;
 		this._cacheDir = cacheDir;
 	}
+
 	async requestPackagePackument(pkgName) {
 		const {pacote, pacoteOptions} = await this._getPacote();
 		return pacote.packument(pkgName, pacoteOptions);
 	}
+
 	async requestPackageManifest(pkgName, version) {
 		const {pacote, pacoteOptions} = await this._getPacote();
 
 		return pacote.manifest(`${pkgName}@${version}`, pacoteOptions);
 	}
+
 	async extractPackage(pkgName, version, targetDir) {
 		const {pacote, pacoteOptions} = await this._getPacote();
 		try {
@@ -52,7 +60,7 @@ class Registry {
 		return this._pGetPacote = (async () => {
 			return {
 				pacote: (await import("pacote")).default,
-				pacoteOptions: await this._getPacoteOptions()
+				pacoteOptions: await this._getPacoteOptions(),
 			};
 		})();
 	}
@@ -69,7 +77,7 @@ class Registry {
 			definitions,
 			flatten,
 			shorthands,
-			defaults
+			defaults,
 		});
 
 		await configuration.load(); // Reads through the configurations

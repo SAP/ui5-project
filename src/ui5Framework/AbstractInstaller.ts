@@ -12,7 +12,7 @@ const illegalFileNameRegExp = /[^0-9a-zA-Z\-._@/]/;
 
 class AbstractInstaller {
 	/**
-	 * @param {string} ui5DataDir UI5 home directory location. This will be used to store packages,
+	 * @param ui5DataDir UI5 home directory location. This will be used to store packages,
 	 * metadata and configuration used by the resolvers.
 	 */
 	constructor(ui5DataDir: string) {
@@ -27,7 +27,7 @@ class AbstractInstaller {
 
 	async _synchronize(lockName, callback) {
 		const {
-			default: lockfile
+			default: lockfile,
 		} = await import("lockfile");
 		const lock = promisify(lockfile.lock);
 		const unlock = promisify(lockfile.unlock);
@@ -37,7 +37,7 @@ class AbstractInstaller {
 		await lock(lockPath, {
 			wait: 10000,
 			stale: 60000,
-			retries: 10
+			retries: 10,
 		});
 		try {
 			const res = await callback();

@@ -10,7 +10,7 @@ async function assertValidation(t, config, expectedErrors = undefined) {
 	if (expectedErrors) {
 		const validationError = await t.throwsAsync(validation, {
 			instanceOf: ValidationError,
-			name: "ValidationError"
+			name: "ValidationError",
 		});
 		validationError.errors.forEach((error) => {
 			delete error.schemaPath;
@@ -29,7 +29,7 @@ async function assertValidation(t, config, expectedErrors = undefined) {
 test.before((t) => {
 	t.context.validator = new Validator({Ajv, ajvErrors, schemaName: "ui5"});
 	t.context.ajvCoverage = new AjvCoverage(t.context.validator.ajv, {
-		includes: ["schema/ui5.json"]
+		includes: ["schema/ui5.json"],
 	});
 });
 
@@ -39,7 +39,7 @@ test.after.always((t) => {
 		statements: 95,
 		branches: 80,
 		functions: 100,
-		lines: 95
+		lines: 95,
 	};
 	t.context.ajvCoverage.verify(thresholds);
 });
@@ -51,7 +51,7 @@ test("Undefined", async (t) => {
 		message: "should be object",
 		params: {
 			type: "object",
-		}
+		},
 	}]);
 });
 
@@ -63,7 +63,7 @@ test("Missing specVersion, type", async (t) => {
 			message: "should have required property 'specVersion'",
 			params: {
 				missingProperty: "specVersion",
-			}
+			},
 		},
 		{
 			dataPath: "",
@@ -71,15 +71,15 @@ test("Missing specVersion, type", async (t) => {
 			message: "should have required property 'type'",
 			params: {
 				missingProperty: "type",
-			}
-		}
+			},
+		},
 
 	]);
 });
 
 test("Missing type", async (t) => {
 	await assertValidation(t, {
-		"specVersion": "2.0"
+		specVersion: "2.0",
 	}, [
 		{
 			dataPath: "",
@@ -87,14 +87,14 @@ test("Missing type", async (t) => {
 			message: "should have required property 'type'",
 			params: {
 				missingProperty: "type",
-			}
-		}
+			},
+		},
 	]);
 });
 
 test("Invalid specVersion", async (t) => {
 	await assertValidation(t, {
-		"specVersion": "0.0"
+		specVersion: "0.0",
 	}, [
 		{
 			dataPath: "/specVersion",
@@ -128,18 +128,18 @@ test("Invalid specVersion", async (t) => {
 								"1.0",
 								"0.1",
 							],
-						}
+						},
 					},
 				],
-			}
-		}
+			},
+		},
 	]);
 });
 
 test("Invalid type", async (t) => {
 	await assertValidation(t, {
-		"specVersion": "2.0",
-		"type": "foo"
+		specVersion: "2.0",
+		type: "foo",
 	}, [
 		{
 			dataPath: "/type",
@@ -150,17 +150,17 @@ test("Invalid type", async (t) => {
 					"application",
 					"library",
 					"theme-library",
-					"module"
-				]
-			}
-		}
+					"module",
+				],
+			},
+		},
 	]);
 });
 
 test("Invalid kind", async (t) => {
 	await assertValidation(t, {
-		"specVersion": "2.0",
-		"kind": "foo"
+		specVersion: "2.0",
+		kind: "foo",
 	}, [
 		{
 			dataPath: "/kind",
@@ -170,27 +170,27 @@ test("Invalid kind", async (t) => {
 				allowedValues: [
 					"project",
 					"extension",
-					null
+					null,
 				],
-			}
-		}
+			},
+		},
 	]);
 });
 
 test("specVersion 0.1", async (t) => {
 	await assertValidation(t, {
-		"specVersion": "0.1"
+		specVersion: "0.1",
 	});
 });
 
 test("specVersion 1.0", async (t) => {
 	await assertValidation(t, {
-		"specVersion": "1.0"
+		specVersion: "1.0",
 	});
 });
 
 test("specVersion 1.1", async (t) => {
 	await assertValidation(t, {
-		"specVersion": "1.1"
+		specVersion: "1.1",
 	});
 });

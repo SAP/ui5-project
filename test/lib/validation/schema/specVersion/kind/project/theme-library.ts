@@ -12,7 +12,7 @@ async function assertValidation(t, config, expectedErrors = undefined) {
 	if (expectedErrors) {
 		const validationError = await t.throwsAsync(validation, {
 			instanceOf: ValidationError,
-			name: "ValidationError"
+			name: "ValidationError",
 		});
 		validationError.errors.forEach((error) => {
 			delete error.schemaPath;
@@ -31,7 +31,7 @@ async function assertValidation(t, config, expectedErrors = undefined) {
 test.before((t) => {
 	t.context.validator = new Validator({Ajv, ajvErrors, schemaName: "ui5"});
 	t.context.ajvCoverage = new AjvCoverage(t.context.validator.ajv, {
-		includes: ["schema/specVersion/kind/project/theme-library.json"]
+		includes: ["schema/specVersion/kind/project/theme-library.json"],
 	});
 });
 
@@ -41,175 +41,175 @@ test.after.always((t) => {
 		statements: 80,
 		branches: 70,
 		functions: 100,
-		lines: 80
+		lines: 80,
 	};
 	t.context.ajvCoverage.verify(thresholds);
 });
 
-SpecificationVersion.getVersionsForRange(">=2.0").forEach(function(specVersion) {
+SpecificationVersion.getVersionsForRange(">=2.0").forEach(function (specVersion) {
 	test(`Valid configuration (specVersion ${specVersion})`, async (t) => {
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"type": "theme-library",
-			"metadata": {
-				"name": "my-theme-library",
-				"copyright": "Copyright goes here"
+			specVersion: specVersion,
+			type: "theme-library",
+			metadata: {
+				name: "my-theme-library",
+				copyright: "Copyright goes here",
 			},
-			"resources": {
-				"configuration": {
-					"propertiesFileSourceEncoding": "UTF-8",
-					"paths": {
-						"src": "src/main/uilib",
-						"test": "src/test/uilib"
-					}
-				}
+			resources: {
+				configuration: {
+					propertiesFileSourceEncoding: "UTF-8",
+					paths: {
+						src: "src/main/uilib",
+						test: "src/test/uilib",
+					},
+				},
 			},
-			"builder": {
-				"resources": {
-					"excludes": [
+			builder: {
+				resources: {
+					excludes: [
 						"/resources/some/project/name/test_results/**",
 						"/test-resources/**",
-						"!/test-resources/some/project/name/demo-app/**"
-					]
+						"!/test-resources/some/project/name/demo-app/**",
+					],
 				},
-				"customTasks": [
+				customTasks: [
 					{
-						"name": "custom-task-1",
-						"beforeTask": "replaceCopyright",
-						"configuration": {
-							"some-key": "some value"
-						}
+						name: "custom-task-1",
+						beforeTask: "replaceCopyright",
+						configuration: {
+							"some-key": "some value",
+						},
 					},
 					{
-						"name": "custom-task-2",
-						"afterTask": "custom-task-1",
-						"configuration": {
-							"color": "blue"
-						}
-					}
-				]
+						name: "custom-task-2",
+						afterTask: "custom-task-1",
+						configuration: {
+							color: "blue",
+						},
+					},
+				],
 			},
-			"server": {
-				"settings": {
-					"httpPort": 1337,
-					"httpsPort": 1443
+			server: {
+				settings: {
+					httpPort: 1337,
+					httpsPort: 1443,
 				},
-				"customMiddleware": [
+				customMiddleware: [
 					{
-						"name": "myCustomMiddleware",
-						"mountPath": "/myapp",
-						"afterMiddleware": "compression",
-						"configuration": {
-							"debug": true
-						}
-					}
-				]
-			}
+						name: "myCustomMiddleware",
+						mountPath: "/myapp",
+						afterMiddleware: "compression",
+						configuration: {
+							debug: true,
+						},
+					},
+				],
+			},
 		});
 	});
 
 	test(`Invalid builder configuration (specVersion ${specVersion})`, async (t) => {
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"type": "theme-library",
-			"metadata": {
-				"name": "com.sap.ui5.test",
-				"copyright": "yes"
+			specVersion: specVersion,
+			type: "theme-library",
+			metadata: {
+				name: "com.sap.ui5.test",
+				copyright: "yes",
 			},
-			"builder": {
+			builder: {
 				// cachebuster is only supported for type application
-				"cachebuster": {
-					"signatureType": "time"
+				cachebuster: {
+					signatureType: "time",
 				},
 				// jsdoc is only supported for type library
-				"jsdoc": {
-					"excludes": [
-						"some/project/name/thirdparty/**"
-					]
+				jsdoc: {
+					excludes: [
+						"some/project/name/thirdparty/**",
+					],
 				},
 				// componentPreload is only supported for types application/library
-				"componentPreload": {},
+				componentPreload: {},
 				// libraryPreload is only supported for type library
-				"libraryPreload": {},
-			}
+				libraryPreload: {},
+			},
 		}, [{
 			dataPath: "/builder",
 			keyword: "additionalProperties",
 			message: "should NOT have additional properties",
 			params: {
-				additionalProperty: "cachebuster"
-			}
+				additionalProperty: "cachebuster",
+			},
 		},
 		{
 			dataPath: "/builder",
 			keyword: "additionalProperties",
 			message: "should NOT have additional properties",
 			params: {
-				additionalProperty: "jsdoc"
-			}
+				additionalProperty: "jsdoc",
+			},
 		},
 		{
 			dataPath: "/builder",
 			keyword: "additionalProperties",
 			message: "should NOT have additional properties",
 			params: {
-				additionalProperty: "componentPreload"
-			}
+				additionalProperty: "componentPreload",
+			},
 		},
 		{
 			dataPath: "/builder",
 			keyword: "additionalProperties",
 			message: "should NOT have additional properties",
 			params: {
-				additionalProperty: "libraryPreload"
-			}
+				additionalProperty: "libraryPreload",
+			},
 		}]);
 	});
 });
 
-SpecificationVersion.getVersionsForRange(">=2.5").forEach(function(specVersion) {
+SpecificationVersion.getVersionsForRange(">=2.5").forEach(function (specVersion) {
 	test(`theme-library (specVersion ${specVersion}): builder/settings/includeDependency*`, async (t) => {
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"kind": "project",
-			"type": "theme-library",
-			"metadata": {
-				"name": "com.sap.ui5.test",
-				"copyright": "yes"
+			specVersion: specVersion,
+			kind: "project",
+			type: "theme-library",
+			metadata: {
+				name: "com.sap.ui5.test",
+				copyright: "yes",
 			},
-			"builder": {
-				"settings": {
-					"includeDependency": [
+			builder: {
+				settings: {
+					includeDependency: [
 						"sap.a",
-						"sap.b"
+						"sap.b",
 					],
-					"includeDependencyRegExp": [
+					includeDependencyRegExp: [
 						".ui.[a-z]+",
-						"^sap.[mf]$"
+						"^sap.[mf]$",
 					],
-					"includeDependencyTree": [
+					includeDependencyTree: [
 						"sap.c",
-						"sap.d"
-					]
-				}
-			}
+						"sap.d",
+					],
+				},
+			},
 		});
 	});
 	test(`Invalid builder/settings/includeDependency* configuration (specVersion ${specVersion})`, async (t) => {
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"type": "theme-library",
-			"metadata": {
-				"name": "com.sap.ui5.test",
-				"copyright": "yes"
+			specVersion: specVersion,
+			type: "theme-library",
+			metadata: {
+				name: "com.sap.ui5.test",
+				copyright: "yes",
 			},
-			"builder": {
-				"settings": {
-					"includeDependency": "a",
-					"includeDependencyRegExp": "b",
-					"includeDependencyTree": "c"
-				}
-			}
+			builder: {
+				settings: {
+					includeDependency: "a",
+					includeDependencyRegExp: "b",
+					includeDependencyTree: "c",
+				},
+			},
 		}, [
 			{
 				dataPath: "/builder/settings/includeDependency",
@@ -237,32 +237,32 @@ SpecificationVersion.getVersionsForRange(">=2.5").forEach(function(specVersion) 
 			},
 		]);
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"type": "theme-library",
-			"metadata": {
-				"name": "com.sap.ui5.test",
-				"copyright": "yes"
+			specVersion: specVersion,
+			type: "theme-library",
+			metadata: {
+				name: "com.sap.ui5.test",
+				copyright: "yes",
 			},
-			"builder": {
-				"settings": {
-					"includeDependency": [
+			builder: {
+				settings: {
+					includeDependency: [
 						true,
 						1,
-						{}
+						{},
 					],
-					"includeDependencyRegExp": [
+					includeDependencyRegExp: [
 						true,
 						1,
-						{}
+						{},
 					],
-					"includeDependencyTree": [
+					includeDependencyTree: [
 						true,
 						1,
-						{}
+						{},
 					],
-					"notAllowed": true
-				}
-			}
+					notAllowed: true,
+				},
+			},
 		}, [
 			{
 				dataPath: "/builder/settings",
@@ -348,14 +348,14 @@ SpecificationVersion.getVersionsForRange(">=2.5").forEach(function(specVersion) 
 	});
 });
 
-SpecificationVersion.getVersionsForRange(">=3.0").forEach(function(specVersion) {
+SpecificationVersion.getVersionsForRange(">=3.0").forEach(function (specVersion) {
 	test(`Invalid project name (specVersion ${specVersion})`, async (t) => {
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"type": "theme-library",
-			"metadata": {
-				"name": "illegal-🦜"
-			}
+			specVersion: specVersion,
+			type: "theme-library",
+			metadata: {
+				name: "illegal-🦜",
+			},
 		}, [{
 			dataPath: "/metadata/name",
 			keyword: "errorMessage",
@@ -368,15 +368,15 @@ SpecificationVersion.getVersionsForRange(">=3.0").forEach(function(specVersion) 
 					params: {
 						pattern: "^(?:@[0-9a-z-_.]+\\/)?[a-z][0-9a-z-_.]*$",
 					},
-				}]
+				}],
 			},
 		}]);
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"type": "theme-library",
-			"metadata": {
-				"name": "a"
-			}
+			specVersion: specVersion,
+			type: "theme-library",
+			metadata: {
+				name: "a",
+			},
 		}, [{
 			dataPath: "/metadata/name",
 			keyword: "errorMessage",
@@ -389,15 +389,15 @@ SpecificationVersion.getVersionsForRange(">=3.0").forEach(function(specVersion) 
 					params: {
 						limit: 3,
 					},
-				}]
+				}],
 			},
 		}]);
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"type": "theme-library",
-			"metadata": {
-				"name": "a".repeat(81)
-			}
+			specVersion: specVersion,
+			type: "theme-library",
+			metadata: {
+				name: "a".repeat(81),
+			},
 		}, [{
 			dataPath: "/metadata/name",
 			keyword: "errorMessage",
@@ -410,7 +410,7 @@ SpecificationVersion.getVersionsForRange(">=3.0").forEach(function(specVersion) 
 					params: {
 						limit: 80,
 					},
-				}]
+				}],
 			},
 		}]);
 	});

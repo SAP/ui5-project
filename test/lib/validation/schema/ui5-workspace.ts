@@ -8,7 +8,7 @@ import ValidationError from "../../../../lib/validation/ValidationError.js";
 async function assertValidation(t, config, expectedErrors = undefined) {
 	const validation = t.context.validator.validate({
 		config,
-		project: {id: "my-project"}
+		project: {id: "my-project"},
 	});
 	if (expectedErrors) {
 		const validationError = await t.throwsAsync(validation, {
@@ -149,7 +149,7 @@ test("Invalid metadata.name: Illegal characters", async (t) => {
 		{
 			specVersion: "workspace/1.0",
 			metadata: {
-				name: "🦭🦭🦭"
+				name: "🦭🦭🦭",
 			},
 			dependencyManagement: {
 				resolutions: [
@@ -187,7 +187,7 @@ test("Invalid metadata.name: Too short", async (t) => {
 		{
 			specVersion: "workspace/1.0",
 			metadata: {
-				name: "a"
+				name: "a",
 			},
 			dependencyManagement: {
 				resolutions: [
@@ -219,14 +219,13 @@ test("Invalid metadata.name: Too short", async (t) => {
 	);
 });
 
-
 test("Invalid metadata.name: Too long", async (t) => {
 	await assertValidation(
 		t,
 		{
 			specVersion: "workspace/1.0",
 			metadata: {
-				name: "b".repeat(81)
+				name: "b".repeat(81),
 			},
 			dependencyManagement: {
 				resolutions: [
@@ -250,7 +249,7 @@ test("Invalid metadata.name: Too long", async (t) => {
 							params: {
 								limit: 80,
 							},
-						}
+						},
 					],
 				},
 			},

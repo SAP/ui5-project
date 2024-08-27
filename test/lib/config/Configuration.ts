@@ -12,14 +12,14 @@ test.beforeEach(async (t) => {
 	t.context.Configuration = await esmock.p("../../../lib/config/Configuration.js", {
 		"node:path": {
 			resolve: t.context.resolveStub,
-			join: t.context.joinStub
+			join: t.context.joinStub,
 		},
 		"node:util": {
-			"promisify": t.context.promisifyStub
+			promisify: t.context.promisifyStub,
 		},
 		"node:os": {
-			"homedir": t.context.homedirStub
-		}
+			homedir: t.context.homedirStub,
+		},
 	});
 });
 
@@ -32,7 +32,7 @@ test.serial("Configuration options", (t) => {
 	const {Configuration} = t.context;
 	t.deepEqual(Configuration.OPTIONS, [
 		"mavenSnapshotEndpointUrl",
-		"ui5DataDir"
+		"ui5DataDir",
 	]);
 });
 
@@ -52,7 +52,7 @@ test.serial("Overwrite defaults defaults", (t) => {
 
 	const params = {
 		mavenSnapshotEndpointUrl: "https://snapshot.url",
-		ui5DataDir: "/custom/data/dir"
+		ui5DataDir: "/custom/data/dir",
 	};
 
 	const config = new Configuration(params);
@@ -64,11 +64,11 @@ test.serial("Unknown configuration option", (t) => {
 	const {Configuration} = t.context;
 
 	const params = {
-		unknown: "foo"
+		unknown: "foo",
 	};
 
 	t.throws(() => new Configuration(params), {
-		message: `Unknown configuration option 'unknown'`
+		message: `Unknown configuration option 'unknown'`,
 	});
 });
 
@@ -77,7 +77,7 @@ test.serial("Check getters", (t) => {
 
 	const params = {
 		mavenSnapshotEndpointUrl: "https://snapshot.url",
-		ui5DataDir: "/custom/data/dir"
+		ui5DataDir: "/custom/data/dir",
 	};
 
 	const config = new Configuration(params);
@@ -86,14 +86,13 @@ test.serial("Check getters", (t) => {
 	t.is(config.getUi5DataDir(), params.ui5DataDir);
 });
 
-
 test.serial("fromFile", async (t) => {
 	const fromFile = t.context.Configuration.fromFile;
 	const {promisifyStub, sinon} = t.context;
 
 	const ui5rcContents = {
 		mavenSnapshotEndpointUrl: "https://snapshot.url",
-		ui5DataDir: "/custom/data/dir"
+		ui5DataDir: "/custom/data/dir",
 	};
 	const responseStub = sinon.stub().resolves(JSON.stringify(ui5rcContents));
 	promisifyStub.callsFake(() => responseStub);
@@ -117,7 +116,6 @@ test.serial("fromFile: configuration file not found - fallback to default config
 	t.is(config.getUi5DataDir(), undefined, "Default settings");
 });
 
-
 test.serial("fromFile: empty configuration file - fallback to default config", async (t) => {
 	const {promisifyStub, sinon, Configuration} = t.context;
 	const fromFile = Configuration.fromFile;
@@ -140,7 +138,7 @@ test.serial("fromFile: throws", async (t) => {
 	promisifyStub.callsFake(() => responseStub);
 
 	await t.throwsAsync(fromFile(), {
-		message: `Failed to read UI5 Tooling configuration from ~/.ui5rc: Error`
+		message: `Failed to read UI5 Tooling configuration from ~/.ui5rc: Error`,
 	});
 });
 
@@ -169,6 +167,6 @@ test.serial("toFile: throws", async (t) => {
 	promisifyStub.callsFake(() => responseStub);
 
 	await t.throwsAsync(toFile(new Configuration({})), {
-		message: "Failed to write UI5 Tooling configuration to ~/.ui5rc: Error"
+		message: "Failed to write UI5 Tooling configuration to ~/.ui5rc: Error",
 	});
 });

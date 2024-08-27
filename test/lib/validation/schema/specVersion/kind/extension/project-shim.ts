@@ -12,7 +12,7 @@ async function assertValidation(t, config, expectedErrors = undefined) {
 	if (expectedErrors) {
 		const validationError = await t.throwsAsync(validation, {
 			instanceOf: ValidationError,
-			name: "ValidationError"
+			name: "ValidationError",
 		});
 		validationError.errors.forEach((error) => {
 			delete error.schemaPath;
@@ -31,7 +31,7 @@ async function assertValidation(t, config, expectedErrors = undefined) {
 test.before((t) => {
 	t.context.validator = new Validator({Ajv, ajvErrors, schemaName: "ui5"});
 	t.context.ajvCoverage = new AjvCoverage(t.context.validator.ajv, {
-		includes: ["schema/specVersion/kind/extension/project-shim.json"]
+		includes: ["schema/specVersion/kind/extension/project-shim.json"],
 	});
 });
 
@@ -41,7 +41,7 @@ test.after.always((t) => {
 		statements: 75,
 		branches: 60,
 		functions: 100,
-		lines: 70
+		lines: 70,
 	};
 	t.context.ajvCoverage.verify(thresholds);
 });
@@ -49,48 +49,48 @@ test.after.always((t) => {
 SpecificationVersion.getVersionsForRange(">=2.0").forEach((specVersion) => {
 	test(`kind: extension / type: project-shim (${specVersion})`, async (t) => {
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"kind": "extension",
-			"type": "project-shim",
-			"metadata": {
-				"name": "my-project-shim"
+			specVersion: specVersion,
+			kind: "extension",
+			type: "project-shim",
+			metadata: {
+				name: "my-project-shim",
 			},
-			"shims": {
-				"configurations": {
-					"invalid": {
-						"specVersion": "4.0",
-						"type": "does-not-exist",
-						"metadata": {
-							"name": "my-application"
-						}
-					}
-				},
-				"dependencies": {
-					"my-dependency": {
-						"foo": "bar"
-					}
-				},
-				"collections": {
-					"foo": {
-						"modules": {
-							"lib-1": {
-								"path": "src/lib1"
-							}
+			shims: {
+				configurations: {
+					invalid: {
+						specVersion: "4.0",
+						type: "does-not-exist",
+						metadata: {
+							name: "my-application",
 						},
-						"notAllowed": true
-					}
+					},
 				},
-				"notAllowed": true
+				dependencies: {
+					"my-dependency": {
+						foo: "bar",
+					},
+				},
+				collections: {
+					foo: {
+						modules: {
+							"lib-1": {
+								path: "src/lib1",
+							},
+						},
+						notAllowed: true,
+					},
+				},
+				notAllowed: true,
 			},
-			"middleware": {}
+			middleware: {},
 		}, [
 			{
 				dataPath: "",
 				keyword: "additionalProperties",
 				message: "should NOT have additional properties",
 				params: {
-					"additionalProperty": "middleware"
-				}
+					additionalProperty: "middleware",
+				},
 			},
 			{
 				dataPath: "/shims",
@@ -98,7 +98,7 @@ SpecificationVersion.getVersionsForRange(">=2.0").forEach((specVersion) => {
 				message: "should NOT have additional properties",
 				params: {
 					additionalProperty: "notAllowed",
-				}
+				},
 			},
 			{
 				dataPath: "/shims/dependencies/my-dependency",
@@ -106,7 +106,7 @@ SpecificationVersion.getVersionsForRange(">=2.0").forEach((specVersion) => {
 				message: "should be array",
 				params: {
 					type: "array",
-				}
+				},
 			},
 			{
 				dataPath: "/shims/collections/foo",
@@ -114,7 +114,7 @@ SpecificationVersion.getVersionsForRange(">=2.0").forEach((specVersion) => {
 				message: "should NOT have additional properties",
 				params: {
 					additionalProperty: "notAllowed",
-				}
+				},
 			},
 			{
 				dataPath: "/shims/collections/foo/modules/lib-1",
@@ -122,22 +122,22 @@ SpecificationVersion.getVersionsForRange(">=2.0").forEach((specVersion) => {
 				message: "should be string",
 				params: {
 					type: "string",
-				}
-			}
+				},
+			},
 		]);
 	});
 });
 
-SpecificationVersion.getVersionsForRange(">=3.0").forEach(function(specVersion) {
+SpecificationVersion.getVersionsForRange(">=3.0").forEach(function (specVersion) {
 	test(`Invalid extension name (specVersion ${specVersion})`, async (t) => {
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"kind": "extension",
-			"type": "project-shim",
-			"metadata": {
-				"name": "illegal/name"
+			specVersion: specVersion,
+			kind: "extension",
+			type: "project-shim",
+			metadata: {
+				name: "illegal/name",
 			},
-			"shims": {}
+			shims: {},
 		}, [{
 			dataPath: "/metadata/name",
 			keyword: "errorMessage",
@@ -149,18 +149,18 @@ SpecificationVersion.getVersionsForRange(">=3.0").forEach(function(specVersion) 
 					message: `should match pattern "^(?:@[0-9a-z-_.]+\\/)?[a-z][0-9a-z-_.]*$"`,
 					params: {
 						pattern: "^(?:@[0-9a-z-_.]+\\/)?[a-z][0-9a-z-_.]*$",
-					}
-				}]
+					},
+				}],
 			},
 		}]);
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"kind": "extension",
-			"type": "project-shim",
-			"metadata": {
-				"name": "a"
+			specVersion: specVersion,
+			kind: "extension",
+			type: "project-shim",
+			metadata: {
+				name: "a",
 			},
-			"shims": {}
+			shims: {},
 		}, [{
 			dataPath: "/metadata/name",
 			keyword: "errorMessage",
@@ -172,18 +172,18 @@ SpecificationVersion.getVersionsForRange(">=3.0").forEach(function(specVersion) 
 					message: "should NOT be shorter than 3 characters",
 					params: {
 						limit: 3,
-					}
-				}]
+					},
+				}],
 			},
 		}]);
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"kind": "extension",
-			"type": "project-shim",
-			"metadata": {
-				"name": "a".repeat(81)
+			specVersion: specVersion,
+			kind: "extension",
+			type: "project-shim",
+			metadata: {
+				name: "a".repeat(81),
 			},
-			"shims": {}
+			shims: {},
 		}, [{
 			dataPath: "/metadata/name",
 			keyword: "errorMessage",
@@ -195,49 +195,49 @@ SpecificationVersion.getVersionsForRange(">=3.0").forEach(function(specVersion) 
 					message: "should NOT be longer than 80 characters",
 					params: {
 						limit: 80,
-					}
-				}]
+					},
+				}],
 			},
 		}]);
 	});
 });
 
 const additionalConfiguration = {
-	"shims": {
-		"configurations": {
+	shims: {
+		configurations: {
 			"my-dependency": {
-				"specVersion": "2.0",
-				"type": "application",
-				"metadata": {
-					"name": "my-application"
-				}
+				specVersion: "2.0",
+				type: "application",
+				metadata: {
+					name: "my-application",
+				},
 			},
 			"my-other-dependency": {
-				"specVersion": "4.0",
-				"type": "does-not-exist",
-				"metadata": {
-					"name": "my-application"
-				}
-			}
+				specVersion: "4.0",
+				type: "does-not-exist",
+				metadata: {
+					name: "my-application",
+				},
+			},
 		},
-		"dependencies": {
+		dependencies: {
 			"my-dependency": [
-				"my-other-dependency"
+				"my-other-dependency",
 			],
 			"my-other-dependency": [
 				"some-lib",
-				"some-other-lib"
-			]
+				"some-other-lib",
+			],
 		},
-		"collections": {
+		collections: {
 			"my-dependency": {
-				"modules": {
+				modules: {
 					"lib-1": "src/lib1",
-					"lib-2": "src/lib2"
-				}
-			}
-		}
-	}
+					"lib-2": "src/lib2",
+				},
+			},
+		},
+	},
 };
 
 extension.defineTests(test, assertValidation, "project-shim", additionalConfiguration);

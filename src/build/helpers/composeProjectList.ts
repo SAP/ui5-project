@@ -5,8 +5,8 @@ const log = getLogger("build:helpers:composeProjectList");
  * Creates an object containing the flattened project dependency tree. Each dependency is defined as an object key while
  * its value is an array of all of its transitive dependencies.
  *
- * @param {@ui5/project/graph/ProjectGraph} graph
- * @returns {Promise<Object<string, string[]>>} A promise resolving to an object with dependency names as
+ * @param graph
+ * @returns A promise resolving to an object with dependency names as
  * 												key and each with an array of its transitive dependencies as value
  */
 async function getFlattenedDependencyTree(graph) {
@@ -36,12 +36,22 @@ async function getFlattenedDependencyTree(graph) {
  * See [ProjectBuilder~DependencyIncludes]{@link @ui5/project/build/ProjectBuilder~DependencyIncludes}
  * for a detailed JSDoc.
  *
- * @param {@ui5/project/graph/ProjectGraph} graph
- * @param {@ui5/project/build/ProjectBuilder~DependencyIncludes} dependencyIncludes
- * @returns {{includedDependencies:string[],excludedDependencies:string[]}} An object containing the
+ * @param graph
+ * @param dependencyIncludes
+ * @param dependencyIncludes.includeAllDependencies
+ * @param dependencyIncludes.includeDependency
+ * @param dependencyIncludes.includeDependencyRegExp
+ * @param dependencyIncludes.includeDependencyTree
+ * @param dependencyIncludes.excludeDependency
+ * @param dependencyIncludes.excludeDependencyRegExp
+ * @param dependencyIncludes.excludeDependencyTree
+ * @param dependencyIncludes.defaultIncludeDependency
+ * @param dependencyIncludes.defaultIncludeDependencyRegExp
+ * @param dependencyIncludes.defaultIncludeDependencyTree
+ * @returns An object containing the
  *   'includedDependencies' and 'excludedDependencies'
  */
-async function createDependencyLists(graph, { includeAllDependencies = false, includeDependency = [], includeDependencyRegExp = [], includeDependencyTree = [], excludeDependency = [], excludeDependencyRegExp = [], excludeDependencyTree = [], defaultIncludeDependency = [], defaultIncludeDependencyRegExp = [], defaultIncludeDependencyTree = [] }) {
+async function createDependencyLists(graph, {includeAllDependencies = false, includeDependency = [], includeDependencyRegExp = [], includeDependencyTree = [], excludeDependency = [], excludeDependencyRegExp = [], excludeDependencyTree = [], defaultIncludeDependency = [], defaultIncludeDependencyRegExp = [], defaultIncludeDependencyTree = []}) {
 	if (
 		!includeAllDependencies &&
 		!includeDependency.length && !includeDependencyRegExp.length && !includeDependencyTree.length &&
@@ -54,9 +64,23 @@ async function createDependencyLists(graph, { includeAllDependencies = false, in
 
 	const flattenedDependencyTree = await getFlattenedDependencyTree(graph);
 
+	/**
+	 *
+	 * @param excludeList
+	 * @param depName
+	 */
 	function isExcluded(excludeList, depName) {
-		return excludeList && excludeList.has(depName);
+		return excludeList?.has(depName);
 	}
+	/**
+	 *
+	 * @param root0
+	 * @param root0.targetList
+	 * @param root0.dependencies
+	 * @param root0.dependenciesRegExp
+	 * @param root0.excludeList
+	 * @param root0.handleSubtree
+	 */
 	function processDependencies({targetList, dependencies, dependenciesRegExp = [], excludeList, handleSubtree}) {
 		if (handleSubtree && dependenciesRegExp.length) {
 			throw new Error("dependenciesRegExp can't be combined with handleSubtree:true option");
@@ -97,13 +121,13 @@ async function createDependencyLists(graph, { includeAllDependencies = false, in
 	processDependencies({
 		targetList: includedDependencies,
 		dependencies: includeDependency,
-		dependenciesRegExp: includeDependencyRegExp
+		dependenciesRegExp: includeDependencyRegExp,
 	});
 	// add dependencies defined in excludeDependency and excludeDependencyRegExp to the list of excludedDependencies
 	processDependencies({
 		targetList: excludedDependencies,
 		dependencies: excludeDependency,
-		dependenciesRegExp: excludeDependencyRegExp
+		dependenciesRegExp: excludeDependencyRegExp,
 	});
 	// add dependencies defined in includeDependencyTree with their transitive dependencies to the list of
 	// includedDependencies; due to prioritization only those dependencies are added which are not excluded
@@ -112,7 +136,7 @@ async function createDependencyLists(graph, { includeAllDependencies = false, in
 		targetList: includedDependencies,
 		dependencies: includeDependencyTree,
 		excludeList: excludedDependencies,
-		handleSubtree: true
+		handleSubtree: true,
 	});
 	// add dependencies defined in excludeDependencyTree with their transitive dependencies to the list of
 	// excludedDependencies; due to prioritization only those dependencies are added which are not excluded
@@ -121,7 +145,7 @@ async function createDependencyLists(graph, { includeAllDependencies = false, in
 		targetList: excludedDependencies,
 		dependencies: excludeDependencyTree,
 		excludeList: includedDependencies,
-		handleSubtree: true
+		handleSubtree: true,
 	});
 	// due to the lower priority only add the dependencies defined in build settings if they are not excluded
 	// by any other dependency defined in excludedDependencies
@@ -129,13 +153,13 @@ async function createDependencyLists(graph, { includeAllDependencies = false, in
 		targetList: includedDependencies,
 		dependencies: defaultIncludeDependency,
 		dependenciesRegExp: defaultIncludeDependencyRegExp,
-		excludeList: excludedDependencies
+		excludeList: excludedDependencies,
 	});
 	processDependencies({
 		targetList: includedDependencies,
 		dependencies: defaultIncludeDependencyTree,
 		excludeList: excludedDependencies,
-		handleSubtree: true
+		handleSubtree: true,
 	});
 
 	if (includeAllDependencies) {
@@ -149,7 +173,7 @@ async function createDependencyLists(graph, { includeAllDependencies = false, in
 
 	return {
 		includedDependencies: Array.from(includedDependencies),
-		excludedDependencies: Array.from(excludedDependencies)
+		excludedDependencies: Array.from(excludedDependencies),
 	};
 }
 

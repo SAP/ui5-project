@@ -4,17 +4,13 @@ import {readFile} from "node:fs/promises";
 /**
  * @module @ui5/project/validation/validator
  * @description A collection of validation related APIs
- * @public
  */
 
 /**
- * @enum {string}
- * @private
- * @readonly
  */
 export const SCHEMA_VARIANTS = {
 	"ui5": "ui5.json",
-	"ui5-workspace": "ui5-workspace.json"
+	"ui5-workspace": "ui5-workspace.json",
 };
 
 class Validator {
@@ -32,7 +28,7 @@ class Validator {
 		ajvConfig = Object.assign({
 			allErrors: true,
 			jsonPointers: true,
-			loadSchema: Validator.loadSchema
+			loadSchema: Validator.loadSchema,
 		}, ajvConfig);
 		this.ajv = new Ajv(ajvConfig);
 		ajvErrors(this.ajv);
@@ -63,7 +59,7 @@ class Validator {
 				errors,
 				schema,
 				project,
-				yaml
+				yaml,
 			});
 		}
 	}
@@ -80,6 +76,11 @@ class Validator {
 const validator = Object.create(null);
 const defaultsValidator = Object.create(null);
 
+/**
+ *
+ * @param schemaName
+ * @param options
+ */
 async function _validate(schemaName, options) {
 	if (!validator[schemaName]) {
 		validator[schemaName] = (async () => {
@@ -93,6 +94,11 @@ async function _validate(schemaName, options) {
 	await schemaValidator.validate(options);
 }
 
+/**
+ *
+ * @param schemaName
+ * @param options
+ */
 async function _validateAndSetDefaults(schemaName, options) {
 	if (!defaultsValidator[schemaName]) {
 		defaultsValidator[schemaName] = (async () => {
@@ -117,16 +123,13 @@ async function _validateAndSetDefaults(schemaName, options) {
 /**
  * Validates the given ui5 configuration.
  *
- * @public
- * @function
- * @static
- * @param {object} options
- * @param {object} options.config UI5 Configuration to validate
- * @param {object} options.project Project information
- * @param {string} options.project.id ID of the project
- * @param {object} [options.yaml] YAML information
- * @param {string} options.yaml.path Path of the YAML file
- * @param {string} options.yaml.source Content of the YAML file
+ * @param options
+ * @param options.config UI5 Configuration to validate
+ * @param options.project Project information
+ * @param options.project.id ID of the project
+ * @param [options.yaml] YAML information
+ * @param options.yaml.path Path of the YAML file
+ * @param options.yaml.source Content of the YAML file
  * @param {number} [options.yaml.documentIndex=0] Document index in case the YAML file contains multiple documents
  * @throws {@ui5/project/validation/ValidationError}
  *   Rejects with a {@link @ui5/project/validation/ValidationError ValidationError}
@@ -134,15 +137,15 @@ async function _validateAndSetDefaults(schemaName, options) {
  * @returns {Promise<undefined>} Returns a Promise that resolves when the validation succeeds
  */
 export async function validate(options: {
-    config: object;
-    project: {
-        id: string;
-    };
-    yaml?: {
-        path: string;
-        source: string;
-        documentIndex?: number;
-    };
+	config: object;
+	project: {
+		id: string;
+	};
+	yaml?: {
+		path: string;
+		source: string;
+		documentIndex?: number;
+	};
 }) {
 	await _validate("ui5", options);
 }
@@ -150,16 +153,13 @@ export async function validate(options: {
 /**
  * Validates the given ui5 configuration and returns default values if none are provided.
  *
- * @public
- * @function
- * @static
- * @param {object} options
- * @param {object} options.config The UI5 Configuration to validate
- * @param {object} options.project Project information
- * @param {string} options.project.id ID of the project
- * @param {object} [options.yaml] YAML information
- * @param {string} options.yaml.path Path of the YAML file
- * @param {string} options.yaml.source Content of the YAML file
+ * @param options
+ * @param options.config The UI5 Configuration to validate
+ * @param options.project Project information
+ * @param options.project.id ID of the project
+ * @param [options.yaml] YAML information
+ * @param options.yaml.path Path of the YAML file
+ * @param options.yaml.source Content of the YAML file
  * @param {number} [options.yaml.documentIndex=0] Document index in case the YAML file contains multiple documents
  * @throws {module:@ui5/project/validation/ValidationError}
  *   Rejects with a {@link @ui5/project/validation/ValidationError ValidationError}
@@ -167,15 +167,15 @@ export async function validate(options: {
  * @returns {Promise<options>} Returns a Promise that resolves when the validation succeeds
  */
 export async function getDefaults(options: {
-    config: object;
-    project: {
-        id: string;
-    };
-    yaml?: {
-        path: string;
-        source: string;
-        documentIndex?: number;
-    };
+	config: object;
+	project: {
+		id: string;
+	};
+	yaml?: {
+		path: string;
+		source: string;
+		documentIndex?: number;
+	};
 }) {
 	return await _validateAndSetDefaults("ui5", options);
 }
@@ -183,23 +183,25 @@ export async function getDefaults(options: {
 /**
  * Enhances bundleDefinition by adding missing properties with their respective default values.
  *
- * @param {object[]} bundles Bundles to be enhanced
- * @param {module:@ui5/builder/processors/bundlers/moduleBundler~ModuleBundleDefinition} bundles[].bundleDefinition
+ * @param bundles Bundles to be enhanced
+ * @param bundles[].bundleDefinition
  *   Module bundle definition
- * @param {module:@ui5/builder/processors/bundlers/moduleBundler~ModuleBundleOptions} [bundles[].bundleOptions]
+ * @param [bundles[].bundleOptions]
  *   Module bundle options
- * @param {module:@ui5/project/specifications/Project} project The project to get metadata from
- * @returns {Promise<object>} The enhanced BundleDefinition & BundleOptions
+ * @param bundles.bundleDefinition
+ * @param project The project to get metadata from
+ * @param bundles.bundleOptions
+ * @returns The enhanced BundleDefinition & BundleOptions
  */
 export async function enhanceBundlesWithDefaults(bundles: {
-    bundleDefinition: object;
-    bundleOptions?: object;
+	bundleDefinition: object;
+	bundleOptions?: object;
 }, project: object) {
 	const config = {
 		specVersion: `${project.getSpecVersion()}`,
 		type: `${project.getType()}`,
 		metadata: {name: project.getName()},
-		builder: {bundles}
+		builder: {bundles},
 	};
 	const result = await getDefaults({config, project: {id: project.getName()}});
 
@@ -209,27 +211,24 @@ export async function enhanceBundlesWithDefaults(bundles: {
 /**
  * Validates the given ui5-workspace configuration.
  *
- * @public
- * @function
- * @static
- * @param {object} options
- * @param {object} options.config ui5-workspace Configuration to validate
- * @param {object} [options.yaml] YAML information
- * @param {string} options.yaml.path Path of the YAML file
- * @param {string} options.yaml.source Content of the YAML file
- * @param {number} [options.yaml.documentIndex=0] Document index in case the YAML file contains multiple documents
+ * @param options
+ * @param options.config ui5-workspace Configuration to validate
+ * @param [options.yaml] YAML information
+ * @param options.yaml.path Path of the YAML file
+ * @param options.yaml.source Content of the YAML file
+ * @param [options.yaml.documentIndex] Document index in case the YAML file contains multiple documents
  * @throws {@ui5/project/validation/ValidationError}
  *   Rejects with a {@link @ui5/project/validation/ValidationError ValidationError}
  *   when the validation fails.
  * @returns {Promise<undefined>} Returns a Promise that resolves when the validation succeeds
  */
 export async function validateWorkspace(options: {
-    config: object;
-    yaml?: {
-        path: string;
-        source: string;
-        documentIndex?: number;
-    };
+	config: object;
+	yaml?: {
+		path: string;
+		source: string;
+		documentIndex?: number;
+	};
 }) {
 	await _validate("ui5-workspace", options);
 }
@@ -238,7 +237,6 @@ export {
 	/**
 	 * For testing only!
 	 *
-	 * @private
 	 */
-	Validator as _Validator
+	Validator as _Validator,
 };

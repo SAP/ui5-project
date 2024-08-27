@@ -21,19 +21,19 @@ const CACHE_TIME = 32400000; // 9 hours
 
 class Installer extends AbstractInstaller {
 	/**
-	 * @param {object} parameters Parameters
-	 * @param {string} parameters.ui5DataDir UI5 home directory location. This will be used to store packages,
+	 * @param parameters Parameters
+	 * @param parameters.ui5DataDir UI5 home directory location. This will be used to store packages,
 	 * metadata and configuration used by the resolvers.
-	 * @param {Function} parameters.snapshotEndpointUrlCb Callback that returns a Promise <string>,
+	 * @param parameters.snapshotEndpointUrlCb Callback that returns a Promise <string>,
 	 * 	resolving to the Maven repository URL.
 	 * 	Example: <code>https://registry.corp/vendor/build-snapshots/</code>
-	 * @param {module:@ui5/project/ui5Framework/maven/CacheMode} [parameters.cacheMode=Default] Cache mode to use
+	 * @param [parameters.cacheMode] Cache mode to use
 	 */
-	constructor({ ui5DataDir, snapshotEndpointUrlCb, cacheMode = CacheMode.Default }: {
-    ui5DataDir: string;
-    snapshotEndpointUrlCb: Function;
-    cacheMode?: string;
-}) {
+	constructor({ui5DataDir, snapshotEndpointUrlCb, cacheMode = CacheMode.Default}: {
+		ui5DataDir: string;
+		snapshotEndpointUrlCb: Function;
+		cacheMode?: string;
+	}) {
 		super(ui5DataDir);
 
 		this._artifactsDir = path.join(ui5DataDir, "framework", "artifacts");
@@ -96,38 +96,39 @@ class Installer extends AbstractInstaller {
 		});
 	}
 
-
 	/**
 	 * Metadata for an artifact as identified by it's Maven coordinates
 	 *
-	 * @typedef {object} @ui5/project/ui5Framework/maven/Installer~LocalMetadata
-	 * @property {integer} lastCheck Timestamp of the last time these metadata have been compared with the repository
-	 * @property {integer} lastUpdate Timestamp of the last time the artifact has been updated in the repository
-	 *   (typically older than last check)
-	 * @property {string} revision Current revision of the artifact
-	 * @property {string[]} staleRevisions Previously installed revisions of the artifact
+	 * lastCheck Timestamp of the last time these metadata have been compared with the repository
+	 *
+	 * lastUpdate Timestamp of the last time the artifact has been updated in the repository
+	 * (typically older than last check)
+	 *
+	 * revision Current revision of the artifact
+	 *
+	 * staleRevisions Previously installed revisions of the artifact
 	 */
 
 	/**
 	 * Fills and maintains locally cached metadata for the given artifact coordinates
 	 *
-	 * @param {object} coordinates
-	 * @param {string} coordinates.groupId GroupId of the requested artifact
-	 * @param {string} coordinates.artifactId ArtifactId of the requested artifact
-	 * @param {string} coordinates.version Version of the requested artifact
-	 * @param {string|null} coordinates.classifier Classifier of the requested artifact
-	 * @param {string} coordinates.extension Extension of the requested artifact
-	 * @param {string} [coordinates.pkgName] npm package name the artifact corresponds to (if any)
-	 * @returns {@ui5/project/ui5Framework/maven/Installer~LocalMetadata}
+	 * @param coordinates
+	 * @param coordinates.groupId GroupId of the requested artifact
+	 * @param coordinates.artifactId ArtifactId of the requested artifact
+	 * @param coordinates.version Version of the requested artifact
+	 * @param coordinates.classifier Classifier of the requested artifact
+	 * @param coordinates.extension Extension of the requested artifact
+	 * @param [coordinates.pkgName] npm package name the artifact corresponds to (if any)
+	 * @returns
 	 */
 	async _fetchArtifactMetadata(coordinates: {
-    groupId: string;
-    artifactId: string;
-    version: string;
-    classifier: string | null;
-    extension: string;
-    pkgName?: string;
-}) {
+		groupId: string;
+		artifactId: string;
+		version: string;
+		classifier: string | null;
+		extension: string;
+		pkgName?: string;
+	}) {
 		const fsId = this._generateFsIdFromCoordinates(coordinates);
 		const logId = this._generateLogIdFromCoordinates(coordinates);
 		return this._synchronize("metadata-" + fsId, async () => {
@@ -153,7 +154,7 @@ class Installer extends AbstractInstaller {
 					log.verbose(
 						`Refreshing metadata cache for artifact ${logId} ` +
 						// TODO better formatting of elapsed time
-						`(last checked ${timeSinceLastCheck/1000} seconds ago)`);
+						`(last checked ${timeSinceLastCheck / 1000} seconds ago)`);
 				}
 
 				log.info(
@@ -163,7 +164,7 @@ class Installer extends AbstractInstaller {
 
 				// TODO better formatting of elapsed time
 				log.verbose(`Retrieved metadata for artifact ${logId} is ` +
-					`${(lastUpdate - localMetadata.lastUpdate) / 1000} seconds younger than local metadata`);
+				`${(lastUpdate - localMetadata.lastUpdate) / 1000} seconds younger than local metadata`);
 				log.verbose(`Retrieved deployment version is ${revision}`);
 
 				this._rotateRevision(localMetadata, revision);
@@ -183,21 +184,21 @@ class Installer extends AbstractInstaller {
 	/**
 	 * Fills and maintains locally cached metadata for the given artifact coordinates
 	 *
-	 * @param {object} coordinates
-	 * @param {string} coordinates.groupId GroupId of the requested artifact
-	 * @param {string} coordinates.artifactId ArtifactId of the requested artifact
-	 * @param {string} coordinates.version Version of the requested artifact
-	 * @param {string|null} coordinates.classifier Classifier of the requested artifact
-	 * @param {string} coordinates.extension Extension of the requested artifact
-	 * @returns {@ui5/project/ui5Framework/maven/Installer~LocalMetadata}
+	 * @param coordinates
+	 * @param coordinates.groupId GroupId of the requested artifact
+	 * @param coordinates.artifactId ArtifactId of the requested artifact
+	 * @param coordinates.version Version of the requested artifact
+	 * @param coordinates.classifier Classifier of the requested artifact
+	 * @param coordinates.extension Extension of the requested artifact
+	 * @returns
 	 */
-	async _getRemoteArtifactMetadata({ groupId, artifactId, version, classifier, extension }: {
-    groupId: string;
-    artifactId: string;
-    version: string;
-    classifier: string | null;
-    extension: string;
-}) {
+	async _getRemoteArtifactMetadata({groupId, artifactId, version, classifier, extension}: {
+		groupId: string;
+		artifactId: string;
+		version: string;
+		classifier: string | null;
+		extension: string;
+	}) {
 		const reg = await this.getRegistry();
 		const metadata = await reg.requestMavenMetadata({groupId, artifactId, version});
 
@@ -208,7 +209,7 @@ class Installer extends AbstractInstaller {
 		const snapshotVersion = metadata.versioning.snapshotVersions.snapshotVersion;
 		const deploymentMetadata = snapshotVersion.find(({
 			classifier: candidateClassifier, // Classifier can be null, e.g. for the default "jar" artifact
-			extension: candidateExtension
+			extension: candidateExtension,
 		}) => (!classifier || candidateClassifier === classifier) && candidateExtension === extension);
 
 		if (!deploymentMetadata) {
@@ -225,19 +226,19 @@ class Installer extends AbstractInstaller {
 
 		const logId = this._generateLogIdFromCoordinates({groupId, artifactId, version, classifier, extension});
 		log.verbose(`Retrieved metadata for ${logId}:` +
-			`\n  Last update was at: ${ts.toISOString()}` +
-			`\n  Current deployment version is: ${deploymentMetadata.value}`);
+		`\n  Last update was at: ${ts.toISOString()}` +
+		`\n  Current deployment version is: ${deploymentMetadata.value}`);
 		return {
 			lastUpdate: ts.getTime(),
-			revision: deploymentMetadata.value
+			revision: deploymentMetadata.value,
 		};
 	}
 
 	/**
 	 * Reads locally cached metadata for the given artifact coordinates
 	 *
-	 * @param {string} id File System identifier for the artifact. Typically derived from the coordinates
-	 * @returns {@ui5/project/ui5Framework/maven/Installer~LocalMetadata}
+	 * @param id File System identifier for the artifact. Typically derived from the coordinates
+	 * @returns
 	 */
 	async _getLocalArtifactMetadata(id: string) {
 		try {
@@ -249,7 +250,7 @@ class Installer extends AbstractInstaller {
 					lastCheck: 0,
 					lastUpdate: 0,
 					revision: null,
-					staleRevisions: []
+					staleRevisions: [],
 				};
 			} else {
 				throw err;
@@ -282,11 +283,11 @@ class Installer extends AbstractInstaller {
 				artifactId,
 				revision,
 				classifier,
-				extension
+				extension,
 			});
 			log.verbose(`Removing ${artifactPath}...`);
 			await rm(artifactPath, {
-				force: true
+				force: true,
 			});
 
 			if (pkgName) {
@@ -298,39 +299,37 @@ class Installer extends AbstractInstaller {
 	}
 
 	/**
-	 * @typedef {object} @ui5/project/ui5Framework/maven/Installer~InstalledPackage
-	 * @property {string} pkgPath
 	 */
 
 	/**
 	 * Downloads the respective artifact and extracts the zip archive into a structure similar to
 	 * the npm installer
 	 *
-	 * @param {object} parameters
-	 * @param {string} parameters.pkgName Name of the npm package
-	 * @param {string} parameters.groupId GroupId of the requested artifact
-	 * @param {string} parameters.artifactId ArtifactId of the requested artifact
-	 * @param {string} parameters.version Version of the requested artifact
-	 * @param {string|null} parameters.classifier Classifier of the requested artifact
-	 * @param {string} parameters.extension Extension of the requested artifact
-	 * @returns {@ui5/project/ui5Framework/maven/Installer~InstalledPackage}
+	 * @param parameters
+	 * @param parameters.pkgName Name of the npm package
+	 * @param parameters.groupId GroupId of the requested artifact
+	 * @param parameters.artifactId ArtifactId of the requested artifact
+	 * @param parameters.version Version of the requested artifact
+	 * @param parameters.classifier Classifier of the requested artifact
+	 * @param parameters.extension Extension of the requested artifact
+	 * @returns
 	 */
-	async installPackage({ pkgName, groupId, artifactId, version, classifier, extension }: {
-    pkgName: string;
-    groupId: string;
-    artifactId: string;
-    version: string;
-    classifier: string | null;
-    extension: string;
-}) {
+	async installPackage({pkgName, groupId, artifactId, version, classifier, extension}: {
+		pkgName: string;
+		groupId: string;
+		artifactId: string;
+		version: string;
+		classifier: string | null;
+		extension: string;
+	}) {
 		const {revision} = await this._fetchArtifactMetadata({
-			pkgName, groupId, artifactId, version, classifier, extension
+			pkgName, groupId, artifactId, version, classifier, extension,
 		});
 
 		const coordinates = {
 			groupId, artifactId,
 			version, revision,
-			classifier, extension
+			classifier, extension,
 		};
 
 		const targetDir = this._getTargetDirForPackage(pkgName, revision);
@@ -384,46 +383,44 @@ class Installer extends AbstractInstaller {
 			log.verbose(`Already installed: ${pkgName} in SNAPSHOT version ${revision}`);
 		}
 		return {
-			pkgPath: targetDir
+			pkgPath: targetDir,
 		};
 	}
 
 	/**
-	 * @typedef {object} @ui5/project/ui5Framework/maven/Installer~InstalledArtifact
-	 * @property {string} artifactPath
-	 * @property {Function} removeArtifact Callback to trigger removal of the artifact file in case it
+	 * removeArtifact Callback to trigger removal of the artifact file in case it
 	 * is no longer required.
 	 */
 
 	/**
-	 * @param {object} parameters
-	 * @param {string} parameters.groupId GroupId of the requested artifact
-	 * @param {string} parameters.artifactId ArtifactId of the requested artifact
-	 * @param {string} parameters.version Version of the requested artifact
-	 * @param {string|null} parameters.classifier Classifier of the requested artifact
-	 * @param {string} parameters.extension Extension of the requested artifact
-	 * @param {string} [parameters.revision] Optional revision of the artifact to request.
+	 * @param parameters
+	 * @param parameters.groupId GroupId of the requested artifact
+	 * @param parameters.artifactId ArtifactId of the requested artifact
+	 * @param parameters.version Version of the requested artifact
+	 * @param parameters.classifier Classifier of the requested artifact
+	 * @param parameters.extension Extension of the requested artifact
+	 * @param [parameters.revision] Optional revision of the artifact to request.
 	 * 	If not provided, the latest revision will be determined from the registry metadata.
-	 * @returns {@ui5/project/ui5Framework/maven/Installer~InstalledArtifact}
+	 * @returns
 	 */
-	async installArtifact({ groupId, artifactId, version, classifier, extension, revision }: {
-    groupId: string;
-    artifactId: string;
-    version: string;
-    classifier: string | null;
-    extension: string;
-    revision?: string;
-}) {
+	async installArtifact({groupId, artifactId, version, classifier, extension, revision}: {
+		groupId: string;
+		artifactId: string;
+		version: string;
+		classifier: string | null;
+		extension: string;
+		revision?: string;
+	}) {
 		if (!revision) {
 			const metadata = await this._fetchArtifactMetadata({
-				groupId, artifactId, version, classifier, extension
+				groupId, artifactId, version, classifier, extension,
 			});
 			revision = metadata.revision;
 		}
 		const coordinates = {
 			groupId, artifactId,
 			version, revision,
-			classifier, extension
+			classifier, extension,
 		};
 
 		const targetPath = this._getTargetPathForArtifact(coordinates);
@@ -469,7 +466,7 @@ class Installer extends AbstractInstaller {
 			artifactPath: targetPath,
 			removeArtifact: () => {
 				return rm(targetPath);
-			}
+			},
 		};
 	}
 
@@ -519,23 +516,23 @@ class Installer extends AbstractInstaller {
 	 * Generate an identifier for an artifact that is safe to use in file names.
 	 * Used for naming metadata- and lock-files
 	 *
-	 * @param {object} parameters
-	 * @param {string} parameters.groupId GroupId of the artifact
-	 * @param {string} parameters.artifactId ArtifactId of the artifact
-	 * @param {string} parameters.extension Extension of the artifact
-	 * @param {string} [parameters.classifier] Optional classifier of the artifact
-	 * @param {string} [parameters.version] Version of the artifact. Optional if revision is provided
-	 * @param {string} [parameters.revision] Optional revision of the artifact
-	 * @returns {string} A unique identifier for the provided combination of parameters
+	 * @param parameters
+	 * @param parameters.groupId GroupId of the artifact
+	 * @param parameters.artifactId ArtifactId of the artifact
+	 * @param parameters.extension Extension of the artifact
+	 * @param [parameters.classifier] Optional classifier of the artifact
+	 * @param [parameters.version] Version of the artifact. Optional if revision is provided
+	 * @param [parameters.revision] Optional revision of the artifact
+	 * @returns A unique identifier for the provided combination of parameters
 	 */
-	_generateFsIdFromCoordinates({ groupId, artifactId, version, classifier, extension, revision }: {
-    groupId: string;
-    artifactId: string;
-    extension: string;
-    classifier?: string;
-    version?: string;
-    revision?: string;
-}) {
+	_generateFsIdFromCoordinates({groupId, artifactId, version, classifier, extension, revision}: {
+		groupId: string;
+		artifactId: string;
+		extension: string;
+		classifier?: string;
+		version?: string;
+		revision?: string;
+	}) {
 		// Using underscores instead of colons, since the colon is a reserved character for
 		// filenames on Windows and macOS
 		const optionalClassifier = classifier ? `${classifier}.` : "";
@@ -545,23 +542,23 @@ class Installer extends AbstractInstaller {
 	/**
 	 * Generate an identifier for an artifact that is suitable for logging purposes
 	 *
-	 * @param {object} parameters
-	 * @param {string} parameters.groupId GroupId of the artifact
-	 * @param {string} parameters.artifactId ArtifactId of the artifact
-	 * @param {string} parameters.version Version of the artifact
-	 * @param {string} parameters.extension Extension of the artifact
-	 * @param {string} [parameters.classifier] Optional classifier of the artifact
-	 * @param {string} [parameters.revision] Optional revision of the artifact
-	 * @returns {string} A string with the Maven-typical formatting of the provided coordinates
+	 * @param parameters
+	 * @param parameters.groupId GroupId of the artifact
+	 * @param parameters.artifactId ArtifactId of the artifact
+	 * @param parameters.version Version of the artifact
+	 * @param parameters.extension Extension of the artifact
+	 * @param [parameters.classifier] Optional classifier of the artifact
+	 * @param [parameters.revision] Optional revision of the artifact
+	 * @returns A string with the Maven-typical formatting of the provided coordinates
 	 */
-	_generateLogIdFromCoordinates({ groupId, artifactId, version, classifier, extension, revision }: {
-    groupId: string;
-    artifactId: string;
-    version: string;
-    extension: string;
-    classifier?: string;
-    revision?: string;
-}) {
+	_generateLogIdFromCoordinates({groupId, artifactId, version, classifier, extension, revision}: {
+		groupId: string;
+		artifactId: string;
+		version: string;
+		extension: string;
+		classifier?: string;
+		revision?: string;
+	}) {
 		const optionalClassifier = classifier ? `${classifier}.` : "";
 		return `${groupId}:${artifactId}:${revision || version}:${optionalClassifier}${extension}`;
 	}

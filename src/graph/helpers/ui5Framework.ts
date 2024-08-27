@@ -12,6 +12,7 @@ class ProjectProcessor {
 		this._workspace = workspace;
 		this._projectGraphPromises = Object.create(null);
 	}
+
 	async addProjectToGraph(libName, ancestors) {
 		if (ancestors) {
 			this._checkCycle(ancestors, libName);
@@ -21,6 +22,7 @@ class ProjectProcessor {
 		}
 		return this._projectGraphPromises[libName] = this._addProjectToGraph(libName, ancestors);
 	}
+
 	async _addProjectToGraph(libName, ancestors = []) {
 		log.verbose(`Creating project for library ${libName}...`);
 
@@ -50,7 +52,7 @@ class ProjectProcessor {
 				}
 			}));
 
-			dependencies.push(...resolvedOptionals.filter(($)=>$));
+			dependencies.push(...resolvedOptionals.filter(($) => $));
 		}
 
 		let projectIsFromWorkspace = false;
@@ -59,7 +61,7 @@ class ProjectProcessor {
 			ui5Module = await this._workspace.getModuleByProjectName(libName);
 			if (ui5Module) {
 				log.info(`Resolved project ${libName} via ${this._workspace.getName()} workspace ` +
-					`to version ${ui5Module.getVersion()}`);
+				`to version ${ui5Module.getVersion()}`);
 				log.verbose(`  Resolved module ${libName} to path ${ui5Module.getPath()}`);
 				log.verbose(`  Requested version was: ${depMetadata.version}`);
 				projectIsFromWorkspace = true;
@@ -70,7 +72,7 @@ class ProjectProcessor {
 			ui5Module = new Module({
 				id: depMetadata.id,
 				version: depMetadata.version,
-				modulePath: depMetadata.path
+				modulePath: depMetadata.path,
 			});
 		}
 		const {project} = await ui5Module.getSpecifications();
@@ -100,6 +102,7 @@ class ProjectProcessor {
 			}));
 		}
 	}
+
 	_checkCycle(ancestors, projectName) {
 		if (ancestors.includes(projectName)) {
 			// "Back-edge" detected. This would cause a deadlock
@@ -137,7 +140,7 @@ const utils = {
 
 			frameworkDependencies.forEach((dependency) => {
 				if (!ui5Dependencies.includes(dependency.name) &&
-						utils.shouldIncludeDependency(dependency, project === rootProject)) {
+					utils.shouldIncludeDependency(dependency, project === rootProject)) {
 					ui5Dependencies.push(dependency.name);
 				}
 			});
@@ -169,17 +172,17 @@ const utils = {
 					if (isRoot) {
 						// Check for deprecated/internal dependencies of the root project
 						const depProject = projectGraph.getProject(dependency.name);
-						if (depProject && depProject.isDeprecated() && rootProject.getName() !== "testsuite") {
+						if (depProject?.isDeprecated() && rootProject.getName() !== "testsuite") {
 							// No warning for testsuite projects
 							log.warn(`Dependency ${depProject.getName()} is deprecated ` +
-								`and should not be used for new projects!`);
+							`and should not be used for new projects!`);
 						}
-						if (depProject && depProject.isSapInternal() && !rootProject.getAllowSapInternal()) {
+						if (depProject?.isSapInternal() && !rootProject.getAllowSapInternal()) {
 							// Do not warn if project defines "allowSapInternal"
 							log.warn(`Dependency ${depProject.getName()} is restricted for use by ` +
-								`SAP internal projects only! ` +
-								`If the project ${rootProject.getName()} is an SAP internal project, ` +
-								`add the attribute "allowSapInternal: true" to its metadata configuration`);
+							`SAP internal projects only! ` +
+							`If the project ${rootProject.getName()} is an SAP internal project, ` +
+							`add the attribute "allowSapInternal: true" to its metadata configuration`);
 						}
 					}
 					if (!isRoot && dependency.optional) {
@@ -214,7 +217,7 @@ const utils = {
 	 * This logic needs to stay in sync with the dependency definitions for the
 	 * sapui5/distribution-metadata package.
 	 *
-	 * @param {@ui5/project/specifications/Project} project
+	 * @param project
 	 */
 	async getFrameworkLibraryDependencies(project) {
 		let dependencies = [];
@@ -264,35 +267,32 @@ const utils = {
 		}
 		return libraryMetadata;
 	},
-	ProjectProcessor
+	ProjectProcessor,
 };
 
 /**
  *
  *
- * @private
- * @module @ui5/project/helpers/ui5Framework
  */
 export default {
 	/**
 	 *
 	 *
-	 * @public
-	 * @param {@ui5/project/graph/ProjectGraph} projectGraph
-	 * @param {object} [options]
-	 * @param {string} [options.versionOverride] Framework version to use instead of the root projects framework
+	 * @param projectGraph
+	 * @param [options]
+	 * @param [options.versionOverride] Framework version to use instead of the root projects framework
 	 *   version
-	 * @param {module:@ui5/project/ui5Framework/maven/CacheMode} [options.cacheMode]
- 	 *   Cache mode to use when consuming SNAPSHOT versions of a framework
-	 * @param {@ui5/project/graph/Workspace} [options.workspace]
+	 * @param [options.cacheMode]
+	 *   Cache mode to use when consuming SNAPSHOT versions of a framework
+	 * @param [options.workspace]
 	 *   Optional workspace instance to use for overriding node resolutions
-	 * @returns {Promise<@ui5/project/graph/ProjectGraph>}
+	 * @returns
 	 *   Promise resolving with the given graph instance to allow method chaining
 	 */
-	enrichProjectGraph: async function(projectGraph, options: {
-    versionOverride?: string;
-    cacheMode?: string;
-} = {}) {
+	enrichProjectGraph: async function (projectGraph, options: {
+		versionOverride?: string;
+		cacheMode?: string;
+	} = {}) {
 		const {workspace, cacheMode} = options;
 		const rootProject = projectGraph.getRoot();
 		const frameworkName = rootProject.getFrameworkName();
@@ -321,7 +321,6 @@ export default {
 			}
 		}
 
-
 		if (!frameworkName && !frameworkVersion) {
 			log.verbose(`Root project ${rootProject.getName()} has no framework configuration. Nothing to do here`);
 			return projectGraph;
@@ -343,7 +342,7 @@ export default {
 		}
 
 		let Resolver;
-		if (version && version.toLowerCase().endsWith("-snapshot")) {
+		if (version?.toLowerCase().endsWith("-snapshot")) {
 			Resolver = (await import("../../ui5Framework/Sapui5MavenSnapshotResolver.js")).default;
 		} else if (frameworkName === "OpenUI5") {
 			Resolver = (await import("../../ui5Framework/Openui5Resolver.js")).default;
@@ -364,7 +363,7 @@ export default {
 		if (options.versionOverride) {
 			version = await Resolver.resolveVersion(options.versionOverride, {
 				ui5DataDir,
-				cwd
+				cwd,
 			});
 			log.info(
 				`Overriding configured ${frameworkName} version ` +
@@ -379,7 +378,7 @@ export default {
 		let providedLibraryMetadata;
 		if (workspace) {
 			providedLibraryMetadata = await utils.getWorkspaceFrameworkLibraryMetadata({
-				workspace, projectGraph
+				workspace, projectGraph,
 			});
 		}
 
@@ -390,7 +389,7 @@ export default {
 			version,
 			providedLibraryMetadata,
 			cacheMode,
-			ui5DataDir
+			ui5DataDir,
 		});
 
 		let startTime;
@@ -409,13 +408,13 @@ export default {
 		}
 
 		const frameworkGraph = new ProjectGraph({
-			rootProjectName: `fake-root-of-${rootProject.getName()}-framework-dependency-graph`
+			rootProjectName: `fake-root-of-${rootProject.getName()}-framework-dependency-graph`,
 		});
 
 		const projectProcessor = new utils.ProjectProcessor({
 			libraryMetadata,
 			graph: frameworkGraph,
-			workspace
+			workspace,
 		});
 
 		await Promise.all(referencedLibraries.map(async (libName) => {
@@ -431,5 +430,5 @@ export default {
 	},
 
 	// Export for testing only
-	_utils: process.env.NODE_ENV === "test" ? utils : /* istanbul ignore next */ undefined
+	_utils: process.env.NODE_ENV === "test" ? utils : /* istanbul ignore next */ undefined,
 };

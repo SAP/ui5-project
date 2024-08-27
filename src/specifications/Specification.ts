@@ -6,19 +6,16 @@ import SpecificationVersion from "./SpecificationVersion.js";
 /**
  * Abstract superclass for all projects and extensions
  *
- * @public
- * @abstract
- * @class
  * @alias @ui5/project/specifications/Specification
  * @hideconstructor
  */
 class Specification {
 	public static async create(parameters: {
-    id: string;
-    version: string;
-    modulePath: string;
-    configuration: object;
-}) {
+		id: string;
+		version: string;
+		modulePath: string;
+		configuration: object;
+	}) {
 		if (!parameters.configuration) {
 			throw new Error(
 				`Unable to create Specification instance: Missing configuration parameter`);
@@ -29,30 +26,30 @@ class Specification {
 		}
 
 		switch (type) {
-		case "application": {
-			return createAndInitializeSpec("types/Application.js", parameters);
-		}
-		case "library": {
-			return createAndInitializeSpec("types/Library.js", parameters);
-		}
-		case "theme-library": {
-			return createAndInitializeSpec("types/ThemeLibrary.js", parameters);
-		}
-		case "module": {
-			return createAndInitializeSpec("types/Module.js", parameters);
-		}
-		case "task": {
-			return createAndInitializeSpec("extensions/Task.js", parameters);
-		}
-		case "server-middleware": {
-			return createAndInitializeSpec("extensions/ServerMiddleware.js", parameters);
-		}
-		case "project-shim": {
-			return createAndInitializeSpec("extensions/ProjectShim.js", parameters);
-		}
-		default:
-			throw new Error(
-				`Unable to create Specification instance: Unknown specification type '${type}'`);
+			case "application": {
+				return createAndInitializeSpec("types/Application.js", parameters);
+			}
+			case "library": {
+				return createAndInitializeSpec("types/Library.js", parameters);
+			}
+			case "theme-library": {
+				return createAndInitializeSpec("types/ThemeLibrary.js", parameters);
+			}
+			case "module": {
+				return createAndInitializeSpec("types/Module.js", parameters);
+			}
+			case "task": {
+				return createAndInitializeSpec("extensions/Task.js", parameters);
+			}
+			case "server-middleware": {
+				return createAndInitializeSpec("extensions/ServerMiddleware.js", parameters);
+			}
+			case "project-shim": {
+				return createAndInitializeSpec("extensions/ProjectShim.js", parameters);
+			}
+			default:
+				throw new Error(
+					`Unable to create Specification instance: Unknown specification type '${type}'`);
 		}
 	}
 
@@ -64,18 +61,18 @@ class Specification {
 	}
 
 	/**
-	 * @param {object} parameters Specification parameters
-	 * @param {string} parameters.id Unique ID
-	 * @param {string} parameters.version Version
-	 * @param {string} parameters.modulePath Absolute File System path to access resources
-	 * @param {object} parameters.configuration Configuration object
+	 * @param parameters Specification parameters
+	 * @param parameters.id Unique ID
+	 * @param parameters.version Version
+	 * @param parameters.modulePath Absolute File System path to access resources
+	 * @param parameters.configuration Configuration object
 	 */
-	async init({ id, version, modulePath, configuration }: {
-    id: string;
-    version: string;
-    modulePath: string;
-    configuration: object;
-}) {
+	async init({id, version, modulePath, configuration}: {
+		id: string;
+		version: string;
+		modulePath: string;
+		configuration: object;
+	}) {
 		if (!id) {
 			throw new Error(`Could not create Specification: Missing or empty parameter 'id'`);
 		}
@@ -108,15 +105,15 @@ class Specification {
 		if (SpecificationVersion.major(config.specVersion) <= 1) {
 			const originalSpecVersion = config.specVersion;
 			this._log.verbose(`Detected legacy Specification Version ${config.specVersion}, defined for ` +
-				`${config.kind} ${config.metadata.name}. ` +
-				`Attempting to migrate the project to a supported specification version...`);
+			`${config.kind} ${config.metadata.name}. ` +
+			`Attempting to migrate the project to a supported specification version...`);
 			this._migrateLegacyProject(config);
 			try {
 				await validate({
 					config,
 					project: {
-						id
-					}
+						id,
+					},
 				});
 			} catch (err) {
 				this._log.verbose(
@@ -133,8 +130,8 @@ class Specification {
 			await validate({
 				config,
 				project: {
-					id
-				}
+					id,
+				},
 			});
 		}
 
@@ -165,8 +162,7 @@ class Specification {
 	 * For general purposes of a unique identifier use
 	 * {@link @ui5/project/specifications/Specification#getName getName} instead.
 	 *
-	 * @public
-	 * @returns {string} Specification ID
+	 * @returns Specification ID
 	 */
 	public getId() {
 		return this.__id;
@@ -175,8 +171,7 @@ class Specification {
 	/**
 	 * Gets the name of this specification. Represents a unique identifier.
 	 *
-	 * @public
-	 * @returns {string} Specification name
+	 * @returns Specification name
 	 */
 	public getName() {
 		return this._name;
@@ -185,8 +180,7 @@ class Specification {
 	/**
 	 * Gets the kind of this specification, for example <code>project</code> or <code>extension</code>
 	 *
-	 * @public
-	 * @returns {string} Specification kind
+	 * @returns Specification kind
 	 */
 	public getKind() {
 		return this._kind;
@@ -197,8 +191,7 @@ class Specification {
 	 * for example <code>application</code> or <code>library</code> in case of projects,
 	 * and <code>task</code> or <code>server-middleware</code> in case of extensions
 	 *
-	 * @public
-	 * @returns {string} Specification type
+	 * @returns Specification type
 	 */
 	public getType() {
 		return this._type;
@@ -207,8 +200,7 @@ class Specification {
 	/**
 	 * Returns an instance of a helper class representing a Specification Version
 	 *
-	 * @public
-	 * @returns {@ui5/project/specifications/SpecificationVersion}
+	 * @returns
 	 */
 	public getSpecVersion() {
 		return this._specVersion;
@@ -217,8 +209,7 @@ class Specification {
 	/**
 	 * Gets the specification's generic version, as typically defined in a <code>package.json</code>
 	 *
-	 * @public
-	 * @returns {string} Project version
+	 * @returns Project version
 	 */
 	public getVersion() {
 		return this._version;
@@ -227,8 +218,7 @@ class Specification {
 	/**
 	 * Gets the specification's file system path. This might not be POSIX-style on some platforms
 	 *
-	 * @public
-	 * @returns {string} Project root path
+	 * @returns Project root path
 	 */
 	public getRootPath() {
 		return this._modulePath;
@@ -239,20 +229,19 @@ class Specification {
 	 * Gets a [ReaderCollection]{@link @ui5/fs/ReaderCollection} for the root directory of the specification.
 	 * Resource readers always use POSIX-style
 	 *
-	 * @public
-	 * @param {object} [parameters] Parameters
-	 * @param {object} [parameters.useGitignore=true]
+	 * @param [parameters] Parameters
+	 * @param [parameters.useGitignore]
 	 *   Whether to apply any excludes defined in an optional .gitignore in the root directory
-	 * @returns {@ui5/fs/ReaderCollection} Reader collection
-	*/
-	public getRootReader({ useGitignore = true }: {
-    useGitignore?: object;
-} = {}) {
+	 * @returns Reader collection
+	 */
+	public getRootReader({useGitignore = true}: {
+		useGitignore?: object;
+	} = {}) {
 		return createReader({
 			fsBasePath: this.getRootPath(),
 			virBasePath: "/",
 			name: `Root reader for ${this.getType()} ${this.getKind()} ${this.getName()}`,
-			useGitignore
+			useGitignore,
 		});
 	}
 
@@ -274,7 +263,7 @@ class Specification {
 		// has been changed to UTF-8 with specVersion 2.0
 		// Adding back the old default if no configuration is provided.
 		if (config.kind === "project" && ["application", "library"].includes(config.type) &&
-				!config.resources?.configuration?.propertiesFileSourceEncoding) {
+			!config.resources?.configuration?.propertiesFileSourceEncoding) {
 			config.resources = config.resources || {};
 			config.resources.configuration = config.resources.configuration || {};
 			config.resources.configuration.propertiesFileSourceEncoding = "ISO-8859-1";
@@ -282,6 +271,11 @@ class Specification {
 	}
 }
 
+/**
+ *
+ * @param moduleName
+ * @param params
+ */
 async function createAndInitializeSpec(moduleName, params) {
 	const {default: Spec} = await import(`./${moduleName}`);
 	return new Spec().init(params);

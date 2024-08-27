@@ -18,8 +18,8 @@ const basicProjectInput = {
 		specVersion: "2.6",
 		kind: "project",
 		type: "application",
-		metadata: {name: "application.a"}
-	}
+		metadata: {name: "application.a"},
+	},
 };
 
 test.afterEach.always((t) => {
@@ -48,8 +48,8 @@ test("getPropertiesFileSourceEncoding", async (t) => {
 	const customProjectInput = clone(basicProjectInput);
 	customProjectInput.configuration.resources = {
 		configuration: {
-			propertiesFileSourceEncoding: "ISO-8859-1"
-		}
+			propertiesFileSourceEncoding: "ISO-8859-1",
+		},
 	};
 	const project = await Specification.create(customProjectInput);
 	t.is(project.getPropertiesFileSourceEncoding(), "ISO-8859-1",
@@ -68,8 +68,8 @@ test("getComponentPreloadPaths", async (t) => {
 	const customProjectInput = clone(basicProjectInput);
 	customProjectInput.configuration.builder = {
 		componentPreload: {
-			paths: ["paths"]
-		}
+			paths: ["paths"],
+		},
 	};
 	const project = await Specification.create(customProjectInput);
 	t.deepEqual(project.getComponentPreloadPaths(), ["paths"],
@@ -80,8 +80,8 @@ test("getComponentPreloadNamespaces", async (t) => {
 	const customProjectInput = clone(basicProjectInput);
 	customProjectInput.configuration.builder = {
 		componentPreload: {
-			namespaces: ["namespaces"]
-		}
+			namespaces: ["namespaces"],
+		},
 	};
 	const project = await Specification.create(customProjectInput);
 	t.deepEqual(project.getComponentPreloadNamespaces(), ["namespaces"],
@@ -92,8 +92,8 @@ test("getComponentPreloadExcludes", async (t) => {
 	const customProjectInput = clone(basicProjectInput);
 	customProjectInput.configuration.builder = {
 		componentPreload: {
-			excludes: ["excludes"]
-		}
+			excludes: ["excludes"],
+		},
 	};
 	const project = await Specification.create(customProjectInput);
 	t.deepEqual(project.getComponentPreloadExcludes(), ["excludes"],
@@ -104,8 +104,8 @@ test("getMinificationExcludes", async (t) => {
 	const customProjectInput = clone(basicProjectInput);
 	customProjectInput.configuration.builder = {
 		minification: {
-			excludes: ["excludes"]
-		}
+			excludes: ["excludes"],
+		},
 	};
 	const project = await Specification.create(customProjectInput);
 	t.deepEqual(project.getMinificationExcludes(), ["excludes"],
@@ -115,7 +115,7 @@ test("getMinificationExcludes", async (t) => {
 test("getBundles", async (t) => {
 	const customProjectInput = clone(basicProjectInput);
 	customProjectInput.configuration.builder = {
-		bundles: [{bundleDefinition: {name: "bundle"}}]
+		bundles: [{bundleDefinition: {name: "bundle"}}],
 	};
 	const project = await Specification.create(customProjectInput);
 	t.deepEqual(project.getBundles(), [{bundleDefinition: {name: "bundle"}}],
@@ -140,9 +140,9 @@ test("_resolveMavenPlaceholder: resolves maven placeholder from first POM level"
 	sinon.stub(project, "_getPom").resolves({
 		project: {
 			properties: {
-				"mvn-pony": "unicorn"
-			}
-		}
+				"mvn-pony": "unicorn",
+			},
+		},
 	});
 
 	const res = await project._resolveMavenPlaceholder("${mvn-pony}");
@@ -154,9 +154,9 @@ test("_resolveMavenPlaceholder: resolves maven placeholder from deeper POM level
 	sinon.stub(project, "_getPom").resolves({
 		"mvn-pony": {
 			some: {
-				id: "unicorn"
-			}
-		}
+				id: "unicorn",
+			},
+		},
 	});
 
 	const res = await project._resolveMavenPlaceholder("${mvn-pony.some.id}");
@@ -201,7 +201,7 @@ test.serial("_getPom: fs read error", async (t) => {
 		return {
 			byPath: async () => {
 				throw new Error("EPON: Pony Error");
-			}
+			},
 		};
 	};
 	const error = await t.throwsAsync(project._getPom());
@@ -215,12 +215,12 @@ test.serial("_getPom: result is cached", async (t) => {
 	const project = await Specification.create(basicProjectInput);
 
 	const byPathStub = sinon.stub().resolves({
-		getString: async () => `<pony>no unicorn</pony>`
+		getString: async () => `<pony>no unicorn</pony>`,
 	});
 
 	project.getRootReader = () => {
 		return {
-			byPath: byPathStub
+			byPath: byPathStub,
 		};
 	};
 

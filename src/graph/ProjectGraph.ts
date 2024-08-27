@@ -2,25 +2,21 @@ import OutputStyleEnum from "../build/helpers/ProjectBuilderOutputStyle.js";
 import {getLogger} from "@ui5/logger";
 const log = getLogger("graph:ProjectGraph");
 
-
 /**
  * A rooted, directed graph representing a UI5 project, its dependencies and available extensions.
  * <br><br>
  * While it allows defining cyclic dependencies, both traversal functions will throw an error if they encounter cycles.
  *
- * @public
- * @class
  * @alias @ui5/project/graph/ProjectGraph
  */
 class ProjectGraph {
 	/**
-	 * @public
-	 * @param {object} parameters Parameters
-	 * @param {string} parameters.rootProjectName Root project name
+	 * @param parameters Parameters
+	 * @param parameters.rootProjectName Root project name
 	 */
-	constructor({ rootProjectName }: {
-    rootProjectName: string;
-}) {
+	constructor({rootProjectName}: {
+		rootProjectName: string;
+	}) {
 		if (!rootProjectName) {
 			throw new Error(`Could not create ProjectGraph: Missing or empty parameter 'rootProjectName'`);
 		}
@@ -40,8 +36,7 @@ class ProjectGraph {
 	/**
 	 * Get the root project of the graph
 	 *
-	 * @public
-	 * @returns {@ui5/project/specifications/Project} Root project
+	 * @returns Root project
 	 */
 	public getRoot() {
 		const rootProject = this._projects.get(this._rootProjectName);
@@ -54,8 +49,7 @@ class ProjectGraph {
 	/**
 	 * Add a project to the graph
 	 *
-	 * @public
-	 * @param {@ui5/project/specifications/Project} project Project which should be added to the graph
+	 * @param project Project which should be added to the graph
 	 */
 	public addProject(project) {
 		this._checkSealed();
@@ -80,9 +74,8 @@ class ProjectGraph {
 	/**
 	 * Retrieve a single project from the dependency graph
 	 *
-	 * @public
-	 * @param {string} projectName Name of the project to retrieve
-	 * @returns {@ui5/project/specifications/Project|undefined}
+	 * @param projectName Name of the project to retrieve
+	 * @returns
 	 *					project instance or undefined if the project is unknown to the graph
 	 */
 	public getProject(projectName: string) {
@@ -92,8 +85,7 @@ class ProjectGraph {
 	/**
 	 * Get all projects in the graph
 	 *
-	 * @public
-	 * @returns {Iterable.<@ui5/project/specifications/Project>}
+	 * @returns
 	 */
 	public getProjects() {
 		return this._projects.values();
@@ -102,8 +94,7 @@ class ProjectGraph {
 	/**
 	 * Get names of all projects in the graph
 	 *
-	 * @public
-	 * @returns {string[]} Names of all projects
+	 * @returns Names of all projects
 	 */
 	public getProjectNames() {
 		return Array.from(this._projects.keys());
@@ -112,8 +103,7 @@ class ProjectGraph {
 	/**
 	 * Get the number of projects in the graph
 	 *
-	 * @public
-	 * @returns {integer} Count of projects in the graph
+	 * @returns Count of projects in the graph
 	 */
 	public getSize() {
 		return this._projects.size;
@@ -122,8 +112,7 @@ class ProjectGraph {
 	/**
 	 * Add an extension to the graph
 	 *
-	 * @public
-	 * @param {@ui5/project/specifications/Extension} extension Extension which should be available in the graph
+	 * @param extension Extension which should be available in the graph
 	 */
 	public addExtension(extension) {
 		this._checkSealed();
@@ -144,9 +133,8 @@ class ProjectGraph {
 	}
 
 	/**
-	 * @public
-	 * @param {string} extensionName Name of the extension to retrieve
-	 * @returns {@ui5/project/specifications/Extension|undefined}
+	 * @param extensionName Name of the extension to retrieve
+	 * @returns
 	 *					Extension instance or undefined if the extension is unknown to the graph
 	 */
 	public getExtension(extensionName: string) {
@@ -156,8 +144,7 @@ class ProjectGraph {
 	/**
 	 * Get all extensions in the graph
 	 *
-	 * @public
-	 * @returns {Iterable.<@ui5/project/specifications/Extension>}
+	 * @returns
 	 */
 	public getExtensions() {
 		return this._extensions.values();
@@ -166,8 +153,7 @@ class ProjectGraph {
 	/**
 	 * Get names of all extensions in the graph
 	 *
-	 * @public
-	 * @returns {string[]} Names of all extensions
+	 * @returns Names of all extensions
 	 */
 	public getExtensionNames() {
 		return Array.from(this._extensions.keys());
@@ -176,9 +162,8 @@ class ProjectGraph {
 	/**
 	 * Declare a dependency from one project in the graph to another
 	 *
-	 * @public
-	 * @param {string} fromProjectName Name of the depending project
-	 * @param {string} toProjectName Name of project on which the other depends
+	 * @param fromProjectName Name of the depending project
+	 * @param toProjectName Name of project on which the other depends
 	 */
 	public declareDependency(fromProjectName: string, toProjectName: string) {
 		this._checkSealed();
@@ -192,13 +177,11 @@ class ProjectGraph {
 		}
 	}
 
-
 	/**
 	 * Declare a dependency from one project in the graph to another
 	 *
-	 * @public
-	 * @param {string} fromProjectName Name of the depending project
-	 * @param {string} toProjectName Name of project on which the other depends
+	 * @param fromProjectName Name of the depending project
+	 * @param toProjectName Name of project on which the other depends
 	 */
 	public declareOptionalDependency(fromProjectName: string, toProjectName: string) {
 		this._checkSealed();
@@ -216,9 +199,9 @@ class ProjectGraph {
 	/**
 	 * Declare a dependency from one project in the graph to another
 	 *
-	 * @param {object} map Adjacency map to use
-	 * @param {string} fromProjectName Name of the depending project
-	 * @param {string} toProjectName Name of project on which the other depends
+	 * @param map Adjacency map to use
+	 * @param fromProjectName Name of the depending project
+	 * @param toProjectName Name of project on which the other depends
 	 */
 	_declareDependency(map: object, fromProjectName: string, toProjectName: string) {
 		if (!this._projects.has(fromProjectName)) {
@@ -244,9 +227,8 @@ class ProjectGraph {
 	/**
 	 * Get all direct dependencies of a project as an array of project names
 	 *
-	 * @public
-	 * @param {string} projectName Name of the project to retrieve the dependencies of
-	 * @returns {string[]} Names of all direct dependencies
+	 * @param projectName Name of the project to retrieve the dependencies of
+	 * @returns Names of all direct dependencies
 	 */
 	public getDependencies(projectName: string) {
 		const adjacencies = this._adjList.get(projectName);
@@ -261,9 +243,8 @@ class ProjectGraph {
 	/**
 	 * Get all (direct and transitive) dependencies of a project as an array of project names
 	 *
-	 * @public
-	 * @param {string} projectName Name of the project to retrieve the dependencies of
-	 * @returns {string[]} Names of all direct and transitive dependencies
+	 * @param projectName Name of the project to retrieve the dependencies of
+	 * @returns Names of all direct and transitive dependencies
 	 */
 	public getTransitiveDependencies(projectName: string) {
 		const dependencies = new Set();
@@ -286,14 +267,14 @@ class ProjectGraph {
 		processDependency(projectName);
 		return Array.from(dependencies);
 	}
+
 	/**
 	 * Checks whether a dependency is optional or not.
 	 * Currently only used in tests.
 	 *
-	 * @private
-	 * @param {string} fromProjectName Name of the depending project
-	 * @param {string} toProjectName Name of project on which the other depends
-	 * @returns {boolean} True if the dependency is currently optional
+	 * @param fromProjectName Name of the depending project
+	 * @param toProjectName Name of project on which the other depends
+	 * @returns True if the dependency is currently optional
 	 */
 	private isOptionalDependency(fromProjectName: string, toProjectName: string) {
 		const adjacencies = this._adjList.get(fromProjectName);
@@ -372,7 +353,7 @@ class ProjectGraph {
 
 		const queue = [{
 			projectNames: [startName],
-			ancestors: []
+			ancestors: [],
 		}];
 
 		const visited = Object.create(null);
@@ -393,12 +374,12 @@ class ProjectGraph {
 
 					queue.push({
 						projectNames: dependencies,
-						ancestors: newAncestors
+						ancestors: newAncestors,
 					});
 
 					await callback({
 						project: this.getProject(projectName),
-						dependencies
+						dependencies,
 					});
 				})();
 			}));
@@ -433,7 +414,7 @@ class ProjectGraph {
 
 			await callback({
 				project: this.getProject(projectName),
-				dependencies
+				dependencies,
 			});
 		})();
 	}
@@ -442,8 +423,7 @@ class ProjectGraph {
 	 * Join another project graph into this one.
 	 * Projects and extensions which already exist in this graph will cause an error to be thrown
 	 *
-	 * @public
-	 * @param {@ui5/project/graph/ProjectGraph} projectGraph Project Graph to merge into this one
+	 * @param projectGraph Project Graph to merge into this one
 	 */
 	public join(projectGraph) {
 		try {
@@ -487,12 +467,12 @@ class ProjectGraph {
 		return this._taskRepository;
 	}
 
-	public async build({ destPath, cleanDest = false, includedDependencies = [], excludedDependencies = [], dependencyIncludes, selfContained = false, cssVariables = false, jsdoc = false, createBuildManifest = false, includedTasks = [], excludedTasks = [], outputStyle = OutputStyleEnum.Default }: {
-    destPath: string;
-    cleanDest?: boolean;
-    includedDependencies?: Array<string | RegExp>;
-    excludedDependencies?: Array<string | RegExp>;
-}) {
+	public async build({destPath, cleanDest = false, includedDependencies = [], excludedDependencies = [], dependencyIncludes, selfContained = false, cssVariables = false, jsdoc = false, createBuildManifest = false, includedTasks = [], excludedTasks = [], outputStyle = OutputStyleEnum.Default}: {
+		destPath: string;
+		cleanDest?: boolean;
+		includedDependencies?: (string | RegExp)[];
+		excludedDependencies?: (string | RegExp)[];
+	}) {
 		this.seal(); // Do not allow further changes to the graph
 		if (this._built) {
 			throw new Error(
@@ -501,7 +481,7 @@ class ProjectGraph {
 		}
 		this._built = true;
 		const {
-			default: ProjectBuilder
+			default: ProjectBuilder,
 		} = await import("../build/ProjectBuilder.js");
 		const builder = new ProjectBuilder({
 			graph: this,
@@ -510,7 +490,7 @@ class ProjectGraph {
 				selfContained, cssVariables, jsdoc,
 				createBuildManifest,
 				includedTasks, excludedTasks, outputStyle,
-			}
+			},
 		});
 		await builder.build({
 			destPath, cleanDest,
@@ -522,7 +502,6 @@ class ProjectGraph {
 	/**
 	 * Seal the project graph so that no further changes can be made to it
 	 *
-	 * @public
 	 */
 	public seal() {
 		this._sealed = true;
@@ -533,8 +512,7 @@ class ProjectGraph {
 	 * This means the graph is read-only. Neither projects, nor dependencies between projects
 	 * can be added or removed.
 	 *
-	 * @public
-	 * @returns {boolean} True if the project graph has been sealed
+	 * @returns True if the project graph has been sealed
 	 */
 	public isSealed() {
 		return this._sealed;
@@ -565,6 +543,11 @@ class ProjectGraph {
 	// TODO: introduce function to check for dangling nodes/consistency in general?
 }
 
+/**
+ *
+ * @param target
+ * @param source
+ */
 function mergeMap(target, source) {
 	for (const [key, value] of source) {
 		if (target.has(key)) {

@@ -5,11 +5,7 @@ import * as resourceFactory from "@ui5/fs/resourceFactory";
 /**
  * Subclass for projects potentially containing Components
  *
- * @public
- * @abstract
- * @class
  * @alias @ui5/project/specifications/ComponentProject
- * @extends @ui5/project/specifications/Project
  * @hideconstructor
  */
 class ComponentProject extends Project {
@@ -28,65 +24,52 @@ class ComponentProject extends Project {
 	/**
 	 * Get the project namespace
 	 *
-	 * @public
-	 * @returns {string} Project namespace in slash notation (e.g. <code>my/project/name</code>)
+	 * @returns Project namespace in slash notation (e.g. <code>my/project/name</code>)
 	 */
 	public getNamespace() {
 		return this._namespace;
 	}
 
 	/**
-	* @private
-	*/
+	 */
 	private getCopyright() {
 		return this._config.metadata.copyright;
 	}
 
 	/**
-	* @private
-	*/
+	 */
 	private getComponentPreloadPaths() {
-		return this._config.builder && this._config.builder.componentPreload &&
-			this._config.builder.componentPreload.paths || [];
+		return this._config.builder?.componentPreload?.paths || [];
 	}
 
 	/**
-	* @private
-	*/
+	 */
 	private getComponentPreloadNamespaces() {
-		return this._config.builder && this._config.builder.componentPreload &&
-			this._config.builder.componentPreload.namespaces || [];
+		return this._config.builder?.componentPreload?.namespaces || [];
 	}
 
 	/**
-	* @private
-	*/
+	 */
 	private getComponentPreloadExcludes() {
-		return this._config.builder && this._config.builder.componentPreload &&
-			this._config.builder.componentPreload.excludes || [];
+		return this._config.builder?.componentPreload?.excludes || [];
 	}
 
 	/**
-	* @private
-	*/
+	 */
 	private getMinificationExcludes() {
-		return this._config.builder && this._config.builder.minification &&
-			this._config.builder.minification.excludes || [];
+		return this._config.builder?.minification?.excludes || [];
 	}
 
 	/**
-	* @private
-	*/
+	 */
 	private getBundles() {
-		return this._config.builder && this._config.builder.bundles || [];
+		return this._config.builder?.bundles || [];
 	}
 
 	/**
-	* @private
-	*/
+	 */
 	private getPropertiesFileSourceEncoding() {
-		return this._config.resources && this._config.resources.configuration &&
-			this._config.resources.configuration.propertiesFileSourceEncoding || "UTF-8";
+		return this._config.resources?.configuration?.propertiesFileSourceEncoding || "UTF-8";
 	}
 
 	/* === Resource Access === */
@@ -117,15 +100,14 @@ class ComponentProject extends Project {
 	 *
 	 * Resource readers always use POSIX-style paths.
 	 *
-	 * @public
-	 * @param {object} [options]
-	 * @param {string} [options.style=buildtime] Path style to access resources.
+	 * @param [options]
+	 * @param [options.style] Path style to access resources.
 	 *   Can be "buildtime", "dist", "runtime" or "flat"
-	 * @returns {@ui5/fs/ReaderCollection} A reader collection instance
+	 * @returns A reader collection instance
 	 */
-	public getReader({ style = "buildtime" }: {
-    style?: string;
-} = {}) {
+	public getReader({style = "buildtime"}: {
+		style?: string;
+	} = {}) {
 		// TODO: Additional style 'ABAP' using "sap.platform.abap".uri from manifest.json?
 
 		// Apply builder excludes to all styles but "runtime"
@@ -138,29 +120,29 @@ class ComponentProject extends Project {
 		}
 		let reader = this._getReader(excludes);
 		switch (style) {
-		case "buildtime":
-			break;
-		case "runtime":
-		case "dist":
+			case "buildtime":
+				break;
+			case "runtime":
+			case "dist":
 			// Use buildtime reader and link it to /
 			// No test-resources for runtime resource access,
 			// unless runtime is namespaced
-			reader = resourceFactory.createFlatReader({
-				reader,
-				namespace: this._namespace
-			});
-			break;
-		case "flat":
+				reader = resourceFactory.createFlatReader({
+					reader,
+					namespace: this._namespace,
+				});
+				break;
+			case "flat":
 			// Use buildtime reader and link it to /
 			// No test-resources for runtime resource access,
 			// unless runtime is namespaced
-			reader = resourceFactory.createFlatReader({
-				reader,
-				namespace: this._namespace
-			});
-			break;
-		default:
-			throw new Error(`Unknown path mapping style ${style}`);
+				reader = resourceFactory.createFlatReader({
+					reader,
+					namespace: this._namespace,
+				});
+				break;
+			default:
+				throw new Error(`Unknown path mapping style ${style}`);
 		}
 
 		reader = this._addWriter(reader, style);
@@ -168,19 +150,19 @@ class ComponentProject extends Project {
 	}
 
 	/**
-	* Get a resource reader for the resources of the project
-	*
-	* @returns {@ui5/fs/ReaderCollection} Reader collection
-	*/
+	 * Get a resource reader for the resources of the project
+	 *
+	 * @returns Reader collection
+	 */
 	_getSourceReader() {
 		throw new Error(`_getSourceReader must be implemented by subclass ${this.constructor.name}`);
 	}
 
 	/**
-	* Get a resource reader for the test resources of the project
-	*
-	* @returns {@ui5/fs/ReaderCollection} Reader collection
-	*/
+	 * Get a resource reader for the test resources of the project
+	 *
+	 * @returns Reader collection
+	 */
 	_getTestReader() {
 		throw new Error(`_getTestReader must be implemented by subclass ${this.constructor.name}`);
 	}
@@ -188,8 +170,7 @@ class ComponentProject extends Project {
 	/**
 	 * Get a resource reader/writer for accessing and modifying a project's resources
 	 *
-	 * @public
-	 * @returns {@ui5/fs/ReaderCollection} A reader collection instance
+	 * @returns A reader collection instance
 	 */
 	public getWorkspace() {
 		// Workspace is always of style "buildtime"
@@ -198,7 +179,7 @@ class ComponentProject extends Project {
 		return resourceFactory.createWorkspace({
 			name: `Workspace for project ${this.getName()}`,
 			reader: this._getReader(excludes),
-			writer: this._getWriter().collection
+			writer: this._getWriter().collection,
 		});
 	}
 
@@ -207,12 +188,12 @@ class ComponentProject extends Project {
 			// writer is always of style "buildtime"
 			const namespaceWriter = resourceFactory.createAdapter({
 				virBasePath: "/",
-				project: this
+				project: this,
 			});
 
 			const generalWriter = resourceFactory.createAdapter({
 				virBasePath: "/",
-				project: this
+				project: this,
 			});
 
 			const collection = resourceFactory.createWriterCollection({
@@ -220,14 +201,14 @@ class ComponentProject extends Project {
 				writerMapping: {
 					[`/resources/${this._namespace}/`]: namespaceWriter,
 					[`/test-resources/${this._namespace}/`]: namespaceWriter,
-					[`/`]: generalWriter
-				}
+					[`/`]: generalWriter,
+				},
 			});
 
 			this._writers = {
 				namespaceWriter,
 				generalWriter,
-				collection
+				collection,
 			};
 		}
 		return this._writers;
@@ -239,7 +220,7 @@ class ComponentProject extends Project {
 		if (testReader) {
 			reader = resourceFactory.createReaderCollection({
 				name: `Reader collection for project ${this.getName()}`,
-				readers: [reader, testReader]
+				readers: [reader, testReader],
 			});
 		}
 		return reader;
@@ -255,37 +236,37 @@ class ComponentProject extends Project {
 		}
 		const readers = [];
 		switch (style) {
-		case "buildtime":
+			case "buildtime":
 			// Writer already uses buildtime style
-			readers.push(namespaceWriter);
-			readers.push(generalWriter);
-			break;
-		case "runtime":
-		case "dist":
+				readers.push(namespaceWriter);
+				readers.push(generalWriter);
+				break;
+			case "runtime":
+			case "dist":
 			// Runtime is not namespaced: link namespace to /
-			readers.push(resourceFactory.createFlatReader({
-				reader: namespaceWriter,
-				namespace: this._namespace
-			}));
-			// Add general writer as is
-			readers.push(generalWriter);
-			break;
-		case "flat":
+				readers.push(resourceFactory.createFlatReader({
+					reader: namespaceWriter,
+					namespace: this._namespace,
+				}));
+				// Add general writer as is
+				readers.push(generalWriter);
+				break;
+			case "flat":
 			// Rewrite paths from "flat" to "buildtime"
-			readers.push(resourceFactory.createFlatReader({
-				reader: namespaceWriter,
-				namespace: this._namespace
-			}));
-			// General writer resources can't be flattened, so they are not available
-			break;
-		default:
-			throw new Error(`Unknown path mapping style ${style}`);
+				readers.push(resourceFactory.createFlatReader({
+					reader: namespaceWriter,
+					namespace: this._namespace,
+				}));
+				// General writer resources can't be flattened, so they are not available
+				break;
+			default:
+				throw new Error(`Unknown path mapping style ${style}`);
 		}
 		readers.push(reader);
 
 		return resourceFactory.createReaderCollectionPrioritized({
 			name: `Reader/Writer collection for project ${this.getName()}`,
-			readers
+			readers,
 		});
 	}
 
@@ -302,32 +283,32 @@ class ComponentProject extends Project {
 	 * Checks whether a given string contains a maven placeholder.
 	 * E.g. <code>${appId}</code>.
 	 *
-	 * @param {string} value String to check
-	 * @returns {boolean} True if given string contains a maven placeholder
+	 * @param value String to check
+	 * @returns True if given string contains a maven placeholder
 	 */
 	_hasMavenPlaceholder(value: string) {
-		return !!value.match(/^\$\{(.*)\}$/);
+		return !!(/^\$\{(.*)\}$/.exec(value));
 	}
 
 	/**
 	 * Resolves a maven placeholder in a given string using the projects pom.xml
 	 *
-	 * @param {string} value String containing a maven placeholder
-	 * @returns {Promise<string>} Resolved string
+	 * @param value String containing a maven placeholder
+	 * @returns Resolved string
 	 */
 	async _resolveMavenPlaceholder(value: string) {
-		const parts = value && value.match(/^\$\{(.*)\}$/);
+		const parts = value && (/^\$\{(.*)\}$/.exec(value));
 		if (parts) {
 			this._log.verbose(
 				`"${value}" contains a maven placeholder "${parts[1]}". Resolving from projects pom.xml...`);
 			const pom = await this._getPom();
 			let mvnValue;
-			if (pom.project && pom.project.properties && pom.project.properties[parts[1]]) {
+			if (pom.project?.properties?.[parts[1]]) {
 				mvnValue = pom.project.properties[parts[1]];
 			} else {
 				let obj = pom;
 				parts[1].split(".").forEach((part) => {
-					obj = obj && obj[part];
+					obj = obj?.[part];
 				});
 				mvnValue = obj;
 			}
@@ -344,7 +325,7 @@ class ComponentProject extends Project {
 	/**
 	 * Reads the projects pom.xml file
 	 *
-	 * @returns {Promise<object>} Resolves with a JSON representation of the content
+	 * @returns Resolves with a JSON representation of the content
 	 */
 	async _getPom() {
 		if (this._pPom) {
@@ -359,11 +340,11 @@ class ComponentProject extends Project {
 				}
 				const content = await resource.getString();
 				const {
-					default: xml2js
+					default: xml2js,
 				} = await import("xml2js");
 				const parser = new xml2js.Parser({
 					explicitArray: false,
-					ignoreAttrs: true
+					ignoreAttrs: true,
 				});
 				const readXML = promisify(parser.parseString);
 				return readXML(content);

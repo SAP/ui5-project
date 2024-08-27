@@ -1,6 +1,12 @@
 import {getLogger} from "@ui5/logger";
 const log = getLogger("graph:ShimCollection");
 
+/**
+ *
+ * @param name
+ * @param fromMap
+ * @param toMap
+ */
 function addToMap(name, fromMap, toMap) {
 	/* Dynamically populate the given map "toMap" with the following structure:
 		<module-id>: [{
@@ -17,7 +23,7 @@ function addToMap(name, fromMap, toMap) {
 		}
 		toMap[moduleId].push({
 			name,
-			shim
+			shim,
 		});
 	}
 }

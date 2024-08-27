@@ -5,26 +5,25 @@ import {createReaderCollection} from "@ui5/fs/resourceFactory";
 /**
  * TaskRunner
  *
- * @private
  * @hideconstructor
  */
 class TaskRunner {
 	/**
 	 * Constructor
 	 *
-	 * @param {object} parameters
-	 * @param {object} parameters.graph
-	 * @param {object} parameters.project
-	 * @param {@ui5/logger/loggers/ProjectBuild} parameters.log Logger to use
-	 * @param {@ui5/project/build/helpers/TaskUtil} parameters.taskUtil TaskUtil instance
-	 * @param {@ui5/builder/tasks/taskRepository} parameters.taskRepository Task repository
-	 * @param {@ui5/project/build/ProjectBuilder~BuildConfiguration} parameters.buildConfig
+	 * @param parameters
+	 * @param parameters.graph
+	 * @param parameters.project
+	 * @param parameters.log Logger to use
+	 * @param parameters.taskUtil TaskUtil instance
+	 * @param parameters.taskRepository Task repository
+	 * @param parameters.buildConfig
 	 * 			Build configuration
 	 */
-	constructor({ graph, project, log, taskUtil, taskRepository, buildConfig }: {
-    graph: object;
-    project: object;
-}) {
+	constructor({graph, project, log, taskUtil, taskRepository, buildConfig}: {
+		graph: object;
+		project: object;
+	}) {
 		if (!graph || !project || !log || !taskUtil || !taskRepository || !buildConfig) {
 			throw new Error("TaskRunner: One or more mandatory parameters not provided");
 		}
@@ -50,20 +49,20 @@ class TaskRunner {
 		let buildDefinition;
 
 		switch (project.getType()) {
-		case "application":
-			buildDefinition = "./definitions/application.js";
-			break;
-		case "library":
-			buildDefinition = "./definitions/library.js";
-			break;
-		case "module":
-			buildDefinition = "./definitions/module.js";
-			break;
-		case "theme-library":
-			buildDefinition = "./definitions/themeLibrary.js";
-			break;
-		default:
-			throw new Error(`Unknown project type ${project.getType()}`);
+			case "application":
+				buildDefinition = "./definitions/application.js";
+				break;
+			case "library":
+				buildDefinition = "./definitions/library.js";
+				break;
+			case "module":
+				buildDefinition = "./definitions/module.js";
+				break;
+			case "theme-library":
+				buildDefinition = "./definitions/themeLibrary.js";
+				break;
+			default:
+				throw new Error(`Unknown project type ${project.getType()}`);
 		}
 
 		const {default: getStandardTasks} = await import(buildDefinition);
@@ -71,7 +70,7 @@ class TaskRunner {
 		const standardTasks = getStandardTasks({
 			project,
 			taskUtil: this._taskUtil,
-			getTask: this._taskRepository.getTask
+			getTask: this._taskRepository.getTask,
 		});
 
 		for (const [taskName, params] of standardTasks) {
@@ -82,7 +81,7 @@ class TaskRunner {
 
 		// Create readers for *all* dependencies
 		const depReaders = [];
-		await this._graph.traverseBreadthFirst(project.getName(), async function({project: dep}) {
+		await this._graph.traverseBreadthFirst(project.getName(), async function ({project: dep}) {
 			if (dep.getName() === project.getName()) {
 				// Ignore project itself
 				return;
@@ -92,14 +91,14 @@ class TaskRunner {
 
 		this._allDependenciesReader = createReaderCollection({
 			name: `Dependency reader collection of project ${project.getName()}`,
-			readers: depReaders
+			readers: depReaders,
 		});
 	}
 
 	/**
 	 * Takes a list of tasks which should be executed from the available task list of the current builder
 	 *
-	 * @returns {Promise} Returns promise resolving once all tasks have been executed
+	 * @returns Returns promise resolving once all tasks have been executed
 	 */
 	async runTasks() {
 		await this._initTasks();
@@ -133,7 +132,7 @@ class TaskRunner {
 	 * First compiles a list of all tasks that will be executed, then a list of all direct project
 	 * dependencies that those tasks require access to.
 	 *
-	 * @returns {Set<string>} Returns a set containing the names of all required direct project dependencies
+	 * @returns Returns a set containing the names of all required direct project dependencies
 	 */
 	async getRequiredDependencies() {
 		await this._initTasks();
@@ -166,17 +165,17 @@ class TaskRunner {
 	 *
 	 * The order this function is being called defines the build order. FIFO.
 	 *
-	 * @param {string} taskName Name of the task which should be in the list availableTasks.
-	 * @param {object} [parameters]
-	 * @param {boolean} [parameters.requiresDependencies]
-	 * @param {object} [parameters.options]
-	 * @param {Function} [parameters.taskFunction]
+	 * @param taskName Name of the task which should be in the list availableTasks.
+	 * @param [parameters]
+	 * @param [parameters.requiresDependencies]
+	 * @param [parameters.options]
+	 * @param [parameters.taskFunction]
 	 */
-	_addTask(taskName: string, { requiresDependencies = false, options = {}, taskFunction }: {
-    requiresDependencies?: boolean;
-    options?: object;
-    taskFunction?: Function;
-} = {}) {
+	_addTask(taskName: string, {requiresDependencies = false, options = {}, taskFunction}: {
+		requiresDependencies?: boolean;
+		options?: object;
+		taskFunction?: Function;
+	} = {}) {
 		if (this._tasks[taskName]) {
 			throw new Error(`Failed to add duplicate task ${taskName} for project ${this._project.getName()}`);
 		}
@@ -197,7 +196,7 @@ class TaskRunner {
 				const params = {
 					workspace: this._project.getWorkspace(),
 					taskUtil: this._taskUtil,
-					options
+					options,
 				};
 
 				if (requiresDependencies) {
@@ -212,7 +211,7 @@ class TaskRunner {
 		}
 		this._tasks[taskName] = {
 			task,
-			requiredDependencies: requiresDependencies ? this._directDependencies : new Set()
+			requiredDependencies: requiresDependencies ? this._directDependencies : new Set(),
 		};
 		this._taskExecutionOrder.push(taskName);
 	}
@@ -227,6 +226,7 @@ class TaskRunner {
 			await this._addCustomTask(projectCustomTasks[i]);
 		}
 	}
+
 	private async _addCustomTask(taskDef: object) {
 		const project = this._project;
 		const graph = this._graph;
@@ -297,7 +297,7 @@ class TaskRunner {
 			}
 		} else {
 			const dependencyDeterminationParams = {
-				availableDependencies: new Set(this._directDependencies)
+				availableDependencies: new Set(this._directDependencies),
 			};
 
 			if (specVersion.gte("3.0")) {
@@ -313,7 +313,7 @@ class TaskRunner {
 				projectName: project.getName(),
 				projectNamespace: project.getNamespace(),
 				configuration: taskDef.configuration,
-				taskName: newTaskName
+				taskName: newTaskName,
 			};
 
 			requiredDependencies = await requiredDependenciesCallback(dependencyDeterminationParams);
@@ -346,7 +346,7 @@ class TaskRunner {
 					return this._createDependenciesReader(requiredDependencies);
 				},
 			}),
-			requiredDependencies
+			requiredDependencies,
 		};
 
 		if (this._taskExecutionOrder.length) {
@@ -376,9 +376,9 @@ class TaskRunner {
 	}
 
 	_createCustomTaskWrapper({
-		project, taskUtil, getDependenciesReader, provideDependenciesReader, task, taskName, taskConfiguration
+		project, taskUtil, getDependenciesReader, provideDependenciesReader, task, taskName, taskConfiguration,
 	}) {
-		return async function() {
+		return async function () {
 			/* Custom Task Interface
 				Parameters:
 					{Object} parameters Parameters
@@ -407,7 +407,7 @@ class TaskRunner {
 					projectName: project.getName(),
 					projectNamespace: project.getNamespace(),
 					configuration: taskConfiguration,
-				}
+				},
 			};
 			const specVersion = task.getSpecVersion();
 			const taskUtilInterface = taskUtil.getInterface(specVersion);
@@ -467,7 +467,7 @@ class TaskRunner {
 		// Create a reader collection for that
 		return createReaderCollection({
 			name: `Reduced dependency reader collection of project ${rootProject.getName()}`,
-			readers
+			readers,
 		});
 	}
 }

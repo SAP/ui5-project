@@ -7,8 +7,6 @@ import prettyHrtime from "pretty-hrtime";
 import OutputStyleEnum from "./helpers/ProjectBuilderOutputStyle.js";
 
 /**
- * @public
- * @class
  * @alias @ui5/project/build/ProjectBuilder
  */
 class ProjectBuilder {
@@ -16,15 +14,17 @@ class ProjectBuilder {
 	/**
 	 * Build Configuration
 	 *
-	 * @public
-	 * @typedef {object} @ui5/project/build/ProjectBuilder~BuildConfiguration
-	 * @property {boolean} [selfContained=false] Flag to activate self contained build
-	 * @property {boolean} [cssVariables=false] Flag to activate CSS variables generation
-	 * @property {boolean} [jsdoc=false] Flag to activate JSDoc build
-	 * @property {boolean} [createBuildManifest=false]
-	 *   Whether to create a build manifest file for the root project.
-	 *   This is currently only supported for projects of type 'library' and 'theme-library'
-	 *   No other dependencies can be included in the build result.
+	 * [selfContained=false] Flag to activate self contained build
+	 *
+	 * [cssVariables=false] Flag to activate CSS variables generation
+	 *
+	 * [jsdoc=false] Flag to activate JSDoc build
+	 *
+	 * [createBuildManifest=false]
+	 * Whether to create a build manifest file for the root project.
+	 * This is currently only supported for projects of type 'library' and 'theme-library'
+	 * No other dependencies can be included in the build result.
+	 *
 	 * @property {module:@ui5/project/build/ProjectBuilderOutputStyle} [outputStyle=Default]
 	 *   Processes build results into a specific directory structure.
 	 * @property {Array.<string>} [includedTasks=[]] List of tasks to be included
@@ -50,29 +50,31 @@ class ProjectBuilder {
 	 * Note that a later exclude can't overrule an earlier include.
 	 * <br>
 	 * <ol>
-	 *   <li><code>includeDependency</code>, <code>includeDependencyRegExp</code></li>
-	 *   <li><code>excludeDependency</code>, <code>excludeDependencyRegExp</code></li>
-	 *   <li><code>includeDependencyTree</code></li>
-	 *   <li><code>excludeDependencyTree</code></li>
-	 *   <li><code>defaultIncludeDependency</code>, <code>defaultIncludeDependencyRegExp</code>,
-	 *     <code>defaultIncludeDependencyTree</code></li>
+	 * <li><code>includeDependency</code>, <code>includeDependencyRegExp</code></li>
+	 * <li><code>excludeDependency</code>, <code>excludeDependencyRegExp</code></li>
+	 * <li><code>includeDependencyTree</code></li>
+	 * <li><code>excludeDependencyTree</code></li>
+	 * <li><code>defaultIncludeDependency</code>, <code>defaultIncludeDependencyRegExp</code>,
+	 * <code>defaultIncludeDependencyTree</code></li>
 	 * </ol>
 	 *
-	 * @public
-	 * @typedef {object} @ui5/project/build/ProjectBuilder~DependencyIncludes
-	 * @property {boolean} includeAllDependencies
-	 *   Whether all dependencies should be part of the build result
-	 *	 This parameter has the lowest priority and basically includes all remaining (not excluded) projects as include
-	 * @property {string[]} includeDependency
-	 *   The dependencies to be considered in <code>includedDependencies</code>; the
-	 *   <code>*</code> character can be used as wildcard for all dependencies and
-	 *   is an alias for the CLI option <code>--all</code>
-	 * @property {string[]} includeDependencyRegExp
-	 *   Strings which are interpreted as regular expressions
-	 *   to describe the selection of dependencies to be considered in <code>includedDependencies</code>
-	 * @property {string[]} includeDependencyTree
-	 *   The dependencies to be considered in <code>includedDependencies</code>;
-	 *   transitive dependencies are also appended
+	 * includeAllDependencies
+	 * Whether all dependencies should be part of the build result
+	 * This parameter has the lowest priority and basically includes all remaining (not excluded) projects as include
+	 *
+	 * includeDependency
+	 * The dependencies to be considered in <code>includedDependencies</code>; the
+	 * <code>*</code> character can be used as wildcard for all dependencies and
+	 * is an alias for the CLI option <code>--all</code>
+	 *
+	 * includeDependencyRegExp
+	 * Strings which are interpreted as regular expressions
+	 * to describe the selection of dependencies to be considered in <code>includedDependencies</code>
+	 *
+	 * includeDependencyTree
+	 * The dependencies to be considered in <code>includedDependencies</code>;
+	 * transitive dependencies are also appended
+	 *
 	 * @property {string[]} excludeDependency
 	 *   The dependencies to be considered in <code>excludedDependencies</code>
 	 * @property {string[]} excludeDependencyRegExp
@@ -95,13 +97,12 @@ class ProjectBuilder {
 	/**
 	 * Executes a project build, including all necessary or requested dependencies
 	 *
-	 * @public
-	 * @param {object} parameters
-	 * @param {@ui5/project/graph/ProjectGraph} parameters.graph Project graph
-	 * @param {@ui5/project/build/ProjectBuilder~BuildConfiguration} [parameters.buildConfig] Build configuration
-	 * @param {@ui5/builder/tasks/taskRepository} parameters.taskRepository Task Repository module to use
+	 * @param parameters
+	 * @param parameters.graph Project graph
+	 * @param [parameters.buildConfig] Build configuration
+	 * @param parameters.taskRepository Task Repository module to use
 	 */
-	constructor({ graph, buildConfig, taskRepository }: object) {
+	constructor({graph, buildConfig, taskRepository}: object) {
 		if (!graph) {
 			throw new Error(`Missing parameter 'graph'`);
 		}
@@ -118,12 +119,12 @@ class ProjectBuilder {
 		this.#log = new BuildLogger("ProjectBuilder");
 	}
 
-	public async build({ destPath, cleanDest = false, includedDependencies = [], excludedDependencies = [], dependencyIncludes }: {
-    destPath: string;
-    cleanDest?: boolean;
-    includedDependencies?: Array<string | RegExp>;
-    excludedDependencies?: Array<string | RegExp>;
-}) {
+	public async build({destPath, cleanDest = false, includedDependencies = [], excludedDependencies = [], dependencyIncludes}: {
+		destPath: string;
+		cleanDest?: boolean;
+		includedDependencies?: (string | RegExp)[];
+		excludedDependencies?: (string | RegExp)[];
+	}) {
 		if (!destPath) {
 			throw new Error(`Missing parameter 'destPath'`);
 		}
@@ -143,11 +144,11 @@ class ProjectBuilder {
 		const filterProject = await this._getProjectFilter({
 			explicitIncludes: includedDependencies,
 			explicitExcludes: excludedDependencies,
-			dependencyIncludes
+			dependencyIncludes,
 		});
 
 		// Count total number of projects to build based on input
-		const requestedProjects = this._graph.getProjectNames().filter(function(projectName) {
+		const requestedProjects = this._graph.getProjectNames().filter(function (projectName) {
 			return filterProject(projectName);
 		});
 
@@ -164,7 +165,7 @@ class ProjectBuilder {
 		const cleanupSigHooks = this._registerCleanupSigHooks();
 		const fsTarget = resourceFactory.createAdapter({
 			fsBasePath: destPath,
-			virBasePath: "/"
+			virBasePath: "/",
 		});
 
 		const queue = [];
@@ -264,7 +265,7 @@ class ProjectBuilder {
 		for (const projectName of requiredProjects) {
 			this.#log.verbose(`Creating build context for project ${projectName}...`);
 			const projectBuildContext = this._buildContext.createProjectContext({
-				project: this._graph.getProject(projectName)
+				project: this._graph.getProject(projectName),
 			});
 
 			projectBuildContexts.set(projectName, projectBuildContext);
@@ -298,13 +299,13 @@ class ProjectBuilder {
 	async _getProjectFilter({
 		dependencyIncludes,
 		explicitIncludes,
-		explicitExcludes
+		explicitExcludes,
 	}) {
 		const {includedDependencies, excludedDependencies} = await composeProjectList(
 			this._graph,
 			dependencyIncludes || {
 				includeDependencyTree: explicitIncludes,
-				excludeDependencyTree: explicitExcludes
+				excludeDependencyTree: explicitExcludes,
 			}
 		);
 
@@ -323,9 +324,14 @@ class ProjectBuilder {
 
 		const rootProjectName = this._graph.getRoot().getName();
 		return function projectFilter(projectName) {
+			/**
+			 *
+			 * @param deps
+			 */
 			function projectMatchesAny(deps) {
 				return deps.some((dep) => dep instanceof RegExp ?
-					dep.test(projectName) : dep === projectName);
+					dep.test(projectName) :
+					dep === projectName);
 			}
 
 			if (projectName === rootProjectName) {
@@ -363,26 +369,26 @@ class ProjectBuilder {
 		}
 
 		const reader = project.getReader({
-			style: readerStyle
+			style: readerStyle,
 		});
 		const resources = await reader.byGlob("/**/*");
 
 		if (createBuildManifest) {
 			// Create and write a build manifest metadata file
 			const {
-				default: createBuildManifest
+				default: createBuildManifest,
 			} = await import("./helpers/createBuildManifest.js");
 			const metadata = await createBuildManifest(project, buildConfig, this._buildContext.getTaskRepository());
 			await target.write(resourceFactory.createResource({
 				path: `/.ui5/build-manifest.json`,
-				string: JSON.stringify(metadata, null, "\t")
+				string: JSON.stringify(metadata, null, "\t"),
 			}));
 		}
 
 		await Promise.all(resources.map((resource) => {
 			if (taskUtil.getTag(resource, taskUtil.STANDARD_TAGS.OmitFromBuildResult)) {
 				this.#log.silly(`Skipping write of resource tagged as "OmitFromBuildResult": ` +
-					resource.getPath());
+				resource.getPath());
 				return; // Skip target write for this resource
 			}
 			return target.write(resource);
@@ -419,7 +425,7 @@ class ProjectBuilder {
 				} else if (!resource.originalPath.startsWith(libraryResourcesPrefix)) {
 					this.#log.warn(
 						`Omitting ${resource.originalPath} from build result. ` +
-							`File is not within project namespace '${namespace}'.`
+						`File is not within project namespace '${namespace}'.`
 					);
 				}
 			});
@@ -434,8 +440,12 @@ class ProjectBuilder {
 
 	_registerCleanupSigHooks() {
 		const that = this;
+		/**
+		 *
+		 * @param exitCode
+		 */
 		function createListener(exitCode) {
-			return function() {
+			return function () {
 				// Asynchronously cleanup resources, then exit
 				that._executeCleanupTasks(true).then(() => {
 					process.exit(exitCode);
@@ -444,10 +454,10 @@ class ProjectBuilder {
 		}
 
 		const processSignals = {
-			"SIGHUP": createListener(128 + 1),
-			"SIGINT": createListener(128 + 2),
-			"SIGTERM": createListener(128 + 15),
-			"SIGBREAK": createListener(128 + 21)
+			SIGHUP: createListener(128 + 1),
+			SIGINT: createListener(128 + 2),
+			SIGTERM: createListener(128 + 15),
+			SIGBREAK: createListener(128 + 21),
 		};
 
 		for (const signal of Object.keys(processSignals)) {
@@ -482,11 +492,10 @@ class ProjectBuilder {
 	/**
 	 * Calculates the elapsed build time and returns a prettified output
 	 *
-	 * @private
-	 * @param {Array} startTime Array provided by <code>process.hrtime()</code>
-	 * @returns {string} Difference between now and the provided time array as formatted string
+	 * @param startTime Array provided by <code>process.hrtime()</code>
+	 * @returns Difference between now and the provided time array as formatted string
 	 */
-	private _getElapsedTime(startTime: Array<any>) {
+	private _getElapsedTime(startTime: any[]) {
 		const timeDiff = process.hrtime(startTime);
 		return prettyHrtime(timeDiff);
 	}

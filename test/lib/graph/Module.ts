@@ -18,18 +18,18 @@ const themeLibraryEPath = path.join(fixturesPath, "theme.library.e");
 const basicModuleInput = {
 	id: "application.a.id",
 	version: "1.0.0",
-	modulePath: applicationAPath
+	modulePath: applicationAPath,
 };
 const archiveAppProjectInput = {
 	id: "application.a.id",
 	version: "1.0.0",
-	modulePath: buildDescriptionApplicationAPath
+	modulePath: buildDescriptionApplicationAPath,
 };
 
 const archiveLibProjectInput = {
 	id: "library.e.id",
 	version: "1.0.0",
-	modulePath: buildDescriptionLibraryAPath
+	modulePath: buildDescriptionLibraryAPath,
 };
 
 test("Instantiate a basic module", (t) => {
@@ -43,10 +43,10 @@ test("Create module with missing id", (t) => {
 	t.throws(() => {
 		new Module({
 			version: "1.0.0",
-			modulePath: "/module/path"
+			modulePath: "/module/path",
 		});
 	}, {
-		message: "Could not create Module: Missing or empty parameter 'id'"
+		message: "Could not create Module: Missing or empty parameter 'id'",
 	});
 });
 
@@ -54,10 +54,10 @@ test("Create module with missing version", (t) => {
 	t.throws(() => {
 		new Module({
 			id: "application.a.id",
-			modulePath: "/module/path"
+			modulePath: "/module/path",
 		});
 	}, {
-		message: "Could not create Module: Missing or empty parameter 'version'"
+		message: "Could not create Module: Missing or empty parameter 'version'",
 	});
 });
 
@@ -68,7 +68,7 @@ test("Create module with missing modulePath", (t) => {
 			version: "1.0.0",
 		});
 	}, {
-		message: "Could not create Module: Missing or empty parameter 'modulePath'"
+		message: "Could not create Module: Missing or empty parameter 'modulePath'",
 	});
 });
 
@@ -77,10 +77,10 @@ test("Create module with relative modulePath", (t) => {
 		new Module({
 			id: "application.a.id",
 			version: "1.0.0",
-			modulePath: "module/path"
+			modulePath: "module/path",
 		});
 	}, {
-		message: "Could not create Module: Parameter 'modulePath' must contain an absolute path"
+		message: "Could not create Module: Parameter 'modulePath' must contain an absolute path",
 	});
 });
 
@@ -121,17 +121,17 @@ test("Use configuration from object", async (t) => {
 			specVersion: "2.6",
 			type: "application",
 			metadata: {
-				name: "application.a-object"
+				name: "application.a-object",
 			},
 			customConfiguration: {
-				configurationTest: true
-			}
-		}
+				configurationTest: true,
+			},
+		},
 	});
 	const {project, extensions} = await ui5Module.getSpecifications();
 	t.is(project.getName(), "application.a-object", "Used name from config object");
 	t.deepEqual(project.getCustomConfiguration(), {
-		configurationTest: true
+		configurationTest: true,
 	}, "Provided configuration is available");
 	t.is(extensions.length, 0, "Should return no extensions");
 });
@@ -145,24 +145,24 @@ test("Use configuration from array of objects", async (t) => {
 			specVersion: "2.6",
 			type: "application",
 			metadata: {
-				name: "application.a"
+				name: "application.a",
 			},
 			customConfiguration: {
-				configurationTest: true
-			}
+				configurationTest: true,
+			},
 		}, {
 			specVersion: "2.6",
 			kind: "extension",
 			type: "project-shim",
 			metadata: {
-				name: "my-project-shim"
+				name: "my-project-shim",
 			},
-			shims: {}
-		}]
+			shims: {},
+		}],
 	});
 	const {project, extensions} = await ui5Module.getSpecifications();
 	t.deepEqual(project.getCustomConfiguration(), {
-		configurationTest: true
+		configurationTest: true,
 	}, "Provided configuration is available");
 	t.is(extensions.length, 1, "Should return one extension");
 });
@@ -172,11 +172,11 @@ test("Use configuration from configPath", async (t) => {
 		id: "application.a.id",
 		version: "1.0.0",
 		modulePath: applicationAPath,
-		configPath: "ui5-test-configPath.yaml"
+		configPath: "ui5-test-configPath.yaml",
 	});
 	const {project, extensions} = await ui5Module.getSpecifications();
 	t.deepEqual(project.getCustomConfiguration(), {
-		configPathTest: true
+		configPathTest: true,
 	}, "Provided configuration is available");
 	t.is(extensions.length, 0, "Should return no extensions");
 });
@@ -186,11 +186,11 @@ test("Use configuration from absolute configPath", async (t) => {
 		id: "application.a.id",
 		version: "1.0.0",
 		modulePath: applicationAPath,
-		configPath: path.join(applicationAPath, "ui5-test-configPath.yaml")
+		configPath: path.join(applicationAPath, "ui5-test-configPath.yaml"),
 	});
 	const {project, extensions} = await ui5Module.getSpecifications();
 	t.deepEqual(project.getCustomConfiguration(), {
-		configPathTest: true
+		configPathTest: true,
 	}, "Provided configuration is available");
 	t.is(extensions.length, 0, "Should return no extensions");
 });
@@ -204,11 +204,11 @@ test("configuration and configPath must not be provided together", (t) => {
 			modulePath: applicationAPath,
 			configPath: "test-ui5.yaml",
 			configuration: {
-				test: "configuration"
-			}
+				test: "configuration",
+			},
 		});
 	}, {
-		message: "Could not create Module: 'configPath' must not be provided in combination with 'configuration'"
+		message: "Could not create Module: 'configPath' must not be provided in combination with 'configuration'",
 	});
 	// 'configuration' as array
 	t.throws(() => {
@@ -218,11 +218,11 @@ test("configuration and configPath must not be provided together", (t) => {
 			modulePath: applicationAPath,
 			configPath: "test-ui5.yaml",
 			configuration: [{
-				test: "configuration"
-			}]
+				test: "configuration",
+			}],
 		});
 	}, {
-		message: "Could not create Module: 'configPath' must not be provided in combination with 'configuration'"
+		message: "Could not create Module: 'configPath' must not be provided in combination with 'configuration'",
 	});
 });
 
@@ -233,12 +233,12 @@ test("Use configuration from project shim", async (t) => {
 			specVersion: "2.6",
 			type: "application",
 			metadata: {
-				name: "application.h"
+				name: "application.h",
 			},
 			customConfiguration: {
-				configurationTest: true
-			}
-		}
+				configurationTest: true,
+			},
+		},
 	}]);
 
 	const ui5Module = new Module({
@@ -247,8 +247,8 @@ test("Use configuration from project shim", async (t) => {
 		modulePath: applicationHPath,
 		configuration: [],
 		shimCollection: {
-			getProjectConfigurationShims: getProjectConfigurationShimsStub
-		}
+			getProjectConfigurationShims: getProjectConfigurationShimsStub,
+		},
 	});
 	const {project, extensions} = await ui5Module.getSpecifications();
 	t.is(getProjectConfigurationShimsStub.callCount, 1, "Should request configuration shims from collection");
@@ -256,7 +256,7 @@ test("Use configuration from project shim", async (t) => {
 		"Should request configuration shims for correct module ID");
 	t.truthy(project, "Should create a project form shim configuration");
 	t.deepEqual(project.getCustomConfiguration(), {
-		configurationTest: true
+		configurationTest: true,
 	});
 	t.is(extensions.length, 0, "Should return no extension");
 });
@@ -266,9 +266,9 @@ test("Extend configuration via shim", async (t) => {
 		name: "shim-1",
 		shim: {
 			customConfiguration: { // Overwrites whole object since merge is done with Object.assign
-				overwriteConfigurationTest: true
-			}
-		}
+				overwriteConfigurationTest: true,
+			},
+		},
 	}]);
 
 	const ui5Module = new Module({
@@ -279,19 +279,19 @@ test("Extend configuration via shim", async (t) => {
 			specVersion: "2.6",
 			type: "application",
 			metadata: {
-				name: "application.a-object"
+				name: "application.a-object",
 			},
 			customConfiguration: {
-				configurationTest: true
-			}
+				configurationTest: true,
+			},
 		},
 		shimCollection: {
-			getProjectConfigurationShims: getProjectConfigurationShimsStub
-		}
+			getProjectConfigurationShims: getProjectConfigurationShimsStub,
+		},
 	});
 	const {project, extensions} = await ui5Module.getSpecifications();
 	t.deepEqual(project.getCustomConfiguration(), {
-		overwriteConfigurationTest: true
+		overwriteConfigurationTest: true,
 	}, "Provided configuration is available");
 	t.is(extensions.length, 0, "Should return no extensions");
 });
@@ -305,17 +305,17 @@ test("Module is a collection", async (t) => {
 			specVersion: "2.6",
 			type: "application",
 			metadata: {
-				name: "application.a-object"
+				name: "application.a-object",
 			},
 			customConfiguration: {
-				configurationTest: true
-			}
+				configurationTest: true,
+			},
 		}, {
 			specVersion: "2.6",
 			kind: "extension",
 			type: "project-shim",
 			metadata: {
-				name: "collection-shim"
+				name: "collection-shim",
 			},
 			shims: {
 				collections: {
@@ -324,11 +324,11 @@ test("Module is a collection", async (t) => {
 							"library.a": "./library.a",
 							"library.b": "./library.b",
 							"library.c": "./library.c",
-						}
-					}
-				}
-			}
-		}]
+						},
+					},
+				},
+			},
+		}],
 	});
 	const {project, extensions} = await ui5Module.getSpecifications();
 	t.falsy(project, "Should ignore the project since the shim defines the module itself as a collection");
@@ -339,8 +339,8 @@ test("Module is a collection", async (t) => {
 				"library.a": "./library.a",
 				"library.b": "./library.b",
 				"library.c": "./library.c",
-			}
-		}
+			},
+		},
 	}, "Collection shim configured correctly");
 });
 
@@ -354,31 +354,31 @@ test("Module can't define config shim for itself", async (t) => {
 			kind: "extension",
 			type: "project-shim",
 			metadata: {
-				name: "my-project-shim"
+				name: "my-project-shim",
 			},
 			shims: {
 				configurations: {
 					"application.a.id": {
 						customConfiguration: {
-							overwriteConfigurationTest: true
-						}
-					}
-				}
-			}
+							overwriteConfigurationTest: true,
+						},
+					},
+				},
+			},
 		}, {
 			specVersion: "2.6",
 			type: "application",
 			metadata: {
-				name: "application.a-object"
+				name: "application.a-object",
 			},
 			customConfiguration: {
-				configurationTest: true
-			}
-		}]
+				configurationTest: true,
+			},
+		}],
 	});
 	const {project, extensions} = await ui5Module.getSpecifications();
 	t.deepEqual(project.getCustomConfiguration(), {
-		configurationTest: true // Shim has not been applied
+		configurationTest: true, // Shim has not been applied
 	}, "Provided configuration is available");
 	t.is(extensions.length, 1, "Should return one extension");
 });
@@ -393,9 +393,9 @@ test("Legacy patches are applied", async (t) => {
 				specVersion: "2.6", // should not matter
 				type: "library", // legacy config for theme-libraries
 				metadata: {
-					name: libraryName
-				}
-			}
+					name: libraryName,
+				},
+			},
 		});
 		const {project, extensions} = await ui5Module.getSpecifications();
 		t.is(project.getName(), libraryName, "Used name from config object");
@@ -413,7 +413,7 @@ test("Invalid configuration in file", async (t) => {
 		id: "application.a.id",
 		version: "1.0.0",
 		modulePath: applicationAPath,
-		configPath: "ui5-test-error.yaml"
+		configPath: "ui5-test-error.yaml",
 	});
 	const err = await t.throwsAsync(ui5Module.getSpecifications());
 
@@ -429,7 +429,7 @@ test("Corrupt configuration in file", async (t) => {
 		id: "application.a.id",
 		version: "1.0.0",
 		modulePath: applicationAPath,
-		configPath: "ui5-test-corrupt.yaml"
+		configPath: "ui5-test-corrupt.yaml",
 	});
 	const err = await t.throwsAsync(ui5Module.getSpecifications());
 
@@ -443,13 +443,13 @@ test("Empty configuration in file", async (t) => {
 		id: "application.a.id",
 		version: "1.0.0",
 		modulePath: applicationAPath,
-		configPath: "ui5-test-empty.yaml"
+		configPath: "ui5-test-empty.yaml",
 	});
 	const res = await ui5Module.getSpecifications();
 
 	t.deepEqual(res, {
 		project: null,
-		extensions: []
+		extensions: [],
 	}, "Returned no project or extensions");
 });
 
@@ -463,7 +463,7 @@ test("No configuration", async (t) => {
 
 	t.deepEqual(res, {
 		project: null,
-		extensions: []
+		extensions: [],
 	}, "Returned no project or extensions");
 });
 
@@ -472,7 +472,7 @@ test("Incorrect config path", async (t) => {
 		id: "application.a.id",
 		version: "1.0.0",
 		modulePath: applicationAPath,
-		configPath: "ui5-does-not-exist.yaml"
+		configPath: "ui5-does-not-exist.yaml",
 	});
 	const err = await t.throwsAsync(ui5Module.getSpecifications());
 
@@ -488,7 +488,7 @@ test("Incorrect absolute config path", async (t) => {
 		id: "application.a.id",
 		version: "1.0.0",
 		modulePath: applicationAPath,
-		configPath
+		configPath,
 	});
 	const err = await t.throwsAsync(ui5Module.getSpecifications());
 
@@ -501,7 +501,7 @@ test("Module without ui5.yaml is ignored", async (t) => {
 	const ui5Module = new Module({
 		id: "application.a.id",
 		version: "1.0.0",
-		modulePath: applicationHPath
+		modulePath: applicationHPath,
 	});
 	const {project, extensions} = await ui5Module.getSpecifications();
 	t.falsy(project, "Should return no project");

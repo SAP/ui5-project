@@ -18,16 +18,16 @@ const basicProjectInput = {
 		specVersion: "2.6",
 		kind: "project",
 		type: "application",
-		metadata: {name: "application.a"}
-	}
+		metadata: {name: "application.a"},
+	},
 };
 
 test("Invalid configuration", async (t) => {
 	const customProjectInput = clone(basicProjectInput);
 	customProjectInput.configuration.resources = {
 		configuration: {
-			propertiesFileSourceEncoding: "Ponycode"
-		}
+			propertiesFileSourceEncoding: "Ponycode",
+		},
 	};
 	const error = await t.throwsAsync(Specification.create(customProjectInput));
 	t.is(error.message, `${chalk.red("Invalid ui5.yaml configuration for project application.a.id")}
@@ -45,17 +45,17 @@ test("getCustomTasks", async (t) => {
 			name: "myTask",
 			beforeTask: "minify",
 			configuration: {
-				color: "orange"
-			}
-		}]
+				color: "orange",
+			},
+		}],
 	};
 	const project = await Specification.create(customProjectInput);
 	t.deepEqual(project.getCustomTasks(), [{
 		name: "myTask",
 		beforeTask: "minify",
 		configuration: {
-			color: "orange"
-		}
+			color: "orange",
+		},
 	}], "Returned correct custom task configuration");
 });
 
@@ -67,9 +67,9 @@ test("getCustomMiddleware", async (t) => {
 			mountPath: "/app",
 			afterMiddleware: "compression",
 			configuration: {
-				color: "orange"
-			}
-		}]
+				color: "orange",
+			},
+		}],
 	};
 	const project = await Specification.create(customProjectInput);
 	t.deepEqual(project.getCustomMiddleware(), [{
@@ -77,8 +77,8 @@ test("getCustomMiddleware", async (t) => {
 		mountPath: "/app",
 		afterMiddleware: "compression",
 		configuration: {
-			color: "orange"
-		}
+			color: "orange",
+		},
 	}], "Returned correct custom middleware configuration");
 });
 
@@ -108,7 +108,7 @@ test("getFramework* configurations", async (t) => {
 		libraries: [
 			{name: "lib-1"},
 			{name: "lib-2"},
-		]
+		],
 	};
 	customProjectInput.id = "@openui5/" + customProjectInput.id;
 	const project = await Specification.create(customProjectInput);
@@ -116,7 +116,7 @@ test("getFramework* configurations", async (t) => {
 	t.is(project.getFrameworkVersion(), "1.111.1", "Returned correct framework version");
 	t.deepEqual(project.getFrameworkDependencies(), [
 		{name: "lib-1"},
-		{name: "lib-2"}
+		{name: "lib-2"},
 	], "Returned correct framework dependencies");
 	t.true(project.isFrameworkProject(), "Is a framework project");
 });
@@ -152,12 +152,12 @@ test("getServerSettings", async (t) => {
 	const customProjectInput = clone(basicProjectInput);
 	customProjectInput.configuration.server = {
 		settings: {
-			httpPort: 1337
-		}
+			httpPort: 1337,
+		},
 	};
 	const project = await Specification.create(customProjectInput);
 	t.deepEqual(project.getServerSettings(), {
-		httpPort: 1337
+		httpPort: 1337,
 	}, "Returned correct server settings");
 });
 
@@ -165,12 +165,12 @@ test("getBuilderSettings", async (t) => {
 	const customProjectInput = clone(basicProjectInput);
 	customProjectInput.configuration.builder = {
 		settings: {
-			includeDependency: ["my-lib"]
-		}
+			includeDependency: ["my-lib"],
+		},
 	};
 	const project = await Specification.create(customProjectInput);
 	t.deepEqual(project.getBuilderSettings(), {
-		includeDependency: ["my-lib"]
+		includeDependency: ["my-lib"],
 	}, "Returned correct build settings");
 });
 

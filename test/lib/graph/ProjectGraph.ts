@@ -17,8 +17,8 @@ async function createProject(name) {
 			specVersion: "2.3",
 			kind: "project",
 			type: "application",
-			metadata: {name}
-		}
+			metadata: {name},
+		},
 	});
 }
 
@@ -32,8 +32,8 @@ async function createExtension(name) {
 			kind: "extension",
 			type: "task",
 			task: {},
-			metadata: {name}
-		}
+			metadata: {name},
+		},
 	});
 }
 
@@ -71,13 +71,13 @@ test.beforeEach(async (t) => {
 		verbose: sinon.stub(),
 		error: sinon.stub(),
 		info: sinon.stub(),
-		isLevelEnabled: () => true
+		isLevelEnabled: () => true,
 	};
 
 	t.context.ProjectGraph = await esmock.p("../../../lib/graph/ProjectGraph.js", {
 		"@ui5/logger": {
-			getLogger: sinon.stub().withArgs("graph:ProjectGraph").returns(t.context.log)
-		}
+			getLogger: sinon.stub().withArgs("graph:ProjectGraph").returns(t.context.log),
+		},
 	});
 });
 
@@ -90,7 +90,7 @@ test("Instantiate a basic project graph", (t) => {
 	const {ProjectGraph} = t.context;
 	t.notThrows(() => {
 		new ProjectGraph({
-			rootProjectName: "my root project"
+			rootProjectName: "my root project",
 		});
 	}, "Should not throw");
 });
@@ -107,7 +107,7 @@ test("Instantiate a basic project with missing parameter rootProjectName", (t) =
 test("getRoot", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "application.a"
+		rootProjectName: "application.a",
 	});
 	const project = await createProject("application.a");
 	graph.addProject(project);
@@ -118,7 +118,7 @@ test("getRoot", async (t) => {
 test("getRoot: Root not added to graph", (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "application.a"
+		rootProjectName: "application.a",
 	});
 
 	const error = t.throws(() => {
@@ -132,7 +132,7 @@ test("getRoot: Root not added to graph", (t) => {
 test("add-/getProject", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "my root project"
+		rootProjectName: "my root project",
 	});
 	const project = await createProject("application.a");
 	graph.addProject(project);
@@ -143,7 +143,7 @@ test("add-/getProject", async (t) => {
 test("addProject: Add duplicate", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "my root project"
+		rootProjectName: "my root project",
 	});
 	const project1 = await createProject("application.a");
 	graph.addProject(project1);
@@ -164,7 +164,7 @@ test("addProject: Add duplicate", async (t) => {
 test("addProject: Add project with integer-like name", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "my root project"
+		rootProjectName: "my root project",
 	});
 	const project = await createProject("1337");
 
@@ -179,7 +179,7 @@ test("addProject: Add project with integer-like name", async (t) => {
 test("getProject: Project is not in graph", (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "my root project"
+		rootProjectName: "my root project",
 	});
 	const res = graph.getProject("application.a");
 	t.is(res, undefined, "Should return undefined");
@@ -188,7 +188,7 @@ test("getProject: Project is not in graph", (t) => {
 test("getProjects", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "my root project"
+		rootProjectName: "my root project",
 	});
 	const project1 = await createProject("application.a");
 	graph.addProject(project1);
@@ -198,14 +198,14 @@ test("getProjects", async (t) => {
 
 	const res = graph.getProjects();
 	t.deepEqual(Array.from(res), [
-		project1, project2
+		project1, project2,
 	], "Should return an iterable for all projects");
 });
 
 test("getProjectNames", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "my root project"
+		rootProjectName: "my root project",
 	});
 	const project1 = await createProject("application.a");
 	graph.addProject(project1);
@@ -215,14 +215,14 @@ test("getProjectNames", async (t) => {
 
 	const res = graph.getProjectNames();
 	t.deepEqual(res, [
-		"application.a", "application.b"
+		"application.a", "application.b",
 	], "Should return all project names in a flat array");
 });
 
 test("getSize", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "my root project"
+		rootProjectName: "my root project",
 	});
 	const project1 = await createProject("application.a");
 	graph.addProject(project1);
@@ -240,7 +240,7 @@ test("getSize", async (t) => {
 test("add-/getExtension", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "my root project"
+		rootProjectName: "my root project",
 	});
 	const extension = await createExtension("extension.a");
 	graph.addExtension(extension);
@@ -251,7 +251,7 @@ test("add-/getExtension", async (t) => {
 test("addExtension: Add duplicate", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "my root project"
+		rootProjectName: "my root project",
 	});
 	const extension1 = await createExtension("extension.a");
 	graph.addExtension(extension1);
@@ -272,7 +272,7 @@ test("addExtension: Add duplicate", async (t) => {
 test("addExtension: Add extension with integer-like name", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "my root project"
+		rootProjectName: "my root project",
 	});
 	const extension = await createExtension("1337");
 
@@ -287,7 +287,7 @@ test("addExtension: Add extension with integer-like name", async (t) => {
 test("getExtension: Project is not in graph", (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "my root project"
+		rootProjectName: "my root project",
 	});
 	const res = graph.getExtension("extension.a");
 	t.is(res, undefined, "Should return undefined");
@@ -296,7 +296,7 @@ test("getExtension: Project is not in graph", (t) => {
 test("getExtensions", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "my root project"
+		rootProjectName: "my root project",
 	});
 	const extension1 = await createExtension("extension.a");
 	graph.addExtension(extension1);
@@ -305,21 +305,21 @@ test("getExtensions", async (t) => {
 	graph.addExtension(extension2);
 	const res = graph.getExtensions();
 	t.deepEqual(Array.from(res), [
-		extension1, extension2
+		extension1, extension2,
 	], "Should return an iterable for all extensions");
 });
 
 test("declareDependency / getDependencies", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "my root project"
+		rootProjectName: "my root project",
 	});
 	graph.addProject(await createProject("library.a"));
 	graph.addProject(await createProject("library.b"));
 
 	graph.declareDependency("library.a", "library.b");
 	t.deepEqual(graph.getDependencies("library.a"), [
-		"library.b"
+		"library.b",
 	], "Should store and return correct dependencies for library.a");
 	t.deepEqual(graph.getDependencies("library.b"), [],
 		"Should store and return correct dependencies for library.b");
@@ -327,10 +327,10 @@ test("declareDependency / getDependencies", async (t) => {
 	graph.declareDependency("library.b", "library.a");
 
 	t.deepEqual(graph.getDependencies("library.a"), [
-		"library.b"
+		"library.b",
 	], "Should store and return correct dependencies for library.a");
 	t.deepEqual(graph.getDependencies("library.b"), [
-		"library.a"
+		"library.a",
 	], "Should store and return correct dependencies for library.b");
 
 	t.is(graph.isOptionalDependency("library.a", "library.b"), false,
@@ -343,7 +343,7 @@ test("declareDependency / getDependencies", async (t) => {
 test("getTransitiveDependencies", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "my root project"
+		rootProjectName: "my root project",
 	});
 	graph.addProject(await createProject("library.a"));
 	graph.addProject(await createProject("library.b"));
@@ -368,7 +368,7 @@ test("getTransitiveDependencies", async (t) => {
 test("getTransitiveDependencies: Unknown project", (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "my root project"
+		rootProjectName: "my root project",
 	});
 
 	const error = t.throws(() => {
@@ -382,7 +382,7 @@ test("getTransitiveDependencies: Unknown project", (t) => {
 test("declareDependency: Unknown source", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "my root project"
+		rootProjectName: "my root project",
 	});
 	graph.addProject(await createProject("library.b"));
 
@@ -398,7 +398,7 @@ test("declareDependency: Unknown source", async (t) => {
 test("declareDependency: Unknown target", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "my root project"
+		rootProjectName: "my root project",
 	});
 	graph.addProject(await createProject("library.a"));
 
@@ -414,7 +414,7 @@ test("declareDependency: Unknown target", async (t) => {
 test("declareDependency: Same target as source", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "my root project"
+		rootProjectName: "my root project",
 	});
 	graph.addProject(await createProject("library.a"));
 	graph.addProject(await createProject("library.b"));
@@ -431,7 +431,7 @@ test("declareDependency: Same target as source", async (t) => {
 test("declareDependency: Already declared", async (t) => {
 	const {ProjectGraph, log} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "my root project"
+		rootProjectName: "my root project",
 	});
 	graph.addProject(await createProject("library.a"));
 	graph.addProject(await createProject("library.b"));
@@ -448,7 +448,7 @@ test("declareDependency: Already declared", async (t) => {
 test("declareDependency: Already declared as optional", async (t) => {
 	const {ProjectGraph, log} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "my root project"
+		rootProjectName: "my root project",
 	});
 	graph.addProject(await createProject("library.a"));
 	graph.addProject(await createProject("library.b"));
@@ -468,7 +468,7 @@ test("declareDependency: Already declared as optional", async (t) => {
 test("declareDependency: Already declared as non-optional", async (t) => {
 	const {ProjectGraph, log} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "my root project"
+		rootProjectName: "my root project",
 	});
 	graph.addProject(await createProject("library.a"));
 	graph.addProject(await createProject("library.b"));
@@ -486,7 +486,7 @@ test("declareDependency: Already declared as non-optional", async (t) => {
 test("declareDependency: Already declared as optional, now non-optional", async (t) => {
 	const {ProjectGraph, log} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "my root project"
+		rootProjectName: "my root project",
 	});
 	graph.addProject(await createProject("library.a"));
 	graph.addProject(await createProject("library.b"));
@@ -503,7 +503,7 @@ test("declareDependency: Already declared as optional, now non-optional", async 
 test("getDependencies: Project without dependencies", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "my root project"
+		rootProjectName: "my root project",
 	});
 
 	graph.addProject(await createProject("library.a"));
@@ -515,7 +515,7 @@ test("getDependencies: Project without dependencies", async (t) => {
 test("getDependencies: Unknown project", (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "my root project"
+		rootProjectName: "my root project",
 	});
 
 	const error = t.throws(() => {
@@ -529,7 +529,7 @@ test("getDependencies: Unknown project", (t) => {
 test("resolveOptionalDependencies", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "library.a"
+		rootProjectName: "library.a",
 	});
 	graph.addProject(await createProject("library.a"));
 	graph.addProject(await createProject("library.b"));
@@ -557,14 +557,14 @@ test("resolveOptionalDependencies", async (t) => {
 		"library.b",
 		"library.c",
 		"library.d",
-		"library.a"
+		"library.a",
 	]);
 });
 
 test("resolveOptionalDependencies: Optional dependency has not been resolved", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "library.a"
+		rootProjectName: "library.a",
 	});
 	graph.addProject(await createProject("library.a"));
 	graph.addProject(await createProject("library.b"));
@@ -585,7 +585,7 @@ test("resolveOptionalDependencies: Optional dependency has not been resolved", a
 
 	await traverseDepthFirst(t, graph, [
 		"library.d",
-		"library.a"
+		"library.a",
 	]);
 
 	t.true(graph._hasUnresolvedOptionalDependencies,
@@ -608,14 +608,14 @@ test("resolveOptionalDependencies: Optional dependency has not been resolved", a
 	await traverseDepthFirst(t, graph, [
 		"library.c",
 		"library.d",
-		"library.a"
+		"library.a",
 	]);
 });
 
 test("resolveOptionalDependencies: Dependency of optional dependency has not been resolved", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "library.a"
+		rootProjectName: "library.a",
 	});
 	graph.addProject(await createProject("library.a"));
 	graph.addProject(await createProject("library.b"));
@@ -635,14 +635,14 @@ test("resolveOptionalDependencies: Dependency of optional dependency has not bee
 		"Dependency from library.a to library.c should still be optional");
 
 	await traverseDepthFirst(t, graph, [
-		"library.a"
+		"library.a",
 	]);
 });
 
 test("resolveOptionalDependencies: Cyclic optional dependency is not resolved", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "library.a"
+		rootProjectName: "library.a",
 	});
 	graph.addProject(await createProject("library.a"));
 	graph.addProject(await createProject("library.b"));
@@ -664,14 +664,14 @@ test("resolveOptionalDependencies: Cyclic optional dependency is not resolved", 
 	await traverseDepthFirst(t, graph, [
 		"library.b",
 		"library.c",
-		"library.a"
+		"library.a",
 	]);
 });
 
 test("resolveOptionalDependencies: Resolves transitive optional dependencies", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "library.a"
+		rootProjectName: "library.a",
 	});
 	graph.addProject(await createProject("library.a"));
 	graph.addProject(await createProject("library.b"));
@@ -699,14 +699,14 @@ test("resolveOptionalDependencies: Resolves transitive optional dependencies", a
 		"library.d",
 		"library.c",
 		"library.b",
-		"library.a"
+		"library.a",
 	]);
 });
 
 test("traverseBreadthFirst: Async", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "library.a"
+		rootProjectName: "library.a",
 	});
 	graph.addProject(await createProject("library.a"));
 	graph.addProject(await createProject("library.b"));
@@ -736,7 +736,7 @@ test("traverseBreadthFirst: Async", async (t) => {
 test("traverseBreadthFirst: Sync", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "library.a"
+		rootProjectName: "library.a",
 	});
 	graph.addProject(await createProject("library.a"));
 	graph.addProject(await createProject("library.b"));
@@ -759,7 +759,7 @@ test("traverseBreadthFirst: Sync", async (t) => {
 test("traverseBreadthFirst: No project visited twice", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "library.a"
+		rootProjectName: "library.a",
 	});
 	graph.addProject(await createProject("library.a"));
 	graph.addProject(await createProject("library.b"));
@@ -772,14 +772,14 @@ test("traverseBreadthFirst: No project visited twice", async (t) => {
 	await traverseBreadthFirst(t, graph, [
 		"library.a",
 		"library.b",
-		"library.c"
+		"library.c",
 	]);
 });
 
 test("traverseBreadthFirst: Detect cycle", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "library.a"
+		rootProjectName: "library.a",
 	});
 	graph.addProject(await createProject("library.a"));
 	graph.addProject(await createProject("library.b"));
@@ -796,7 +796,7 @@ test("traverseBreadthFirst: Detect cycle", async (t) => {
 test("traverseBreadthFirst: No cycle when visited breadth first", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "library.a"
+		rootProjectName: "library.a",
 	});
 	graph.addProject(await createProject("library.a"));
 	graph.addProject(await createProject("library.b"));
@@ -810,14 +810,14 @@ test("traverseBreadthFirst: No cycle when visited breadth first", async (t) => {
 	await traverseBreadthFirst(t, graph, [
 		"library.a",
 		"library.b",
-		"library.c"
+		"library.c",
 	]);
 });
 
 test("traverseBreadthFirst: Can't find start node", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "library.a"
+		rootProjectName: "library.a",
 	});
 
 	const error = await t.throwsAsync(graph.traverseBreadthFirst(() => {}));
@@ -829,7 +829,7 @@ test("traverseBreadthFirst: Can't find start node", async (t) => {
 test("traverseBreadthFirst: Custom start node", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "library.a"
+		rootProjectName: "library.a",
 	});
 	graph.addProject(await createProject("library.a"));
 	graph.addProject(await createProject("library.b"));
@@ -847,14 +847,14 @@ test("traverseBreadthFirst: Custom start node", async (t) => {
 
 	t.deepEqual(callbackCalls, [
 		"library.b",
-		"library.c"
+		"library.c",
 	], "Traversed graph in correct order, starting with library.b");
 });
 
 test("traverseBreadthFirst: dependencies parameter", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "library.a"
+		rootProjectName: "library.a",
 	});
 	graph.addProject(await createProject("library.a"));
 	graph.addProject(await createProject("library.b"));
@@ -877,20 +877,20 @@ test("traverseBreadthFirst: dependencies parameter", async (t) => {
 	t.deepEqual(callbackCalls, [
 		"library.a",
 		"library.b",
-		"library.c"
+		"library.c",
 	], "Traversed graph in correct order");
 
 	t.deepEqual(dependencies, [
 		["library.b", "library.c"],
 		["library.c"],
-		[]
+		[],
 	], "Provided correct dependencies for each visited project");
 });
 
 test("traverseBreadthFirst: Dependency declaration order is followed", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph1 = new ProjectGraph({
-		rootProjectName: "library.a"
+		rootProjectName: "library.a",
 	});
 	graph1.addProject(await createProject("library.a"));
 	graph1.addProject(await createProject("library.b"));
@@ -905,11 +905,11 @@ test("traverseBreadthFirst: Dependency declaration order is followed", async (t)
 		"library.a",
 		"library.b",
 		"library.c",
-		"library.d"
+		"library.d",
 	]);
 
 	const graph2 = new ProjectGraph({
-		rootProjectName: "library.a"
+		rootProjectName: "library.a",
 	});
 	graph2.addProject(await createProject("library.a"));
 	graph2.addProject(await createProject("library.b"));
@@ -924,14 +924,14 @@ test("traverseBreadthFirst: Dependency declaration order is followed", async (t)
 		"library.a",
 		"library.d",
 		"library.c",
-		"library.b"
+		"library.b",
 	]);
 });
 
 test("traverseDepthFirst: Async", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "library.a"
+		rootProjectName: "library.a",
 	});
 	graph.addProject(await createProject("library.a"));
 	graph.addProject(await createProject("library.b"));
@@ -961,7 +961,7 @@ test("traverseDepthFirst: Async", async (t) => {
 test("traverseDepthFirst: Sync", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "library.a"
+		rootProjectName: "library.a",
 	});
 	graph.addProject(await createProject("library.a"));
 	graph.addProject(await createProject("library.b"));
@@ -984,7 +984,7 @@ test("traverseDepthFirst: Sync", async (t) => {
 test("traverseDepthFirst: No project visited twice", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "library.a"
+		rootProjectName: "library.a",
 	});
 	graph.addProject(await createProject("library.a"));
 	graph.addProject(await createProject("library.b"));
@@ -997,14 +997,14 @@ test("traverseDepthFirst: No project visited twice", async (t) => {
 	await traverseDepthFirst(t, graph, [
 		"library.c",
 		"library.b",
-		"library.a"
+		"library.a",
 	]);
 });
 
 test("traverseDepthFirst: Detect cycle", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "library.a"
+		rootProjectName: "library.a",
 	});
 	graph.addProject(await createProject("library.a"));
 	graph.addProject(await createProject("library.b"));
@@ -1021,7 +1021,7 @@ test("traverseDepthFirst: Detect cycle", async (t) => {
 test("traverseDepthFirst: Cycle which does not occur in BFS", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "library.a"
+		rootProjectName: "library.a",
 	});
 	graph.addProject(await createProject("library.a"));
 	graph.addProject(await createProject("library.b"));
@@ -1041,7 +1041,7 @@ test("traverseDepthFirst: Cycle which does not occur in BFS", async (t) => {
 test("traverseDepthFirst: Can't find start node", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "library.a"
+		rootProjectName: "library.a",
 	});
 
 	const error = await t.throwsAsync(graph.traverseDepthFirst(() => {}));
@@ -1053,7 +1053,7 @@ test("traverseDepthFirst: Can't find start node", async (t) => {
 test("traverseDepthFirst: Custom start node", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "library.a"
+		rootProjectName: "library.a",
 	});
 	graph.addProject(await createProject("library.a"));
 	graph.addProject(await createProject("library.b"));
@@ -1071,14 +1071,14 @@ test("traverseDepthFirst: Custom start node", async (t) => {
 
 	t.deepEqual(callbackCalls, [
 		"library.c",
-		"library.b"
+		"library.b",
 	], "Traversed graph in correct order, starting with library.b");
 });
 
 test("traverseDepthFirst: dependencies parameter", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "library.a"
+		rootProjectName: "library.a",
 	});
 	graph.addProject(await createProject("library.a"));
 	graph.addProject(await createProject("library.b"));
@@ -1114,7 +1114,7 @@ test("traverseDepthFirst: dependencies parameter", async (t) => {
 test("traverseDepthFirst: Dependency declaration order is followed", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph1 = new ProjectGraph({
-		rootProjectName: "library.a"
+		rootProjectName: "library.a",
 	});
 	graph1.addProject(await createProject("library.a"));
 	graph1.addProject(await createProject("library.b"));
@@ -1133,7 +1133,7 @@ test("traverseDepthFirst: Dependency declaration order is followed", async (t) =
 	]);
 
 	const graph2 = new ProjectGraph({
-		rootProjectName: "library.a"
+		rootProjectName: "library.a",
 	});
 	graph2.addProject(await createProject("library.a"));
 	graph2.addProject(await createProject("library.b"));
@@ -1155,10 +1155,10 @@ test("traverseDepthFirst: Dependency declaration order is followed", async (t) =
 test("join", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph1 = new ProjectGraph({
-		rootProjectName: "library.a"
+		rootProjectName: "library.a",
 	});
 	const graph2 = new ProjectGraph({
-		rootProjectName: "theme.a"
+		rootProjectName: "theme.a",
 	});
 	graph1.addProject(await createProject("library.a"));
 	graph1.addProject(await createProject("library.b"));
@@ -1220,10 +1220,10 @@ test("join", async (t) => {
 test("join: Preserves hasUnresolvedOptionalDependencies flag", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph1 = new ProjectGraph({
-		rootProjectName: "library.a"
+		rootProjectName: "library.a",
 	});
 	const graph2 = new ProjectGraph({
-		rootProjectName: "theme.a"
+		rootProjectName: "theme.a",
 	});
 	graph1.addProject(await createProject("library.a"));
 	graph1.addProject(await createProject("library.b"));
@@ -1240,12 +1240,11 @@ test("join: Preserves hasUnresolvedOptionalDependencies flag", async (t) => {
 test("join: Seals incoming graph", (t) => {
 	const {ProjectGraph} = t.context;
 	const graph1 = new ProjectGraph({
-		rootProjectName: "library.a"
+		rootProjectName: "library.a",
 	});
 	const graph2 = new ProjectGraph({
-		rootProjectName: "theme.a"
+		rootProjectName: "theme.a",
 	});
-
 
 	const sealSpy = t.context.sinon.spy(graph2, "seal");
 	graph1.join(graph2);
@@ -1256,10 +1255,10 @@ test("join: Seals incoming graph", (t) => {
 test("join: Incoming graph already sealed", (t) => {
 	const {ProjectGraph} = t.context;
 	const graph1 = new ProjectGraph({
-		rootProjectName: "library.a"
+		rootProjectName: "library.a",
 	});
 	const graph2 = new ProjectGraph({
-		rootProjectName: "theme.a"
+		rootProjectName: "theme.a",
 	});
 
 	graph2.seal();
@@ -1272,14 +1271,13 @@ test("join: Incoming graph already sealed", (t) => {
 test("join: Unexpected project intersection", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph1 = new ProjectGraph({
-		rootProjectName: "😹"
+		rootProjectName: "😹",
 	});
 	const graph2 = new ProjectGraph({
-		rootProjectName: "😼"
+		rootProjectName: "😼",
 	});
 	graph1.addProject(await createProject("library.a"));
 	graph2.addProject(await createProject("library.a"));
-
 
 	const error = t.throws(() => {
 		graph1.join(graph2);
@@ -1293,14 +1291,13 @@ test("join: Unexpected project intersection", async (t) => {
 test("join: Unexpected extension intersection", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph1 = new ProjectGraph({
-		rootProjectName: "😹"
+		rootProjectName: "😹",
 	});
 	const graph2 = new ProjectGraph({
-		rootProjectName: "😼"
+		rootProjectName: "😼",
 	});
 	graph1.addExtension(await createExtension("extension.a"));
 	graph2.addExtension(await createExtension("extension.a"));
-
 
 	const error = t.throws(() => {
 		graph1.join(graph2);
@@ -1311,11 +1308,10 @@ test("join: Unexpected extension intersection", async (t) => {
 		"Should throw with expected error message");
 });
 
-
 test("Seal/isSealed", async (t) => {
 	const {ProjectGraph} = t.context;
 	const graph = new ProjectGraph({
-		rootProjectName: "library.a"
+		rootProjectName: "library.a",
 	});
 	graph.addProject(await createProject("library.a"));
 	graph.addProject(await createProject("library.b"));
@@ -1339,43 +1335,42 @@ test("Seal/isSealed", async (t) => {
 	t.throws(() => {
 		graph.addProject(libX);
 	}, {
-		message: expectedSealMsg
+		message: expectedSealMsg,
 	});
 	t.throws(() => {
 		graph.declareDependency("library.c", "library.b");
 	}, {
-		message: expectedSealMsg
+		message: expectedSealMsg,
 	});
 	t.throws(() => {
 		graph.declareOptionalDependency("library.b", "library.a");
 	}, {
-		message: expectedSealMsg
+		message: expectedSealMsg,
 	});
 	const extB = await createExtension("extension.b");
 	t.throws(() => {
 		graph.addExtension(extB);
 	}, {
-		message: expectedSealMsg
+		message: expectedSealMsg,
 	});
 	await t.throwsAsync(graph.resolveOptionalDependencies(), {
-		message: expectedSealMsg
+		message: expectedSealMsg,
 	});
 
-
 	const graph2 = new ProjectGraph({
-		rootProjectName: "library.x"
+		rootProjectName: "library.x",
 	});
 	t.throws(() => {
 		graph.join(graph2);
 	}, {
 		message:
 			`Failed to join project graph with root project library.x into project graph ` +
-			`with root project library.a: ${expectedSealMsg}`
+			`with root project library.a: ${expectedSealMsg}`,
 	});
 	await traverseBreadthFirst(t, graph, [
 		"library.a",
 		"library.b",
-		"library.c"
+		"library.c",
 	]);
 
 	await traverseDepthFirst(t, graph, [

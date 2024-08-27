@@ -10,7 +10,7 @@ test.afterEach.always((t) => {
 test.serial("ValidationError constructor", (t) => {
 	const errors = [
 		{dataPath: "", keyword: "", message: "error1", params: {}},
-		{dataPath: "", keyword: "", message: "error2", params: {}}
+		{dataPath: "", keyword: "", message: "error2", params: {}},
 	];
 	const project = {id: "id"};
 	const schema = {schema: "schema"};
@@ -49,37 +49,37 @@ test.serial("ValidationError constructor", (t) => {
 test.serial("ValidationError.filterErrors", (t) => {
 	const allErrors = [
 		{
-			keyword: "if"
+			keyword: "if",
 		},
 		{
 			dataPath: "dataPath1",
-			keyword: "keyword1"
+			keyword: "keyword1",
 		},
 		{
 			dataPath: "dataPath1",
-			keyword: "keyword2"
+			keyword: "keyword2",
 		},
 		{
 			dataPath: "dataPath3",
-			keyword: "keyword2"
+			keyword: "keyword2",
 		},
 		{
 			dataPath: "dataPath1",
-			keyword: "keyword1"
+			keyword: "keyword1",
 		},
 		{
 			dataPath: "dataPath1",
 			keyword: "keyword1",
 			params: {
-				type: "foo"
-			}
+				type: "foo",
+			},
 		},
 		{
 			dataPath: "dataPath4",
 			keyword: "keyword5",
 			params: {
-				type: "foo"
-			}
+				type: "foo",
+			},
 		},
 		{
 			dataPath: "dataPath6",
@@ -87,13 +87,13 @@ test.serial("ValidationError.filterErrors", (t) => {
 			params: {
 				errors: [
 					{
-						"type": "foo"
+						type: "foo",
 					},
 					{
-						"type": "bar"
-					}
-				]
-			}
+						type: "bar",
+					},
+				],
+			},
 		},
 		{
 			dataPath: "dataPath6",
@@ -101,13 +101,13 @@ test.serial("ValidationError.filterErrors", (t) => {
 			params: {
 				errors: [
 					{
-						"type": "foo"
+						type: "foo",
 					},
 					{
-						"type": "bar"
-					}
-				]
-			}
+						type: "bar",
+					},
+				],
+			},
 		},
 		{
 			dataPath: "dataPath6",
@@ -115,42 +115,42 @@ test.serial("ValidationError.filterErrors", (t) => {
 			params: {
 				errors: [
 					{
-						"type": "foo"
+						type: "foo",
 					},
 					{
-						"type": "foo"
-					}
-				]
-			}
-		}
+						type: "foo",
+					},
+				],
+			},
+		},
 	];
 
 	const expectedErrors = [
 		{
 			dataPath: "dataPath1",
-			keyword: "keyword1"
+			keyword: "keyword1",
 		},
 		{
 			dataPath: "dataPath1",
-			keyword: "keyword2"
+			keyword: "keyword2",
 		},
 		{
 			dataPath: "dataPath3",
-			keyword: "keyword2"
+			keyword: "keyword2",
 		},
 		{
 			dataPath: "dataPath1",
 			keyword: "keyword1",
 			params: {
-				type: "foo"
-			}
+				type: "foo",
+			},
 		},
 		{
 			dataPath: "dataPath4",
 			keyword: "keyword5",
 			params: {
-				type: "foo"
-			}
+				type: "foo",
+			},
 		},
 		{
 			dataPath: "dataPath6",
@@ -158,13 +158,13 @@ test.serial("ValidationError.filterErrors", (t) => {
 			params: {
 				errors: [
 					{
-						"type": "foo"
+						type: "foo",
 					},
 					{
-						"type": "bar"
-					}
-				]
-			}
+						type: "bar",
+					},
+				],
+			},
 		},
 		{
 			dataPath: "dataPath6",
@@ -172,14 +172,14 @@ test.serial("ValidationError.filterErrors", (t) => {
 			params: {
 				errors: [
 					{
-						"type": "foo"
+						type: "foo",
 					},
 					{
-						"type": "foo"
-					}
-				]
-			}
-		}
+						type: "foo",
+					},
+				],
+			},
+		},
 	];
 
 	const filteredErrors = ValidationError.filterErrors(allErrors);
@@ -190,7 +190,7 @@ test.serial("ValidationError.filterErrors", (t) => {
 test.serial("ValidationError.formatErrors", (t) => {
 	const fakeValidationErrorInstance = {
 		errors: [{}, {}],
-		project: {id: "my-project"}
+		project: {id: "my-project"},
 	};
 
 	const formatErrorStub = sinon.stub();
@@ -213,10 +213,10 @@ Error message 2`;
 
 	t.is(formatErrorStub.callCount, 2, "formatErrorStub should be called twice");
 	t.deepEqual(formatErrorStub.getCall(0).args, [
-		fakeValidationErrorInstance.errors[0]
+		fakeValidationErrorInstance.errors[0],
 	], "formatErrorStub should be called with first error");
 	t.deepEqual(formatErrorStub.getCall(1).args, [
-		fakeValidationErrorInstance.errors[1]
+		fakeValidationErrorInstance.errors[1],
 	], "formatErrorStub should be called with second error");
 });
 
@@ -224,10 +224,10 @@ test.serial("ValidationError.formatError (with yaml)", (t) => {
 	const fakeValidationErrorInstance = {
 		yaml: {
 			path: "/path",
-			source: "source"
-		}
+			source: "source",
+		},
 	};
-	const error = {"error": true};
+	const error = {error: true};
 
 	const formatMessageStub = sinon.stub(ValidationError, "formatMessage");
 	formatMessageStub.returns("First line\nSecond line\nThird line");
@@ -266,7 +266,7 @@ property3: value3
 property4: value4
 property5: value5
 `,
-		documentIndex: 0
+		documentIndex: 0,
 	};
 
 	const analyzeYamlErrorStub = sinon.stub(ValidationError, "analyzeYamlError");
@@ -331,7 +331,7 @@ property3: value3
 property4: value4
 property5: value5
 `,
-		documentIndex: 0
+		documentIndex: 0,
 	};
 
 	const info = ValidationError.analyzeYamlError({error, yaml});
@@ -350,7 +350,7 @@ property2:
   property3: value3
 property3: value3
 `,
-		documentIndex: 0
+		documentIndex: 0,
 	};
 
 	const info = ValidationError.analyzeYamlError({error, yaml});
@@ -370,7 +370,7 @@ test.serial("ValidationError.analyzeYamlError: Array", (t) => {
     - name: other - name- with- hyphens
     - name: name3
 `,
-		documentIndex: 0
+		documentIndex: 0,
 	};
 
 	const info = ValidationError.analyzeYamlError({error, yaml});
@@ -395,7 +395,7 @@ test.serial("ValidationError.analyzeYamlError: Nested array", (t) => {
       - foo
       - bar
 `,
-		documentIndex: 0
+		documentIndex: 0,
 	};
 
 	const info = ValidationError.analyzeYamlError({error, yaml});
@@ -419,7 +419,7 @@ test.serial("ValidationError.analyzeYamlError: Nested array (Windows Line-Ending
 "  - subItems:\r\n" +
 "      - foo\r\n" +
 "      - bar\r\n",
-		documentIndex: 0
+		documentIndex: 0,
 	};
 
 	const info = ValidationError.analyzeYamlError({error, yaml});
@@ -435,7 +435,7 @@ test.serial("ValidationError.analyzeYamlError: Array with square brackets (not s
 		source:
 `items: [1, 2, 3]
 `,
-		documentIndex: 0
+		documentIndex: 0,
 	};
 
 	const info = ValidationError.analyzeYamlError({error, yaml});
@@ -455,7 +455,7 @@ test.serial("ValidationError.analyzeYamlError: Multiline array with square brack
   3
 ]
 `,
-		documentIndex: 0
+		documentIndex: 0,
 	};
 
 	const info = ValidationError.analyzeYamlError({error, yaml});
@@ -475,7 +475,7 @@ test.serial("ValidationError.analyzeYamlError: Nested property with comments", (
       # property4: value4444
       property4: value4
 `,
-		documentIndex: 0
+		documentIndex: 0,
 	};
 
 	const info = ValidationError.analyzeYamlError({error, yaml});
@@ -495,7 +495,7 @@ test.serial("ValidationError.analyzeYamlError: Nested properties with same name"
       # property: foo
       property: bar
 `,
-		documentIndex: 0
+		documentIndex: 0,
 	};
 
 	const info = ValidationError.analyzeYamlError({error, yaml});
@@ -509,7 +509,7 @@ test.serial("ValidationError.analyzeYamlError: Error keyword=required, no dataPa
 	const yaml = {
 		path: "/my-project/ui5.yaml",
 		source: ``,
-		documentIndex: 0
+		documentIndex: 0,
 	};
 
 	const info = ValidationError.analyzeYamlError({error, yaml});
@@ -527,7 +527,7 @@ test.serial("ValidationError.analyzeYamlError: Error keyword=required", (t) => {
 property2:
   property3: true
 `,
-		documentIndex: 0
+		documentIndex: 0,
 	};
 
 	const info = ValidationError.analyzeYamlError({error, yaml});
@@ -541,8 +541,8 @@ test.serial("ValidationError.analyzeYamlError: Error keyword=additionalPropertie
 		dataPath: "/property2",
 		keyword: "additionalProperties",
 		params: {
-			additionalProperty: "property3"
-		}
+			additionalProperty: "property3",
+		},
 	};
 	const yaml = {
 		path: "/my-project/ui5.yaml",
@@ -551,7 +551,7 @@ test.serial("ValidationError.analyzeYamlError: Error keyword=additionalPropertie
 property2:
   property3: true
 `,
-		documentIndex: 0
+		documentIndex: 0,
 	};
 
 	const info = ValidationError.analyzeYamlError({error, yaml});
@@ -576,7 +576,7 @@ property2: value2document2
 property3: value3document2
 property4: value4document2
 property5: value5document2`,
-		documentIndex: 0
+		documentIndex: 0,
 	};
 
 	const info = ValidationError.analyzeYamlError({error, yaml});
@@ -602,7 +602,7 @@ property2: value2document2
 property3: value3document2
 property4: value4document2
 property5: value5document2`,
-		documentIndex: 0
+		documentIndex: 0,
 	};
 
 	const info = ValidationError.analyzeYamlError({error, yaml});
@@ -632,7 +632,7 @@ property2: value2document2
 property3: value3document2
 property4: value4document2
 property5: value5document2`,
-		documentIndex: 0
+		documentIndex: 0,
 	};
 
 	const info = ValidationError.analyzeYamlError({error, yaml});
@@ -664,7 +664,7 @@ property3: value3document3
 property4: value4document3
 property5: value5document3
 `,
-		documentIndex: 2
+		documentIndex: 2,
 	};
 
 	const info = ValidationError.analyzeYamlError({error, yaml});
@@ -697,7 +697,7 @@ property3: value3document3
 property4: value4document3
 property5: value5document3
 `,
-		documentIndex: 2
+		documentIndex: 2,
 	};
 
 	const info = ValidationError.analyzeYamlError({error, yaml});
@@ -735,7 +735,7 @@ property3: value3document3
 property4: value4document3
 property5: value5document3
 `,
-		documentIndex: 2
+		documentIndex: 2,
 	};
 
 	const info = ValidationError.analyzeYamlError({error, yaml});
@@ -756,7 +756,7 @@ property3: value3document1
 property4: value4document1
 property5: value5document1
 `,
-		documentIndex: 1
+		documentIndex: 1,
 	};
 
 	const info = ValidationError.analyzeYamlError({error, yaml});
@@ -776,7 +776,7 @@ property3: value3document1
 property4: value4document1
 property5: value5document1
 `,
-		documentIndex: 1
+		documentIndex: 1,
 	};
 
 	const info = ValidationError.analyzeYamlError({error, yaml});
@@ -842,7 +842,7 @@ test.serial("ValidationError.formatMessage: keyword=required", (t) => {
 		dataPath: "/metadata",
 		schemaPath: "#/definitions/metadata/required",
 		params: {missingProperty: "name"},
-		message: "should have required property 'name'"
+		message: "should have required property 'name'",
 	};
 
 	const expectedErrorMessage =
@@ -898,7 +898,7 @@ test.serial("ValidationError.formatMessage: keyword=additionalProperties", (t) =
 		dataPath: "/resources/configuration",
 		schemaPath: "#/properties/configuration/additionalProperties",
 		params: {additionalProperty: "propertiesFileEncoding"},
-		message: "should NOT have additional properties"
+		message: "should NOT have additional properties",
 	};
 
 	const expectedErrorMessage =
@@ -915,9 +915,9 @@ test.serial("ValidationError.formatMessage: keyword=enum", (t) => {
 		dataPath: "/type",
 		schemaPath: "#/properties/type/enum",
 		params: {
-			allowedValues: ["application", "library", "theme-library", "module"]
+			allowedValues: ["application", "library", "theme-library", "module"],
 		},
-		message: "should be equal to one of the allowed values"
+		message: "should be equal to one of the allowed values",
 	};
 
 	const expectedErrorMessage =

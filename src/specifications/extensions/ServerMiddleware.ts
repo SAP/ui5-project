@@ -5,10 +5,7 @@ import {pathToFileURL} from "node:url";
 /**
  * ServerMiddleware
  *
- * @public
- * @class
  * @alias @ui5/project/specifications/extensions/ServerMiddleware
- * @extends @ui5/project/specifications/Extension
  * @hideconstructor
  */
 class ServerMiddleware extends Extension {
@@ -21,6 +18,7 @@ class ServerMiddleware extends Extension {
 		const {default: middleware} = await import(pathToFileURL(middlewarePath));
 		return middleware;
 	}
+
 	private async _validateConfig() {
 		// TODO: Move to validator
 		if (/--\d+$/.test(this.getName())) {

@@ -15,12 +15,12 @@ const STANDARD_TAGS = Object.freeze({
 	IsDebugVariant: "ui5:IsDebugVariant",
 	HasDebugVariant: "ui5:HasDebugVariant",
 	OmitFromBuildResult: "ui5:OmitFromBuildResult",
-	IsBundle: "ui5:IsBundle"
+	IsBundle: "ui5:IsBundle",
 });
 
 test("Instantiation", (t) => {
 	const taskUtil = new TaskUtil({
-		projectBuildContext: {}
+		projectBuildContext: {},
 	});
 
 	t.deepEqual(taskUtil.STANDARD_TAGS, STANDARD_TAGS, "Correct standard tags exposed");
@@ -32,10 +32,10 @@ test("setTag", (t) => {
 		projectBuildContext: {
 			getResourceTagCollection: () => {
 				return {
-					setTag: setTagStub
+					setTag: setTagStub,
 				};
-			}
-		}
+			},
+		},
 	});
 
 	const dummyResource = {};
@@ -53,10 +53,10 @@ test("getTag", (t) => {
 		projectBuildContext: {
 			getResourceTagCollection: () => {
 				return {
-					getTag: getTagStub
+					getTag: getTagStub,
 				};
-			}
-		}
+			},
+		},
 	});
 
 	const dummyResource = {};
@@ -74,10 +74,10 @@ test("clearTag", (t) => {
 		projectBuildContext: {
 			getResourceTagCollection: () => {
 				return {
-					clearTag: clearTagStub
+					clearTag: clearTagStub,
 				};
-			}
-		}
+			},
+		},
 	});
 
 	const dummyResource = {};
@@ -90,7 +90,7 @@ test("clearTag", (t) => {
 
 test("setTag with resource path is not supported anymore", (t) => {
 	const taskUtil = new TaskUtil({
-		projectBuildContext: {}
+		projectBuildContext: {},
 	});
 
 	const err = t.throws(() => {
@@ -104,7 +104,7 @@ test("setTag with resource path is not supported anymore", (t) => {
 
 test("getTag with resource path is not supported anymore", (t) => {
 	const taskUtil = new TaskUtil({
-		projectBuildContext: {}
+		projectBuildContext: {},
 	});
 
 	const err = t.throws(() => {
@@ -118,7 +118,7 @@ test("getTag with resource path is not supported anymore", (t) => {
 
 test("clearTag with resource path is not supported anymore", (t) => {
 	const taskUtil = new TaskUtil({
-		projectBuildContext: {}
+		projectBuildContext: {},
 	});
 
 	const err = t.throws(() => {
@@ -134,8 +134,8 @@ test("isRootProject", (t) => {
 	const isRootProjectStub = sinon.stub().returns(true);
 	const taskUtil = new TaskUtil({
 		projectBuildContext: {
-			isRootProject: isRootProjectStub
-		}
+			isRootProject: isRootProjectStub,
+		},
 	});
 
 	const res = taskUtil.isRootProject();
@@ -148,8 +148,8 @@ test("getBuildOption", (t) => {
 	const getOptionStub = sinon.stub().returns("Pony");
 	const taskUtil = new TaskUtil({
 		projectBuildContext: {
-			getOption: getOptionStub
-		}
+			getOption: getOptionStub,
+		},
 	});
 
 	const res = taskUtil.getBuildOption("friend");
@@ -162,8 +162,8 @@ test("getProject", (t) => {
 	const getProjectStub = sinon.stub().returns("Pony farm!");
 	const taskUtil = new TaskUtil({
 		projectBuildContext: {
-			getProject: getProjectStub
-		}
+			getProject: getProjectStub,
+		},
 	});
 
 	const res = taskUtil.getProject("pony farm");
@@ -178,8 +178,8 @@ test("getProject: Default name", (t) => {
 	const getProjectStub = sinon.stub().returns("Pony farm!");
 	const taskUtil = new TaskUtil({
 		projectBuildContext: {
-			getProject: getProjectStub
-		}
+			getProject: getProjectStub,
+		},
 	});
 
 	const res = taskUtil.getProject();
@@ -194,12 +194,12 @@ test("getProject: Resource", (t) => {
 	const getProjectStub = sinon.stub();
 	const taskUtil = new TaskUtil({
 		projectBuildContext: {
-			getProject: getProjectStub
-		}
+			getProject: getProjectStub,
+		},
 	});
 
 	const mockResource = {
-		getProject: sinon.stub().returns("Pig farm!")
+		getProject: sinon.stub().returns("Pig farm!"),
 	};
 	const res = taskUtil.getProject(mockResource);
 
@@ -212,8 +212,8 @@ test("getDependencies", (t) => {
 	const getDependenciesStub = sinon.stub().returns("Pony farm!");
 	const taskUtil = new TaskUtil({
 		projectBuildContext: {
-			getDependencies: getDependenciesStub
-		}
+			getDependencies: getDependenciesStub,
+		},
 	});
 
 	const res = taskUtil.getDependencies("pony farm");
@@ -228,8 +228,8 @@ test("getDependencies: Default name", (t) => {
 	const getDependenciesStub = sinon.stub().returns("Pony farm!");
 	const taskUtil = new TaskUtil({
 		projectBuildContext: {
-			getDependencies: getDependenciesStub
-		}
+			getDependencies: getDependenciesStub,
+		},
 	});
 
 	const res = taskUtil.getDependencies();
@@ -242,7 +242,7 @@ test("getDependencies: Default name", (t) => {
 
 test("resourceFactory", (t) => {
 	const {resourceFactory} = new TaskUtil({
-		projectBuildContext: {}
+		projectBuildContext: {},
 	});
 	t.is(typeof resourceFactory.createResource, "function",
 		"resourceFactory function createResource is available");
@@ -262,8 +262,8 @@ test("registerCleanupTask", (t) => {
 	const registerCleanupTaskStub = sinon.stub();
 	const taskUtil = new TaskUtil({
 		projectBuildContext: {
-			registerCleanupTask: registerCleanupTaskStub
-		}
+			registerCleanupTask: registerCleanupTaskStub,
+		},
 	});
 
 	taskUtil.registerCleanupTask("my callback");
@@ -274,7 +274,7 @@ test("registerCleanupTask", (t) => {
 
 test("getInterface: specVersion 1.0", (t) => {
 	const taskUtil = new TaskUtil({
-		projectBuildContext: {}
+		projectBuildContext: {},
 	});
 
 	const interfacedTaskUtil = taskUtil.getInterface(getSpecificationVersion("1.0"));
@@ -284,7 +284,7 @@ test("getInterface: specVersion 1.0", (t) => {
 
 test("getInterface: specVersion 2.2", (t) => {
 	const taskUtil = new TaskUtil({
-		projectBuildContext: {}
+		projectBuildContext: {},
 	});
 
 	const interfacedTaskUtil = taskUtil.getInterface(getSpecificationVersion("2.2"));
@@ -295,7 +295,7 @@ test("getInterface: specVersion 2.2", (t) => {
 		"clearTag",
 		"getTag",
 		"isRootProject",
-		"registerCleanupTask"
+		"registerCleanupTask",
 	], "Correct methods are provided");
 
 	t.deepEqual(interfacedTaskUtil.STANDARD_TAGS, STANDARD_TAGS, "attribute STANDARD_TAGS is provided");
@@ -308,7 +308,7 @@ test("getInterface: specVersion 2.2", (t) => {
 
 test("getInterface: specVersion 2.3", (t) => {
 	const taskUtil = new TaskUtil({
-		projectBuildContext: {}
+		projectBuildContext: {},
 	});
 
 	const interfacedTaskUtil = taskUtil.getInterface(getSpecificationVersion("2.3"));
@@ -319,7 +319,7 @@ test("getInterface: specVersion 2.3", (t) => {
 		"clearTag",
 		"getTag",
 		"isRootProject",
-		"registerCleanupTask"
+		"registerCleanupTask",
 	], "Correct methods are provided");
 
 	t.deepEqual(interfacedTaskUtil.STANDARD_TAGS, STANDARD_TAGS, "attribute STANDARD_TAGS is provided");
@@ -332,7 +332,7 @@ test("getInterface: specVersion 2.3", (t) => {
 
 test("getInterface: specVersion 2.4", (t) => {
 	const taskUtil = new TaskUtil({
-		projectBuildContext: {}
+		projectBuildContext: {},
 	});
 
 	const interfacedTaskUtil = taskUtil.getInterface(getSpecificationVersion("2.4"));
@@ -343,7 +343,7 @@ test("getInterface: specVersion 2.4", (t) => {
 		"clearTag",
 		"getTag",
 		"isRootProject",
-		"registerCleanupTask"
+		"registerCleanupTask",
 	], "Correct methods are provided");
 
 	t.deepEqual(interfacedTaskUtil.STANDARD_TAGS, STANDARD_TAGS, "attribute STANDARD_TAGS is provided");
@@ -356,7 +356,7 @@ test("getInterface: specVersion 2.4", (t) => {
 
 test("getInterface: specVersion 2.5", (t) => {
 	const taskUtil = new TaskUtil({
-		projectBuildContext: {}
+		projectBuildContext: {},
 	});
 
 	const interfacedTaskUtil = taskUtil.getInterface(getSpecificationVersion("2.5"));
@@ -367,7 +367,7 @@ test("getInterface: specVersion 2.5", (t) => {
 		"clearTag",
 		"getTag",
 		"isRootProject",
-		"registerCleanupTask"
+		"registerCleanupTask",
 	], "Correct methods are provided");
 
 	t.deepEqual(interfacedTaskUtil.STANDARD_TAGS, STANDARD_TAGS, "attribute STANDARD_TAGS is provided");
@@ -380,7 +380,7 @@ test("getInterface: specVersion 2.5", (t) => {
 
 test("getInterface: specVersion 2.6", (t) => {
 	const taskUtil = new TaskUtil({
-		projectBuildContext: {}
+		projectBuildContext: {},
 	});
 
 	const interfacedTaskUtil = taskUtil.getInterface(getSpecificationVersion("2.6"));
@@ -391,7 +391,7 @@ test("getInterface: specVersion 2.6", (t) => {
 		"clearTag",
 		"getTag",
 		"isRootProject",
-		"registerCleanupTask"
+		"registerCleanupTask",
 	], "Correct methods are provided");
 
 	t.deepEqual(interfacedTaskUtil.STANDARD_TAGS, STANDARD_TAGS, "attribute STANDARD_TAGS is provided");
@@ -425,8 +425,8 @@ test("getInterface: specVersion 3.0", (t) => {
 	const taskUtil = new TaskUtil({
 		projectBuildContext: {
 			getProject: getProjectStub,
-			getDependencies: getDependenciesStub
-		}
+			getDependencies: getDependenciesStub,
+		},
 	});
 
 	const interfacedTaskUtil = taskUtil.getInterface(getSpecificationVersion("3.0"));

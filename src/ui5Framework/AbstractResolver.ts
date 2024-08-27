@@ -11,9 +11,6 @@ const VERSION_RANGE_REGEXP = /^(0|[1-9]\d*)(?:\.(0|[1-9]\d*))?(?:-SNAPSHOT)?$/;
 /**
  * Abstract Resolver
  *
- * @abstract
- * @public
- * @class
  * @alias @ui5/project/ui5Framework/AbstractResolver
  * @hideconstructor
  */
@@ -34,7 +31,7 @@ class AbstractResolver {
 	 * Otherwise an error is thrown.
 	 */
 	/* eslint-enable max-len */
-	constructor({ cwd, version, sources, ui5DataDir, providedLibraryMetadata }: any) {
+	constructor({cwd, version, sources, ui5DataDir, providedLibraryMetadata}: any) {
 		if (new.target === AbstractResolver) {
 			throw new TypeError("Class 'AbstractResolver' is abstract");
 		}
@@ -75,8 +72,8 @@ class AbstractResolver {
 				metadata: Promise.resolve(providedLibraryMetadata),
 				// Provided libraries are already "installed"
 				install: Promise.resolve({
-					pkgPath: providedLibraryMetadata.path
-				})
+					pkgPath: providedLibraryMetadata.path,
+				}),
 			};
 		} else if (!this._version) {
 			throw new Error(`Unable to install library ${libraryName}. No framework version provided.`);
@@ -87,7 +84,7 @@ class AbstractResolver {
 		const [metadata, {pkgPath}] = await Promise.all([
 			promises.metadata.then((metadata) =>
 				this._processDependencies(libraryName, metadata, libraryMetadata, errors)),
-			promises.install
+			promises.install,
 		]);
 
 		// Add path to installed package to metadata
@@ -140,7 +137,7 @@ class AbstractResolver {
 		}
 
 		return {
-			libraryMetadata
+			libraryMetadata,
 		};
 	}
 
@@ -162,7 +159,7 @@ class AbstractResolver {
 		const resolvedVersion = semver.maxSatisfying(versions, spec, {
 			// Allow ranges that end with -SNAPSHOT to match any -SNAPSHOT version
 			// like a normal version in order to support ranges like 1.x.x-SNAPSHOT.
-			includePrerelease: this._isSnapshotVersionOrRange(version)
+			includePrerelease: this._isSnapshotVersionOrRange(version),
 		});
 
 		if (!resolvedVersion) {
@@ -240,12 +237,15 @@ class AbstractResolver {
 	async getLibraryMetadata(libraryName) {
 		throw new Error("AbstractResolver: getLibraryMetadata must be implemented!");
 	}
+
 	async handleLibrary(libraryName) {
 		throw new Error("AbstractResolver: handleLibrary must be implemented!");
 	}
+
 	static fetchAllVersions(options) {
 		throw new Error("AbstractResolver: static fetchAllVersions must be implemented!");
 	}
+
 	static fetchAllTags(options) {
 		return null;
 	}

@@ -8,19 +8,19 @@ test("Add shims", (t) => {
 		getConfigurationShims: () => {
 			return {
 				"module-1": "configuration shim 1-1",
-				"module-2": "configuration shim 2-1"
+				"module-2": "configuration shim 2-1",
 			};
 		},
 		getDependencyShims: () => {
 			return {
 				"module-1": ["dependency shim 1-1"],
-				"module-2": ["dependency shim 2-1"]
+				"module-2": ["dependency shim 2-1"],
 			};
 		},
 		getCollectionShims: () => {
 			return {
 				"module-1": "collection shim 1-1",
-				"module-2": "collection shim 2-1"
+				"module-2": "collection shim 2-1",
 			};
 		},
 	});
@@ -29,19 +29,19 @@ test("Add shims", (t) => {
 		getConfigurationShims: () => {
 			return {
 				"module-1": "configuration shim 1-2",
-				"module-2": "configuration shim 2-2"
+				"module-2": "configuration shim 2-2",
 			};
 		},
 		getDependencyShims: () => {
 			return {
 				"module-1": ["dependency shim 1-2"],
-				"module-2": ["dependency shim 2-2"]
+				"module-2": ["dependency shim 2-2"],
 			};
 		},
 		getCollectionShims: () => {
 			return {
 				"module-1": "collection shim 1-2",
-				"module-2": "collection shim 2-2"
+				"module-2": "collection shim 2-2",
 			};
 		},
 	});
@@ -76,6 +76,6 @@ test("Add shims", (t) => {
 		}, {
 			name: "shim-2",
 			shim: ["dependency shim 2-2"],
-		}]
+		}],
 	}, "Returns correct dependency shims");
 });

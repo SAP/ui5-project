@@ -57,7 +57,7 @@ async function _testGraphCreation(bfs, t, npmProvider, expectedOrder, workspace)
 
 test("AppA: project with collection dependency", async (t) => {
 	const npmProvider = new NodePackageDependenciesProvider({
-		cwd: applicationAPath
+		cwd: applicationAPath,
 	});
 	await testGraphCreationDfs(t, npmProvider, [
 		"library.d",
@@ -74,10 +74,10 @@ test("AppA: project with an alias dependency", async (t) => {
 		getModuleByNodeId: t.context.sinon.stub().resolves(undefined).onFirstCall().resolves({
 			getPath: () => path.join(applicationAAliasesPath, "node_modules", "extension.a.esm.alias"),
 			getVersion: () => "1.0.0",
-		})
+		}),
 	};
 	const npmProvider = new NodePackageDependenciesProvider({
-		cwd: applicationAAliasesPath
+		cwd: applicationAAliasesPath,
 	});
 	await testGraphCreationDfs(t, npmProvider, [
 		"extension.a.esm.alias",
@@ -93,10 +93,10 @@ test("AppA: project with workspace overrides", async (t) => {
 			// which in turn has a dependency to library.g
 			getPath: () => libraryDOverridePath,
 			getVersion: () => "1.0.0",
-		})
+		}),
 	};
 	const npmProvider = new NodePackageDependenciesProvider({
-		cwd: applicationAPath
+		cwd: applicationAPath,
 	});
 	const graph = await testGraphCreationDfs(t, npmProvider, [
 		"library.g", // Added through workspace override of library.d
@@ -118,7 +118,7 @@ test("AppA: project with workspace overrides", async (t) => {
 
 test("AppC: project with dependency with optional dependency resolved through root project", async (t) => {
 	const npmProvider = new NodePackageDependenciesProvider({
-		cwd: applicationCPath
+		cwd: applicationCPath,
 	});
 	await testGraphCreationDfs(t, npmProvider, [
 		"library.d",
@@ -129,26 +129,26 @@ test("AppC: project with dependency with optional dependency resolved through ro
 
 test("AppC2: project with dependency with optional dependency resolved through other project", async (t) => {
 	const npmProvider = new NodePackageDependenciesProvider({
-		cwd: applicationC2Path
+		cwd: applicationC2Path,
 	});
 	await testGraphCreationDfs(t, npmProvider, [
 		"library.d",
 		"library.e",
 		"library.d-depender",
-		"application.c2"
+		"application.c2",
 	]);
 });
 
 test("AppC3: project with dependency with optional dependency resolved " +
-	"through other project (but got hoisted)", async (t) => {
+"through other project (but got hoisted)", async (t) => {
 	const npmProvider = new NodePackageDependenciesProvider({
-		cwd: applicationC3Path
+		cwd: applicationC3Path,
 	});
 	await testGraphCreationDfs(t, npmProvider, [
 		"library.d",
 		"library.e",
 		"library.d-depender",
-		"application.c3"
+		"application.c3",
 	]);
 });
 
@@ -156,33 +156,33 @@ test("AppD: project with dependency with unresolved optional dependency", async 
 	// application.d`s dependency "library.e" has an optional dependency to "library.d"
 	//	which is already present in the node_modules directory of library.e
 	const npmProvider = new NodePackageDependenciesProvider({
-		cwd: applicationDPath
+		cwd: applicationDPath,
 	});
 	await testGraphCreationDfs(t, npmProvider, [
 		"library.e",
-		"application.d"
+		"application.d",
 	]);
 });
 
 test("AppF: UI5-dependencies in package.json are ignored", async (t) => {
 	const npmProvider = new NodePackageDependenciesProvider({
-		cwd: applicationFPath
+		cwd: applicationFPath,
 	});
 	await testGraphCreationDfs(t, npmProvider, [
 		"library.d",
 		"library.e",
-		"application.f"
+		"application.f",
 	]);
 });
 
 test("AppG: project with npm 'optionalDependencies' should not fail if optional dependency cannot be resolved",
 	async (t) => {
 		const npmProvider = new NodePackageDependenciesProvider({
-			cwd: applicationGPath
+			cwd: applicationGPath,
 		});
 		await testGraphCreationDfs(t, npmProvider, [
 			"library.d",
-			"application.g"
+			"application.g",
 		]);
 	});
 
@@ -190,37 +190,37 @@ test("AppCycleA: cyclic dev deps", async (t) => {
 	const applicationCycleAPath = path.join(cycleDepsBasePath, "application.cycle.a");
 
 	const npmProvider = new NodePackageDependenciesProvider({
-		cwd: applicationCycleAPath
+		cwd: applicationCycleAPath,
 	});
 	await testGraphCreationDfs(t, npmProvider, [
 		"library.cycle.a",
 		"library.cycle.b",
 		"component.cycle.a",
-		"application.cycle.a"
+		"application.cycle.a",
 	]);
 });
 
 test("AppCycleB: cyclic npm deps - Cycle via devDependency on second level", async (t) => {
 	const applicationCycleBPath = path.join(cycleDepsBasePath, "application.cycle.b");
 	const npmProvider = new NodePackageDependenciesProvider({
-		cwd: applicationCycleBPath
+		cwd: applicationCycleBPath,
 	});
 	await testGraphCreationDfs(t, npmProvider, [
 		"module.e",
 		"module.d",
-		"application.cycle.b"
+		"application.cycle.b",
 	]);
 });
 
 test("AppCycleC: cyclic npm deps - Cycle on third level (one indirection)", async (t) => {
 	const applicationCycleCPath = path.join(cycleDepsBasePath, "application.cycle.c");
 	const npmProvider = new NodePackageDependenciesProvider({
-		cwd: applicationCycleCPath
+		cwd: applicationCycleCPath,
 	});
 	await testGraphCreationDfs(t, npmProvider, [
 		"module.f",
 		"module.g",
-		"application.cycle.c"
+		"application.cycle.c",
 	]);
 	await testGraphCreationBfs(t, npmProvider, [
 		"application.cycle.c",
@@ -232,7 +232,7 @@ test("AppCycleC: cyclic npm deps - Cycle on third level (one indirection)", asyn
 test("AppCycleD: cyclic npm deps - Cycles everywhere", async (t) => {
 	const applicationCycleDPath = path.join(cycleDepsBasePath, "application.cycle.d");
 	const npmProvider = new NodePackageDependenciesProvider({
-		cwd: applicationCycleDPath
+		cwd: applicationCycleDPath,
 	});
 
 	const error = await t.throwsAsync(testGraphCreationDfs(t, npmProvider, []));
@@ -243,19 +243,19 @@ test("AppCycleD: cyclic npm deps - Cycles everywhere", async (t) => {
 test("AppCycleE: cyclic npm deps - Cycle via devDependency", async (t) => {
 	const applicationCycleEPath = path.join(cycleDepsBasePath, "application.cycle.e");
 	const npmProvider = new NodePackageDependenciesProvider({
-		cwd: applicationCycleEPath
+		cwd: applicationCycleEPath,
 	});
 	await testGraphCreationDfs(t, npmProvider, [
 		"module.l",
 		"module.m",
-		"application.cycle.e"
+		"application.cycle.e",
 	]);
 });
 
 test("Error: missing package.json", async (t) => {
 	const dir = path.parse(__dirname).root;
 	const npmProvider = new NodePackageDependenciesProvider({
-		cwd: dir
+		cwd: dir,
 	});
 	const error = await t.throwsAsync(testGraphCreationDfs(t, npmProvider, []));
 	t.is(error.message, `Failed to locate package.json for directory ${dir}`);
@@ -263,7 +263,7 @@ test("Error: missing package.json", async (t) => {
 
 test("Error: missing dependency", async (t) => {
 	const npmProvider = new NodePackageDependenciesProvider({
-		cwd: errApplicationAPath
+		cwd: errApplicationAPath,
 	});
 	const error = await t.throwsAsync(testGraphCreationDfs(t, npmProvider, []));
 	t.is(error.message,

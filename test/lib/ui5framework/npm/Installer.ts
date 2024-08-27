@@ -16,28 +16,28 @@ test.beforeEach(async (t) => {
 
 	t.context.AbstractResolver = await esmock.p("../../../../lib/ui5Framework/AbstractInstaller.js", {
 		"../../../../lib/utils/fs.js": {
-			mkdirp: t.context.mkdirpStub
+			mkdirp: t.context.mkdirpStub,
 		},
 		"rimraf": {
-			rimraf: t.context.rimrafStub
+			rimraf: t.context.rimrafStub,
 		},
 		"lockfile": {
 			lock: t.context.lockStub,
-			unlock: t.context.unlockStub
-		}
+			unlock: t.context.unlockStub,
+		},
 	});
 	t.context.Installer = await esmock.p("../../../../lib/ui5Framework/npm/Installer.js", {
 		"../../../../lib/ui5Framework/AbstractInstaller.js": t.context.AbstractResolver,
 		"../../../../lib/utils/fs.js": {
-			mkdirp: t.context.mkdirpStub
+			mkdirp: t.context.mkdirpStub,
 		},
 		"rimraf": {
-			rimraf: t.context.rimrafStub
+			rimraf: t.context.rimrafStub,
 		},
 		"graceful-fs": {
 			rename: t.context.renameStub,
-			stat: t.context.statStub
-		}
+			stat: t.context.statStub,
+		},
 	});
 });
 
@@ -52,7 +52,7 @@ test.serial("Installer: constructor", (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5DataDir: "/ui5Data/"
+		ui5DataDir: "/ui5Data/",
 	});
 	t.true(installer instanceof Installer, "Constructor returns instance of class");
 	t.is(installer._packagesDir, path.join("/ui5Data/", "framework", "packages"));
@@ -65,7 +65,7 @@ test.serial("Installer: constructor requires 'cwd'", (t) => {
 
 	t.throws(() => {
 		new Installer({
-			ui5DataDir: "/ui5Data/"
+			ui5DataDir: "/ui5Data/",
 		});
 	}, {message: `Installer: Missing parameter "cwd"`});
 });
@@ -75,7 +75,7 @@ test.serial("Installer: constructor requires 'ui5DataDir'", (t) => {
 
 	t.throws(() => {
 		new Installer({
-			cwd: "/cwd/"
+			cwd: "/cwd/",
 		});
 	}, {message: `Installer: Missing parameter "ui5DataDir"`});
 });
@@ -85,7 +85,7 @@ test.serial("Installer: fetchPackageVersions", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5DataDir: "/ui5Data/"
+		ui5DataDir: "/ui5Data/",
 	});
 
 	const registry = installer.getRegistry();
@@ -100,7 +100,7 @@ test.serial("Installer: fetchPackageVersions", async (t) => {
 		.stub(registry, "_getPacote")
 		.resolves({
 			pacote: {
-				packument: requestPackagePackumentStub
+				packument: requestPackagePackumentStub,
 			},
 			pacoteOptions: {},
 		});
@@ -119,7 +119,7 @@ test.serial("Installer: _getLockPath", (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5DataDir: "/ui5Data/"
+		ui5DataDir: "/ui5Data/",
 	});
 
 	const lockPath = installer._getLockPath("lo/ck-n@me");
@@ -132,14 +132,14 @@ test.serial("Installer: _getLockPath with illegal characters", (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5DataDir: "/ui5Data/"
+		ui5DataDir: "/ui5Data/",
 	});
 
 	t.throws(() => installer._getLockPath("lock.näme"), {
-		message: "Illegal file name: lock.näme"
+		message: "Illegal file name: lock.näme",
 	});
 	t.throws(() => installer._getLockPath(".lock.name"), {
-		message: "Illegal file name: .lock.name"
+		message: "Illegal file name: .lock.name",
 	});
 });
 
@@ -148,28 +148,28 @@ test.serial("Installer: fetchPackageManifest (without existing package.json)", a
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5DataDir: "/ui5Data/"
+		ui5DataDir: "/ui5Data/",
 	});
 
 	const mockedManifest = {
 		name: "myPackage",
 		dependencies: {
-			"foo": "1.2.3"
+			foo: "1.2.3",
 		},
 		devDependencies: {
-			"bar": "4.5.6"
+			bar: "4.5.6",
 		},
-		foo: "bar"
+		foo: "bar",
 	};
 
 	const expectedManifest = {
 		name: "myPackage",
 		dependencies: {
-			"foo": "1.2.3"
+			foo: "1.2.3",
 		},
 		devDependencies: {
-			"bar": "4.5.6"
-		}
+			bar: "4.5.6",
+		},
 	};
 
 	const registry = installer.getRegistry();
@@ -203,7 +203,7 @@ test.serial("Installer: fetchPackageManifest (without existing package.json)", a
 		})
 		.withArgs({
 			pkgName: "myPackage",
-			version: "1.2.3"
+			version: "1.2.3",
 		}).returns(path.join("/path", "to", "myPackage", "1.2.3"));
 
 	const manifest = await installer.fetchPackageManifest({pkgName: "myPackage", version: "1.2.3"});
@@ -219,28 +219,28 @@ test.serial("Installer: fetchPackageManifest (with existing package.json)", asyn
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5DataDir: "/ui5Data/"
+		ui5DataDir: "/ui5Data/",
 	});
 
 	const mockedManifest = {
 		name: "myPackage",
 		dependencies: {
-			"foo": "1.2.3"
+			foo: "1.2.3",
 		},
 		devDependencies: {
-			"bar": "4.5.6"
+			bar: "4.5.6",
 		},
-		foo: "bar"
+		foo: "bar",
 	};
 
 	const expectedManifest = {
 		name: "myPackage",
 		dependencies: {
-			"foo": "1.2.3"
+			foo: "1.2.3",
 		},
 		devDependencies: {
-			"bar": "4.5.6"
-		}
+			bar: "4.5.6",
+		},
 	};
 
 	const registry = installer.getRegistry();
@@ -264,7 +264,7 @@ test.serial("Installer: fetchPackageManifest (with existing package.json)", asyn
 		})
 		.withArgs({
 			pkgName: "myPackage",
-			version: "1.2.3"
+			version: "1.2.3",
 		}).returns(path.join("/path", "to", "myPackage", "1.2.3"));
 
 	const manifest = await installer.fetchPackageManifest({pkgName: "myPackage", version: "1.2.3"});
@@ -280,7 +280,7 @@ test.serial("Installer: fetchPackageManifest (readJson throws error)", async (t)
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5DataDir: "/ui5Data/"
+		ui5DataDir: "/ui5Data/",
 	});
 
 	const registry = installer.getRegistry();
@@ -298,7 +298,7 @@ test.serial("Installer: fetchPackageManifest (readJson throws error)", async (t)
 		})
 		.withArgs({
 			pkgName: "myPackage",
-			version: "1.2.3"
+			version: "1.2.3",
 		}).returns(path.join("/path", "to", "myPackage", "1.2.3"));
 
 	await t.throwsAsync(async () => {
@@ -315,7 +315,7 @@ test.serial("Installer: _synchronize", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5DataDir: "/ui5Data/"
+		ui5DataDir: "/ui5Data/",
 	});
 
 	t.context.lockStub.yieldsAsync();
@@ -358,7 +358,7 @@ test.serial("Installer: _synchronize should unlock when callback promise has res
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5DataDir: "/ui5Data/"
+		ui5DataDir: "/ui5Data/",
 	});
 
 	t.context.lockStub.yieldsAsync();
@@ -384,7 +384,7 @@ test.serial("Installer: _synchronize should throw when locking fails", async (t)
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5DataDir: "/ui5Data/"
+		ui5DataDir: "/ui5Data/",
 	});
 
 	t.context.lockStub.yieldsAsync(new Error("Locking error"));
@@ -406,7 +406,7 @@ test.serial("Installer: _synchronize should still unlock when callback throws an
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5DataDir: "/ui5Data/"
+		ui5DataDir: "/ui5Data/",
 	});
 
 	t.context.lockStub.yieldsAsync();
@@ -430,7 +430,7 @@ test.serial("Installer: _synchronize should still unlock when callback rejects w
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5DataDir: "/ui5Data/"
+		ui5DataDir: "/ui5Data/",
 	});
 
 	t.context.lockStub.yieldsAsync();
@@ -454,7 +454,7 @@ test.serial("Installer: installPackage with new package", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5DataDir: "/ui5Data/"
+		ui5DataDir: "/ui5Data/",
 	});
 
 	t.context.lockStub.yieldsAsync();
@@ -476,17 +476,17 @@ test.serial("Installer: installPackage with new package", async (t) => {
 
 	const res = await installer.installPackage({
 		pkgName: "myPackage",
-		version: "1.2.3"
+		version: "1.2.3",
 	});
 
 	t.deepEqual(res, {
-		pkgPath: targetDir
+		pkgPath: targetDir,
 	}, "Should return correct values");
 
 	t.is(getTargetDirForPackageStub.callCount, 1, "_getTargetDirForPackage should be called once");
 	t.deepEqual(getTargetDirForPackageStub.getCall(0).args[0], {
 		pkgName: "myPackage",
-		version: "1.2.3"
+		version: "1.2.3",
 	}, "_getTargetDirForPackage should be called with the correct arguments");
 
 	t.is(packageJsonExistsStub.callCount, 2, "_packageJsonExists should be called twice");
@@ -504,7 +504,7 @@ test.serial("Installer: installPackage with new package", async (t) => {
 	t.is(getStagingDirForPackageStub.callCount, 1, "_getStagingDirForPackage should be called once");
 	t.deepEqual(getStagingDirForPackageStub.getCall(0).args[0], {
 		pkgName: "myPackage",
-		version: "1.2.3"
+		version: "1.2.3",
 	}, "_getStagingDirForPackage should be called with the correct arguments");
 
 	t.is(pathExistsStub.callCount, 2, "_pathExists should be called twice");
@@ -534,7 +534,7 @@ test.serial("Installer: installPackage with already installed package", async (t
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5DataDir: "/ui5Data/"
+		ui5DataDir: "/ui5Data/",
 	});
 
 	t.context.lockStub.yieldsAsync();
@@ -555,17 +555,17 @@ test.serial("Installer: installPackage with already installed package", async (t
 
 	const res = await installer.installPackage({
 		pkgName: "myPackage",
-		version: "1.2.3"
+		version: "1.2.3",
 	});
 
 	t.deepEqual(res, {
-		pkgPath: "package-dir-path"
+		pkgPath: "package-dir-path",
 	}, "Should return correct values");
 
 	t.is(getTargetDirForPackageStub.callCount, 1, "_getTargetDirForPackage should be called once");
 	t.deepEqual(getTargetDirForPackageStub.getCall(0).args[0], {
 		pkgName: "myPackage",
-		version: "1.2.3"
+		version: "1.2.3",
 	}, "_getTargetDirForPackage should be called with the correct arguments");
 
 	t.is(packageJsonExistsStub.callCount, 1, "_packageJsonExists should be called once");
@@ -588,7 +588,7 @@ test.serial("Installer: installPackage with install already in progress", async 
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5DataDir: "/ui5Data/"
+		ui5DataDir: "/ui5Data/",
 	});
 
 	t.context.lockStub.yieldsAsync();
@@ -612,13 +612,13 @@ test.serial("Installer: installPackage with install already in progress", async 
 
 	await installer.installPackage({
 		pkgName: "myPackage",
-		version: "1.2.3"
+		version: "1.2.3",
 	});
 
 	t.is(getTargetDirForPackageStub.callCount, 1, "_getTargetDirForPackage should be called once");
 	t.deepEqual(getTargetDirForPackageStub.getCall(0).args[0], {
 		pkgName: "myPackage",
-		version: "1.2.3"
+		version: "1.2.3",
 	}, "_getTargetDirForPackage should be called with the correct arguments");
 
 	t.is(packageJsonExistsStub.callCount, 2, "_packageJsonExists should be called twice");
@@ -650,7 +650,7 @@ test.serial("Installer: installPackage with new package and existing target and 
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5DataDir: "/ui5Data/"
+		ui5DataDir: "/ui5Data/",
 	});
 
 	t.context.lockStub.yieldsAsync();
@@ -672,17 +672,17 @@ test.serial("Installer: installPackage with new package and existing target and 
 
 	const res = await installer.installPackage({
 		pkgName: "myPackage",
-		version: "1.2.3"
+		version: "1.2.3",
 	});
 
 	t.deepEqual(res, {
-		pkgPath: targetDir
+		pkgPath: targetDir,
 	}, "Should return correct values");
 
 	t.is(getTargetDirForPackageStub.callCount, 1, "_getTargetDirForPackage should be called once");
 	t.deepEqual(getTargetDirForPackageStub.getCall(0).args[0], {
 		pkgName: "myPackage",
-		version: "1.2.3"
+		version: "1.2.3",
 	}, "_getTargetDirForPackage should be called with the correct arguments");
 
 	t.is(packageJsonExistsStub.callCount, 2, "_packageJsonExists should be called twice");
@@ -700,7 +700,7 @@ test.serial("Installer: installPackage with new package and existing target and 
 	t.is(getStagingDirForPackageStub.callCount, 1, "_getStagingDirForPackage should be called once");
 	t.deepEqual(getStagingDirForPackageStub.getCall(0).args[0], {
 		pkgName: "myPackage",
-		version: "1.2.3"
+		version: "1.2.3",
 	}, "_getStagingDirForPackage should be called with the correct arguments");
 
 	t.is(pathExistsStub.callCount, 2, "_pathExists should be called twice");
@@ -735,7 +735,7 @@ test.serial("Installer: _pathExists - exists", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5DataDir: "/ui5Data/"
+		ui5DataDir: "/ui5Data/",
 	});
 
 	const res = await installer._pathExists(__dirname);
@@ -750,7 +750,7 @@ test.serial("Installer: _pathExists - does not exist", async (t) => {
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5DataDir: "/ui5Data/"
+		ui5DataDir: "/ui5Data/",
 	});
 
 	const notFoundError = new Error("Not found");
@@ -769,7 +769,7 @@ test.serial("Installer: _pathExists - re-throws unexpected errors", async (t) =>
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5DataDir: "/ui5Data/"
+		ui5DataDir: "/ui5Data/",
 	});
 
 	const notFoundError = new Error("Pony Error");
@@ -783,13 +783,12 @@ test.serial("Installer: _pathExists - re-throws unexpected errors", async (t) =>
 		"fs.stat should be called with correct arguments");
 });
 
-
 test.serial("Installer: Registry throws", (t) => {
 	const {Installer} = t.context;
 
 	const installer = new Installer({
 		cwd: "/cwd/",
-		ui5DataDir: "/ui5Data/"
+		ui5DataDir: "/ui5Data/",
 	});
 
 	installer._cwd = null;

@@ -18,9 +18,9 @@ function createWorkspaceConfig({dependencyManagement}) {
 	return {
 		specVersion: "workspace/1.0",
 		metadata: {
-			name: "workspace-name"
+			name: "workspace-name",
 		},
-		dependencyManagement
+		dependencyManagement,
 	};
 }
 
@@ -32,13 +32,13 @@ test.beforeEach(async (t) => {
 		verbose: sinon.stub(),
 		error: sinon.stub(),
 		info: sinon.stub(),
-		isLevelEnabled: () => true
+		isLevelEnabled: () => true,
 	};
 
 	t.context.Workspace = await esmock("../../../lib/graph/Workspace.js", {
 		"@ui5/logger": {
-			getLogger: sinon.stub().withArgs("graph:Workspace").returns(t.context.log)
-		}
+			getLogger: sinon.stub().withArgs("graph:Workspace").returns(t.context.log),
+		},
 	});
 });
 
@@ -53,12 +53,12 @@ test("Basic resolution", async (t) => {
 		configuration: createWorkspaceConfig({
 			dependencyManagement: {
 				resolutions: [{
-					path: "../../fixtures/library.d"
+					path: "../../fixtures/library.d",
 				}, {
-					path: "../../fixtures/library.e"
-				}]
-			}
-		})
+					path: "../../fixtures/library.e",
+				}],
+			},
+		}),
 	});
 
 	t.is(workspace.getName(), "workspace-name");
@@ -96,12 +96,12 @@ test("Basic resolution: package.json is missing name field", async (t) => {
 		configuration: createWorkspaceConfig({
 			dependencyManagement: {
 				resolutions: [{
-					path: "../../fixtures/library.d"
+					path: "../../fixtures/library.d",
 				}, {
-					path: "../../fixtures/library.e"
-				}]
-			}
-		})
+					path: "../../fixtures/library.e",
+				}],
+			},
+		}),
 	});
 
 	t.context.sinon.stub(workspace, "_readPackageJson")
@@ -122,12 +122,12 @@ test("Basic resolution: package.json is missing version field", async (t) => {
 		configuration: createWorkspaceConfig({
 			dependencyManagement: {
 				resolutions: [{
-					path: "../../fixtures/library.d"
+					path: "../../fixtures/library.d",
 				}, {
-					path: "../../fixtures/library.e"
-				}]
-			}
-		})
+					path: "../../fixtures/library.e",
+				}],
+			},
+		}),
 	});
 
 	t.context.sinon.stub(workspace, "_readPackageJson")
@@ -148,10 +148,10 @@ test("Package workspace resolution: Static patterns", async (t) => {
 		configuration: createWorkspaceConfig({
 			dependencyManagement: {
 				resolutions: [{
-					path: "../../fixtures/collection"
-				}]
-			}
-		})
+					path: "../../fixtures/collection",
+				}],
+			},
+		}),
 	});
 
 	const {projectNameMap, moduleIdMap} = await workspace._getResolvedModules();
@@ -186,10 +186,10 @@ test("Package workspace resolution: Dynamic patterns", async (t) => {
 		configuration: createWorkspaceConfig({
 			dependencyManagement: {
 				resolutions: [{
-					path: "../../fixtures/collection.b"
-				}]
-			}
-		})
+					path: "../../fixtures/collection.b",
+				}],
+			},
+		}),
 	});
 
 	const {projectNameMap, moduleIdMap} = await workspace._getResolvedModules();
@@ -229,10 +229,10 @@ test("Package workspace resolution: Nested workspaces", async (t) => {
 		configuration: createWorkspaceConfig({
 			dependencyManagement: {
 				resolutions: [{
-					path: "../../fixtures/library.xyz"
-				}]
-			}
-		})
+					path: "../../fixtures/library.xyz",
+				}],
+			},
+		}),
 	});
 
 	const readPackageJsonStub = t.context.sinon.stub(workspace, "_readPackageJson")
@@ -243,19 +243,19 @@ test("Package workspace resolution: Nested workspaces", async (t) => {
 			ui5: {
 				workspaces: [
 					"workspace-a",
-					"workspace-b"
-				]
-			}
+					"workspace-b",
+				],
+			},
 		}).onCall(1).resolves({
 			name: "Second Package",
 			version: "1.0.0",
 			workspaces: [
 				"workspace-c",
-				"workspace-d"
-			]
+				"workspace-d",
+			],
 		}).onCall(2).resolves({
 			name: "Third Package",
-			version: "1.0.0"
+			version: "1.0.0",
 		}).onCall(3).resolves({
 			name: "Fourth Package",
 			version: "1.0.0",
@@ -277,10 +277,10 @@ test("Package workspace resolution: Recursive workspaces", async (t) => {
 		configuration: createWorkspaceConfig({
 			dependencyManagement: {
 				resolutions: [{
-					path: "../../fixtures/library.xyz"
-				}]
-			}
-		})
+					path: "../../fixtures/library.xyz",
+				}],
+			},
+		}),
 	});
 
 	const basePath = path.join(__dirname, "../../fixtures/library.xyz");
@@ -291,15 +291,15 @@ test("Package workspace resolution: Recursive workspaces", async (t) => {
 		name: "Base Package",
 		version: "1.0.0",
 		workspaces: [
-			"workspace-a"
-		]
+			"workspace-a",
+		],
 	});
 	readPackageJsonStub.withArgs(workspaceAPath).resolves({
 		name: "Workspace A Package",
 		version: "1.0.0",
 		workspaces: [
-			".."
-		]
+			"..",
+		],
 	});
 
 	const {projectNameMap, moduleIdMap} = await workspace._getResolvedModules();
@@ -314,8 +314,8 @@ test("No resolutions configuration", async (t) => {
 	const workspace = new t.context.Workspace({
 		cwd: __dirname,
 		configuration: createWorkspaceConfig({
-			dependencyManagement: {}
-		})
+			dependencyManagement: {},
+		}),
 	});
 
 	t.is(workspace.getName(), "workspace-name");
@@ -334,8 +334,8 @@ test("Empty dependencyManagement configuration", async (t) => {
 	const workspace = new t.context.Workspace({
 		cwd: __dirname,
 		configuration: createWorkspaceConfig({
-			dependencyManagement: {}
-		})
+			dependencyManagement: {},
+		}),
 	});
 
 	t.is(workspace.getName(), "workspace-name");
@@ -350,9 +350,9 @@ test("Empty resolutions configuration", async (t) => {
 		cwd: __dirname,
 		configuration: createWorkspaceConfig({
 			dependencyManagement: {
-				resolutions: []
-			}
-		})
+				resolutions: [],
+			},
+		}),
 	});
 
 	t.is(workspace.getName(), "workspace-name");
@@ -367,13 +367,13 @@ test("Missing path in resolution", async (t) => {
 		cwd: __dirname,
 		configuration: createWorkspaceConfig({
 			dependencyManagement: {
-				resolutions: [{}]
-			}
-		})
+				resolutions: [{}],
+			},
+		}),
 	});
 
 	await t.throwsAsync(workspace._getResolvedModules(), {
-		message: "Missing property 'path' in dependency resolution configuration of workspace workspace-name"
+		message: "Missing property 'path' in dependency resolution configuration of workspace workspace-name",
 	}, "Threw with expected error message");
 });
 
@@ -383,9 +383,9 @@ test("Invalid specVersion", async (t) => {
 		configuration: {
 			specVersion: "project/1.0",
 			metadata: {
-				name: "workspace-name"
-			}
-		}
+				name: "workspace-name",
+			},
+		},
 	});
 
 	const err = await t.throwsAsync(workspace._getResolvedModules());
@@ -400,10 +400,10 @@ test("Invalid resolutions configuration", async (t) => {
 		configuration: createWorkspaceConfig({
 			dependencyManagement: {
 				resolutions: [{
-					path: "../../fixtures/does-not-exist"
-				}]
-			}
-		})
+					path: "../../fixtures/does-not-exist",
+				}],
+			},
+		}),
 	});
 
 	const absPath = path.join(__dirname, "../../fixtures/does-not-exist");
@@ -411,7 +411,7 @@ test("Invalid resolutions configuration", async (t) => {
 	const err = await t.throwsAsync(workspace._getResolvedModules());
 	t.true(
 		err.message.startsWith(`Failed to resolve workspace dependency resolution path ` +
-			`../../fixtures/does-not-exist to ${absPath}: ENOENT:`),
+		`../../fixtures/does-not-exist to ${absPath}: ENOENT:`),
 		"Threw with expected error message");
 });
 
@@ -421,10 +421,10 @@ test("Resolves extension only", async (t) => {
 		configuration: createWorkspaceConfig({
 			dependencyManagement: {
 				resolutions: [{
-					path: "../../fixtures/extension.a"
-				}]
-			}
-		})
+					path: "../../fixtures/extension.a",
+				}],
+			},
+		}),
 	});
 
 	t.is(workspace.getName(), "workspace-name");
@@ -443,10 +443,10 @@ test("Resolution does not lead to a project", async (t) => {
 			dependencyManagement: {
 				resolutions: [{
 					// Using a directory with a package.json but no ui5.yaml
-					path: "../../fixtures/init-library"
-				}]
-			}
-		})
+					path: "../../fixtures/init-library",
+				}],
+			},
+		}),
 	});
 
 	t.is(workspace.getName(), "workspace-name");
@@ -459,17 +459,17 @@ test("Resolution does not lead to a project", async (t) => {
 test("Missing parameters", (t) => {
 	t.throws(() => {
 		new t.context.Workspace({
-			configuration: {metadata: {name: "config-a"}}
+			configuration: {metadata: {name: "config-a"}},
 		});
 	}, {
-		message: "Could not create Workspace: Missing or empty parameter 'cwd'"
+		message: "Could not create Workspace: Missing or empty parameter 'cwd'",
 	}, "Threw with expected error message");
 
 	t.throws(() => {
 		new t.context.Workspace({
-			cwd: "cwd"
+			cwd: "cwd",
 		});
 	}, {
-		message: "Could not create Workspace: Missing or empty parameter 'configuration'"
+		message: "Could not create Workspace: Missing or empty parameter 'configuration'",
 	}, "Threw with expected error message");
 });

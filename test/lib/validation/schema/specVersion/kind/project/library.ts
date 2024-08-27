@@ -12,7 +12,7 @@ async function assertValidation(t, config, expectedErrors = undefined) {
 	if (expectedErrors) {
 		const validationError = await t.throwsAsync(validation, {
 			instanceOf: ValidationError,
-			name: "ValidationError"
+			name: "ValidationError",
 		});
 		validationError.errors.forEach((error) => {
 			delete error.schemaPath;
@@ -31,7 +31,7 @@ async function assertValidation(t, config, expectedErrors = undefined) {
 test.before((t) => {
 	t.context.validator = new Validator({Ajv, ajvErrors, schemaName: "ui5"});
 	t.context.ajvCoverage = new AjvCoverage(t.context.validator.ajv, {
-		includes: ["schema/specVersion/kind/project/library.json"]
+		includes: ["schema/specVersion/kind/project/library.json"],
 	});
 });
 
@@ -41,208 +41,208 @@ test.after.always((t) => {
 		statements: 80,
 		branches: 75,
 		functions: 100,
-		lines: 80
+		lines: 80,
 	};
 	t.context.ajvCoverage.verify(thresholds);
 });
 
-SpecificationVersion.getVersionsForRange(">=4.0").forEach(function(specVersion) {
+SpecificationVersion.getVersionsForRange(">=4.0").forEach(function (specVersion) {
 	test(`library (specVersion ${specVersion}): Valid configuration`, async (t) => {
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"kind": "project",
-			"type": "library",
-			"metadata": {
-				"name": "com.sap.ui5.test",
-				"copyright": "yes"
+			specVersion: specVersion,
+			kind: "project",
+			type: "library",
+			metadata: {
+				name: "com.sap.ui5.test",
+				copyright: "yes",
 			},
-			"resources": {
-				"configuration": {
-					"propertiesFileSourceEncoding": "UTF-8",
-					"paths": {
-						"src": "src/main/uilib",
-						"test": "src/test/uilib"
-					}
-				}
+			resources: {
+				configuration: {
+					propertiesFileSourceEncoding: "UTF-8",
+					paths: {
+						src: "src/main/uilib",
+						test: "src/test/uilib",
+					},
+				},
 			},
-			"builder": {
-				"resources": {
-					"excludes": [
+			builder: {
+				resources: {
+					excludes: [
 						"/resources/some/project/name/test_results/**",
-						"!/test-resources/some/project/name/demo-app/**"
-					]
-				},
-				"bundles": [
-					{
-						"bundleDefinition": {
-							"name": "sap-ui-custom.js",
-							"defaultFileTypes": [
-								".js"
-							],
-							"sections": [
-								{
-									"name": "my-raw-section",
-									"mode": "raw",
-									"filters": [
-										"ui5loader-autoconfig.js"
-									],
-									"resolve": true,
-									"resolveConditional": true,
-									"renderer": true,
-									"sort": true
-								},
-								{
-									"mode": "provided",
-									"filters": [
-										"ui5loader-autoconfig.js"
-									],
-									"resolve": false,
-									"resolveConditional": false,
-									"renderer": false,
-									"sort": false,
-									"declareRawModules": true
-								}
-							]
-						},
-						"bundleOptions": {
-							"optimize": true,
-							"decorateBootstrapModule": true,
-							"addTryCatchRestartWrapper": true
-						}
-					},
-					{
-						"bundleDefinition": {
-							"name": "app.js",
-							"defaultFileTypes": [
-								".js"
-							],
-							"sections": [
-								{
-									"name": "some-app-preload",
-									"mode": "preload",
-									"filters": [
-										"some/app/Component.js"
-									],
-									"resolve": true,
-									"sort": true,
-									"declareRawModules": false,
-								},
-								{
-									"mode": "require",
-									"filters": [
-										"ui5loader-autoconfig.js"
-									],
-									"resolve": true,
-									"async": false
-								}
-							]
-						},
-						"bundleOptions": {
-							"optimize": true,
-							"numberOfParts": 3
-						}
-					}
-				],
-				"componentPreload": {
-					"paths": [
-						"some/glob/**/pattern/Component.js",
-						"some/other/glob/**/pattern/Component.js"
+						"!/test-resources/some/project/name/demo-app/**",
 					],
-					"namespaces": [
-						"some/namespace",
-						"some/other/namespace"
-					]
 				},
-				"jsdoc": {
-					"excludes": [
-						"some/project/name/thirdparty/**"
-					]
-				},
-				"customTasks": [
+				bundles: [
 					{
-						"name": "custom-task-1",
-						"beforeTask": "replaceCopyright",
-						"configuration": {
-							"some-key": "some value"
-						}
+						bundleDefinition: {
+							name: "sap-ui-custom.js",
+							defaultFileTypes: [
+								".js",
+							],
+							sections: [
+								{
+									name: "my-raw-section",
+									mode: "raw",
+									filters: [
+										"ui5loader-autoconfig.js",
+									],
+									resolve: true,
+									resolveConditional: true,
+									renderer: true,
+									sort: true,
+								},
+								{
+									mode: "provided",
+									filters: [
+										"ui5loader-autoconfig.js",
+									],
+									resolve: false,
+									resolveConditional: false,
+									renderer: false,
+									sort: false,
+									declareRawModules: true,
+								},
+							],
+						},
+						bundleOptions: {
+							optimize: true,
+							decorateBootstrapModule: true,
+							addTryCatchRestartWrapper: true,
+						},
 					},
 					{
-						"name": "custom-task-2",
-						"afterTask": "custom-task-1",
-						"configuration": {
-							"color": "blue"
-						}
-					}
-				]
-			},
-			"server": {
-				"settings": {
-					"httpPort": 1337,
-					"httpsPort": 1443
+						bundleDefinition: {
+							name: "app.js",
+							defaultFileTypes: [
+								".js",
+							],
+							sections: [
+								{
+									name: "some-app-preload",
+									mode: "preload",
+									filters: [
+										"some/app/Component.js",
+									],
+									resolve: true,
+									sort: true,
+									declareRawModules: false,
+								},
+								{
+									mode: "require",
+									filters: [
+										"ui5loader-autoconfig.js",
+									],
+									resolve: true,
+									async: false,
+								},
+							],
+						},
+						bundleOptions: {
+							optimize: true,
+							numberOfParts: 3,
+						},
+					},
+				],
+				componentPreload: {
+					paths: [
+						"some/glob/**/pattern/Component.js",
+						"some/other/glob/**/pattern/Component.js",
+					],
+					namespaces: [
+						"some/namespace",
+						"some/other/namespace",
+					],
 				},
-				"customMiddleware": [
+				jsdoc: {
+					excludes: [
+						"some/project/name/thirdparty/**",
+					],
+				},
+				customTasks: [
 					{
-						"name": "myCustomMiddleware",
-						"mountPath": "/myapp",
-						"afterMiddleware": "compression",
-						"configuration": {
-							"debug": true
-						}
-					}
-				]
-			}
+						name: "custom-task-1",
+						beforeTask: "replaceCopyright",
+						configuration: {
+							"some-key": "some value",
+						},
+					},
+					{
+						name: "custom-task-2",
+						afterTask: "custom-task-1",
+						configuration: {
+							color: "blue",
+						},
+					},
+				],
+			},
+			server: {
+				settings: {
+					httpPort: 1337,
+					httpsPort: 1443,
+				},
+				customMiddleware: [
+					{
+						name: "myCustomMiddleware",
+						mountPath: "/myapp",
+						afterMiddleware: "compression",
+						configuration: {
+							debug: true,
+						},
+					},
+				],
+			},
 		});
 	});
 
 	test(`library (specVersion ${specVersion}): Invalid builder configuration`, async (t) => {
 		const config = {
-			"specVersion": specVersion,
-			"type": "library",
-			"metadata": {
-				"name": "com.sap.ui5.test",
-				"copyright": "yes"
+			specVersion: specVersion,
+			type: "library",
+			metadata: {
+				name: "com.sap.ui5.test",
+				copyright: "yes",
 			},
-			"builder": {
+			builder: {
 				// cachebuster is only supported for type application
-				"cachebuster": {
-					"signatureType": "time"
+				cachebuster: {
+					signatureType: "time",
 				},
-				"bundles": [
+				bundles: [
 					{
-						"bundleDefinition": {
-							"name": "app.js",
-							"defaultFileTypes": [
-								".js"
+						bundleDefinition: {
+							name: "app.js",
+							defaultFileTypes: [
+								".js",
 							],
-							"sections": [
+							sections: [
 								{
-									"name": "some-app-preload",
-									"mode": "preload",
-									"filters": [
-										"some/app/Component.js"
+									name: "some-app-preload",
+									mode: "preload",
+									filters: [
+										"some/app/Component.js",
 									],
-									"resolve": true,
-									"sort": true,
-									"declareRawModules": false,
-									"async": false
+									resolve: true,
+									sort: true,
+									declareRawModules: false,
+									async: false,
 								},
 								{
-									"mode": "require",
-									"filters": [
-										"ui5loader-autoconfig.js"
+									mode: "require",
+									filters: [
+										"ui5loader-autoconfig.js",
 									],
-									"resolve": true,
-									"async": false
-								}
-							]
+									resolve: true,
+									async: false,
+								},
+							],
 						},
-						"bundleOptions": {
-							"optimize": true,
-							"numberOfParts": 3
-						}
-					}
+						bundleOptions: {
+							optimize: true,
+							numberOfParts: 3,
+						},
+					},
 				],
-			}
+			},
 		};
 		await assertValidation(t, config, [
 			{
@@ -265,192 +265,192 @@ SpecificationVersion.getVersionsForRange(">=4.0").forEach(function(specVersion) 
 	});
 });
 
-SpecificationVersion.getVersionsForRange("2.0 - 3.2").forEach(function(specVersion) {
+SpecificationVersion.getVersionsForRange("2.0 - 3.2").forEach(function (specVersion) {
 	test(`library (specVersion ${specVersion}): Valid configuration`, async (t) => {
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"kind": "project",
-			"type": "library",
-			"metadata": {
-				"name": "com.sap.ui5.test",
-				"copyright": "yes"
+			specVersion: specVersion,
+			kind: "project",
+			type: "library",
+			metadata: {
+				name: "com.sap.ui5.test",
+				copyright: "yes",
 			},
-			"resources": {
-				"configuration": {
-					"propertiesFileSourceEncoding": "UTF-8",
-					"paths": {
-						"src": "src/main/uilib",
-						"test": "src/test/uilib"
-					}
-				}
+			resources: {
+				configuration: {
+					propertiesFileSourceEncoding: "UTF-8",
+					paths: {
+						src: "src/main/uilib",
+						test: "src/test/uilib",
+					},
+				},
 			},
-			"builder": {
-				"resources": {
-					"excludes": [
+			builder: {
+				resources: {
+					excludes: [
 						"/resources/some/project/name/test_results/**",
-						"!/test-resources/some/project/name/demo-app/**"
-					]
-				},
-				"bundles": [
-					{
-						"bundleDefinition": {
-							"name": "sap-ui-custom.js",
-							"defaultFileTypes": [
-								".js"
-							],
-							"sections": [
-								{
-									"name": "my-raw-section",
-									"mode": "raw",
-									"filters": [
-										"ui5loader-autoconfig.js"
-									],
-									"resolve": true,
-									"resolveConditional": true,
-									"renderer": true,
-									"sort": true
-								},
-								{
-									"mode": "provided",
-									"filters": [
-										"ui5loader-autoconfig.js"
-									],
-									"resolve": false,
-									"resolveConditional": false,
-									"renderer": false,
-									"sort": false,
-									"declareRawModules": true
-								}
-							]
-						},
-						"bundleOptions": {
-							"optimize": true,
-							"decorateBootstrapModule": true,
-							"addTryCatchRestartWrapper": true,
-							"usePredefineCalls": true
-						}
-					},
-					{
-						"bundleDefinition": {
-							"name": "app.js",
-							"defaultFileTypes": [
-								".js"
-							],
-							"sections": [
-								{
-									"name": "some-app-preload",
-									"mode": "preload",
-									"filters": [
-										"some/app/Component.js"
-									],
-									"resolve": true,
-									"sort": true,
-									"declareRawModules": false
-								},
-								{
-									"mode": "require",
-									"filters": [
-										"ui5loader-autoconfig.js"
-									],
-									"resolve": true
-								}
-							]
-						},
-						"bundleOptions": {
-							"optimize": true,
-							"numberOfParts": 3
-						}
-					}
-				],
-				"componentPreload": {
-					"paths": [
-						"some/glob/**/pattern/Component.js",
-						"some/other/glob/**/pattern/Component.js"
+						"!/test-resources/some/project/name/demo-app/**",
 					],
-					"namespaces": [
-						"some/namespace",
-						"some/other/namespace"
-					]
 				},
-				"jsdoc": {
-					"excludes": [
-						"some/project/name/thirdparty/**"
-					]
-				},
-				"customTasks": [
+				bundles: [
 					{
-						"name": "custom-task-1",
-						"beforeTask": "replaceCopyright",
-						"configuration": {
-							"some-key": "some value"
-						}
+						bundleDefinition: {
+							name: "sap-ui-custom.js",
+							defaultFileTypes: [
+								".js",
+							],
+							sections: [
+								{
+									name: "my-raw-section",
+									mode: "raw",
+									filters: [
+										"ui5loader-autoconfig.js",
+									],
+									resolve: true,
+									resolveConditional: true,
+									renderer: true,
+									sort: true,
+								},
+								{
+									mode: "provided",
+									filters: [
+										"ui5loader-autoconfig.js",
+									],
+									resolve: false,
+									resolveConditional: false,
+									renderer: false,
+									sort: false,
+									declareRawModules: true,
+								},
+							],
+						},
+						bundleOptions: {
+							optimize: true,
+							decorateBootstrapModule: true,
+							addTryCatchRestartWrapper: true,
+							usePredefineCalls: true,
+						},
 					},
 					{
-						"name": "custom-task-2",
-						"afterTask": "custom-task-1",
-						"configuration": {
-							"color": "blue"
-						}
-					}
-				]
-			},
-			"server": {
-				"settings": {
-					"httpPort": 1337,
-					"httpsPort": 1443
+						bundleDefinition: {
+							name: "app.js",
+							defaultFileTypes: [
+								".js",
+							],
+							sections: [
+								{
+									name: "some-app-preload",
+									mode: "preload",
+									filters: [
+										"some/app/Component.js",
+									],
+									resolve: true,
+									sort: true,
+									declareRawModules: false,
+								},
+								{
+									mode: "require",
+									filters: [
+										"ui5loader-autoconfig.js",
+									],
+									resolve: true,
+								},
+							],
+						},
+						bundleOptions: {
+							optimize: true,
+							numberOfParts: 3,
+						},
+					},
+				],
+				componentPreload: {
+					paths: [
+						"some/glob/**/pattern/Component.js",
+						"some/other/glob/**/pattern/Component.js",
+					],
+					namespaces: [
+						"some/namespace",
+						"some/other/namespace",
+					],
 				},
-				"customMiddleware": [
+				jsdoc: {
+					excludes: [
+						"some/project/name/thirdparty/**",
+					],
+				},
+				customTasks: [
 					{
-						"name": "myCustomMiddleware",
-						"mountPath": "/myapp",
-						"afterMiddleware": "compression",
-						"configuration": {
-							"debug": true
-						}
-					}
-				]
-			}
+						name: "custom-task-1",
+						beforeTask: "replaceCopyright",
+						configuration: {
+							"some-key": "some value",
+						},
+					},
+					{
+						name: "custom-task-2",
+						afterTask: "custom-task-1",
+						configuration: {
+							color: "blue",
+						},
+					},
+				],
+			},
+			server: {
+				settings: {
+					httpPort: 1337,
+					httpsPort: 1443,
+				},
+				customMiddleware: [
+					{
+						name: "myCustomMiddleware",
+						mountPath: "/myapp",
+						afterMiddleware: "compression",
+						configuration: {
+							debug: true,
+						},
+					},
+				],
+			},
 		});
 	});
 
 	test(`library (specVersion ${specVersion}): Invalid builder configuration`, async (t) => {
 		const config = {
-			"specVersion": specVersion,
-			"type": "library",
-			"metadata": {
-				"name": "com.sap.ui5.test",
-				"copyright": "yes"
+			specVersion: specVersion,
+			type: "library",
+			metadata: {
+				name: "com.sap.ui5.test",
+				copyright: "yes",
 			},
-			"builder": {
+			builder: {
 				// cachebuster is only supported for type application
-				"cachebuster": {
-					"signatureType": "time"
-				}
-			}
+				cachebuster: {
+					signatureType: "time",
+				},
+			},
 		};
 		await assertValidation(t, config, [{
 			dataPath: "/builder",
 			keyword: "additionalProperties",
 			message: "should NOT have additional properties",
 			params: {
-				additionalProperty: "cachebuster"
-			}
+				additionalProperty: "cachebuster",
+			},
 		}]);
 	});
 });
 
-SpecificationVersion.getVersionsForRange("2.0 - 2.2").forEach(function(specVersion) {
+SpecificationVersion.getVersionsForRange("2.0 - 2.2").forEach(function (specVersion) {
 	test(`Unsupported builder/libraryPreload configuration (specVersion ${specVersion})`, async (t) => {
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"type": "library",
-			"metadata": {
-				"name": "com.sap.ui5.test",
-				"copyright": "yes"
+			specVersion: specVersion,
+			type: "library",
+			metadata: {
+				name: "com.sap.ui5.test",
+				copyright: "yes",
 			},
-			"builder": {
-				"libraryPreload": {}
-			}
+			builder: {
+				libraryPreload: {},
+			},
 		}, [
 			{
 				dataPath: "/builder",
@@ -464,20 +464,20 @@ SpecificationVersion.getVersionsForRange("2.0 - 2.2").forEach(function(specVersi
 	});
 	test(`Unsupported builder/componentPreload/excludes configuration (specVersion ${specVersion})`, async (t) => {
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"type": "library",
-			"metadata": {
-				"name": "com.sap.ui5.test",
-				"copyright": "yes"
+			specVersion: specVersion,
+			type: "library",
+			metadata: {
+				name: "com.sap.ui5.test",
+				copyright: "yes",
 			},
-			"builder": {
-				"componentPreload": {
-					"excludes": [
+			builder: {
+				componentPreload: {
+					excludes: [
 						"some/excluded/files/**",
-						"some/other/excluded/files/**"
-					]
-				}
-			}
+						"some/other/excluded/files/**",
+					],
+				},
+			},
 		}, [
 			{
 				dataPath: "/builder/componentPreload",
@@ -491,39 +491,39 @@ SpecificationVersion.getVersionsForRange("2.0 - 2.2").forEach(function(specVersi
 	});
 });
 
-SpecificationVersion.getVersionsForRange(">=2.3").forEach(function(specVersion) {
+SpecificationVersion.getVersionsForRange(">=2.3").forEach(function (specVersion) {
 	test(`library (specVersion ${specVersion}): builder/libraryPreload/excludes`, async (t) => {
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"kind": "project",
-			"type": "library",
-			"metadata": {
-				"name": "com.sap.ui5.test",
-				"copyright": "yes"
+			specVersion: specVersion,
+			kind: "project",
+			type: "library",
+			metadata: {
+				name: "com.sap.ui5.test",
+				copyright: "yes",
 			},
-			"builder": {
-				"libraryPreload": {
-					"excludes": [
+			builder: {
+				libraryPreload: {
+					excludes: [
 						"some/excluded/files/**",
-						"some/other/excluded/files/**"
-					]
-				}
-			}
+						"some/other/excluded/files/**",
+					],
+				},
+			},
 		});
 	});
 	test(`Invalid builder/libraryPreload/excludes configuration (specVersion ${specVersion})`, async (t) => {
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"type": "library",
-			"metadata": {
-				"name": "com.sap.ui5.test",
-				"copyright": "yes"
+			specVersion: specVersion,
+			type: "library",
+			metadata: {
+				name: "com.sap.ui5.test",
+				copyright: "yes",
 			},
-			"builder": {
-				"libraryPreload": {
-					"excludes": "some/excluded/files/**"
-				}
-			}
+			builder: {
+				libraryPreload: {
+					excludes: "some/excluded/files/**",
+				},
+			},
 		}, [
 			{
 				dataPath: "/builder/libraryPreload/excludes",
@@ -535,22 +535,22 @@ SpecificationVersion.getVersionsForRange(">=2.3").forEach(function(specVersion) 
 			},
 		]);
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"type": "library",
-			"metadata": {
-				"name": "com.sap.ui5.test",
-				"copyright": "yes"
+			specVersion: specVersion,
+			type: "library",
+			metadata: {
+				name: "com.sap.ui5.test",
+				copyright: "yes",
 			},
-			"builder": {
-				"libraryPreload": {
-					"excludes": [
+			builder: {
+				libraryPreload: {
+					excludes: [
 						true,
 						1,
-						{}
+						{},
 					],
-					"notAllowed": true
-				}
-			}
+					notAllowed: true,
+				},
+			},
 		}, [
 			{
 				dataPath: "/builder/libraryPreload",
@@ -587,39 +587,38 @@ SpecificationVersion.getVersionsForRange(">=2.3").forEach(function(specVersion) 
 		]);
 	});
 
-
 	test(`library (specVersion ${specVersion}): builder/componentPreload/excludes`, async (t) => {
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"kind": "project",
-			"type": "library",
-			"metadata": {
-				"name": "com.sap.ui5.test",
-				"copyright": "yes"
+			specVersion: specVersion,
+			kind: "project",
+			type: "library",
+			metadata: {
+				name: "com.sap.ui5.test",
+				copyright: "yes",
 			},
-			"builder": {
-				"componentPreload": {
-					"excludes": [
+			builder: {
+				componentPreload: {
+					excludes: [
 						"some/excluded/files/**",
-						"some/other/excluded/files/**"
-					]
-				}
-			}
+						"some/other/excluded/files/**",
+					],
+				},
+			},
 		});
 	});
 	test(`Invalid builder/componentPreload/excludes configuration (specVersion ${specVersion})`, async (t) => {
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"type": "library",
-			"metadata": {
-				"name": "com.sap.ui5.test",
-				"copyright": "yes"
+			specVersion: specVersion,
+			type: "library",
+			metadata: {
+				name: "com.sap.ui5.test",
+				copyright: "yes",
 			},
-			"builder": {
-				"componentPreload": {
-					"excludes": "some/excluded/files/**"
-				}
-			}
+			builder: {
+				componentPreload: {
+					excludes: "some/excluded/files/**",
+				},
+			},
 		}, [
 			{
 				dataPath: "/builder/componentPreload/excludes",
@@ -631,22 +630,22 @@ SpecificationVersion.getVersionsForRange(">=2.3").forEach(function(specVersion) 
 			},
 		]);
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"type": "library",
-			"metadata": {
-				"name": "com.sap.ui5.test",
-				"copyright": "yes"
+			specVersion: specVersion,
+			type: "library",
+			metadata: {
+				name: "com.sap.ui5.test",
+				copyright: "yes",
 			},
-			"builder": {
-				"componentPreload": {
-					"excludes": [
+			builder: {
+				componentPreload: {
+					excludes: [
 						true,
 						1,
-						{}
+						{},
 					],
-					"notAllowed": true
-				}
-			}
+					notAllowed: true,
+				},
+			},
 		}, [
 			{
 				dataPath: "/builder/componentPreload",
@@ -684,77 +683,77 @@ SpecificationVersion.getVersionsForRange(">=2.3").forEach(function(specVersion) 
 	});
 });
 
-SpecificationVersion.getVersionsForRange(">=2.4").forEach(function(specVersion) {
+SpecificationVersion.getVersionsForRange(">=2.4").forEach(function (specVersion) {
 	// Unsupported cases for older spec-versions already tested via "allowedValues" comparison above
 	test(`library (specVersion ${specVersion}): builder/bundles/bundleDefinition/sections/mode: bundleInfo`,
 		async (t) => {
 			await assertValidation(t, {
-				"specVersion": specVersion,
-				"kind": "project",
-				"type": "library",
-				"metadata": {
-					"name": "com.sap.ui5.test",
-					"copyright": "yes"
+				specVersion: specVersion,
+				kind: "project",
+				type: "library",
+				metadata: {
+					name: "com.sap.ui5.test",
+					copyright: "yes",
 				},
-				"builder": {
-					"bundles": [{
-						"bundleDefinition": {
-							"name": "my-bundle.js",
-							"sections": [{
-								"name": "my-bundle-info",
-								"mode": "bundleInfo",
-								"filters": []
-							}]
-						}
-					}]
-				}
+				builder: {
+					bundles: [{
+						bundleDefinition: {
+							name: "my-bundle.js",
+							sections: [{
+								name: "my-bundle-info",
+								mode: "bundleInfo",
+								filters: [],
+							}],
+						},
+					}],
+				},
 			});
 		});
 });
 
-SpecificationVersion.getVersionsForRange(">=2.5").forEach(function(specVersion) {
+SpecificationVersion.getVersionsForRange(">=2.5").forEach(function (specVersion) {
 	test(`library (specVersion ${specVersion}): builder/settings/includeDependency*`, async (t) => {
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"kind": "project",
-			"type": "library",
-			"metadata": {
-				"name": "com.sap.ui5.test",
-				"copyright": "yes"
+			specVersion: specVersion,
+			kind: "project",
+			type: "library",
+			metadata: {
+				name: "com.sap.ui5.test",
+				copyright: "yes",
 			},
-			"builder": {
-				"settings": {
-					"includeDependency": [
+			builder: {
+				settings: {
+					includeDependency: [
 						"sap.a",
-						"sap.b"
+						"sap.b",
 					],
-					"includeDependencyRegExp": [
+					includeDependencyRegExp: [
 						".ui.[a-z]+",
-						"^sap.[mf]$"
+						"^sap.[mf]$",
 					],
-					"includeDependencyTree": [
+					includeDependencyTree: [
 						"sap.c",
-						"sap.d"
-					]
-				}
-			}
+						"sap.d",
+					],
+				},
+			},
 		});
 	});
 	test(`Invalid builder/settings/includeDependency* configuration (specVersion ${specVersion})`, async (t) => {
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"type": "library",
-			"metadata": {
-				"name": "com.sap.ui5.test",
-				"copyright": "yes"
+			specVersion: specVersion,
+			type: "library",
+			metadata: {
+				name: "com.sap.ui5.test",
+				copyright: "yes",
 			},
-			"builder": {
-				"settings": {
-					"includeDependency": "a",
-					"includeDependencyRegExp": "b",
-					"includeDependencyTree": "c"
-				}
-			}
+			builder: {
+				settings: {
+					includeDependency: "a",
+					includeDependencyRegExp: "b",
+					includeDependencyTree: "c",
+				},
+			},
 		}, [
 			{
 				dataPath: "/builder/settings/includeDependency",
@@ -782,32 +781,32 @@ SpecificationVersion.getVersionsForRange(">=2.5").forEach(function(specVersion) 
 			},
 		]);
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"type": "library",
-			"metadata": {
-				"name": "com.sap.ui5.test",
-				"copyright": "yes"
+			specVersion: specVersion,
+			type: "library",
+			metadata: {
+				name: "com.sap.ui5.test",
+				copyright: "yes",
 			},
-			"builder": {
-				"settings": {
-					"includeDependency": [
+			builder: {
+				settings: {
+					includeDependency: [
 						true,
 						1,
-						{}
+						{},
 					],
-					"includeDependencyRegExp": [
+					includeDependencyRegExp: [
 						true,
 						1,
-						{}
+						{},
 					],
-					"includeDependencyTree": [
+					includeDependencyTree: [
 						true,
 						1,
-						{}
+						{},
 					],
-					"notAllowed": true
-				}
-			}
+					notAllowed: true,
+				},
+			},
 		}, [
 			{
 				dataPath: "/builder/settings",
@@ -893,39 +892,39 @@ SpecificationVersion.getVersionsForRange(">=2.5").forEach(function(specVersion) 
 	});
 });
 
-SpecificationVersion.getVersionsForRange(">=2.6").forEach(function(specVersion) {
+SpecificationVersion.getVersionsForRange(">=2.6").forEach(function (specVersion) {
 	test(`library (specVersion ${specVersion}): builder/minification/excludes`, async (t) => {
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"kind": "project",
-			"type": "library",
-			"metadata": {
-				"name": "com.sap.ui5.test",
-				"copyright": "yes"
+			specVersion: specVersion,
+			kind: "project",
+			type: "library",
+			metadata: {
+				name: "com.sap.ui5.test",
+				copyright: "yes",
 			},
-			"builder": {
-				"minification": {
-					"excludes": [
+			builder: {
+				minification: {
+					excludes: [
 						"some/excluded/files/**",
-						"some/other/excluded/files/**"
-					]
-				}
-			}
+						"some/other/excluded/files/**",
+					],
+				},
+			},
 		});
 	});
 	test(`Invalid builder/minification/excludes configuration (specVersion ${specVersion})`, async (t) => {
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"type": "library",
-			"metadata": {
-				"name": "com.sap.ui5.test",
-				"copyright": "yes"
+			specVersion: specVersion,
+			type: "library",
+			metadata: {
+				name: "com.sap.ui5.test",
+				copyright: "yes",
 			},
-			"builder": {
-				"minification": {
-					"excludes": "some/excluded/files/**"
-				}
-			}
+			builder: {
+				minification: {
+					excludes: "some/excluded/files/**",
+				},
+			},
 		}, [
 			{
 				dataPath: "/builder/minification/excludes",
@@ -937,22 +936,22 @@ SpecificationVersion.getVersionsForRange(">=2.6").forEach(function(specVersion) 
 			},
 		]);
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"type": "library",
-			"metadata": {
-				"name": "com.sap.ui5.test",
-				"copyright": "yes"
+			specVersion: specVersion,
+			type: "library",
+			metadata: {
+				name: "com.sap.ui5.test",
+				copyright: "yes",
 			},
-			"builder": {
-				"minification": {
-					"excludes": [
+			builder: {
+				minification: {
+					excludes: [
 						true,
 						1,
-						{}
+						{},
 					],
-					"notAllowed": true
-				}
-			}
+					notAllowed: true,
+				},
+			},
 		}, [
 			{
 				dataPath: "/builder/minification",
@@ -990,14 +989,14 @@ SpecificationVersion.getVersionsForRange(">=2.6").forEach(function(specVersion) 
 	});
 });
 
-SpecificationVersion.getVersionsForRange(">=3.0").forEach(function(specVersion) {
+SpecificationVersion.getVersionsForRange(">=3.0").forEach(function (specVersion) {
 	test(`Invalid project name (specVersion ${specVersion})`, async (t) => {
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"type": "library",
-			"metadata": {
-				"name": "illegal-🦜"
-			}
+			specVersion: specVersion,
+			type: "library",
+			metadata: {
+				name: "illegal-🦜",
+			},
 		}, [{
 			dataPath: "/metadata/name",
 			keyword: "errorMessage",
@@ -1010,15 +1009,15 @@ SpecificationVersion.getVersionsForRange(">=3.0").forEach(function(specVersion) 
 					params: {
 						pattern: "^(?:@[0-9a-z-_.]+\\/)?[a-z][0-9a-z-_.]*$",
 					},
-				}]
+				}],
 			},
 		}]);
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"type": "library",
-			"metadata": {
-				"name": "a"
-			}
+			specVersion: specVersion,
+			type: "library",
+			metadata: {
+				name: "a",
+			},
 		}, [{
 			dataPath: "/metadata/name",
 			keyword: "errorMessage",
@@ -1031,15 +1030,15 @@ SpecificationVersion.getVersionsForRange(">=3.0").forEach(function(specVersion) 
 					params: {
 						limit: 3,
 					},
-				}]
+				}],
 			},
 		}]);
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"type": "library",
-			"metadata": {
-				"name": "a".repeat(81)
-			}
+			specVersion: specVersion,
+			type: "library",
+			metadata: {
+				name: "a".repeat(81),
+			},
 		}, [{
 			dataPath: "/metadata/name",
 			keyword: "errorMessage",
@@ -1052,116 +1051,116 @@ SpecificationVersion.getVersionsForRange(">=3.0").forEach(function(specVersion) 
 					params: {
 						limit: 80,
 					},
-				}]
+				}],
 			},
 		}]);
 	});
 });
 
-SpecificationVersion.getVersionsForRange("2.0 - 3.1").forEach(function(specVersion) {
+SpecificationVersion.getVersionsForRange("2.0 - 3.1").forEach(function (specVersion) {
 	test(`library (specVersion ${specVersion}): Invalid configuration`, async (t) => {
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"type": "library",
-			"metadata": {
-				"name": "com.sap.ui5.test",
-				"copyright": "yes"
+			specVersion: specVersion,
+			type: "library",
+			metadata: {
+				name: "com.sap.ui5.test",
+				copyright: "yes",
 			},
-			"resources": {
-				"configuration": {
-					"propertiesFileSourceEncoding": "UTF8",
-					"paths": {
-						"src": {"path": "src"},
-						"test": {"path": "test"},
-						"webapp": "app"
-					}
-				}
-			},
-			"builder": {
-				"resources": {
-					"excludes": "/resources/some/project/name/test_results/**"
+			resources: {
+				configuration: {
+					propertiesFileSourceEncoding: "UTF8",
+					paths: {
+						src: {path: "src"},
+						test: {path: "test"},
+						webapp: "app",
+					},
 				},
-				"bundles": [
+			},
+			builder: {
+				resources: {
+					excludes: "/resources/some/project/name/test_results/**",
+				},
+				bundles: [
 					{
-						"bundleDefinition": {
-							"name": "sap-ui-custom.js",
-							"defaultFileTypes": [
-								".js"
+						bundleDefinition: {
+							name: "sap-ui-custom.js",
+							defaultFileTypes: [
+								".js",
 							],
-							"sections": [
+							sections: [
 								{
-									"name": true,
-									"mode": "raw",
-									"filters": [
-										"ui5loader-autoconfig.js"
+									name: true,
+									mode: "raw",
+									filters: [
+										"ui5loader-autoconfig.js",
 									],
-									"resolve": true,
-									"sort": true,
-									"declareModules": true
-								}
-							]
+									resolve: true,
+									sort: true,
+									declareModules: true,
+								},
+							],
 						},
-						"bundleOptions": {
-							"optimize": true
-						}
+						bundleOptions: {
+							optimize: true,
+						},
 					},
 					{
-						"bundleDefinition": {
-							"defaultFileTypes": [
-								".js", true
+						bundleDefinition: {
+							defaultFileTypes: [
+								".js", true,
 							],
-							"sections": [
+							sections: [
 								{
-									"filters": [
-										"some/app/Component.js"
+									filters: [
+										"some/app/Component.js",
 									],
-									"resolve": true,
-									"sort": true,
-									"declareRawModules": []
+									resolve: true,
+									sort: true,
+									declareRawModules: [],
 								},
 								{
-									"mode": "provide",
-									"filters": "*",
-									"resolve": true
-								}
-							]
+									mode: "provide",
+									filters: "*",
+									resolve: true,
+								},
+							],
 						},
-						"bundleOptions": {
-							"optimize": "true",
-							"numberOfParts": "3",
-							"notAllowed": true
-						}
-					}
+						bundleOptions: {
+							optimize: "true",
+							numberOfParts: "3",
+							notAllowed: true,
+						},
+					},
 				],
-				"componentPreload": {
-					"path": "some/invalid/path",
-					"paths": "some/invalid/glob/**/pattern/Component.js",
-					"namespaces": "some/invalid/namespace",
+				componentPreload: {
+					path: "some/invalid/path",
+					paths: "some/invalid/glob/**/pattern/Component.js",
+					namespaces: "some/invalid/namespace",
 				},
-				"jsdoc": {
-					"excludes": "some/project/name/thirdparty/**"
+				jsdoc: {
+					excludes: "some/project/name/thirdparty/**",
 				},
-				"customTasks": [
+				customTasks: [
 					{
-						"name": "custom-task-1",
-						"beforeTask": "replaceCopyright",
-						"afterTask": "replaceCopyright",
+						name: "custom-task-1",
+						beforeTask: "replaceCopyright",
+						afterTask: "replaceCopyright",
 					},
 					{
-						"afterTask": "custom-task-1",
-						"configuration": {
-							"color": "blue"
-						}
+						afterTask: "custom-task-1",
+						configuration: {
+							color: "blue",
+						},
 					},
-					"my-task"
-				]
+					"my-task",
+				],
 			},
-			"server": {
-				"settings": {
-					"httpPort": "1337",
-					"httpsPort": "1443"
-				}
-			}
+			server: {
+				settings: {
+					httpPort: "1337",
+					httpsPort: "1443",
+				},
+			},
 		}, [
 			{
 				dataPath: "/resources/configuration/propertiesFileSourceEncoding",
@@ -1172,7 +1171,7 @@ SpecificationVersion.getVersionsForRange("2.0 - 3.1").forEach(function(specVersi
 						"UTF-8",
 						"ISO-8859-1",
 					],
-				}
+				},
 			},
 			{
 				dataPath: "/resources/configuration/paths",
@@ -1180,7 +1179,7 @@ SpecificationVersion.getVersionsForRange("2.0 - 3.1").forEach(function(specVersi
 				message: "should NOT have additional properties",
 				params: {
 					additionalProperty: "webapp",
-				}
+				},
 			},
 			{
 				dataPath: "/resources/configuration/paths/src",
@@ -1188,7 +1187,7 @@ SpecificationVersion.getVersionsForRange("2.0 - 3.1").forEach(function(specVersi
 				message: "should be string",
 				params: {
 					type: "string",
-				}
+				},
 			},
 			{
 				dataPath: "/resources/configuration/paths/test",
@@ -1196,7 +1195,7 @@ SpecificationVersion.getVersionsForRange("2.0 - 3.1").forEach(function(specVersi
 				message: "should be string",
 				params: {
 					type: "string",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/resources/excludes",
@@ -1204,7 +1203,7 @@ SpecificationVersion.getVersionsForRange("2.0 - 3.1").forEach(function(specVersi
 				message: "should be array",
 				params: {
 					type: "array",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/jsdoc/excludes",
@@ -1212,7 +1211,7 @@ SpecificationVersion.getVersionsForRange("2.0 - 3.1").forEach(function(specVersi
 				message: "should be array",
 				params: {
 					type: "array",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/bundles/0/bundleDefinition/sections/0",
@@ -1220,7 +1219,7 @@ SpecificationVersion.getVersionsForRange("2.0 - 3.1").forEach(function(specVersi
 				message: "should NOT have additional properties",
 				params: {
 					additionalProperty: "declareModules",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/bundles/0/bundleDefinition/sections/0/name",
@@ -1228,7 +1227,7 @@ SpecificationVersion.getVersionsForRange("2.0 - 3.1").forEach(function(specVersi
 				message: "should be string",
 				params: {
 					type: "string",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/bundles/1/bundleDefinition",
@@ -1236,7 +1235,7 @@ SpecificationVersion.getVersionsForRange("2.0 - 3.1").forEach(function(specVersi
 				message: "should have required property 'name'",
 				params: {
 					missingProperty: "name",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/bundles/1/bundleDefinition/defaultFileTypes/1",
@@ -1244,7 +1243,7 @@ SpecificationVersion.getVersionsForRange("2.0 - 3.1").forEach(function(specVersi
 				message: "should be string",
 				params: {
 					type: "string",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/bundles/1/bundleDefinition/sections/0",
@@ -1252,7 +1251,7 @@ SpecificationVersion.getVersionsForRange("2.0 - 3.1").forEach(function(specVersi
 				message: "should have required property 'mode'",
 				params: {
 					missingProperty: "mode",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/bundles/1/bundleDefinition/sections/0/declareRawModules",
@@ -1260,26 +1259,28 @@ SpecificationVersion.getVersionsForRange("2.0 - 3.1").forEach(function(specVersi
 				message: "should be boolean",
 				params: {
 					type: "boolean",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/bundles/1/bundleDefinition/sections/1/mode",
 				keyword: "enum",
 				message: "should be equal to one of the allowed values",
 				params: {
-					allowedValues: ["3.1", "3.0", "2.6", "2.5", "2.4"].includes(specVersion) ? [
-						"raw",
-						"preload",
-						"require",
-						"provided",
-						"bundleInfo"
-					] : [
-						"raw",
-						"preload",
-						"require",
-						"provided"
-					]
-				}
+					allowedValues: ["3.1", "3.0", "2.6", "2.5", "2.4"].includes(specVersion) ?
+							[
+								"raw",
+								"preload",
+								"require",
+								"provided",
+								"bundleInfo",
+							] :
+							[
+								"raw",
+								"preload",
+								"require",
+								"provided",
+							],
+				},
 			},
 			{
 				dataPath: "/builder/bundles/1/bundleDefinition/sections/1/filters",
@@ -1287,7 +1288,7 @@ SpecificationVersion.getVersionsForRange("2.0 - 3.1").forEach(function(specVersi
 				message: "should be array",
 				params: {
 					type: "array",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/bundles/1/bundleOptions",
@@ -1295,7 +1296,7 @@ SpecificationVersion.getVersionsForRange("2.0 - 3.1").forEach(function(specVersi
 				message: "should NOT have additional properties",
 				params: {
 					additionalProperty: "notAllowed",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/bundles/1/bundleOptions/optimize",
@@ -1303,7 +1304,7 @@ SpecificationVersion.getVersionsForRange("2.0 - 3.1").forEach(function(specVersi
 				message: "should be boolean",
 				params: {
 					type: "boolean",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/bundles/1/bundleOptions/numberOfParts",
@@ -1311,7 +1312,7 @@ SpecificationVersion.getVersionsForRange("2.0 - 3.1").forEach(function(specVersi
 				message: "should be number",
 				params: {
 					type: "number",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/componentPreload",
@@ -1319,7 +1320,7 @@ SpecificationVersion.getVersionsForRange("2.0 - 3.1").forEach(function(specVersi
 				message: "should NOT have additional properties",
 				params: {
 					additionalProperty: "path",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/componentPreload/paths",
@@ -1327,7 +1328,7 @@ SpecificationVersion.getVersionsForRange("2.0 - 3.1").forEach(function(specVersi
 				message: "should be array",
 				params: {
 					type: "array",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/componentPreload/namespaces",
@@ -1335,7 +1336,7 @@ SpecificationVersion.getVersionsForRange("2.0 - 3.1").forEach(function(specVersi
 				message: "should be array",
 				params: {
 					type: "array",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/customTasks/0",
@@ -1343,7 +1344,7 @@ SpecificationVersion.getVersionsForRange("2.0 - 3.1").forEach(function(specVersi
 				message: "should NOT have additional properties",
 				params: {
 					additionalProperty: "afterTask",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/customTasks/0",
@@ -1351,7 +1352,7 @@ SpecificationVersion.getVersionsForRange("2.0 - 3.1").forEach(function(specVersi
 				message: "should NOT have additional properties",
 				params: {
 					additionalProperty: "beforeTask",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/customTasks/1",
@@ -1359,7 +1360,7 @@ SpecificationVersion.getVersionsForRange("2.0 - 3.1").forEach(function(specVersi
 				message: "should NOT have additional properties",
 				params: {
 					additionalProperty: "afterTask",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/customTasks/1",
@@ -1367,7 +1368,7 @@ SpecificationVersion.getVersionsForRange("2.0 - 3.1").forEach(function(specVersi
 				message: "should have required property 'name'",
 				params: {
 					missingProperty: "name",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/customTasks/1",
@@ -1375,7 +1376,7 @@ SpecificationVersion.getVersionsForRange("2.0 - 3.1").forEach(function(specVersi
 				message: "should have required property 'beforeTask'",
 				params: {
 					missingProperty: "beforeTask",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/customTasks/2",
@@ -1383,7 +1384,7 @@ SpecificationVersion.getVersionsForRange("2.0 - 3.1").forEach(function(specVersi
 				message: "should be object",
 				params: {
 					type: "object",
-				}
+				},
 			},
 			{
 				dataPath: "/server/settings/httpPort",
@@ -1391,7 +1392,7 @@ SpecificationVersion.getVersionsForRange("2.0 - 3.1").forEach(function(specVersi
 				message: "should be number",
 				params: {
 					type: "number",
-				}
+				},
 			},
 			{
 				dataPath: "/server/settings/httpsPort",
@@ -1399,116 +1400,116 @@ SpecificationVersion.getVersionsForRange("2.0 - 3.1").forEach(function(specVersi
 				message: "should be number",
 				params: {
 					type: "number",
-				}
-			}
+				},
+			},
 		]);
 	});
 });
 
-SpecificationVersion.getVersionsForRange(">=3.2").forEach(function(specVersion) {
+SpecificationVersion.getVersionsForRange(">=3.2").forEach(function (specVersion) {
 	test(`library (specVersion ${specVersion}): Invalid configuration`, async (t) => {
 		await assertValidation(t, {
-			"specVersion": specVersion,
-			"type": "library",
-			"metadata": {
-				"name": "com.sap.ui5.test",
-				"copyright": "yes"
+			specVersion: specVersion,
+			type: "library",
+			metadata: {
+				name: "com.sap.ui5.test",
+				copyright: "yes",
 			},
-			"resources": {
-				"configuration": {
-					"propertiesFileSourceEncoding": "UTF8",
-					"paths": {
-						"src": {"path": "src"},
-						"test": {"path": "test"},
-						"webapp": "app"
-					}
-				}
-			},
-			"builder": {
-				"resources": {
-					"excludes": "/resources/some/project/name/test_results/**"
+			resources: {
+				configuration: {
+					propertiesFileSourceEncoding: "UTF8",
+					paths: {
+						src: {path: "src"},
+						test: {path: "test"},
+						webapp: "app",
+					},
 				},
-				"bundles": [
+			},
+			builder: {
+				resources: {
+					excludes: "/resources/some/project/name/test_results/**",
+				},
+				bundles: [
 					{
-						"bundleDefinition": {
-							"name": "sap-ui-custom.js",
-							"defaultFileTypes": [
-								".js"
+						bundleDefinition: {
+							name: "sap-ui-custom.js",
+							defaultFileTypes: [
+								".js",
 							],
-							"sections": [
+							sections: [
 								{
-									"name": true,
-									"mode": "raw",
-									"filters": [
-										"ui5loader-autoconfig.js"
+									name: true,
+									mode: "raw",
+									filters: [
+										"ui5loader-autoconfig.js",
 									],
-									"resolve": true,
-									"sort": true,
-									"declareModules": true
-								}
-							]
+									resolve: true,
+									sort: true,
+									declareModules: true,
+								},
+							],
 						},
-						"bundleOptions": {
-							"optimize": true
-						}
+						bundleOptions: {
+							optimize: true,
+						},
 					},
 					{
-						"bundleDefinition": {
-							"defaultFileTypes": [
-								".js", true
+						bundleDefinition: {
+							defaultFileTypes: [
+								".js", true,
 							],
-							"sections": [
+							sections: [
 								{
-									"filters": [
-										"some/app/Component.js"
+									filters: [
+										"some/app/Component.js",
 									],
-									"resolve": true,
-									"sort": true,
-									"declareRawModules": []
+									resolve: true,
+									sort: true,
+									declareRawModules: [],
 								},
 								{
-									"mode": "provide",
-									"filters": "*",
-									"resolve": true
-								}
-							]
+									mode: "provide",
+									filters: "*",
+									resolve: true,
+								},
+							],
 						},
-						"bundleOptions": {
-							"optimize": "true",
-							"numberOfParts": "3",
-							"notAllowed": true
-						}
-					}
+						bundleOptions: {
+							optimize: "true",
+							numberOfParts: "3",
+							notAllowed: true,
+						},
+					},
 				],
-				"componentPreload": {
-					"path": "some/invalid/path",
-					"paths": "some/invalid/glob/**/pattern/Component.js",
-					"namespaces": "some/invalid/namespace",
+				componentPreload: {
+					path: "some/invalid/path",
+					paths: "some/invalid/glob/**/pattern/Component.js",
+					namespaces: "some/invalid/namespace",
 				},
-				"jsdoc": {
-					"excludes": "some/project/name/thirdparty/**"
+				jsdoc: {
+					excludes: "some/project/name/thirdparty/**",
 				},
-				"customTasks": [
+				customTasks: [
 					{
-						"name": "custom-task-1",
-						"beforeTask": "replaceCopyright",
-						"afterTask": "replaceCopyright",
+						name: "custom-task-1",
+						beforeTask: "replaceCopyright",
+						afterTask: "replaceCopyright",
 					},
 					{
-						"afterTask": "custom-task-1",
-						"configuration": {
-							"color": "blue"
-						}
+						afterTask: "custom-task-1",
+						configuration: {
+							color: "blue",
+						},
 					},
-					"my-task"
-				]
+					"my-task",
+				],
 			},
-			"server": {
-				"settings": {
-					"httpPort": "1337",
-					"httpsPort": "1443"
-				}
-			}
+			server: {
+				settings: {
+					httpPort: "1337",
+					httpsPort: "1443",
+				},
+			},
 		}, [
 			{
 				dataPath: "/resources/configuration/propertiesFileSourceEncoding",
@@ -1519,7 +1520,7 @@ SpecificationVersion.getVersionsForRange(">=3.2").forEach(function(specVersion) 
 						"UTF-8",
 						"ISO-8859-1",
 					],
-				}
+				},
 			},
 			{
 				dataPath: "/resources/configuration/paths",
@@ -1527,7 +1528,7 @@ SpecificationVersion.getVersionsForRange(">=3.2").forEach(function(specVersion) 
 				message: "should NOT have additional properties",
 				params: {
 					additionalProperty: "webapp",
-				}
+				},
 			},
 			{
 				dataPath: "/resources/configuration/paths/src",
@@ -1535,7 +1536,7 @@ SpecificationVersion.getVersionsForRange(">=3.2").forEach(function(specVersion) 
 				message: "should be string",
 				params: {
 					type: "string",
-				}
+				},
 			},
 			{
 				dataPath: "/resources/configuration/paths/test",
@@ -1543,7 +1544,7 @@ SpecificationVersion.getVersionsForRange(">=3.2").forEach(function(specVersion) 
 				message: "should be string",
 				params: {
 					type: "string",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/resources/excludes",
@@ -1551,7 +1552,7 @@ SpecificationVersion.getVersionsForRange(">=3.2").forEach(function(specVersion) 
 				message: "should be array",
 				params: {
 					type: "array",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/jsdoc/excludes",
@@ -1559,7 +1560,7 @@ SpecificationVersion.getVersionsForRange(">=3.2").forEach(function(specVersion) 
 				message: "should be array",
 				params: {
 					type: "array",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/bundles/0/bundleDefinition/sections/0",
@@ -1567,7 +1568,7 @@ SpecificationVersion.getVersionsForRange(">=3.2").forEach(function(specVersion) 
 				message: "should NOT have additional properties",
 				params: {
 					additionalProperty: "declareModules",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/bundles/0/bundleDefinition/sections/0/name",
@@ -1575,7 +1576,7 @@ SpecificationVersion.getVersionsForRange(">=3.2").forEach(function(specVersion) 
 				message: "should be string",
 				params: {
 					type: "string",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/bundles/1/bundleDefinition",
@@ -1583,7 +1584,7 @@ SpecificationVersion.getVersionsForRange(">=3.2").forEach(function(specVersion) 
 				message: "should have required property 'name'",
 				params: {
 					missingProperty: "name",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/bundles/1/bundleDefinition/defaultFileTypes/1",
@@ -1591,7 +1592,7 @@ SpecificationVersion.getVersionsForRange(">=3.2").forEach(function(specVersion) 
 				message: "should be string",
 				params: {
 					type: "string",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/bundles/1/bundleDefinition/sections/0",
@@ -1599,7 +1600,7 @@ SpecificationVersion.getVersionsForRange(">=3.2").forEach(function(specVersion) 
 				message: "should have required property 'mode'",
 				params: {
 					missingProperty: "mode",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/bundles/1/bundleDefinition/sections/0/declareRawModules",
@@ -1607,7 +1608,7 @@ SpecificationVersion.getVersionsForRange(">=3.2").forEach(function(specVersion) 
 				message: "should be boolean",
 				params: {
 					type: "boolean",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/bundles/1/bundleDefinition/sections/1/mode",
@@ -1620,9 +1621,9 @@ SpecificationVersion.getVersionsForRange(">=3.2").forEach(function(specVersion) 
 						"require",
 						"provided",
 						"bundleInfo",
-						"depCache"
-					]
-				}
+						"depCache",
+					],
+				},
 			},
 			{
 				dataPath: "/builder/bundles/1/bundleDefinition/sections/1/filters",
@@ -1630,7 +1631,7 @@ SpecificationVersion.getVersionsForRange(">=3.2").forEach(function(specVersion) 
 				message: "should be array",
 				params: {
 					type: "array",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/bundles/1/bundleOptions",
@@ -1638,7 +1639,7 @@ SpecificationVersion.getVersionsForRange(">=3.2").forEach(function(specVersion) 
 				message: "should NOT have additional properties",
 				params: {
 					additionalProperty: "notAllowed",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/bundles/1/bundleOptions/optimize",
@@ -1646,7 +1647,7 @@ SpecificationVersion.getVersionsForRange(">=3.2").forEach(function(specVersion) 
 				message: "should be boolean",
 				params: {
 					type: "boolean",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/bundles/1/bundleOptions/numberOfParts",
@@ -1654,7 +1655,7 @@ SpecificationVersion.getVersionsForRange(">=3.2").forEach(function(specVersion) 
 				message: "should be number",
 				params: {
 					type: "number",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/componentPreload",
@@ -1662,7 +1663,7 @@ SpecificationVersion.getVersionsForRange(">=3.2").forEach(function(specVersion) 
 				message: "should NOT have additional properties",
 				params: {
 					additionalProperty: "path",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/componentPreload/paths",
@@ -1670,7 +1671,7 @@ SpecificationVersion.getVersionsForRange(">=3.2").forEach(function(specVersion) 
 				message: "should be array",
 				params: {
 					type: "array",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/componentPreload/namespaces",
@@ -1678,7 +1679,7 @@ SpecificationVersion.getVersionsForRange(">=3.2").forEach(function(specVersion) 
 				message: "should be array",
 				params: {
 					type: "array",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/customTasks/0",
@@ -1686,7 +1687,7 @@ SpecificationVersion.getVersionsForRange(">=3.2").forEach(function(specVersion) 
 				message: "should NOT have additional properties",
 				params: {
 					additionalProperty: "afterTask",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/customTasks/0",
@@ -1694,7 +1695,7 @@ SpecificationVersion.getVersionsForRange(">=3.2").forEach(function(specVersion) 
 				message: "should NOT have additional properties",
 				params: {
 					additionalProperty: "beforeTask",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/customTasks/1",
@@ -1702,7 +1703,7 @@ SpecificationVersion.getVersionsForRange(">=3.2").forEach(function(specVersion) 
 				message: "should NOT have additional properties",
 				params: {
 					additionalProperty: "afterTask",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/customTasks/1",
@@ -1710,7 +1711,7 @@ SpecificationVersion.getVersionsForRange(">=3.2").forEach(function(specVersion) 
 				message: "should have required property 'name'",
 				params: {
 					missingProperty: "name",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/customTasks/1",
@@ -1718,7 +1719,7 @@ SpecificationVersion.getVersionsForRange(">=3.2").forEach(function(specVersion) 
 				message: "should have required property 'beforeTask'",
 				params: {
 					missingProperty: "beforeTask",
-				}
+				},
 			},
 			{
 				dataPath: "/builder/customTasks/2",
@@ -1726,7 +1727,7 @@ SpecificationVersion.getVersionsForRange(">=3.2").forEach(function(specVersion) 
 				message: "should be object",
 				params: {
 					type: "object",
-				}
+				},
 			},
 			{
 				dataPath: "/server/settings/httpPort",
@@ -1734,7 +1735,7 @@ SpecificationVersion.getVersionsForRange(">=3.2").forEach(function(specVersion) 
 				message: "should be number",
 				params: {
 					type: "number",
-				}
+				},
 			},
 			{
 				dataPath: "/server/settings/httpsPort",
@@ -1742,8 +1743,8 @@ SpecificationVersion.getVersionsForRange(">=3.2").forEach(function(specVersion) 
 				message: "should be number",
 				params: {
 					type: "number",
-				}
-			}
+				},
+			},
 		]);
 	});
 });

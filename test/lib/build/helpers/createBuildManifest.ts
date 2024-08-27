@@ -15,8 +15,8 @@ const applicationProjectInput = {
 		specVersion: "2.3",
 		kind: "project",
 		type: "application",
-		metadata: {name: "application.a"}
-	}
+		metadata: {name: "application.a"},
+	},
 };
 
 const libraryDPath = path.join(__dirname, "..", "..", "..", "fixtures", "library.d");
@@ -35,16 +35,16 @@ const libraryProjectInput = {
 			configuration: {
 				paths: {
 					src: "main/src",
-					test: "main/test"
-				}
-			}
+					test: "main/test",
+				},
+			},
 		},
-	}
+	},
 };
 
 test("Missing parameter: project", async (t) => {
 	await t.throwsAsync(createBuildManifest(), {
-		message: "Missing parameter 'project'"
+		message: "Missing parameter 'project'",
 	});
 });
 
@@ -52,7 +52,7 @@ test("Missing parameter: buildConfig", async (t) => {
 	const project = await Specification.create(applicationProjectInput);
 
 	await t.throwsAsync(createBuildManifest(project), {
-		message: "Missing parameter 'buildConfig'"
+		message: "Missing parameter 'buildConfig'",
 	});
 });
 
@@ -60,7 +60,7 @@ test("Missing parameter: taskRepository", async (t) => {
 	const project = await Specification.create(applicationProjectInput);
 
 	await t.throwsAsync(createBuildManifest(project, "buildConfig"), {
-		message: "Missing parameter 'taskRepository'"
+		message: "Missing parameter 'taskRepository'",
 	});
 });
 
@@ -69,7 +69,7 @@ test("Create application from project with build manifest", async (t) => {
 	project.getResourceTagCollection().setTag("/resources/id1/foo.js", "ui5:HasDebugVariant");
 
 	const taskRepository = {
-		getVersions: async () => ({builderVersion: "<builder version>", fsVersion: "<builder fs version>"})
+		getVersions: async () => ({builderVersion: "<builder version>", fsVersion: "<builder fs version>"}),
 	};
 
 	const metadata = await createBuildManifest(project, "buildConfig", taskRepository);
@@ -96,7 +96,7 @@ test("Create application from project with build manifest", async (t) => {
 						webapp: "resources/id1",
 					},
 				},
-			}
+			},
 		},
 		buildManifest: {
 			manifestVersion: "0.2",
@@ -114,8 +114,8 @@ test("Create application from project with build manifest", async (t) => {
 				"/resources/id1/foo.js": {
 					"ui5:HasDebugVariant": true,
 				},
-			}
-		}
+			},
+		},
 	}, "Returned correct metadata");
 });
 
@@ -124,7 +124,7 @@ test("Create library from project with build manifest", async (t) => {
 	project.getResourceTagCollection().setTag("/resources/library/d/foo.js", "ui5:HasDebugVariant");
 
 	const taskRepository = {
-		getVersions: async () => ({builderVersion: "<builder version>", fsVersion: "<builder fs version>"})
+		getVersions: async () => ({builderVersion: "<builder version>", fsVersion: "<builder fs version>"}),
 	};
 
 	const metadata = await createBuildManifest(project, "buildConfig", taskRepository);
@@ -152,7 +152,7 @@ test("Create library from project with build manifest", async (t) => {
 						test: "test-resources",
 					},
 				},
-			}
+			},
 		},
 		buildManifest: {
 			manifestVersion: "0.2",
@@ -170,7 +170,7 @@ test("Create library from project with build manifest", async (t) => {
 				"/resources/library/d/foo.js": {
 					"ui5:HasDebugVariant": true,
 				},
-			}
-		}
+			},
+		},
 	}, "Returned correct metadata");
 });

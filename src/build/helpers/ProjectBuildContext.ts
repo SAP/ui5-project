@@ -7,8 +7,6 @@ import TaskRunner from "../TaskRunner.js";
  * Build context of a single project. Always part of an overall
  * [Build Context]{@link @ui5/project/build/helpers/BuildContext}
  *
- * @private
- * @memberof @ui5/project/build/helpers
  */
 class ProjectBuildContext {
 	constructor({buildContext, project}) {
@@ -23,15 +21,15 @@ class ProjectBuildContext {
 		this._log = new ProjectBuildLogger({
 			moduleName: "Build",
 			projectName: project.getName(),
-			projectType: project.getType()
+			projectType: project.getType(),
 		});
 		this._queues = {
-			cleanup: []
+			cleanup: [],
 		};
 
 		this._resourceTagCollection = new ResourceTagCollection({
 			allowedTags: ["ui5:OmitFromBuildResult", "ui5:IsBundle"],
-			allowedNamespaces: ["build"]
+			allowedNamespaces: ["build"],
 		});
 	}
 
@@ -56,8 +54,8 @@ class ProjectBuildContext {
 	/**
 	 * Retrieve a single project from the dependency graph
 	 *
-	 * @param {string} [projectName] Name of the project to retrieve. Defaults to the project currently being built
-	 * @returns {@ui5/project/specifications/Project|undefined}
+	 * @param [projectName] Name of the project to retrieve. Defaults to the project currently being built
+	 * @returns
 	 *					project instance or undefined if the project is unknown to the graph
 	 */
 	getProject(projectName?: string) {
@@ -70,8 +68,8 @@ class ProjectBuildContext {
 	/**
 	 * Retrieve a list of direct dependencies of a given project from the dependency graph
 	 *
-	 * @param {string} [projectName] Name of the project to retrieve. Defaults to the project currently being built
-	 * @returns {string[]} Names of all direct dependencies
+	 * @param [projectName] Name of the project to retrieve. Defaults to the project currently being built
+	 * @returns Names of all direct dependencies
 	 * @throws {Error} If the requested project is unknown to the graph
 	 */
 	getDependencies(projectName?: string) {
@@ -99,7 +97,7 @@ class ProjectBuildContext {
 	getTaskUtil() {
 		if (!this._taskUtil) {
 			this._taskUtil = new TaskUtil({
-				projectBuildContext: this
+				projectBuildContext: this,
 			});
 		}
 
@@ -114,7 +112,7 @@ class ProjectBuildContext {
 				taskUtil: this.getTaskUtil(),
 				graph: this._buildContext.getGraph(),
 				taskRepository: this._buildContext.getTaskRepository(),
-				buildConfig: this._buildContext.getBuildConfig()
+				buildConfig: this._buildContext.getBuildConfig(),
 			});
 		}
 		return this._taskRunner;
@@ -124,7 +122,7 @@ class ProjectBuildContext {
 	 * Determine whether the project has to be built or is already built
 	 * (typically indicated by the presence of a build manifest)
 	 *
-	 * @returns {boolean} True if the project needs to be built
+	 * @returns True if the project needs to be built
 	 */
 	requiresBuild() {
 		return !this._project.getBuildManifest();
@@ -140,7 +138,7 @@ class ProjectBuildContext {
 		// TODO: Format age properly via a new @ui5/logger util module
 		return {
 			timestamp: buildManifest.timestamp,
-			age: timeDiff / 1000 + " seconds"
+			age: timeDiff / 1000 + " seconds",
 		};
 	}
 }

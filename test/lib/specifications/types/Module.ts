@@ -18,17 +18,17 @@ test.beforeEach((t) => {
 			type: "module",
 			metadata: {
 				name: "module.a",
-				copyright: "Some fancy copyright" // allowed but ignored
+				copyright: "Some fancy copyright", // allowed but ignored
 			},
 			resources: {
 				configuration: {
 					paths: {
 						"/": "dist",
-						"/dev/": "dev"
-					}
-				}
-			}
-		}
+						"/dev/": "dev",
+					},
+				},
+			},
+		},
 	};
 });
 
@@ -66,7 +66,7 @@ test("Access project resources via reader", async (t) => {
 	t.throws(() => {
 		project.getSourcePath();
 	}, {
-		message: "Projects of type module have more than one source path"
+		message: "Projects of type module have more than one source path",
 	}, "Threw with expected error message");
 });
 

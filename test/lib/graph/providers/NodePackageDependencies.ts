@@ -9,8 +9,8 @@ test.beforeEach(async (t) => {
 
 	t.context.NodePackageDependencies = await esmock("../../../../lib/graph/providers/NodePackageDependencies.js", {
 		"read-package-up": {
-			readPackageUp: t.context.readPackageUp
-		}
+			readPackageUp: t.context.readPackageUp,
+		},
 	});
 });
 
@@ -26,12 +26,12 @@ test("getRootNode should reject with error when 'name' is empty/missing in packa
 	readPackageUp.resolves({
 		path: "/path/to/root/package.json",
 		packageJson: {
-			name: ""
-		}
+			name: "",
+		},
 	});
 
 	await t.throwsAsync(() => resolver.getRootNode(), {
-		message: "Missing or empty 'name' attribute in package.json at /path/to/root"
+		message: "Missing or empty 'name' attribute in package.json at /path/to/root",
 	});
 });
 
@@ -44,11 +44,11 @@ test("getRootNode should reject with error when 'version' is empty/missing in pa
 		path: "/path/to/root/package.json",
 		packageJson: {
 			name: "test-package-name",
-			version: ""
-		}
+			version: "",
+		},
 	});
 
 	await t.throwsAsync(() => resolver.getRootNode(), {
-		message: "Missing or empty 'version' attribute in package.json at /path/to/root"
+		message: "Missing or empty 'version' attribute in package.json at /path/to/root",
 	});
 });

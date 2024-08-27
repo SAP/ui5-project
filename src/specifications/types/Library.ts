@@ -7,10 +7,7 @@ import * as resourceFactory from "@ui5/fs/resourceFactory";
 /**
  * Library
  *
- * @public
- * @class
  * @alias @ui5/project/specifications/types/Library
- * @extends @ui5/project/specifications/ComponentProject
  * @hideconstructor
  */
 class Library extends ComponentProject {
@@ -31,26 +28,22 @@ class Library extends ComponentProject {
 
 	/* === Attributes === */
 	/**
-	*
-	* @private
-	*/
+	 *
+	 */
 	private getLibraryPreloadExcludes() {
-		return this._config.builder && this._config.builder.libraryPreload &&
-			this._config.builder.libraryPreload.excludes || [];
+		return this._config.builder?.libraryPreload?.excludes || [];
 	}
 
 	/**
-	* @private
-	*/
+	 */
 	private getJsdocExcludes() {
-		return this._config.builder && this._config.builder.jsdoc && this._config.builder.jsdoc.excludes || [];
+		return this._config.builder?.jsdoc?.excludes || [];
 	}
 
 	/**
 	 * Get the path of the project's source directory. This might not be POSIX-style on some platforms.
 	 *
-	 * @public
-	 * @returns {string} Absolute path to the source directory of the project
+	 * @returns Absolute path to the source directory of the project
 	 */
 	public getSourcePath() {
 		return fsPath.join(this.getRootPath(), this._srcPath);
@@ -58,11 +51,11 @@ class Library extends ComponentProject {
 
 	/* === Resource Access === */
 	/**
-	* Get a resource reader for the sources of the project (excluding any test resources)
-	*
-	* @param {string[]} excludes List of glob patterns to exclude
-	* @returns {@ui5/fs/ReaderCollection} Reader collection
-	*/
+	 * Get a resource reader for the sources of the project (excluding any test resources)
+	 *
+	 * @param excludes List of glob patterns to exclude
+	 * @returns Reader collection
+	 */
 	_getSourceReader(excludes: string[]) {
 		// TODO: Throw for libraries with additional namespaces like sap.ui.core?
 		let virBasePath = "/resources/";
@@ -76,16 +69,16 @@ class Library extends ComponentProject {
 			virBasePath,
 			name: `Source reader for library project ${this.getName()}`,
 			project: this,
-			excludes
+			excludes,
 		});
 	}
 
 	/**
-	* Get a resource reader for the test-resources of the project
-	*
-	* @param {string[]} excludes List of glob patterns to exclude
-	* @returns {@ui5/fs/ReaderCollection} Reader collection
-	*/
+	 * Get a resource reader for the test-resources of the project
+	 *
+	 * @param excludes List of glob patterns to exclude
+	 * @returns Reader collection
+	 */
 	_getTestReader(excludes: string[]) {
 		if (!this._testPathExists) {
 			return null;
@@ -101,7 +94,7 @@ class Library extends ComponentProject {
 			virBasePath,
 			name: `Runtime test-resources reader for library project ${this.getName()}`,
 			project: this,
-			excludes
+			excludes,
 		});
 		return testReader;
 	}
@@ -112,21 +105,21 @@ class Library extends ComponentProject {
 	 * In the future the path structure can be flat or namespaced depending on the project
 	 * setup
 	 *
-	 * @returns {@ui5/fs/ReaderCollection} Reader collection
-	*/
+	 * @returns Reader collection
+	 */
 	_getRawSourceReader() {
 		return resourceFactory.createReader({
 			fsBasePath: this.getSourcePath(),
 			virBasePath: "/",
 			name: `Raw source reader for library project ${this.getName()}`,
-			project: this
+			project: this,
 		});
 	}
 
 	private async _configureAndValidatePaths(config: object) {
 		await super._configureAndValidatePaths(config);
 
-		if (config.resources && config.resources.configuration && config.resources.configuration.paths) {
+		if (config.resources?.configuration?.paths) {
 			if (config.resources.configuration.paths.src) {
 				this._srcPath = config.resources.configuration.paths.src;
 			}
@@ -193,20 +186,20 @@ class Library extends ComponentProject {
 	 * Determine library namespace by checking manifest.json with fallback to .library.
 	 * Any maven placeholders are resolved from the projects pom.xml
 	 *
-	 * @returns {string} Namespace of the project
+	 * @returns Namespace of the project
 	 * @throws {Error} if namespace can not be determined
 	 */
 	async _getNamespace() {
 		// Trigger both reads asynchronously
 		const [{
 			namespace: manifestNs,
-			filePath: manifestPath
+			filePath: manifestPath,
 		}, {
 			namespace: dotLibraryNs,
-			filePath: dotLibraryPath
+			filePath: dotLibraryPath,
 		}] = await Promise.all([
 			this._getNamespaceFromManifest(),
-			this._getNamespaceFromDotLibrary()
+			this._getNamespaceFromDotLibrary(),
 		]);
 
 		let libraryNs;
@@ -232,11 +225,11 @@ class Library extends ComponentProject {
 				if (posixPath.dirname(manifestPath) !== posixPath.dirname(dotLibraryPath)) {
 					// This just should not happen in your project
 					throw new Error(`Failed to detect namespace for project ${this.getName()}: ` +
-					`Found a manifest.json on the same directory level but in a different directory ` +
-					`than the .library file. They should be in the same directory.\n` +
-					`  manifest.json path: ${manifestPath}\n` +
-					`  is different to\n` +
-					`  .library path: ${dotLibraryPath}`);
+						`Found a manifest.json on the same directory level but in a different directory ` +
+						`than the .library file. They should be in the same directory.\n` +
+						`  manifest.json path: ${manifestPath}\n` +
+						`  is different to\n` +
+						`  .library path: ${dotLibraryPath}`);
 				}
 				// Typical scenario if both files are present
 				this._log.verbose(
@@ -333,14 +326,14 @@ class Library extends ComponentProject {
 		try {
 			const {content: manifest, filePath} = await this._getManifest();
 			// check for a proper sap.app/id in manifest.json to determine namespace
-			if (manifest["sap.app"] && manifest["sap.app"].id) {
+			if (manifest["sap.app"]?.id) {
 				const namespace = manifest["sap.app"].id;
 				this._log.verbose(
 					`Found namespace ${namespace} in manifest.json of project ${this.getName()} ` +
 					`at ${filePath}`);
 				return {
 					namespace,
-					filePath
+					filePath,
 				};
 			} else {
 				throw new Error(
@@ -365,7 +358,7 @@ class Library extends ComponentProject {
 					`at ${filePath}`);
 				return {
 					namespace,
-					filePath
+					filePath,
 				};
 			} else {
 				throw new Error(
@@ -383,7 +376,7 @@ class Library extends ComponentProject {
 	/**
 	 * Determines library copyright from given project configuration with fallback to .library.
 	 *
-	 * @returns {string|null} Copyright of the project
+	 * @returns Copyright of the project
 	 */
 	async _getCopyrightFromDotLibrary() {
 		try {
@@ -432,7 +425,7 @@ class Library extends ComponentProject {
 	/**
 	 * Reads the projects manifest.json
 	 *
-	 * @returns {Promise<object>} resolves with an object containing the <code>content</code> (as JSON) and
+	 * @returns resolves with an object containing the <code>content</code> (as JSON) and
 	 * 							<code>filePath</code> (as string) of the manifest.json file
 	 */
 	async _getManifest() {
@@ -452,7 +445,7 @@ class Library extends ComponentProject {
 				try {
 					return {
 						content: JSON.parse(await resource.getString()),
-						filePath: resource.getPath()
+						filePath: resource.getPath(),
 					};
 				} catch (err) {
 					throw new Error(
@@ -464,7 +457,7 @@ class Library extends ComponentProject {
 	/**
 	 * Reads the .library file
 	 *
-	 * @returns {Promise<object>} resolves with an object containing the <code>content</code> (as JSON) and
+	 * @returns resolves with an object containing the <code>content</code> (as JSON) and
 	 * 							<code>filePath</code> (as string) of the .library file
 	 */
 	async _getDotLibrary() {
@@ -485,16 +478,16 @@ class Library extends ComponentProject {
 
 				try {
 					const {
-						default: xml2js
+						default: xml2js,
 					} = await import("xml2js");
 					const parser = new xml2js.Parser({
 						explicitArray: false,
-						explicitCharkey: true
+						explicitCharkey: true,
 					});
 					const readXML = promisify(parser.parseString);
 					return {
 						content: await readXML(content),
-						filePath: resource.getPath()
+						filePath: resource.getPath(),
 					};
 				} catch (err) {
 					throw new Error(
@@ -506,7 +499,7 @@ class Library extends ComponentProject {
 	/**
 	 * Determines the path of the library.js file
 	 *
-	 * @returns {Promise<string>} resolves with an a string containing the file system path
+	 * @returns resolves with an a string containing the file system path
 	 *								of the library.js file
 	 */
 	async _getLibraryJsPath() {

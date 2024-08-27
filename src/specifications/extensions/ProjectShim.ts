@@ -3,10 +3,7 @@ import Extension from "../Extension.js";
 /**
  * ProjectShim
  *
- * @public
- * @class
  * @alias @ui5/project/specifications/extensions/ProjectShim
- * @extends @ui5/project/specifications/Extension
  * @hideconstructor
  */
 class ProjectShim extends Extension {
@@ -14,25 +11,21 @@ class ProjectShim extends Extension {
 		super(parameters);
 	}
 
-
 	/* === Attributes === */
 	/**
-	* @public
-	*/
+	 */
 	public getDependencyShims() {
 		return this._config.shims.dependencies || {};
 	}
 
 	/**
-	* @public
-	*/
+	 */
 	public getConfigurationShims() {
 		return this._config.shims.configurations || {};
 	}
 
 	/**
-	* @public
-	*/
+	 */
 	public getCollectionShims() {
 		return this._config.shims.collections || {};
 	}
@@ -40,7 +33,7 @@ class ProjectShim extends Extension {
 	private async _validateConfig() {
 		if (this._config.shims.collections) {
 			const {
-				default: path
+				default: path,
 			} = await import("path");
 			for (const dependencyDefinition of Object.values(this._config.shims.collections)) {
 				Object.values(dependencyDefinition.modules).forEach((depPath) => {

@@ -26,10 +26,10 @@ test.beforeEach(async (t) => {
 		warn: sinon.stub(),
 		verbose: sinon.stub(),
 		isLevelEnabled: sinon.stub().returns(false),
-		_getLogger: sinon.stub()
+		_getLogger: sinon.stub(),
 	};
 	const ui5Logger = {
-		getLogger: sinon.stub().returns(t.context.log)
+		getLogger: sinon.stub().returns(t.context.log),
 	};
 
 	t.context.Openui5ResolverStub = sinon.stub();
@@ -38,7 +38,7 @@ test.beforeEach(async (t) => {
 	t.context.Sapui5ResolverInstallStub = sinon.stub();
 	t.context.Sapui5ResolverStub.callsFake(() => {
 		return {
-			install: t.context.Sapui5ResolverInstallStub
+			install: t.context.Sapui5ResolverInstallStub,
 		};
 	});
 	t.context.Sapui5ResolverResolveVersionStub = sinon.stub();
@@ -48,7 +48,7 @@ test.beforeEach(async (t) => {
 	t.context.Sapui5MavenSnapshotResolverStub = sinon.stub()
 		.callsFake(() => {
 			return {
-				install: t.context.Sapui5MavenSnapshotResolverInstallStub
+				install: t.context.Sapui5MavenSnapshotResolverInstallStub,
 			};
 		});
 	t.context.Sapui5MavenSnapshotResolverResolveVersionStub = sinon.stub();
@@ -58,8 +58,8 @@ test.beforeEach(async (t) => {
 
 	t.context.ConfigurationStub = {
 		fromFile: sinon.stub().resolves({
-			getUi5DataDir: t.context.getUi5DataDirStub
-		})
+			getUi5DataDir: t.context.getUi5DataDirStub,
+		}),
 	};
 
 	t.context.ui5Framework = await esmock.p("../../../../lib/graph/helpers/ui5Framework.js", {
@@ -93,13 +93,13 @@ test.serial("enrichProjectGraph", async (t) => {
 			specVersion: "2.0",
 			type: "application",
 			metadata: {
-				name: "application.a"
+				name: "application.a",
 			},
 			framework: {
 				name: "SAPUI5",
-				version: "1.75.0"
-			}
-		}
+				version: "1.75.0",
+			},
+		},
 	};
 
 	const referencedLibraries = ["sap.ui.lib1", "sap.ui.lib2", "sap.ui.lib3"];
@@ -110,12 +110,11 @@ test.serial("enrichProjectGraph", async (t) => {
 
 	Sapui5ResolverInstallStub.resolves({libraryMetadata});
 
-
 	const addProjectToGraphStub = sinon.stub();
 	const ProjectProcessorStub = sinon.stub(utils, "ProjectProcessor")
 		.callsFake(() => {
 			return {
-				addProjectToGraph: addProjectToGraphStub
+				addProjectToGraph: addProjectToGraphStub,
 			};
 		});
 
@@ -132,12 +131,12 @@ test.serial("enrichProjectGraph", async (t) => {
 		cwd: dependencyTree.path,
 		version: dependencyTree.configuration.framework.version,
 		ui5DataDir: undefined,
-		providedLibraryMetadata: undefined
+		providedLibraryMetadata: undefined,
 	}], "Sapui5Resolver#constructor should be called with expected args");
 
 	t.is(t.context.Sapui5ResolverInstallStub.callCount, 1, "Sapui5Resolver#install should be called once");
 	t.deepEqual(t.context.Sapui5ResolverInstallStub.getCall(0).args, [
-		referencedLibraries
+		referencedLibraries,
 	], "Sapui5Resolver#install should be called with expected args");
 
 	t.is(ProjectProcessorStub.callCount, 1, "ProjectProcessor#constructor should be called once");
@@ -158,7 +157,6 @@ test.serial("enrichProjectGraph", async (t) => {
 	t.deepEqual(addProjectToGraphStub.getCall(2).args[0], referencedLibraries[2],
 		"ProjectProcessor#addProjectToGraph should be called with expected first arg (call 3)");
 
-
 	const callbackStub = sinon.stub().resolves();
 	await projectGraph.traverseDepthFirst(callbackStub);
 
@@ -166,7 +164,7 @@ test.serial("enrichProjectGraph", async (t) => {
 
 	const callbackCalls = callbackStub.getCalls().map((call) => call.args[0].project.getName());
 	t.deepEqual(callbackCalls, [
-		"application.a"
+		"application.a",
 	], "Traversed graph in correct order");
 });
 
@@ -180,9 +178,9 @@ test.serial("enrichProjectGraph: without framework configuration", async (t) => 
 			specVersion: "2.0",
 			type: "application",
 			metadata: {
-				name: "application.a"
-			}
-		}
+				name: "application.a",
+			},
+		},
 	};
 
 	t.is(log.verbose.callCount, 0);
@@ -194,7 +192,7 @@ test.serial("enrichProjectGraph: without framework configuration", async (t) => 
 	t.is(projectGraph.getSize(), 1, "Project graph should remain unchanged");
 	t.is(log.verbose.callCount, 1);
 	t.deepEqual(log.verbose.getCall(0).args, [
-		"Root project application.a has no framework configuration. Nothing to do here"
+		"Root project application.a has no framework configuration. Nothing to do here",
 	]);
 });
 
@@ -209,13 +207,13 @@ test.serial("enrichProjectGraph SNAPSHOT", async (t) => {
 			specVersion: "2.0",
 			type: "application",
 			metadata: {
-				name: "application.a"
+				name: "application.a",
 			},
 			framework: {
 				name: "SAPUI5",
-				version: "1.75.0-SNAPSHOT"
-			}
-		}
+				version: "1.75.0-SNAPSHOT",
+			},
+		},
 	};
 
 	const referencedLibraries = ["sap.ui.lib1", "sap.ui.lib2", "sap.ui.lib3"];
@@ -230,16 +228,15 @@ test.serial("enrichProjectGraph SNAPSHOT", async (t) => {
 	const ProjectProcessorStub = sinon.stub(utils, "ProjectProcessor")
 		.callsFake(() => {
 			return {
-				addProjectToGraph: addProjectToGraphStub
+				addProjectToGraph: addProjectToGraphStub,
 			};
 		});
-
 
 	const provider = new DependencyTreeProvider({dependencyTree});
 	const projectGraph = await projectGraphBuilder(provider);
 
 	await ui5Framework.enrichProjectGraph(projectGraph, {
-		cacheMode: CacheMode.Force
+		cacheMode: CacheMode.Force,
 	});
 
 	t.is(getFrameworkLibrariesFromGraphStub.callCount, 1, "getFrameworkLibrariesFromGraph should be called once");
@@ -255,7 +252,7 @@ test.serial("enrichProjectGraph SNAPSHOT", async (t) => {
 	t.is(t.context.Sapui5MavenSnapshotResolverInstallStub.callCount, 1,
 		"Sapui5MavenSnapshotResolverInstallStub#install should be called once");
 	t.deepEqual(t.context.Sapui5MavenSnapshotResolverInstallStub.getCall(0).args, [
-		referencedLibraries
+		referencedLibraries,
 	], "Sapui5MavenSnapshotResolverInstallStub#install should be called with expected args");
 
 	t.is(ProjectProcessorStub.callCount, 1, "ProjectProcessor#constructor should be called once");
@@ -276,7 +273,6 @@ test.serial("enrichProjectGraph SNAPSHOT", async (t) => {
 	t.deepEqual(addProjectToGraphStub.getCall(2).args[0], referencedLibraries[2],
 		"ProjectProcessor#addProjectToGraph should be called with expected first arg (call 3)");
 
-
 	const callbackStub = sinon.stub().resolves();
 	await projectGraph.traverseDepthFirst(callbackStub);
 
@@ -284,14 +280,14 @@ test.serial("enrichProjectGraph SNAPSHOT", async (t) => {
 
 	const callbackCalls = callbackStub.getCalls().map((call) => call.args[0].project.getName());
 	t.deepEqual(callbackCalls, [
-		"application.a"
+		"application.a",
 	], "Traversed graph in correct order");
 });
 
 test.serial("enrichProjectGraph: With versionOverride", async (t) => {
 	const {
 		sinon, ui5Framework, utils,
-		Sapui5ResolverStub, Sapui5ResolverResolveVersionStub, Sapui5ResolverInstallStub
+		Sapui5ResolverStub, Sapui5ResolverResolveVersionStub, Sapui5ResolverInstallStub,
 	} = t.context;
 
 	const dependencyTree = {
@@ -302,13 +298,13 @@ test.serial("enrichProjectGraph: With versionOverride", async (t) => {
 			specVersion: "2.0",
 			type: "application",
 			metadata: {
-				name: "application.a"
+				name: "application.a",
 			},
 			framework: {
 				name: "SAPUI5",
-				version: "1.75.0"
-			}
-		}
+				version: "1.75.0",
+			},
+		},
 	};
 
 	const referencedLibraries = ["sap.ui.lib1", "sap.ui.lib2", "sap.ui.lib3"];
@@ -324,7 +320,7 @@ test.serial("enrichProjectGraph: With versionOverride", async (t) => {
 	sinon.stub(utils, "ProjectProcessor")
 		.callsFake(() => {
 			return {
-				addProjectToGraph: addProjectToGraphStub
+				addProjectToGraph: addProjectToGraphStub,
 			};
 		});
 
@@ -345,7 +341,7 @@ test.serial("enrichProjectGraph: With versionOverride", async (t) => {
 		cwd: dependencyTree.path,
 		version: "1.99.9",
 		ui5DataDir: undefined,
-		providedLibraryMetadata: undefined
+		providedLibraryMetadata: undefined,
 	}], "Sapui5Resolver#constructor should be called with expected args");
 });
 
@@ -353,7 +349,7 @@ test.serial("enrichProjectGraph: With versionOverride containing snapshot versio
 	const {
 		sinon, ui5Framework, utils,
 		Sapui5MavenSnapshotResolverStub, Sapui5MavenSnapshotResolverResolveVersionStub,
-		Sapui5MavenSnapshotResolverInstallStub
+		Sapui5MavenSnapshotResolverInstallStub,
 	} = t.context;
 
 	const dependencyTree = {
@@ -364,13 +360,13 @@ test.serial("enrichProjectGraph: With versionOverride containing snapshot versio
 			specVersion: "2.0",
 			type: "application",
 			metadata: {
-				name: "application.a"
+				name: "application.a",
 			},
 			framework: {
 				name: "SAPUI5",
-				version: "1.75.0"
-			}
-		}
+				version: "1.75.0",
+			},
+		},
 	};
 
 	const referencedLibraries = ["sap.ui.lib1", "sap.ui.lib2", "sap.ui.lib3"];
@@ -386,7 +382,7 @@ test.serial("enrichProjectGraph: With versionOverride containing snapshot versio
 	sinon.stub(utils, "ProjectProcessor")
 		.callsFake(() => {
 			return {
-				addProjectToGraph: addProjectToGraphStub
+				addProjectToGraph: addProjectToGraphStub,
 			};
 		});
 
@@ -408,7 +404,7 @@ test.serial("enrichProjectGraph: With versionOverride containing snapshot versio
 		cwd: dependencyTree.path,
 		version: "1.99.9-SNAPSHOT",
 		ui5DataDir: undefined,
-		providedLibraryMetadata: undefined
+		providedLibraryMetadata: undefined,
 	}], "Sapui5Resolver#constructor should be called with expected args");
 });
 
@@ -416,7 +412,7 @@ test.serial("enrichProjectGraph: With versionOverride containing latest-snapshot
 	const {
 		sinon, ui5Framework, utils,
 		Sapui5MavenSnapshotResolverStub, Sapui5MavenSnapshotResolverResolveVersionStub,
-		Sapui5MavenSnapshotResolverInstallStub
+		Sapui5MavenSnapshotResolverInstallStub,
 	} = t.context;
 
 	const dependencyTree = {
@@ -427,13 +423,13 @@ test.serial("enrichProjectGraph: With versionOverride containing latest-snapshot
 			specVersion: "2.0",
 			type: "application",
 			metadata: {
-				name: "application.a"
+				name: "application.a",
 			},
 			framework: {
 				name: "SAPUI5",
-				version: "1.75.0"
-			}
-		}
+				version: "1.75.0",
+			},
+		},
 	};
 
 	const referencedLibraries = ["sap.ui.lib1", "sap.ui.lib2", "sap.ui.lib3"];
@@ -449,7 +445,7 @@ test.serial("enrichProjectGraph: With versionOverride containing latest-snapshot
 	sinon.stub(utils, "ProjectProcessor")
 		.callsFake(() => {
 			return {
-				addProjectToGraph: addProjectToGraphStub
+				addProjectToGraph: addProjectToGraphStub,
 			};
 		});
 
@@ -471,7 +467,7 @@ test.serial("enrichProjectGraph: With versionOverride containing latest-snapshot
 		cwd: dependencyTree.path,
 		version: "1.99.9-SNAPSHOT",
 		ui5DataDir: undefined,
-		providedLibraryMetadata: undefined
+		providedLibraryMetadata: undefined,
 	}], "Sapui5Resolver#constructor should be called with expected args");
 });
 
@@ -485,12 +481,12 @@ test.serial("enrichProjectGraph shouldn't throw when no framework version and no
 			specVersion: "2.0",
 			type: "application",
 			metadata: {
-				name: "application.a"
+				name: "application.a",
 			},
 			framework: {
-				name: "SAPUI5"
-			}
-		}
+				name: "SAPUI5",
+			},
+		},
 	};
 
 	const provider = new DependencyTreeProvider({dependencyTree});
@@ -498,7 +494,7 @@ test.serial("enrichProjectGraph shouldn't throw when no framework version and no
 
 	// Framework override is fine, even if no framework version is configured
 	await ui5Framework.enrichProjectGraph(projectGraph, {
-		versionOverride: "1.75.0"
+		versionOverride: "1.75.0",
 	});
 
 	t.is(Sapui5ResolverResolveVersionStub.callCount, 0,
@@ -506,10 +502,10 @@ test.serial("enrichProjectGraph shouldn't throw when no framework version and no
 
 	t.is(log.verbose.callCount, 2);
 	t.deepEqual(log.verbose.getCall(0).args, [
-		"Project application.a has no framework dependencies"
+		"Project application.a has no framework dependencies",
 	]);
 	t.deepEqual(log.verbose.getCall(1).args, [
-		"No SAPUI5 libraries referenced in project application.a or in any of its dependencies"
+		"No SAPUI5 libraries referenced in project application.a or in any of its dependencies",
 	]);
 });
 
@@ -523,12 +519,12 @@ test.serial("enrichProjectGraph should skip framework project without version", 
 			specVersion: "2.0",
 			type: "application",
 			metadata: {
-				name: "application.a"
+				name: "application.a",
 			},
 			framework: {
-				name: "SAPUI5"
-			}
-		}
+				name: "SAPUI5",
+			},
+		},
 	};
 	const provider = new DependencyTreeProvider({dependencyTree});
 	const projectGraph = await projectGraphBuilder(provider);
@@ -543,7 +539,7 @@ test.serial("enrichProjectGraph should resolve framework project with version an
 	// other levels of the graph are ignored
 	const {
 		sinon, ui5Framework, utils,
-		Sapui5ResolverStub, Sapui5ResolverInstallStub
+		Sapui5ResolverStub, Sapui5ResolverInstallStub,
 	} = t.context;
 	const dependencyTree = {
 		id: "@sapui5/project",
@@ -553,7 +549,7 @@ test.serial("enrichProjectGraph should resolve framework project with version an
 			specVersion: "2.0",
 			type: "application",
 			metadata: {
-				name: "application.a"
+				name: "application.a",
 			},
 			framework: {
 				name: "SAPUI5",
@@ -561,10 +557,10 @@ test.serial("enrichProjectGraph should resolve framework project with version an
 				libraries: [
 					{
 						name: "lib1",
-						optional: true
-					}
-				]
-			}
+						optional: true,
+					},
+				],
+			},
 		},
 		dependencies: [{
 			id: "@openui5/test1", // Will not be scanned
@@ -574,15 +570,15 @@ test.serial("enrichProjectGraph should resolve framework project with version an
 				specVersion: "2.0",
 				type: "library",
 				metadata: {
-					name: "library.d"
+					name: "library.d",
 				},
 				framework: {
 					name: "OpenUI5",
 					libraries: [{
-						name: "lib2"
-					}]
-				}
-			}
+						name: "lib2",
+					}],
+				},
+			},
 		}, {
 			id: "@openui5/lib1",
 			version: "1.2.3",
@@ -591,16 +587,16 @@ test.serial("enrichProjectGraph should resolve framework project with version an
 				specVersion: "2.0",
 				type: "library",
 				metadata: {
-					name: "lib1"
+					name: "lib1",
 				},
 				framework: {
 					name: "OpenUI5",
 					libraries: [{
-						name: "lib3"
-					}]
-				}
-			}
-		}]
+						name: "lib3",
+					}],
+				},
+			},
+		}],
 	};
 	const referencedLibraries = ["lib1"];
 	const libraryMetadata = {fake: "metadata"};
@@ -614,7 +610,7 @@ test.serial("enrichProjectGraph should resolve framework project with version an
 	sinon.stub(utils, "ProjectProcessor")
 		.callsFake(() => {
 			return {
-				addProjectToGraph: addProjectToGraphStub
+				addProjectToGraph: addProjectToGraphStub,
 			};
 		});
 
@@ -631,18 +627,18 @@ test.serial("enrichProjectGraph should resolve framework project with version an
 		cwd: dependencyTree.path,
 		version: "1.2.3",
 		ui5DataDir: undefined,
-		providedLibraryMetadata: undefined
+		providedLibraryMetadata: undefined,
 	}], "Sapui5Resolver#constructor should be called with expected args");
 });
 
 test.serial("enrichProjectGraph should resolve framework project " +
-	"with framework config and version override", async (t) => {
+"with framework config and version override", async (t) => {
 	// Framework projects should not specify framework versions, but they might do so in dedicated configuration files
 	// In this case the graph is generated the usual way for the root-project. However, framework projects on
 	// other levels of the graph are ignored
 	const {
 		sinon, ui5Framework, utils,
-		Sapui5ResolverStub, Sapui5ResolverResolveVersionStub, Sapui5ResolverInstallStub
+		Sapui5ResolverStub, Sapui5ResolverResolveVersionStub, Sapui5ResolverInstallStub,
 	} = t.context;
 	const dependencyTree = {
 		id: "@sapui5/project",
@@ -652,17 +648,17 @@ test.serial("enrichProjectGraph should resolve framework project " +
 			specVersion: "2.0",
 			type: "application",
 			metadata: {
-				name: "application.a"
+				name: "application.a",
 			},
 			framework: {
 				name: "SAPUI5",
 				libraries: [
 					{
 						name: "lib1",
-						optional: true
-					}
-				]
-			}
+						optional: true,
+					},
+				],
+			},
 		},
 		dependencies: [{
 			id: "@openui5/test1", // Will not be scanned
@@ -672,15 +668,15 @@ test.serial("enrichProjectGraph should resolve framework project " +
 				specVersion: "2.0",
 				type: "library",
 				metadata: {
-					name: "library.d"
+					name: "library.d",
 				},
 				framework: {
 					name: "OpenUI5",
 					libraries: [{
-						name: "lib2"
-					}]
-				}
-			}
+						name: "lib2",
+					}],
+				},
+			},
 		}, {
 			id: "@openui5/lib1",
 			version: "1.2.3",
@@ -689,16 +685,16 @@ test.serial("enrichProjectGraph should resolve framework project " +
 				specVersion: "2.0",
 				type: "library",
 				metadata: {
-					name: "lib1"
+					name: "lib1",
 				},
 				framework: {
 					name: "OpenUI5",
 					libraries: [{
-						name: "lib3"
-					}]
-				}
-			}
-		}]
+						name: "lib3",
+					}],
+				},
+			},
+		}],
 	};
 	const referencedLibraries = ["lib1"];
 	const libraryMetadata = {fake: "metadata"};
@@ -713,7 +709,7 @@ test.serial("enrichProjectGraph should resolve framework project " +
 	sinon.stub(utils, "ProjectProcessor")
 		.callsFake(() => {
 			return {
-				addProjectToGraph: addProjectToGraphStub
+				addProjectToGraph: addProjectToGraphStub,
 			};
 		});
 
@@ -736,7 +732,7 @@ test.serial("enrichProjectGraph should resolve framework project " +
 		cwd: dependencyTree.path,
 		version: "1.99.9",
 		ui5DataDir: undefined,
-		providedLibraryMetadata: undefined
+		providedLibraryMetadata: undefined,
 	}], "Sapui5Resolver#constructor should be called with expected args");
 });
 
@@ -750,14 +746,14 @@ test.serial("enrichProjectGraph should skip framework project when all dependenc
 			specVersion: "2.0",
 			type: "application",
 			metadata: {
-				name: "application.a"
+				name: "application.a",
 			},
 			framework: {
 				name: "SAPUI5",
 				libraries: [
-					{name: "lib1"}
-				]
-			}
+					{name: "lib1"},
+				],
+			},
 		},
 		dependencies: [{
 			id: "@openui5/lib1",
@@ -767,10 +763,10 @@ test.serial("enrichProjectGraph should skip framework project when all dependenc
 				specVersion: "2.0",
 				type: "library",
 				metadata: {
-					name: "lib1"
-				}
-			}
-		}]
+					name: "lib1",
+				},
+			},
+		}],
 	};
 
 	const provider = new DependencyTreeProvider({dependencyTree});
@@ -790,17 +786,17 @@ test.serial("enrichProjectGraph should throw for framework project with dependen
 			specVersion: "2.0",
 			type: "application",
 			metadata: {
-				name: "application.a"
+				name: "application.a",
 			},
 			framework: {
 				name: "SAPUI5",
 				libraries: [
 					{
-						name: "lib1"
-					}
-				]
-			}
-		}
+						name: "lib1",
+					},
+				],
+			},
+		},
 	};
 
 	const installError = new Error("Resolution of framework libraries failed with errors: TEST ERROR");
@@ -824,7 +820,7 @@ test.serial("enrichProjectGraph should throw for incorrect framework name", asyn
 			specVersion: "2.0",
 			type: "application",
 			metadata: {
-				name: "application.a"
+				name: "application.a",
 			},
 			framework: {
 				name: "SAPUI5",
@@ -832,11 +828,11 @@ test.serial("enrichProjectGraph should throw for incorrect framework name", asyn
 				libraries: [
 					{
 						name: "lib1",
-						optional: true
-					}
-				]
-			}
-		}
+						optional: true,
+					},
+				],
+			},
+		},
 	};
 
 	const provider = new DependencyTreeProvider({dependencyTree});
@@ -858,9 +854,9 @@ test.serial("enrichProjectGraph should ignore root project without framework con
 			specVersion: "2.0",
 			type: "application",
 			metadata: {
-				name: "application.a"
-			}
-		}
+				name: "application.a",
+			},
+		},
 	};
 	const provider = new DependencyTreeProvider({dependencyTree});
 	const projectGraph = await projectGraphBuilder(provider);
@@ -873,7 +869,7 @@ test.serial("enrichProjectGraph should throw error when projectGraph contains a 
 "that is also defined in framework configuration", async (t) => {
 	const {
 		sinon, ui5Framework, utils,
-		Sapui5ResolverResolveVersionStub, Sapui5ResolverInstallStub
+		Sapui5ResolverResolveVersionStub, Sapui5ResolverInstallStub,
 	} = t.context;
 	const dependencyTree = {
 		id: "application.a",
@@ -883,15 +879,15 @@ test.serial("enrichProjectGraph should throw error when projectGraph contains a 
 			specVersion: "2.0",
 			type: "application",
 			metadata: {
-				name: "application.a"
+				name: "application.a",
 			},
 			framework: {
 				name: "SAPUI5",
 				version: "1.100.0",
 				libraries: [{
-					name: "sap.ui.core"
-				}]
-			}
+					name: "sap.ui.core",
+				}],
+			},
 		},
 		dependencies: [{
 			id: "@openui5/sap.ui.core",
@@ -901,10 +897,10 @@ test.serial("enrichProjectGraph should throw error when projectGraph contains a 
 				specVersion: "2.0",
 				type: "library",
 				metadata: {
-					name: "sap.ui.core"
-				}
-			}
-		}]
+					name: "sap.ui.core",
+				},
+			},
+		}],
 	};
 
 	const referencedLibraries = ["sap.ui.core"];
@@ -928,12 +924,12 @@ test.serial("enrichProjectGraph should throw error when projectGraph contains a 
 							kind: "project",
 							type: "library",
 							metadata: {
-								name: "sap.ui.core"
-							}
-						}
+								name: "sap.ui.core",
+							},
+						},
 					});
 					graph.addProject(fakeCoreProject);
-				}
+				},
 			};
 		});
 
@@ -942,8 +938,8 @@ test.serial("enrichProjectGraph should throw error when projectGraph contains a 
 
 	await t.throwsAsync(ui5Framework.enrichProjectGraph(projectGraph), {
 		message: `Duplicate framework dependency definition(s) found for project application.a: sap.ui.core.\n` +
-			`Framework libraries should only be referenced via ui5.yaml configuration. Neither the root project, ` +
-			`nor any of its dependencies should include them as direct dependencies (e.g. via package.json).`
+		`Framework libraries should only be referenced via ui5.yaml configuration. Neither the root project, ` +
+		`nor any of its dependencies should include them as direct dependencies (e.g. via package.json).`,
 	});
 });
 
@@ -957,21 +953,21 @@ test.serial("enrichProjectGraph should use framework library metadata from works
 			specVersion: "2.0",
 			type: "application",
 			metadata: {
-				name: "application.a"
+				name: "application.a",
 			},
 			framework: {
 				name: "SAPUI5",
 				version: "1.111.1",
 				libraries: [
 					{name: "lib1"},
-					{name: "lib2"}
-				]
-			}
-		}
+					{name: "lib2"},
+				],
+			},
+		},
 	};
 
 	const workspace = {
-		getName: sinon.stub().resolves("default")
+		getName: sinon.stub().resolves("default"),
 	};
 
 	const workspaceFrameworkLibraryMetadata = {};
@@ -984,7 +980,7 @@ test.serial("enrichProjectGraph should use framework library metadata from works
 	sinon.stub(utils, "ProjectProcessor")
 		.callsFake(() => {
 			return {
-				addProjectToGraph: addProjectToGraphStub
+				addProjectToGraph: addProjectToGraphStub,
 			};
 		});
 
@@ -1001,13 +997,13 @@ test.serial("enrichProjectGraph should use framework library metadata from works
 		cwd: dependencyTree.path,
 		version: "1.111.1",
 		ui5DataDir: undefined,
-		providedLibraryMetadata: workspaceFrameworkLibraryMetadata
+		providedLibraryMetadata: workspaceFrameworkLibraryMetadata,
 	}], "Sapui5Resolver#constructor should be called with expected args");
 	t.is(Sapui5ResolverStub.getCall(0).args[0].providedLibraryMetadata, workspaceFrameworkLibraryMetadata);
 });
 
 test.serial("enrichProjectGraph should allow omitting framework version in case " +
-	"all framework libraries come from the workspace", async (t) => {
+"all framework libraries come from the workspace", async (t) => {
 	const {ui5Framework, utils, Sapui5ResolverStub, Sapui5ResolverInstallStub, sinon} = t.context;
 	const dependencyTree = {
 		id: "@sapui5/project",
@@ -1017,20 +1013,20 @@ test.serial("enrichProjectGraph should allow omitting framework version in case 
 			specVersion: "2.0",
 			type: "application",
 			metadata: {
-				name: "application.a"
+				name: "application.a",
 			},
 			framework: {
 				name: "SAPUI5",
 				libraries: [
 					{name: "lib1"},
-					{name: "lib2"}
-				]
-			}
-		}
+					{name: "lib2"},
+				],
+			},
+		},
 	};
 
 	const workspace = {
-		getName: sinon.stub().resolves("default")
+		getName: sinon.stub().resolves("default"),
 	};
 
 	const workspaceFrameworkLibraryMetadata = {};
@@ -1043,7 +1039,7 @@ test.serial("enrichProjectGraph should allow omitting framework version in case 
 	sinon.stub(utils, "ProjectProcessor")
 		.callsFake(() => {
 			return {
-				addProjectToGraph: addProjectToGraphStub
+				addProjectToGraph: addProjectToGraphStub,
 			};
 		});
 
@@ -1060,7 +1056,7 @@ test.serial("enrichProjectGraph should allow omitting framework version in case 
 		cwd: dependencyTree.path,
 		ui5DataDir: undefined,
 		version: undefined,
-		providedLibraryMetadata: workspaceFrameworkLibraryMetadata
+		providedLibraryMetadata: workspaceFrameworkLibraryMetadata,
 	}], "Sapui5Resolver#constructor should be called with expected args");
 	t.is(Sapui5ResolverStub.getCall(0).args[0].providedLibraryMetadata, workspaceFrameworkLibraryMetadata);
 });
@@ -1076,13 +1072,13 @@ test.serial("enrichProjectGraph should use UI5 data dir from env var", async (t)
 			specVersion: "2.0",
 			type: "application",
 			metadata: {
-				name: "application.a"
+				name: "application.a",
 			},
 			framework: {
 				name: "SAPUI5",
-				version: "1.75.0"
-			}
-		}
+				version: "1.75.0",
+			},
+		},
 	};
 
 	const referencedLibraries = ["sap.ui.lib1", "sap.ui.lib2", "sap.ui.lib3"];
@@ -1093,12 +1089,11 @@ test.serial("enrichProjectGraph should use UI5 data dir from env var", async (t)
 
 	Sapui5ResolverInstallStub.resolves({libraryMetadata});
 
-
 	const addProjectToGraphStub = sinon.stub();
 	sinon.stub(utils, "ProjectProcessor")
 		.callsFake(() => {
 			return {
-				addProjectToGraph: addProjectToGraphStub
+				addProjectToGraph: addProjectToGraphStub,
 			};
 		});
 
@@ -1117,7 +1112,7 @@ test.serial("enrichProjectGraph should use UI5 data dir from env var", async (t)
 		cwd: dependencyTree.path,
 		version: dependencyTree.configuration.framework.version,
 		ui5DataDir: expectedUi5DataDir,
-		providedLibraryMetadata: undefined
+		providedLibraryMetadata: undefined,
 	}], "Sapui5Resolver#constructor should be called with expected args");
 });
 
@@ -1132,13 +1127,13 @@ test.serial("enrichProjectGraph should use UI5 data dir from configuration", asy
 			specVersion: "2.0",
 			type: "application",
 			metadata: {
-				name: "application.a"
+				name: "application.a",
 			},
 			framework: {
 				name: "SAPUI5",
-				version: "1.75.0"
-			}
-		}
+				version: "1.75.0",
+			},
+		},
 	};
 
 	const referencedLibraries = ["sap.ui.lib1", "sap.ui.lib2", "sap.ui.lib3"];
@@ -1149,12 +1144,11 @@ test.serial("enrichProjectGraph should use UI5 data dir from configuration", asy
 
 	Sapui5ResolverInstallStub.resolves({libraryMetadata});
 
-
 	const addProjectToGraphStub = sinon.stub();
 	sinon.stub(utils, "ProjectProcessor")
 		.callsFake(() => {
 			return {
-				addProjectToGraph: addProjectToGraphStub
+				addProjectToGraph: addProjectToGraphStub,
 			};
 		});
 
@@ -1173,7 +1167,7 @@ test.serial("enrichProjectGraph should use UI5 data dir from configuration", asy
 		cwd: dependencyTree.path,
 		version: dependencyTree.configuration.framework.version,
 		ui5DataDir: expectedUi5DataDir,
-		providedLibraryMetadata: undefined
+		providedLibraryMetadata: undefined,
 	}], "Sapui5Resolver#constructor should be called with expected args");
 });
 
@@ -1188,13 +1182,13 @@ test.serial("enrichProjectGraph should use absolute UI5 data dir from configurat
 			specVersion: "2.0",
 			type: "application",
 			metadata: {
-				name: "application.a"
+				name: "application.a",
 			},
 			framework: {
 				name: "SAPUI5",
-				version: "1.75.0"
-			}
-		}
+				version: "1.75.0",
+			},
+		},
 	};
 
 	const referencedLibraries = ["sap.ui.lib1", "sap.ui.lib2", "sap.ui.lib3"];
@@ -1205,12 +1199,11 @@ test.serial("enrichProjectGraph should use absolute UI5 data dir from configurat
 
 	Sapui5ResolverInstallStub.resolves({libraryMetadata});
 
-
 	const addProjectToGraphStub = sinon.stub();
 	sinon.stub(utils, "ProjectProcessor")
 		.callsFake(() => {
 			return {
-				addProjectToGraph: addProjectToGraphStub
+				addProjectToGraph: addProjectToGraphStub,
 			};
 		});
 
@@ -1229,7 +1222,7 @@ test.serial("enrichProjectGraph should use absolute UI5 data dir from configurat
 		cwd: dependencyTree.path,
 		version: dependencyTree.configuration.framework.version,
 		ui5DataDir: expectedUi5DataDir,
-		providedLibraryMetadata: undefined
+		providedLibraryMetadata: undefined,
 	}], "Sapui5Resolver#constructor should be called with expected args");
 });
 
@@ -1273,14 +1266,14 @@ test.serial("utils.getFrameworkLibrariesFromTree: Project without dependencies",
 			specVersion: "2.0",
 			type: "application",
 			metadata: {
-				name: "application.a"
+				name: "application.a",
 			},
 			framework: {
 				name: "SAPUI5",
 				version: "1.100.0",
-				libraries: []
-			}
-		}
+				libraries: [],
+			},
+		},
 	};
 	const provider = new DependencyTreeProvider({dependencyTree});
 	const projectGraph = await projectGraphBuilder(provider);
@@ -1300,17 +1293,17 @@ test.serial("utils.getFrameworkLibrariesFromTree: Framework project with framewo
 			specVersion: "2.0",
 			type: "application",
 			metadata: {
-				name: "application.a"
+				name: "application.a",
 			},
 			framework: {
 				name: "SAPUI5",
 				version: "1.100.0",
 				libraries: [
 					{
-						name: "lib1"
-					}
-				]
-			}
+						name: "lib1",
+					},
+				],
+			},
 		},
 		dependencies: [{
 			id: "@openui5/test1", // Will not be scanned
@@ -1320,16 +1313,16 @@ test.serial("utils.getFrameworkLibrariesFromTree: Framework project with framewo
 				specVersion: "2.0",
 				type: "library",
 				metadata: {
-					name: "library.d"
+					name: "library.d",
 				},
 				framework: {
 					name: "OpenUI5",
 					libraries: [{
-						name: "lib2"
-					}]
-				}
-			}
-		}]
+						name: "lib2",
+					}],
+				},
+			},
+		}],
 	};
 	const provider = new DependencyTreeProvider({dependencyTree});
 	const projectGraph = await projectGraphBuilder(provider);
@@ -1348,21 +1341,21 @@ test.serial("utils.getFrameworkLibrariesFromTree: Project with libraries and dep
 			specVersion: "2.0",
 			type: "application",
 			metadata: {
-				name: "application.a"
+				name: "application.a",
 			},
 			framework: {
 				name: "SAPUI5",
 				version: "1.100.0",
 				libraries: [{
-					name: "lib1"
+					name: "lib1",
 				}, {
 					name: "lib2",
-					optional: true
+					optional: true,
 				}, {
 					name: "lib6",
-					development: true
-				}]
-			}
+					development: true,
+				}],
+			},
 		},
 		dependencies: [{
 			id: "test2",
@@ -1372,17 +1365,17 @@ test.serial("utils.getFrameworkLibrariesFromTree: Project with libraries and dep
 				specVersion: "2.0",
 				type: "library",
 				metadata: {
-					name: "test2"
+					name: "test2",
 				},
 				framework: {
 					name: "OpenUI5",
 					libraries: [{
-						name: "lib3"
+						name: "lib3",
 					}, {
 						name: "lib4",
-						optional: true
-					}]
-				}
+						optional: true,
+					}],
+				},
 			},
 			dependencies: [{
 				id: "test3",
@@ -1392,19 +1385,19 @@ test.serial("utils.getFrameworkLibrariesFromTree: Project with libraries and dep
 					specVersion: "2.0",
 					type: "library",
 					metadata: {
-						name: "test3"
+						name: "test3",
 					},
 					framework: {
 						name: "OpenUI5",
 						libraries: [{
-							name: "lib5"
+							name: "lib5",
 						}, {
 							name: "lib7",
-							optional: true
-						}]
-					}
-				}
-			}]
+							optional: true,
+						}],
+					},
+				},
+			}],
 		}, {
 			id: "@openui5/lib8",
 			version: "1.2.3",
@@ -1413,15 +1406,15 @@ test.serial("utils.getFrameworkLibrariesFromTree: Project with libraries and dep
 				specVersion: "2.0",
 				type: "library",
 				metadata: {
-					name: "lib8"
+					name: "lib8",
 				},
 				framework: {
 					name: "OpenUI5",
 					libraries: [{
-						name: "should.be.ignored"
-					}]
-				}
-			}
+						name: "should.be.ignored",
+					}],
+				},
+			},
 		}, {
 			id: "@openui5/lib9",
 			version: "1.2.3",
@@ -1430,10 +1423,10 @@ test.serial("utils.getFrameworkLibrariesFromTree: Project with libraries and dep
 				specVersion: "2.0",
 				type: "library",
 				metadata: {
-					name: "lib9"
-				}
-			}
-		}]
+					name: "lib9",
+				},
+			},
+		}],
 	};
 	const provider = new DependencyTreeProvider({dependencyTree});
 	const projectGraph = await projectGraphBuilder(provider);
@@ -1452,24 +1445,24 @@ test.serial("utils.declareFrameworkDependenciesInGraph", async (t) => {
 			specVersion: "2.0",
 			type: "application",
 			metadata: {
-				name: "application.a"
+				name: "application.a",
 			},
 			framework: {
 				name: "SAPUI5",
 				version: "1.100.0",
 				libraries: [{
-					name: "lib1"
+					name: "lib1",
 				}, {
 					name: "lib2",
-					optional: true
+					optional: true,
 				}, {
 					name: "lib3",
-					development: true
+					development: true,
 				}, {
 					name: "lib5",
-					optional: true
-				}]
-			}
+					optional: true,
+				}],
+			},
 		},
 		dependencies: [{
 			id: "library.a",
@@ -1479,29 +1472,29 @@ test.serial("utils.declareFrameworkDependenciesInGraph", async (t) => {
 				specVersion: "2.0",
 				type: "library",
 				metadata: {
-					name: "library.a"
+					name: "library.a",
 				},
 				framework: {
 					name: "OpenUI5",
 					libraries: [{
-						name: "lib2"
+						name: "lib2",
 					}, {
 						name: "lib3",
-						optional: true
+						optional: true,
 					}, {
 						name: "lib4",
-						development: true
+						development: true,
 					}, {
 						name: "lib5",
-						optional: true
+						optional: true,
 					}, {
 						name: "lib6",
-						optional: true
-					}]
-				}
+						optional: true,
+					}],
+				},
 			},
-			dependencies: []
-		}]
+			dependencies: [],
+		}],
 	};
 	const frameworkTree = {
 		id: "dummy-framework-tree-root",
@@ -1511,8 +1504,8 @@ test.serial("utils.declareFrameworkDependenciesInGraph", async (t) => {
 			specVersion: "2.0",
 			type: "application",
 			metadata: {
-				name: "dummy-framework-tree-root"
-			}
+				name: "dummy-framework-tree-root",
+			},
 		},
 		dependencies: [{
 			id: "@openui5/lib1",
@@ -1523,15 +1516,15 @@ test.serial("utils.declareFrameworkDependenciesInGraph", async (t) => {
 				type: "library",
 				metadata: {
 					name: "lib1",
-					deprecated: true
+					deprecated: true,
 				},
 				framework: {
 					name: "OpenUI5",
 					libraries: [{
-						name: "should.be.ignored"
-					}]
-				}
-			}
+						name: "should.be.ignored",
+					}],
+				},
+			},
 		}, {
 			id: "@openui5/lib2",
 			version: "1.2.3",
@@ -1541,9 +1534,9 @@ test.serial("utils.declareFrameworkDependenciesInGraph", async (t) => {
 				type: "library",
 				metadata: {
 					name: "lib2",
-					sapInternal: true
-				}
-			}
+					sapInternal: true,
+				},
+			},
 		}, {
 			id: "@openui5/lib3",
 			version: "1.2.3",
@@ -1553,9 +1546,9 @@ test.serial("utils.declareFrameworkDependenciesInGraph", async (t) => {
 				type: "library",
 				metadata: {
 					name: "lib3",
-					deprecated: true
-				}
-			}
+					deprecated: true,
+				},
+			},
 		}, {
 			id: "@openui5/lib5",
 			version: "1.2.3",
@@ -1564,16 +1557,16 @@ test.serial("utils.declareFrameworkDependenciesInGraph", async (t) => {
 				specVersion: "2.0",
 				type: "library",
 				metadata: {
-					name: "lib5"
-				}
-			}
-		}]
+					name: "lib5",
+				},
+			},
+		}],
 	};
 	const projectGraph = await projectGraphBuilder(new DependencyTreeProvider({
-		dependencyTree: projectTree
+		dependencyTree: projectTree,
 	}));
 	const frameworkGraph = await projectGraphBuilder(new DependencyTreeProvider({
-		dependencyTree: frameworkTree
+		dependencyTree: frameworkTree,
 	}));
 	projectGraph.join(frameworkGraph);
 
@@ -1621,13 +1614,13 @@ test.serial("utils.declareFrameworkDependenciesInGraph", async (t) => {
 		"lib1",
 		"lib2",
 		"lib3",
-		"lib5"
+		"lib5",
 	], `Root project has correct dependencies`);
 
 	t.deepEqual(projectGraph.getDependencies("library.a"), [
 		"lib2",
 		"lib3",
-		"lib5"
+		"lib5",
 	], `Non-framework dependency has correct dependencies`);
 });
 
@@ -1642,23 +1635,23 @@ test.serial("utils.declareFrameworkDependenciesInGraph: No deprecation warnings 
 			specVersion: "2.0",
 			type: "application",
 			metadata: {
-				name: "testsuite"
+				name: "testsuite",
 			},
 			framework: {
 				name: "SAPUI5",
 				version: "1.100.0",
 				libraries: [{
-					name: "lib1"
+					name: "lib1",
 				}, {
 					name: "lib2",
-					optional: true
+					optional: true,
 				}, {
 					name: "lib3",
-					development: true
-				}]
-			}
+					development: true,
+				}],
+			},
 		},
-		dependencies: []
+		dependencies: [],
 	};
 	const frameworkTree = {
 		id: "dummy-framework-tree-root",
@@ -1668,8 +1661,8 @@ test.serial("utils.declareFrameworkDependenciesInGraph: No deprecation warnings 
 			specVersion: "2.0",
 			type: "application",
 			metadata: {
-				name: "dummy-framework-tree-root"
-			}
+				name: "dummy-framework-tree-root",
+			},
 		},
 		dependencies: [{
 			id: "@openui5/lib1",
@@ -1680,15 +1673,15 @@ test.serial("utils.declareFrameworkDependenciesInGraph: No deprecation warnings 
 				type: "library",
 				metadata: {
 					name: "lib1",
-					deprecated: true
+					deprecated: true,
 				},
 				framework: {
 					name: "OpenUI5",
 					libraries: [{
-						name: "should.be.ignored"
-					}]
-				}
-			}
+						name: "should.be.ignored",
+					}],
+				},
+			},
 		}, {
 			id: "@openui5/lib2",
 			version: "1.2.3",
@@ -1698,9 +1691,9 @@ test.serial("utils.declareFrameworkDependenciesInGraph: No deprecation warnings 
 				type: "library",
 				metadata: {
 					name: "lib2",
-					sapInternal: true
-				}
-			}
+					sapInternal: true,
+				},
+			},
 		}, {
 			id: "@openui5/lib3",
 			version: "1.2.3",
@@ -1710,16 +1703,16 @@ test.serial("utils.declareFrameworkDependenciesInGraph: No deprecation warnings 
 				type: "library",
 				metadata: {
 					name: "lib3",
-					deprecated: true
-				}
-			}
-		}]
+					deprecated: true,
+				},
+			},
+		}],
 	};
 	const projectGraph = await projectGraphBuilder(new DependencyTreeProvider({
-		dependencyTree: projectTree
+		dependencyTree: projectTree,
 	}));
 	const frameworkGraph = await projectGraphBuilder(new DependencyTreeProvider({
-		dependencyTree: frameworkTree
+		dependencyTree: frameworkTree,
 	}));
 	projectGraph.join(frameworkGraph);
 
@@ -1736,7 +1729,7 @@ test.serial("utils.declareFrameworkDependenciesInGraph: No deprecation warnings 
 	t.deepEqual(projectGraph.getDependencies("testsuite"), [
 		"lib1",
 		"lib2",
-		"lib3"
+		"lib3",
 	], `Root project has correct dependencies`);
 });
 
@@ -1745,12 +1738,12 @@ test("utils.checkForDuplicateFrameworkProjects: No duplicates", (t) => {
 
 	const projectGraph = {
 		getRoot: sinon.stub().returns({
-			getName: sinon.stub().returns("root-project")
+			getName: sinon.stub().returns("root-project"),
 		}),
-		getProjectNames: sinon.stub().returns(["lib1", "lib2", "lib3"])
+		getProjectNames: sinon.stub().returns(["lib1", "lib2", "lib3"]),
 	};
 	const frameworkGraph = {
-		getProjectNames: sinon.stub().returns(["sap.ui.core"])
+		getProjectNames: sinon.stub().returns(["sap.ui.core"]),
 	};
 
 	t.notThrows(() => utils.checkForDuplicateFrameworkProjects(projectGraph, frameworkGraph));
@@ -1761,19 +1754,19 @@ test("utils.checkForDuplicateFrameworkProjects: One duplicate", (t) => {
 
 	const projectGraph = {
 		getRoot: sinon.stub().returns({
-			getName: sinon.stub().returns("root-project")
+			getName: sinon.stub().returns("root-project"),
 		}),
-		getProjectNames: sinon.stub().returns(["lib1", "sap.ui.core", "lib2", "lib3"])
+		getProjectNames: sinon.stub().returns(["lib1", "sap.ui.core", "lib2", "lib3"]),
 	};
 	const frameworkGraph = {
-		getProjectNames: sinon.stub().returns(["sap.ui.core"])
+		getProjectNames: sinon.stub().returns(["sap.ui.core"]),
 	};
 
 	t.throws(() => utils.checkForDuplicateFrameworkProjects(projectGraph, frameworkGraph), {
 		message: "Duplicate framework dependency definition(s) found for project root-project: " +
-			"sap.ui.core.\n" +
-			"Framework libraries should only be referenced via ui5.yaml configuration. Neither the root project, " +
-			"nor any of its dependencies should include them as direct dependencies (e.g. via package.json)."
+		"sap.ui.core.\n" +
+		"Framework libraries should only be referenced via ui5.yaml configuration. Neither the root project, " +
+		"nor any of its dependencies should include them as direct dependencies (e.g. via package.json).",
 	});
 });
 
@@ -1782,19 +1775,19 @@ test("utils.checkForDuplicateFrameworkProjects: Two duplicates", (t) => {
 
 	const projectGraph = {
 		getRoot: sinon.stub().returns({
-			getName: sinon.stub().returns("root-project")
+			getName: sinon.stub().returns("root-project"),
 		}),
-		getProjectNames: sinon.stub().returns(["lib1", "sap.ui.core", "lib2", "sap.ui.layout", "lib3"])
+		getProjectNames: sinon.stub().returns(["lib1", "sap.ui.core", "lib2", "sap.ui.layout", "lib3"]),
 	};
 	const frameworkGraph = {
-		getProjectNames: sinon.stub().returns(["sap.ui.core", "sap.ui.layout", "sap.m"])
+		getProjectNames: sinon.stub().returns(["sap.ui.core", "sap.ui.layout", "sap.m"]),
 	};
 
 	t.throws(() => utils.checkForDuplicateFrameworkProjects(projectGraph, frameworkGraph), {
 		message: "Duplicate framework dependency definition(s) found for project root-project: " +
-			"sap.ui.core, sap.ui.layout.\n" +
-			"Framework libraries should only be referenced via ui5.yaml configuration. Neither the root project, " +
-			"nor any of its dependencies should include them as direct dependencies (e.g. via package.json)."
+		"sap.ui.core, sap.ui.layout.\n" +
+		"Framework libraries should only be referenced via ui5.yaml configuration. Neither the root project, " +
+		"nor any of its dependencies should include them as direct dependencies (e.g. via package.json).",
 	});
 });
 
@@ -1807,20 +1800,20 @@ test("utils.getFrameworkLibraryDependencies: OpenUI5 library", async (t) => {
 			byPath: sinon.stub().withArgs("/package.json").resolves({
 				getString: sinon.stub().resolves(JSON.stringify({
 					dependencies: {
-						"@openui5/sap.ui.lib2": "*"
+						"@openui5/sap.ui.lib2": "*",
 					},
 					devDependencies: {
-						"@openui5/themelib_fancy": "*"
-					}
-				}))
-			})
+						"@openui5/themelib_fancy": "*",
+					},
+				})),
+			}),
 		}),
 	};
 
 	const result = await utils.getFrameworkLibraryDependencies(project);
 	t.deepEqual(result, {
 		dependencies: ["sap.ui.lib2"],
-		optionalDependencies: ["themelib_fancy"]
+		optionalDependencies: ["themelib_fancy"],
 	});
 });
 
@@ -1831,23 +1824,23 @@ test("utils.getFrameworkLibraryDependencies: SAPUI5 library", async (t) => {
 		getId: sinon.stub().returns("@sapui5/sap.ui.lib1"),
 		getFrameworkDependencies: sinon.stub().returns([
 			{
-				name: "sap.ui.lib2"
+				name: "sap.ui.lib2",
 			},
 			{
 				name: "themelib_fancy",
-				optional: true
+				optional: true,
 			},
 			{
 				name: "sap.ui.lib3",
-				development: true
-			}
-		])
+				development: true,
+			},
+		]),
 	};
 
 	const result = await utils.getFrameworkLibraryDependencies(project);
 	t.deepEqual(result, {
 		dependencies: ["sap.ui.lib2"],
-		optionalDependencies: ["themelib_fancy"]
+		optionalDependencies: ["themelib_fancy"],
 	});
 });
 
@@ -1858,15 +1851,15 @@ test("utils.getFrameworkLibraryDependencies: OpenUI5 library - no dependencies",
 		getId: sinon.stub().returns("@openui5/sap.ui.lib1"),
 		getRootReader: sinon.stub().returns({
 			byPath: sinon.stub().withArgs("/package.json").resolves({
-				getString: sinon.stub().resolves(JSON.stringify({}))
-			})
+				getString: sinon.stub().resolves(JSON.stringify({})),
+			}),
 		}),
 	};
 
 	const result = await utils.getFrameworkLibraryDependencies(project);
 	t.deepEqual(result, {
 		dependencies: [],
-		optionalDependencies: []
+		optionalDependencies: [],
 	});
 });
 
@@ -1874,13 +1867,13 @@ test("utils.getFrameworkLibraryDependencies: No framework library", async (t) =>
 	const {utils, sinon} = t.context;
 
 	const project = {
-		getId: sinon.stub().returns("foo")
+		getId: sinon.stub().returns("foo"),
 	};
 
 	const result = await utils.getFrameworkLibraryDependencies(project);
 	t.deepEqual(result, {
 		dependencies: [],
-		optionalDependencies: []
+		optionalDependencies: [],
 	});
 });
 
@@ -1888,7 +1881,7 @@ test("utils.getWorkspaceFrameworkLibraryMetadata: No workspace modules", async (
 	const {utils, sinon} = t.context;
 
 	const workspace = {
-		getModules: sinon.stub().resolves([])
+		getModules: sinon.stub().resolves([]),
 	};
 
 	const libraryMetadata = await utils.getWorkspaceFrameworkLibraryMetadata({workspace, projectGraph: {}});
@@ -1904,22 +1897,22 @@ test("utils.getWorkspaceFrameworkLibraryMetadata: With workspace modules", async
 			{
 				// Extensions don't have projects, should be ignored
 				getSpecifications: sinon.stub().resolves({
-					project: null
-				})
+					project: null,
+				}),
 			},
 			{
 				getSpecifications: sinon.stub().resolves({
 					project: {
 						// some types don't have a "isFrameworkProject" method
-					}
-				})
+					},
+				}),
 			},
 			{
 				getSpecifications: sinon.stub().resolves({
 					project: {
-						isFrameworkProject: sinon.stub().returns(false)
-					}
-				})
+						isFrameworkProject: sinon.stub().returns(false),
+					},
+				}),
 			},
 			{
 				getSpecifications: sinon.stub().resolves({
@@ -1932,17 +1925,17 @@ test("utils.getWorkspaceFrameworkLibraryMetadata: With workspace modules", async
 							byPath: sinon.stub().withArgs("/package.json").resolves({
 								getString: sinon.stub().resolves(JSON.stringify({
 									dependencies: {
-										"@openui5/sap.ui.lib2": "*"
+										"@openui5/sap.ui.lib2": "*",
 									},
 									devDependencies: {
-										"@openui5/themelib_fancy": "*"
-									}
-								}))
-							})
+										"@openui5/themelib_fancy": "*",
+									},
+								})),
+							}),
 						}),
 						getVersion: sinon.stub().returns("1.0.0"),
-					}
-				})
+					},
+				}),
 			},
 			{
 				getSpecifications: sinon.stub().resolves({
@@ -1954,27 +1947,27 @@ test("utils.getWorkspaceFrameworkLibraryMetadata: With workspace modules", async
 						getVersion: sinon.stub().returns("1.0.0"),
 						getFrameworkDependencies: sinon.stub().returns([
 							{
-								name: "sap.ui.lib4"
+								name: "sap.ui.lib4",
 							},
 							{
 								name: "sap.ui.lib5",
-								optional: true
+								optional: true,
 							},
 							{
 								name: "sap.ui.lib6",
-								development: true
-							}
-						])
-					}
-				})
-			}
-		])
+								development: true,
+							},
+						]),
+					},
+				}),
+			},
+		]),
 	};
 
 	const getProject = sinon.stub();
 	getProject.withArgs("sap.ui.lib1").returns(undefined);
 	const projectGraph = {
-		getProject
+		getProject,
 	};
 
 	const libraryMetadata = await utils.getWorkspaceFrameworkLibraryMetadata({workspace, projectGraph});
@@ -1982,25 +1975,25 @@ test("utils.getWorkspaceFrameworkLibraryMetadata: With workspace modules", async
 	t.deepEqual(libraryMetadata, {
 		"sap.ui.lib1": {
 			dependencies: [
-				"sap.ui.lib2"
+				"sap.ui.lib2",
 			],
 			id: "@openui5/sap.ui.lib1",
 			optionalDependencies: [
-				"themelib_fancy"
+				"themelib_fancy",
 			],
 			path: "/rootPath",
-			version: "1.0.0"
+			version: "1.0.0",
 		},
 		"sap.ui.lib3": {
 			dependencies: [
-				"sap.ui.lib4"
+				"sap.ui.lib4",
 			],
 			id: "@sapui5/sap.ui.lib3",
 			optionalDependencies: [
-				"sap.ui.lib5"
+				"sap.ui.lib5",
 			],
 			path: "/rootPath",
-			version: "1.0.0"
+			version: "1.0.0",
 		},
 	});
 });
@@ -2014,17 +2007,17 @@ test("utils.getWorkspaceFrameworkLibraryMetadata: With workspace module within p
 				getSpecifications: sinon.stub().resolves({
 					project: {
 						isFrameworkProject: sinon.stub().returns(true),
-						getName: sinon.stub().returns("sap.ui.lib1")
-					}
-				})
-			}
-		])
+						getName: sinon.stub().returns("sap.ui.lib1"),
+					},
+				}),
+			},
+		]),
 	};
 
 	const getProject = sinon.stub();
 	getProject.withArgs("sap.ui.lib1").returns({});
 	const projectGraph = {
-		getProject
+		getProject,
 	};
 
 	const libraryMetadata = await utils.getWorkspaceFrameworkLibraryMetadata({workspace, projectGraph});
@@ -2037,7 +2030,7 @@ test.serial("ProjectProcessor: Add project to graph", async (t) => {
 	const {ProjectProcessor} = t.context.utils;
 	const graphMock = {
 		getProject: sinon.stub().returns(),
-		addProject: sinon.stub()
+		addProject: sinon.stub(),
 	};
 	const projectProcessor = new ProjectProcessor({
 		libraryMetadata: {
@@ -2046,10 +2039,10 @@ test.serial("ProjectProcessor: Add project to graph", async (t) => {
 				version: "1000.0.0",
 				path: libraryEPath,
 				dependencies: [],
-				optionalDependencies: []
-			}
+				optionalDependencies: [],
+			},
 		},
-		graph: graphMock
+		graph: graphMock,
 	});
 
 	await projectProcessor.addProjectToGraph("library.e");
@@ -2065,7 +2058,7 @@ test.serial("ProjectProcessor: Add same project twice", async (t) => {
 	const {ProjectProcessor} = t.context.utils;
 	const graphMock = {
 		getProject: sinon.stub().returns(),
-		addProject: sinon.stub()
+		addProject: sinon.stub(),
 	};
 	const projectProcessor = new ProjectProcessor({
 		libraryMetadata: {
@@ -2074,10 +2067,10 @@ test.serial("ProjectProcessor: Add same project twice", async (t) => {
 				version: "1000.0.0",
 				path: libraryEPath,
 				dependencies: [],
-				optionalDependencies: []
-			}
+				optionalDependencies: [],
+			},
 		},
-		graph: graphMock
+		graph: graphMock,
 	});
 
 	await projectProcessor.addProjectToGraph("library.e");
@@ -2094,7 +2087,7 @@ test.serial("ProjectProcessor: Project already in graph", async (t) => {
 	const {ProjectProcessor} = t.context.utils;
 	const graphMock = {
 		getProject: sinon.stub().returns("project"),
-		addProject: sinon.stub()
+		addProject: sinon.stub(),
 	};
 	const projectProcessor = new ProjectProcessor({
 		libraryMetadata: {
@@ -2103,10 +2096,10 @@ test.serial("ProjectProcessor: Project already in graph", async (t) => {
 				version: "1000.0.0",
 				path: libraryEPath,
 				dependencies: [],
-				optionalDependencies: []
-			}
+				optionalDependencies: [],
+			},
 		},
-		graph: graphMock
+		graph: graphMock,
 	});
 
 	await projectProcessor.addProjectToGraph("library.e");
@@ -2121,7 +2114,7 @@ test.serial("ProjectProcessor: Add project with dependencies to graph", async (t
 	const graphMock = {
 		getProject: sinon.stub().returns(),
 		addProject: sinon.stub(),
-		declareDependency: sinon.stub()
+		declareDependency: sinon.stub(),
 	};
 	const projectProcessor = new ProjectProcessor({
 		libraryMetadata: {
@@ -2130,17 +2123,17 @@ test.serial("ProjectProcessor: Add project with dependencies to graph", async (t
 				version: "1000.0.0",
 				path: libraryEPath,
 				dependencies: ["library.d"],
-				optionalDependencies: []
+				optionalDependencies: [],
 			},
 			"library.d": {
 				id: "lib.d.id",
 				version: "120000.0.0",
 				path: libraryDPath,
 				dependencies: [],
-				optionalDependencies: []
-			}
+				optionalDependencies: [],
+			},
 		},
-		graph: graphMock
+		graph: graphMock,
 	});
 
 	await projectProcessor.addProjectToGraph("library.e");
@@ -2163,28 +2156,28 @@ test.serial("ProjectProcessor: Resolve project via workspace", async (t) => {
 	const graphMock = {
 		getProject: sinon.stub().returns(),
 		addProject: sinon.stub(),
-		declareDependency: sinon.stub()
+		declareDependency: sinon.stub(),
 	};
 	const libraryEProjectMock = {
 		getName: () => "library.e",
 		getFrameworkDependencies: sinon.stub().returns([{
-			name: "library.d"
-		}])
+			name: "library.d",
+		}]),
 	};
 	const libraryDProjectMock = {
 		getName: () => "library.d",
-		getFrameworkDependencies: sinon.stub().returns([])
+		getFrameworkDependencies: sinon.stub().returns([]),
 	};
 	const moduleMock = {
 		getVersion: () => "1.0.0",
 		getPath: () => path.join("module", "path"),
 		getSpecifications: sinon.stub()
 			.onFirstCall().resolves({
-				project: libraryDProjectMock
+				project: libraryDProjectMock,
 			})
 			.onSecondCall().resolves({
-				project: libraryEProjectMock
-			})
+				project: libraryEProjectMock,
+			}),
 	};
 	const workspaceMock = {
 		getName: sinon.stub().returns("workspace name"),
@@ -2197,18 +2190,18 @@ test.serial("ProjectProcessor: Resolve project via workspace", async (t) => {
 				version: "1000.0.0",
 				path: libraryEPath,
 				dependencies: ["library.d"],
-				optionalDependencies: []
+				optionalDependencies: [],
 			},
 			"library.d": {
 				id: "lib.d.id",
 				version: "120000.0.0",
 				path: libraryDPath,
 				dependencies: [],
-				optionalDependencies: []
-			}
+				optionalDependencies: [],
+			},
 		},
 		graph: graphMock,
-		workspace: workspaceMock
+		workspace: workspaceMock,
 	});
 
 	await projectProcessor.addProjectToGraph("library.e");
@@ -2231,28 +2224,28 @@ test.serial("ProjectProcessor: Resolve project via workspace with additional dep
 	const graphMock = {
 		getProject: sinon.stub().returns(),
 		addProject: sinon.stub(),
-		declareDependency: sinon.stub()
+		declareDependency: sinon.stub(),
 	};
 	const libraryEProjectMock = {
 		getName: () => "library.e",
 		getFrameworkDependencies: sinon.stub().returns([{
-			name: "library.d"
-		}])
+			name: "library.d",
+		}]),
 	};
 	const libraryDProjectMock = {
 		getName: () => "library.d",
-		getFrameworkDependencies: sinon.stub().returns([])
+		getFrameworkDependencies: sinon.stub().returns([]),
 	};
 	const moduleMock = {
 		getVersion: () => "1.0.0",
 		getPath: () => path.join("module", "path"),
 		getSpecifications: sinon.stub()
 			.onFirstCall().resolves({
-				project: libraryEProjectMock
+				project: libraryEProjectMock,
 			})
 			.onSecondCall().resolves({
-				project: libraryDProjectMock
-			})
+				project: libraryDProjectMock,
+			}),
 	};
 	const workspaceMock = {
 		getName: sinon.stub().returns("workspace name"),
@@ -2265,18 +2258,18 @@ test.serial("ProjectProcessor: Resolve project via workspace with additional dep
 				version: "1000.0.0",
 				path: libraryEPath,
 				dependencies: [], // Dependency to library.d is only declared in workspace-resolved library.e
-				optionalDependencies: []
+				optionalDependencies: [],
 			},
 			"library.d": {
 				id: "lib.d.id",
 				version: "120000.0.0",
 				path: libraryDPath,
 				dependencies: [],
-				optionalDependencies: []
-			}
+				optionalDependencies: [],
+			},
 		},
 		graph: graphMock,
-		workspace: workspaceMock
+		workspace: workspaceMock,
 	});
 
 	await projectProcessor.addProjectToGraph("library.e");
@@ -2299,28 +2292,28 @@ test.serial("ProjectProcessor: Resolve project via workspace with additional, un
 	const graphMock = {
 		getProject: sinon.stub().returns(),
 		addProject: sinon.stub(),
-		declareDependency: sinon.stub()
+		declareDependency: sinon.stub(),
 	};
 	const libraryEProjectMock = {
 		getName: () => "library.e",
 		getFrameworkDependencies: sinon.stub().returns([{
-			name: "library.xyz"
-		}])
+			name: "library.xyz",
+		}]),
 	};
 	const libraryDProjectMock = {
 		getName: () => "library.d",
-		getFrameworkDependencies: sinon.stub().returns([])
+		getFrameworkDependencies: sinon.stub().returns([]),
 	};
 	const moduleMock = {
 		getVersion: () => "1.0.0",
 		getPath: () => path.join("module", "path"),
 		getSpecifications: sinon.stub()
 			.onFirstCall().resolves({
-				project: libraryEProjectMock
+				project: libraryEProjectMock,
 			})
 			.onSecondCall().resolves({
-				project: libraryDProjectMock
-			})
+				project: libraryDProjectMock,
+			}),
 	};
 	const workspaceMock = {
 		getName: sinon.stub().returns("workspace name"),
@@ -2333,25 +2326,25 @@ test.serial("ProjectProcessor: Resolve project via workspace with additional, un
 				version: "1000.0.0",
 				path: libraryEPath,
 				dependencies: ["library.d"],
-				optionalDependencies: []
+				optionalDependencies: [],
 			},
 			"library.d": {
 				id: "lib.d.id",
 				version: "120000.0.0",
 				path: libraryDPath,
 				dependencies: [],
-				optionalDependencies: []
-			}
+				optionalDependencies: [],
+			},
 		},
 		graph: graphMock,
-		workspace: workspaceMock
+		workspace: workspaceMock,
 	});
 
 	await t.throwsAsync(projectProcessor.addProjectToGraph("library.e"), {
 		message:
 			"Unable to find dependency library.xyz, required by project library.e " +
 			"(resolved via workspace name workspace) " +
-			"in current set of libraries. Try adding it temporarily to the root project's dependencies"
+			"in current set of libraries. Try adding it temporarily to the root project's dependencies",
 	}, "Threw with expected error message");
 });
 
@@ -2361,30 +2354,30 @@ test.serial("ProjectProcessor: Resolve project via workspace with cyclic depende
 	const graphMock = {
 		getProject: sinon.stub().returns(),
 		addProject: sinon.stub(),
-		declareDependency: sinon.stub()
+		declareDependency: sinon.stub(),
 	};
 	const libraryEProjectMock = {
 		getName: () => "library.e",
 		getFrameworkDependencies: sinon.stub().returns([{
-			name: "library.d"
-		}])
+			name: "library.d",
+		}]),
 	};
 	const libraryDProjectMock = {
 		getName: () => "library.d",
 		getFrameworkDependencies: sinon.stub().returns([{
-			name: "library.e" // Cyclic dependency in workspace project
-		}])
+			name: "library.e", // Cyclic dependency in workspace project
+		}]),
 	};
 	const moduleMock = {
 		getVersion: () => "1.0.0",
 		getPath: () => path.join("module", "path"),
 		getSpecifications: sinon.stub()
 			.onFirstCall().resolves({
-				project: libraryEProjectMock
+				project: libraryEProjectMock,
 			})
 			.onSecondCall().resolves({
-				project: libraryDProjectMock
-			})
+				project: libraryDProjectMock,
+			}),
 	};
 	const workspaceMock = {
 		getName: sinon.stub().returns("workspace name"),
@@ -2397,24 +2390,24 @@ test.serial("ProjectProcessor: Resolve project via workspace with cyclic depende
 				version: "1000.0.0",
 				path: libraryEPath,
 				dependencies: ["library.d"],
-				optionalDependencies: []
+				optionalDependencies: [],
 			},
 			"library.d": {
 				id: "lib.d.id",
 				version: "120000.0.0",
 				path: libraryDPath,
 				dependencies: [],
-				optionalDependencies: []
-			}
+				optionalDependencies: [],
+			},
 		},
 		graph: graphMock,
-		workspace: workspaceMock
+		workspace: workspaceMock,
 	});
 
 	await t.throwsAsync(projectProcessor.addProjectToGraph("library.e"), {
 		message:
 			"ui5Framework:ProjectPreprocessor: Detected cyclic dependency chain: " +
-			"library.e -> *library.d* -> *library.d*"
+			"library.e -> *library.d* -> *library.d*",
 	}, "Threw with expected error message");
 });
 
@@ -2424,39 +2417,39 @@ test.serial("ProjectProcessor: Resolve project via workspace with distant cyclic
 	const graphMock = {
 		getProject: sinon.stub().returns(),
 		addProject: sinon.stub(),
-		declareDependency: sinon.stub()
+		declareDependency: sinon.stub(),
 	};
 	const libraryEProjectMock = {
 		getName: () => "library.e",
 		getFrameworkDependencies: sinon.stub().returns([{
-			name: "library.d"
-		}])
+			name: "library.d",
+		}]),
 	};
 	const libraryDProjectMock = {
 		getName: () => "library.d",
 		getFrameworkDependencies: sinon.stub().returns([{
-			name: "library.f"
-		}])
+			name: "library.f",
+		}]),
 	};
 	const libraryFProjectMock = {
 		getName: () => "library.f",
 		getFrameworkDependencies: sinon.stub().returns([{
-			name: "library.e" // Cyclic dependency in workspace project
-		}])
+			name: "library.e", // Cyclic dependency in workspace project
+		}]),
 	};
 	const moduleMock = {
 		getVersion: () => "1.0.0",
 		getPath: () => path.join("module", "path"),
 		getSpecifications: sinon.stub()
 			.onFirstCall().resolves({
-				project: libraryEProjectMock
+				project: libraryEProjectMock,
 			})
 			.onSecondCall().resolves({
-				project: libraryDProjectMock
+				project: libraryDProjectMock,
 			})
 			.onThirdCall().resolves({
-				project: libraryFProjectMock
-			})
+				project: libraryFProjectMock,
+			}),
 	};
 	const workspaceMock = {
 		getName: sinon.stub().returns("workspace name"),
@@ -2469,31 +2462,31 @@ test.serial("ProjectProcessor: Resolve project via workspace with distant cyclic
 				version: "1000.0.0",
 				path: libraryEPath,
 				dependencies: ["library.d"],
-				optionalDependencies: []
+				optionalDependencies: [],
 			},
 			"library.d": {
 				id: "lib.d.id",
 				version: "120000.0.0",
 				path: libraryDPath,
 				dependencies: ["library.f"],
-				optionalDependencies: []
+				optionalDependencies: [],
 			},
 			"library.f": {
 				id: "lib.f.id",
 				version: "1.0.0",
 				path: libraryFPath,
 				dependencies: [],
-				optionalDependencies: []
+				optionalDependencies: [],
 			},
 		},
 		graph: graphMock,
-		workspace: workspaceMock
+		workspace: workspaceMock,
 	});
 
 	await t.throwsAsync(projectProcessor.addProjectToGraph("library.e"), {
 		message:
 			"ui5Framework:ProjectPreprocessor: Detected cyclic dependency chain: " +
-			"library.e -> *library.d* -> library.f -> *library.d*"
+			"library.e -> *library.d* -> library.f -> *library.d*",
 	}, "Threw with expected error message");
 });
 
@@ -2502,16 +2495,16 @@ test.serial("ProjectProcessor: Project missing in metadata", async (t) => {
 	const {ProjectProcessor} = t.context.utils;
 	const graphMock = {
 		getProject: sinon.stub().returns(),
-		addProject: sinon.stub()
+		addProject: sinon.stub(),
 	};
 	const projectProcessor = new ProjectProcessor({
 		libraryMetadata: {
-			"lib.x": {}
+			"lib.x": {},
 		},
-		graph: graphMock
+		graph: graphMock,
 	});
 
 	await t.throwsAsync(projectProcessor.addProjectToGraph("lib.a"), {
-		message: "Failed to find library lib.a in dist packages metadata.json"
+		message: "Failed to find library lib.a in dist packages metadata.json",
 	}, "Threw with expected error message");
 });

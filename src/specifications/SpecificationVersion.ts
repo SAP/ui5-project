@@ -5,15 +5,13 @@ const SUPPORTED_VERSIONS = [
 	"0.1", "1.0", "1.1",
 	"2.0", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6",
 	"3.0", "3.1", "3.2",
-	"4.0"
+	"4.0",
 ];
 
 /**
  * Helper class representing a Specification Version. Featuring helper functions for easy comparison
  * of versions.
  *
- * @public
- * @class
  * @alias @ui5/project/specifications/utils/SpecificationVersion
  */
 class SpecificationVersion {
@@ -21,8 +19,7 @@ class SpecificationVersion {
 	#semverVersion;
 
 	/**
-	 * @public
-	 * @param {string} specVersion Specification Version to use for all comparison operations
+	 * @param specVersion Specification Version to use for all comparison operations
 	 * @throws {Error} Throws if provided Specification Version is not supported by this version of @ui5/project
 	 */
 	constructor(specVersion: string) {
@@ -33,8 +30,7 @@ class SpecificationVersion {
 	/**
 	 * Returns the Specification Version
 	 *
-	 * @public
-	 * @returns {string} Specification Version
+	 * @returns Specification Version
 	 */
 	public toString() {
 		return this.#specVersion;
@@ -43,8 +39,7 @@ class SpecificationVersion {
 	/**
 	 * Returns the major-version of the instance's Specification Version
 	 *
-	 * @public
-	 * @returns {integer} Major version
+	 * @returns Major version
 	 */
 	public major() {
 		return semver.major(this.#semverVersion);
@@ -53,8 +48,7 @@ class SpecificationVersion {
 	/**
 	 * Returns the minor-version of the instance's Specification Version
 	 *
-	 * @public
-	 * @returns {integer} Minor version
+	 * @returns Minor version
 	 */
 	public minor() {
 		return semver.minor(this.#semverVersion);
@@ -63,10 +57,9 @@ class SpecificationVersion {
 	/**
 	 * Test whether the instance's Specification Version falls into the provided range
 	 *
-	 * @public
-	 * @param {string} range [Semver]{@link https://www.npmjs.com/package/semver}-style version range,
+	 * @param range [Semver]{@link https://www.npmjs.com/package/semver}-style version range,
 	 * for example <code>2.2 - 2.4</code> or <code>=3.0</code>
-	 * @returns {boolean} True if the instance's Specification Version falls into the provided range
+	 * @returns True if the instance's Specification Version falls into the provided range
 	 */
 	public satisfies(range: string) {
 		return semver.satisfies(this.#semverVersion, range);
@@ -75,9 +68,8 @@ class SpecificationVersion {
 	/**
 	 * Test whether the instance's Specification Version is greater than the provided test version
 	 *
-	 * @public
-	 * @param {string} testVersion A Specification Version to compare the instance's Specification Version to
-	 * @returns {boolean} True if the instance's Specification Version is greater than the provided version
+	 * @param testVersion A Specification Version to compare the instance's Specification Version to
+	 * @returns True if the instance's Specification Version is greater than the provided version
 	 */
 	public gt(testVersion: string) {
 		return handleSemverComparator(semver.gt, this.#semverVersion, testVersion);
@@ -86,9 +78,8 @@ class SpecificationVersion {
 	/**
 	 * Test whether the instance's Specification Version is greater than or equal to the provided test version
 	 *
-	 * @public
-	 * @param {string} testVersion A Specification Version to compare the instance's Specification Version to
-	 * @returns {boolean} True if the instance's Specification Version is greater than or equal to the provided version
+	 * @param testVersion A Specification Version to compare the instance's Specification Version to
+	 * @returns True if the instance's Specification Version is greater than or equal to the provided version
 	 */
 	public gte(testVersion: string) {
 		return handleSemverComparator(semver.gte, this.#semverVersion, testVersion);
@@ -97,9 +88,8 @@ class SpecificationVersion {
 	/**
 	 * Test whether the instance's Specification Version is smaller than the provided test version
 	 *
-	 * @public
-	 * @param {string} testVersion A Specification Version to compare the instance's Specification Version to
-	 * @returns {boolean} True if the instance's Specification Version is smaller than the provided version
+	 * @param testVersion A Specification Version to compare the instance's Specification Version to
+	 * @returns True if the instance's Specification Version is smaller than the provided version
 	 */
 	public lt(testVersion: string) {
 		return handleSemverComparator(semver.lt, this.#semverVersion, testVersion);
@@ -108,9 +98,8 @@ class SpecificationVersion {
 	/**
 	 * Test whether the instance's Specification Version is smaller than or equal to the provided test version
 	 *
-	 * @public
-	 * @param {string} testVersion A Specification Version to compare the instance's Specification Version to
-	 * @returns {boolean} True if the instance's Specification Version is smaller than or equal to the provided version
+	 * @param testVersion A Specification Version to compare the instance's Specification Version to
+	 * @returns True if the instance's Specification Version is smaller than or equal to the provided version
 	 */
 	public lte(testVersion: string) {
 		return handleSemverComparator(semver.lte, this.#semverVersion, testVersion);
@@ -119,9 +108,8 @@ class SpecificationVersion {
 	/**
 	 * Test whether the instance's Specification Version is equal to the provided test version
 	 *
-	 * @public
-	 * @param {string} testVersion A Specification Version to compare the instance's Specification Version to
-	 * @returns {boolean} True if the instance's Specification Version is equal to the provided version
+	 * @param testVersion A Specification Version to compare the instance's Specification Version to
+	 * @returns True if the instance's Specification Version is equal to the provided version
 	 */
 	public eq(testVersion: string) {
 		return handleSemverComparator(semver.eq, this.#semverVersion, testVersion);
@@ -130,9 +118,8 @@ class SpecificationVersion {
 	/**
 	 * Test whether the instance's Specification Version is not equal to the provided test version
 	 *
-	 * @public
-	 * @param {string} testVersion A Specification Version to compare the instance's Specification Version to
-	 * @returns {boolean} True if the instance's Specification Version is not equal to the provided version
+	 * @param testVersion A Specification Version to compare the instance's Specification Version to
+	 * @returns True if the instance's Specification Version is not equal to the provided version
 	 */
 	public neq(testVersion: string) {
 		return handleSemverComparator(semver.neq, this.#semverVersion, testVersion);
@@ -195,11 +182,19 @@ class SpecificationVersion {
 	}
 }
 
+/**
+ *
+ * @param specVersion
+ */
 function getUnsupportedSpecVersionMessage(specVersion) {
 	return `Unsupported Specification Version ${specVersion} defined. Your UI5 CLI installation might be outdated. ` +
 		`For details, see https://sap.github.io/ui5-tooling/pages/Configuration/#specification-versions`;
 }
 
+/**
+ *
+ * @param specVersion
+ */
 function getSemverCompatibleVersion(specVersion) {
 	if (SpecificationVersion.isSupportedSpecVersion(specVersion)) {
 		return specVersion + ".0";
@@ -207,6 +202,12 @@ function getSemverCompatibleVersion(specVersion) {
 	throw new Error(getUnsupportedSpecVersionMessage(specVersion));
 }
 
+/**
+ *
+ * @param comparator
+ * @param baseVersion
+ * @param testVersion
+ */
 function handleSemverComparator(comparator, baseVersion, testVersion) {
 	if (SPEC_VERSION_PATTERN.test(testVersion)) {
 		const a = baseVersion;
@@ -220,4 +221,4 @@ export default SpecificationVersion;
 
 // Export local function for testing only
 export const __localFunctions__ = (process.env.NODE_ENV === "test") ?
-	{getSemverCompatibleVersion, handleSemverComparator} : /* istanbul ignore next */ undefined;
+		{getSemverCompatibleVersion, handleSemverComparator} : /* istanbul ignore next */ undefined;

@@ -12,74 +12,74 @@ export default {
 	 * @param {Function} assertValidation assertion function
 	 * @param {string} type one of "application", library" and "theme-library"
 	 */
-	defineTests: function(test: Function, assertValidation: Function, type: string) {
+	defineTests: function (test: Function, assertValidation: Function, type: string) {
 		SpecificationVersion.getVersionsForRange(">=2.0").forEach((specVersion) => {
 			test(`${type} (specVersion ${specVersion}): framework configuration: OpenUI5`, async (t) => {
 				const config = {
-					"specVersion": specVersion,
-					"type": type,
-					"metadata": {
-						"name": "my-" + type
+					specVersion: specVersion,
+					type: type,
+					metadata: {
+						name: "my-" + type,
 					},
-					"framework": {
-						"name": "OpenUI5",
-						"version": "1.75.0",
-						"libraries": [
-							{"name": "sap.ui.core"},
-							{"name": "sap.m"},
-							{"name": "sap.f", "optional": true},
-							{"name": "sap.ui.support", "development": true}
-						]
-					}
+					framework: {
+						name: "OpenUI5",
+						version: "1.75.0",
+						libraries: [
+							{name: "sap.ui.core"},
+							{name: "sap.m"},
+							{name: "sap.f", optional: true},
+							{name: "sap.ui.support", development: true},
+						],
+					},
 				};
 				await assertValidation(t, config);
 			});
 
 			test(`${type} (specVersion ${specVersion}): framework configuration: SAPUI5`, async (t) => {
 				const config = {
-					"specVersion": specVersion,
-					"type": type,
-					"metadata": {
-						"name": "my-" + type
+					specVersion: specVersion,
+					type: type,
+					metadata: {
+						name: "my-" + type,
 					},
-					"framework": {
-						"name": "SAPUI5",
-						"version": "1.75.0",
-						"libraries": [
-							{"name": "sap.ui.core"},
-							{"name": "sap.m"},
-							{"name": "sap.f", "optional": true},
-							{"name": "sap.ui.support", "development": true},
-							{"name": "sap.ui.comp", "development": true, "optional": false},
-							{"name": "sap.fe", "development": false, "optional": true},
+					framework: {
+						name: "SAPUI5",
+						version: "1.75.0",
+						libraries: [
+							{name: "sap.ui.core"},
+							{name: "sap.m"},
+							{name: "sap.f", optional: true},
+							{name: "sap.ui.support", development: true},
+							{name: "sap.ui.comp", development: true, optional: false},
+							{name: "sap.fe", development: false, optional: true},
 							{
-								"name": "sap.ui.export",
-								"development": false,
-								"optional": false
-							}
-						]
-					}
+								name: "sap.ui.export",
+								development: false,
+								optional: false,
+							},
+						],
+					},
 				};
 				await assertValidation(t, config);
 			});
 
 			test(`${type} (specVersion ${specVersion}): framework configuration: Invalid`, async (t) => {
 				const config = {
-					"specVersion": specVersion,
-					"type": type,
-					"metadata": {
-						"name": "my-" + type
+					specVersion: specVersion,
+					type: type,
+					metadata: {
+						name: "my-" + type,
 					},
-					"framework": {
-						"name": "FooUI5",
-						"version": "1.75",
-						"libraries": [
+					framework: {
+						name: "FooUI5",
+						version: "1.75",
+						libraries: [
 							"sap.ui.core",
-							{"library": "sap.m"},
-							{"name": "sap.f", "optional": "x"},
-							{"name": "sap.f", "development": "no"}
-						]
-					}
+							{library: "sap.m"},
+							{name: "sap.f", optional: "x"},
+							{name: "sap.f", development: "no"},
+						],
+					},
 				};
 
 				await assertValidation(t, config, [
@@ -92,7 +92,7 @@ export default {
 								"OpenUI5",
 								"SAPUI5",
 							],
-						}
+						},
 					},
 					{
 						dataPath: "/framework/version",
@@ -112,10 +112,10 @@ export default {
 											"^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*" +
 											"[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-]" +
 											"[0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
-									}
-								}
-							]
-						}
+									},
+								},
+							],
+						},
 					},
 					{
 						dataPath: "/framework/libraries/0",
@@ -123,7 +123,7 @@ export default {
 						message: "should be object",
 						params: {
 							type: "object",
-						}
+						},
 					},
 					{
 						dataPath: "/framework/libraries/1",
@@ -131,7 +131,7 @@ export default {
 						message: "should NOT have additional properties",
 						params: {
 							additionalProperty: "library",
-						}
+						},
 					},
 					{
 						dataPath: "/framework/libraries/1",
@@ -139,44 +139,44 @@ export default {
 						message: "should have required property 'name'",
 						params: {
 							missingProperty: "name",
-						}
+						},
 					},
 					{
 						dataPath: "/framework/libraries/2/optional",
 						keyword: "type",
 						message: "should be boolean",
 						params: {
-							type: "boolean"
-						}
+							type: "boolean",
+						},
 					},
 					{
 						dataPath: "/framework/libraries/3/development",
 						keyword: "type",
 						message: "should be boolean",
 						params: {
-							type: "boolean"
-						}
-					}
+							type: "boolean",
+						},
+					},
 				]);
 			});
 
 			test(`${type} (specVersion ${specVersion}): framework configuration: Missing 'name'`, async (t) => {
 				await assertValidation(t, {
-					"specVersion": specVersion,
-					"type": type,
-					"metadata": {
-						"name": "my-" + type
+					specVersion: specVersion,
+					type: type,
+					metadata: {
+						name: "my-" + type,
 					},
-					"framework": {}
+					framework: {},
 				}, [
 					{
 						dataPath: "/framework",
 						keyword: "required",
 						message: "should have required property 'name'",
 						params: {
-							missingProperty: "name"
-						}
-					}
+							missingProperty: "name",
+						},
+					},
 				]);
 			});
 
@@ -184,27 +184,27 @@ export default {
 				`${type} (specVersion ${specVersion}): framework configuration: library with optional and development`,
 				async (t) => {
 					await assertValidation(t, {
-						"specVersion": specVersion,
-						"type": type,
-						"metadata": {
-							"name": "my-" + type
+						specVersion: specVersion,
+						type: type,
+						metadata: {
+							name: "my-" + type,
 						},
-						"framework": {
-							"name": "OpenUI5",
-							"libraries": [
+						framework: {
+							name: "OpenUI5",
+							libraries: [
 								{
 									name: "sap.ui.lib1",
 									development: true,
-									optional: true
+									optional: true,
 								},
 								{
 									// This should only complain about wrong types, not that both are true
 									name: "sap.ui.lib2",
 									development: "true",
-									optional: "true"
-								}
-							]
-						}
+									optional: "true",
+								},
+							],
+						},
 					}, [
 						{
 							dataPath: "/framework/libraries/0",
@@ -218,7 +218,7 @@ export default {
 										message: "should NOT have additional properties",
 										params: {
 											additionalProperty: "development",
-										}
+										},
 									},
 									{
 										dataPath: "/framework/libraries/0",
@@ -226,10 +226,10 @@ export default {
 										message: "should NOT have additional properties",
 										params: {
 											additionalProperty: "optional",
-										}
+										},
 									},
 								],
-							}
+							},
 						},
 						{
 							dataPath: "/framework/libraries/1/optional",
@@ -237,7 +237,7 @@ export default {
 							message: "should be boolean",
 							params: {
 								type: "boolean",
-							}
+							},
 						},
 						{
 							dataPath: "/framework/libraries/1/development",
@@ -245,10 +245,10 @@ export default {
 							message: "should be boolean",
 							params: {
 								type: "boolean",
-							}
+							},
 						},
 					]);
 				});
 		});
-	}
+	},
 };

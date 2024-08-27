@@ -24,12 +24,15 @@ function createSubclass(Specification) {
 		getRootPath() {
 			return "path";
 		}
+
 		getType() {
 			return "type";
 		}
+
 		getKind() {
 			return "kind";
 		}
+
 		getName() {
 			return "name";
 		}
@@ -46,8 +49,8 @@ test.beforeEach((t) => {
 			specVersion: "2.3",
 			kind: "project",
 			type: "application",
-			metadata: {name: "application.a"}
-		}
+			metadata: {name: "application.a"},
+		},
 	};
 });
 
@@ -59,7 +62,7 @@ test("Specification can't be instantiated", (t) => {
 	t.throws(() => {
 		new Specification();
 	}, {
-		message: "Class 'Specification' is abstract. Please use one of the 'types' subclasses"
+		message: "Class 'Specification' is abstract. Please use one of the 'types' subclasses",
 	});
 });
 
@@ -74,21 +77,21 @@ test("Instantiate a basic project", async (t) => {
 test("init: Missing id", async (t) => {
 	delete t.context.basicProjectInput.id;
 	await t.throwsAsync(Specification.create(t.context.basicProjectInput), {
-		message: "Could not create Specification: Missing or empty parameter 'id'"
+		message: "Could not create Specification: Missing or empty parameter 'id'",
 	}, "Threw with expected error message");
 });
 
 test("init: Missing version", async (t) => {
 	delete t.context.basicProjectInput.version;
 	await t.throwsAsync(Specification.create(t.context.basicProjectInput), {
-		message: "Could not create Specification: Missing or empty parameter 'version'"
+		message: "Could not create Specification: Missing or empty parameter 'version'",
 	}, "Threw with expected error message");
 });
 
 test("init: Missing modulePath", async (t) => {
 	delete t.context.basicProjectInput.modulePath;
 	await t.throwsAsync(Specification.create(t.context.basicProjectInput), {
-		message: "Could not create Specification: Missing or empty parameter 'modulePath'"
+		message: "Could not create Specification: Missing or empty parameter 'modulePath'",
 	}, "Threw with expected error message");
 });
 
@@ -97,7 +100,7 @@ test("init: Missing configuration", async (t) => {
 	const project = new Application();
 
 	await t.throwsAsync(project.init(t.context.basicProjectInput), {
-		message: "Could not create Specification: Missing or empty parameter 'configuration'"
+		message: "Could not create Specification: Missing or empty parameter 'configuration'",
 	}, "Threw with expected error message");
 });
 
@@ -107,7 +110,7 @@ test("init: Invalid constructor name", async (t) => {
 
 	await t.throwsAsync(project.init(t.context.basicProjectInput), {
 		message: "Configuration mismatch: Supplied configuration of type 'application' " +
-		"does not match with specification class MockSpecification"
+		"does not match with specification class MockSpecification",
 	}, "Threw with expected error message");
 });
 
@@ -137,7 +140,7 @@ test("_dirExists: Missing leading slash", async (t) => {
 	const project = await Specification.create(t.context.basicProjectInput);
 
 	await t.throwsAsync(project._dirExists("webapp"), {
-		message: "Failed to resolve virtual path 'webapp': Path must be absolute"
+		message: "Failed to resolve virtual path 'webapp': Path must be absolute",
 	});
 });
 
@@ -151,7 +154,7 @@ test("_dirExists: Directory is a file", async (t) => {
 	const project = await Specification.create(t.context.basicProjectInput);
 
 	await t.throwsAsync(project._dirExists("webapp/index.html"), {
-		message: "Failed to resolve virtual path 'webapp/index.html': Path must be absolute"
+		message: "Failed to resolve virtual path 'webapp/index.html': Path must be absolute",
 	});
 });
 
@@ -171,8 +174,8 @@ test("Project with incorrect name", async (t) => {
 			specVersion: "2.3",
 			kind: "project",
 			type: "application",
-			metadata: {name: "application a"}
-		}
+			metadata: {name: "application a"},
+		},
 	});
 	t.is(project.getName(), "application a", "Returned correct name");
 	t.is(project.getVersion(), "1.0.0", "Returned correct version");
@@ -209,12 +212,12 @@ test("Migrate legacy module: specVersion 1.0", async (t) => {
 			kind: "extension",
 			type: "task",
 			metadata: {
-				name: "task-a"
+				name: "task-a",
 			},
 			task: {
-				path: "lib/extensionModule.js"
-			}
-		}
+				path: "lib/extensionModule.js",
+			},
+		},
 	});
 
 	t.is(project.getSpecVersion().toString(), "2.6", "Project got migrated to latest specVersion");
@@ -230,12 +233,12 @@ test("Migrate legacy module: specVersion 0.1", async (t) => {
 			kind: "extension",
 			type: "task",
 			metadata: {
-				name: "task-a"
+				name: "task-a",
 			},
 			task: {
-				path: "lib/extensionModule.js"
-			}
-		}
+				path: "lib/extensionModule.js",
+			},
+		},
 	});
 
 	t.is(project.getSpecVersion().toString(), "2.6", "Project got migrated to latest specVersion");
@@ -252,17 +255,17 @@ test("Migrate legacy extension", async (t) => {
 			type: "module",
 			metadata: {
 				name: "module.a",
-				copyright: "Some fancy copyright" // allowed but ignored
+				copyright: "Some fancy copyright", // allowed but ignored
 			},
 			resources: {
 				configuration: {
 					paths: {
 						"/": "dist",
-						"/dev/": "dev"
-					}
-				}
-			}
-		}
+						"/dev/": "dev",
+					},
+				},
+			},
+		},
 	});
 
 	t.is(project.getSpecVersion().toString(), "2.6", "Project got migrated to latest specVersion");
@@ -272,37 +275,37 @@ test("Migrate legacy extension", async (t) => {
 	kind: "project",
 	type: "application",
 	modulePath: applicationAPath,
-	SpecificationClass: Application
+	SpecificationClass: Application,
 }, {
 	kind: "project",
 	type: "library",
 	modulePath: libraryHPath,
-	SpecificationClass: Library
+	SpecificationClass: Library,
 }, {
 	kind: "project",
 	type: "theme-library",
 	modulePath: themeLibraryEPath,
-	SpecificationClass: ThemeLibrary
+	SpecificationClass: ThemeLibrary,
 }, {
 	kind: "project",
 	type: "module",
 	modulePath: moduleAPath,
-	SpecificationClass: Module
+	SpecificationClass: Module,
 }, {
 	kind: "extension",
 	type: "task",
 	modulePath: genericExtensionPath,
-	SpecificationClass: Task
+	SpecificationClass: Task,
 }, {
 	kind: "extension",
 	type: "project-shim",
 	modulePath: genericExtensionPath,
-	SpecificationClass: ProjectShim
+	SpecificationClass: ProjectShim,
 }, {
 	kind: "extension",
 	type: "server-middleware",
 	modulePath: genericExtensionPath,
-	SpecificationClass: ServerMiddleware
+	SpecificationClass: ServerMiddleware,
 }].forEach(({kind, type, modulePath, SpecificationClass}) => {
 	test(`create: kind '${kind}', type '${type}'`, async (t) => {
 		const additionalConfiguration = {};
@@ -322,10 +325,10 @@ test("Migrate legacy extension", async (t) => {
 				kind,
 				type,
 				metadata: {
-					name: `${type}.a`
+					name: `${type}.a`,
 				},
-				...additionalConfiguration
-			}
+				...additionalConfiguration,
+			},
 		});
 		t.true(project instanceof SpecificationClass);
 	});
@@ -336,7 +339,7 @@ test("create: Missing configuration", async (t) => {
 		id: "application.a.id",
 		version: "1.0.0",
 	}), {
-		message: "Unable to create Specification instance: Missing configuration parameter"
+		message: "Unable to create Specification instance: Missing configuration parameter",
 	});
 });
 
@@ -344,9 +347,9 @@ test("create: Unknown kind", async (t) => {
 	await t.throwsAsync(Specification.create({
 		configuration: {
 			kind: "foo",
-		}
+		},
 	}), {
-		message: "Unable to create Specification instance: Unknown kind 'foo'"
+		message: "Unable to create Specification instance: Unknown kind 'foo'",
 	});
 });
 
@@ -354,10 +357,10 @@ test("create: Unknown type", async (t) => {
 	await t.throwsAsync(Specification.create({
 		configuration: {
 			kind: "project",
-			type: "foo"
-		}
+			type: "foo",
+		},
 	}), {
-		message: "Unable to create Specification instance: Unknown specification type 'foo'"
+		message: "Unable to create Specification instance: Unknown specification type 'foo'",
 	});
 });
 
@@ -366,7 +369,7 @@ test("Invalid specVersion", async (t) => {
 	await t.throwsAsync(Specification.create(t.context.basicProjectInput), {
 		message:
 		"Unsupported Specification Version 0.5 defined. Your UI5 CLI installation might be outdated. " +
-		"For details, see https://sap.github.io/ui5-tooling/pages/Configuration/#specification-versions"
+		"For details, see https://sap.github.io/ui5-tooling/pages/Configuration/#specification-versions",
 	}, "Threw with expected error message");
 });
 
@@ -378,8 +381,8 @@ test("getRootReader: Default parameters", async (t) => {
 	const createReaderStub = sinon.stub();
 	const Specification = await esmock("../../../lib/specifications/Specification.js", {
 		"@ui5/fs/resourceFactory": {
-			createReader: createReaderStub
-		}
+			createReader: createReaderStub,
+		},
 	});
 
 	const MockSpecification = createSubclass(Specification);
@@ -399,17 +402,16 @@ test("getRootReader: Custom parameters", async (t) => {
 	const createReaderStub = sinon.stub();
 	const Specification = await esmock("../../../lib/specifications/Specification.js", {
 		"@ui5/fs/resourceFactory": {
-			createReader: createReaderStub
-		}
+			createReader: createReaderStub,
+		},
 	});
 
 	const MockSpecification = createSubclass(Specification);
 	const spec = new MockSpecification();
 	await spec.getRootReader({});
 	await spec.getRootReader({
-		useGitignore: false
+		useGitignore: false,
 	});
-
 
 	t.is(createReaderStub.callCount, 2, "createReader got called twice");
 	t.deepEqual(createReaderStub.getCall(0).args[0], {

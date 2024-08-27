@@ -19,42 +19,42 @@ test.beforeEach(async (t) => {
 		warn: sinon.stub(),
 		error: sinon.stub(),
 		isLevelEnabled: sinon.stub().returns(false),
-		_getLogger: sinon.stub()
+		_getLogger: sinon.stub(),
 	};
 	const ui5Logger = {
-		getLogger: sinon.stub().returns(t.context.logStub)
+		getLogger: sinon.stub().returns(t.context.logStub),
 	};
 
 	t.context.pacote = {
 		packument: sinon.stub().callsFake(async (...args) => {
 			throw new Error(`pacote.packument stub called with unknown args: ${args}`);
-		})
+		}),
 	};
 
 	t.context.NpmcliConfig = sinon.stub().returns({
 		load: sinon.stub().resolves(),
 		flat: {
-			registry: "https://registry.fake"
-		}
+			registry: "https://registry.fake",
+		},
 	});
 
 	t.context.Registry = await esmock.p("../../../lib/ui5Framework/npm/Registry.js", {
 		"@ui5/logger": ui5Logger,
 		"pacote": t.context.pacote,
 		"@npmcli/config": {
-			"default": t.context.NpmcliConfig
-		}
+			default: t.context.NpmcliConfig,
+		},
 	});
 
 	const AbstractInstaller = await esmock.p("../../../lib/ui5Framework/AbstractInstaller.js", {
 		"@ui5/logger": ui5Logger,
 		"../../../lib/utils/fs.js": {
-			mkdirp: sinon.stub().resolves()
+			mkdirp: sinon.stub().resolves(),
 		},
 		"lockfile": {
 			lock: sinon.stub().yieldsAsync(),
-			unlock: sinon.stub().yieldsAsync()
-		}
+			unlock: sinon.stub().yieldsAsync(),
+		},
 	});
 
 	t.context.Installer = await esmock.p("../../../lib/ui5Framework/npm/Installer.js", {
@@ -63,26 +63,26 @@ test.beforeEach(async (t) => {
 			rename: sinon.stub().yieldsAsync(),
 		},
 		"../../../lib/utils/fs.js": {
-			mkdirp: sinon.stub().resolves()
+			mkdirp: sinon.stub().resolves(),
 		},
 		"../../../lib/ui5Framework/npm/Registry.js": t.context.Registry,
-		"../../../lib/ui5Framework/AbstractInstaller.js": AbstractInstaller
+		"../../../lib/ui5Framework/AbstractInstaller.js": AbstractInstaller,
 	});
 
 	t.context.AbstractResolver = await esmock.p("../../../lib/ui5Framework/AbstractResolver.js", {
 		"@ui5/logger": ui5Logger,
 		"node:os": {
-			homedir: sinon.stub().returns(path.join(fakeBaseDir, "datadir"))
+			homedir: sinon.stub().returns(path.join(fakeBaseDir, "datadir")),
 		},
 	});
 
 	t.context.Sapui5Resolver = await esmock.p("../../../lib/ui5Framework/Sapui5Resolver.js", {
 		"@ui5/logger": ui5Logger,
 		"node:os": {
-			homedir: sinon.stub().returns(path.join(fakeBaseDir, "datadir"))
+			homedir: sinon.stub().returns(path.join(fakeBaseDir, "datadir")),
 		},
 		"../../../lib/ui5Framework/AbstractResolver.js": t.context.AbstractResolver,
-		"../../../lib/ui5Framework/npm/Installer.js": t.context.Installer
+		"../../../lib/ui5Framework/npm/Installer.js": t.context.Installer,
 	});
 });
 
@@ -106,7 +106,7 @@ test.serial("resolveVersion", async (t) => {
 				"1.119.0": "",
 				"1.118.0": "",
 				"2.0.0-rc.1": "",
-				"1.123.4-SNAPSHOT": ""
+				"1.123.4-SNAPSHOT": "",
 			},
 			"dist-tags": {
 				// NOTE: latest does not correspond to highest version in order to verify
@@ -117,8 +117,8 @@ test.serial("resolveVersion", async (t) => {
 
 				// NOTE: Tag ends with "-snapshot" in order to verify that the special handling
 				// of that
-				"not-a-snapshot": "1.118.0"
-			}
+				"not-a-snapshot": "1.118.0",
+			},
 		});
 
 	const defaultCwd = process.cwd();
@@ -129,8 +129,8 @@ test.serial("resolveVersion", async (t) => {
 		undefined,
 		{
 			cwd: path.join(fakeBaseDir, "custom-cwd"),
-			ui5DataDir: path.join(fakeBaseDir, "custom-datadir", ".ui5")
-		}
+			ui5DataDir: path.join(fakeBaseDir, "custom-datadir", ".ui5"),
+		},
 	];
 	for (const options of optionsArguments) {
 		// Reset calls to be able to check them per for-loop run
@@ -161,37 +161,37 @@ test.serial("resolveVersion", async (t) => {
 
 		// Error cases
 		await t.throwsAsync(Sapui5Resolver.resolveVersion("", options), {
-			message: `Framework version specifier "" is incorrect or not supported`
+			message: `Framework version specifier "" is incorrect or not supported`,
 		});
 		await t.throwsAsync(Sapui5Resolver.resolveVersion("tag-does-not-exist", options), {
 			message: `Could not resolve framework version via tag 'tag-does-not-exist'. ` +
-				`Make sure the tag is available in the configured registry.`
+			`Make sure the tag is available in the configured registry.`,
 		});
 		await t.throwsAsync(Sapui5Resolver.resolveVersion("invalid-tag-%20", options), {
-			message: `Framework version specifier "invalid-tag-%20" is incorrect or not supported`
+			message: `Framework version specifier "invalid-tag-%20" is incorrect or not supported`,
 		});
 
 		await t.throwsAsync(Sapui5Resolver.resolveVersion("1.999.9", options), {
 			message: `Could not resolve framework version 1.999.9. ` +
-				`Make sure the version is valid and available in the configured registry.`
+			`Make sure the version is valid and available in the configured registry.`,
 		});
 		await t.throwsAsync(Sapui5Resolver.resolveVersion("1.0.0", options), {
 			message: `Could not resolve framework version 1.0.0. ` +
-				`Note that SAPUI5 framework libraries can only be consumed by the UI5 Tooling ` +
-				`starting with SAPUI5 v1.76.0`
+			`Note that SAPUI5 framework libraries can only be consumed by the UI5 Tooling ` +
+			`starting with SAPUI5 v1.76.0`,
 		});
 		await t.throwsAsync(Sapui5Resolver.resolveVersion("^999", options), {
 			message: `Could not resolve framework version ^999. ` +
-				`Make sure the version is valid and available in the configured registry.`
+			`Make sure the version is valid and available in the configured registry.`,
 		});
 
 		// Check whether options have been passed as expected
 		t.true(NpmcliConfig.alwaysCalledWithNew());
 		t.true(NpmcliConfig.alwaysCalledWithMatch(sinonGlobal.match({
-			cwd: options?.cwd ?? defaultCwd
+			cwd: options?.cwd ?? defaultCwd,
 		})));
 		t.true(pacote.packument.alwaysCalledWithMatch("@sapui5/distribution-metadata", {
-			cache: path.join(options?.ui5DataDir ?? defaultUi5DataDir, "framework", "cacache")
+			cache: path.join(options?.ui5DataDir ?? defaultUi5DataDir, "framework", "cacache"),
 		}));
 	}
 

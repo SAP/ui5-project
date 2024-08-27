@@ -31,10 +31,10 @@ test.beforeEach(async (t) => {
 	t.context.npmConfigFlat = sinon.stub(Config.prototype, "flat");
 	t.context.Registry = await esmock.p("../../../../lib/ui5Framework/npm/Registry.js", {
 		"pacote": {
-			"default": t.context.pacote
+			default: t.context.pacote,
 		},
 		"@npmcli/config": {
-			"default": Config
+			default: Config,
 		},
 		"@npmcli/config/lib/definitions/index.js": {
 			default: {
@@ -42,8 +42,8 @@ test.beforeEach(async (t) => {
 				definitions: "definitions",
 				shorthands: "shorthands",
 				defaults: "defaults",
-			}
-		}
+			},
+		},
 	});
 });
 
@@ -57,7 +57,7 @@ test.serial("Constructor", (t) => {
 
 	const registry = new Registry({
 		cwd: "cwd",
-		cacheDir: "cacheDir"
+		cacheDir: "cacheDir",
 	});
 
 	t.true(registry instanceof Registry);
@@ -68,16 +68,16 @@ test.serial("_getPacoteOptions", async (t) => {
 
 	const registry = new Registry({
 		cwd: "cwd",
-		cacheDir: "cacheDir"
+		cacheDir: "cacheDir",
 	});
 
 	const npmConfig = {
-		"fake": "config"
+		fake: "config",
 	};
 
 	const expectedPacoteOptions = {
 		fake: "config",
-		cache: "cacheDir"
+		cache: "cacheDir",
 	};
 	npmConfigFlat.value(npmConfig);
 
@@ -101,16 +101,16 @@ test.serial("_getPacoteOptions (proxy config set)", async (t) => {
 
 	const registry = new Registry({
 		cwd: "cwd",
-		cacheDir: "cacheDir"
+		cacheDir: "cacheDir",
 	});
 
 	const npmConfig = {
-		"proxy": "http://localhost:9999"
+		proxy: "http://localhost:9999",
 	};
 
 	const expectedPacoteOptions = {
 		proxy: "http://localhost:9999",
-		cache: "cacheDir"
+		cache: "cacheDir",
 	};
 
 	npmConfigFlat.value(npmConfig);
@@ -127,16 +127,16 @@ test.serial("_getPacoteOptions (https-proxy config set)", async (t) => {
 
 	const registry = new Registry({
 		cwd: "cwd",
-		cacheDir: "cacheDir"
+		cacheDir: "cacheDir",
 	});
 
 	const npmConfig = {
-		"httpsProxy": "http://localhost:9999"
+		httpsProxy: "http://localhost:9999",
 	};
 
 	const expectedPacoteOptions = {
 		httpsProxy: "http://localhost:9999",
-		cache: "cacheDir"
+		cache: "cacheDir",
 	};
 
 	npmConfigFlat.value(npmConfig);
@@ -153,10 +153,10 @@ test.serial("_getPacote", async (t) => {
 
 	const registry = new Registry({
 		cwd: "cwd",
-		cacheDir: "cacheDir"
+		cacheDir: "cacheDir",
 	});
 
-	const expectedPacoteOptions = {"fake": "options"};
+	const expectedPacoteOptions = {fake: "options"};
 
 	sinon.stub(registry, "_getPacoteOptions").resolves(expectedPacoteOptions);
 
@@ -171,10 +171,10 @@ test.serial("_getPacote caching", async (t) => {
 
 	const registry = new Registry({
 		cwd: "cwd",
-		cacheDir: "cacheDir"
+		cacheDir: "cacheDir",
 	});
 
-	const expectedPacoteOptions = {"fake": "options"};
+	const expectedPacoteOptions = {fake: "options"};
 
 	const getPacoteOptionsStub = sinon.stub(registry, "_getPacoteOptions").resolves(expectedPacoteOptions);
 

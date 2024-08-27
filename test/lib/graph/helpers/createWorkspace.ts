@@ -19,7 +19,7 @@ test.beforeEach(async (t) => {
 	t.context.MockWorkspace = MockWorkspace;
 
 	t.context.createWorkspace = await esmock("../../../../lib/graph/helpers/createWorkspace", {
-		"../../../../lib/graph/Workspace.js": t.context.MockWorkspace
+		"../../../../lib/graph/Workspace.js": t.context.MockWorkspace,
 	});
 });
 
@@ -41,7 +41,7 @@ test("createWorkspace: Missing parameter 'cwd'", async (t) => {
 	const {createWorkspace} = t.context;
 
 	const err = await t.throwsAsync(createWorkspace({
-		configPath: path.join(libraryHPath, "invalid-ui5-workspace.yaml")
+		configPath: path.join(libraryHPath, "invalid-ui5-workspace.yaml"),
 	}));
 	t.is(err.message, "createWorkspace: Missing parameter 'cwd', 'configObject' or 'configPath'",
 		"Threw with expected error message");
@@ -52,7 +52,7 @@ test("createWorkspace: Missing parameter 'name' if 'configPath' is set", async (
 
 	const err = await t.throwsAsync(createWorkspace({
 		cwd: "cwd",
-		configPath: path.join(libraryHPath, "invalid-ui5-workspace.yaml")
+		configPath: path.join(libraryHPath, "invalid-ui5-workspace.yaml"),
 	}));
 	t.is(err.message, "createWorkspace: Parameter 'configPath' implies parameter 'name', but it's empty",
 		"Threw with expected error message");
@@ -62,7 +62,7 @@ test("createWorkspace: Using object", async (t) => {
 	const {
 		workspaceConstructorStub,
 		MockWorkspace,
-		createWorkspace
+		createWorkspace,
 	} = t.context;
 
 	const res = await createWorkspace({
@@ -70,14 +70,14 @@ test("createWorkspace: Using object", async (t) => {
 		configObject: {
 			specVersion: "workspace/1.0",
 			metadata: {
-				name: "default"
+				name: "default",
 			},
 			dependencyManagement: {
 				resolutions: [{
-					path: "resolution/path"
-				}]
-			}
-		}
+					path: "resolution/path",
+				}],
+			},
+		},
 	});
 
 	t.true(res instanceof MockWorkspace, "Returned instance of Workspace");
@@ -88,14 +88,14 @@ test("createWorkspace: Using object", async (t) => {
 		configuration: {
 			specVersion: "workspace/1.0",
 			metadata: {
-				name: "default"
+				name: "default",
 			},
 			dependencyManagement: {
 				resolutions: [{
-					path: "resolution/path"
-				}]
-			}
-		}
+					path: "resolution/path",
+				}],
+			},
+		},
 	}, "Created Workspace instance with correct parameters");
 });
 
@@ -107,10 +107,10 @@ test("createWorkspace: Using invalid object", async (t) => {
 		configObject: {
 			dependencyManagement: {
 				resolutions: [{
-					path: "resolution/path"
-				}]
-			}
-		}
+					path: "resolution/path",
+				}],
+			},
+		},
 	}));
 	t.is(err.message, "Invalid workspace configuration: Missing or empty property 'metadata.name'",
 		"Threw with validation error");
@@ -124,14 +124,14 @@ test("createWorkspace: Using name and object with different workspace name", asy
 		name: "my-workspace",
 		configObject: {
 			metadata: {
-				name: "my-other-workspace"
+				name: "my-other-workspace",
 			},
 			dependencyManagement: {
 				resolutions: [{
-					path: "resolution/path"
-				}]
-			}
-		}
+					path: "resolution/path",
+				}],
+			},
+		},
 	}));
 	t.is(err.message,
 		`The provided workspace name 'my-workspace' does not match ` +
@@ -145,7 +145,7 @@ test("createWorkspace: Using file", async (t) => {
 	const res = await createWorkspace({
 		cwd: "cwd",
 		name: "default",
-		configPath: path.join(libraryHPath, "ui5-workspace.yaml")
+		configPath: path.join(libraryHPath, "ui5-workspace.yaml"),
 	});
 
 	t.true(res instanceof MockWorkspace, "Returned instance of Workspace");
@@ -156,14 +156,14 @@ test("createWorkspace: Using file", async (t) => {
 		configuration: {
 			specVersion: "workspace/1.0",
 			metadata: {
-				name: "default"
+				name: "default",
 			},
 			dependencyManagement: {
 				resolutions: [{
-					path: "../library.d"
-				}]
-			}
-		}
+					path: "../library.d",
+				}],
+			},
+		},
 	}, "Created Workspace instance with correct parameters");
 });
 
@@ -173,7 +173,7 @@ test("createWorkspace: Using invalid file", async (t) => {
 	const err = await t.throwsAsync(createWorkspace({
 		cwd: "cwd",
 		name: "default",
-		configPath: path.join(libraryHPath, "invalid-ui5-workspace.yaml")
+		configPath: path.join(libraryHPath, "invalid-ui5-workspace.yaml"),
 	}));
 
 	t.true(err.message.includes("Invalid workspace configuration"), "Threw with validation error");
@@ -185,7 +185,7 @@ test("createWorkspace: Using missing file", async (t) => {
 	const res = await createWorkspace({
 		cwd: path.join(fixturesPath, "library.d"),
 		name: "default",
-		configPath: "ui5-workspace.yaml"
+		configPath: "ui5-workspace.yaml",
 	});
 
 	t.is(res, null, "Returned no workspace");
@@ -199,7 +199,7 @@ test("createWorkspace: Missing default workspace in file", async (t) => {
 	const res = await createWorkspace({
 		cwd: path.join(fixturesPath, "library.h"),
 		name: "default",
-		configPath: path.join(fixturesPath, "library.h", "custom-ui5-workspace.yaml")
+		configPath: path.join(fixturesPath, "library.h", "custom-ui5-workspace.yaml"),
 	});
 
 	t.is(res, null, "Returned no workspace");
@@ -213,7 +213,7 @@ test("createWorkspace: Using missing file and non-default name", async (t) => {
 	const err = await t.throwsAsync(createWorkspace({
 		cwd: path.join(fixturesPath, "library.d"),
 		name: "special",
-		configPath: "ui5-workspace.yaml"
+		configPath: "ui5-workspace.yaml",
 	}));
 
 	const filePath = path.join(fixturesPath, "library.d", "ui5-workspace.yaml");
@@ -229,7 +229,7 @@ test("createWorkspace: Using non-default file and non-default name", async (t) =
 	const res = await createWorkspace({
 		cwd: path.join(fixturesPath, "library.h"),
 		name: "library-d",
-		configPath: "custom-ui5-workspace.yaml"
+		configPath: "custom-ui5-workspace.yaml",
 	});
 
 	t.true(res instanceof MockWorkspace, "Returned instance of Workspace");
@@ -240,14 +240,14 @@ test("createWorkspace: Using non-default file and non-default name", async (t) =
 		configuration: {
 			specVersion: "workspace/1.0",
 			metadata: {
-				name: "library-d"
+				name: "library-d",
 			},
 			dependencyManagement: {
 				resolutions: [{
-					path: "../library.d"
-				}]
-			}
-		}
+					path: "../library.d",
+				}],
+			},
+		},
 	}, "Created Workspace instance with correct parameters");
 });
 
@@ -257,7 +257,7 @@ test("createWorkspace: Using non-default file and non-default name which is not 
 	const err = await t.throwsAsync(createWorkspace({
 		cwd: path.join(fixturesPath, "library.h"),
 		name: "special",
-		configPath: "custom-ui5-workspace.yaml"
+		configPath: "custom-ui5-workspace.yaml",
 	}));
 
 	t.is(err.message, `Could not find a workspace named 'special' in custom-ui5-workspace.yaml`,
@@ -279,7 +279,7 @@ test("readWorkspaceConfigFile", async (t) => {
 			dependencyManagement: {
 				resolutions: [{
 					path: "../library.d",
-				}]
+				}],
 			},
 		}, {
 			specVersion: "workspace/1.0",

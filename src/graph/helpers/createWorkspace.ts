@@ -7,8 +7,16 @@ const log = getLogger("generateProjectGraph");
 const DEFAULT_WORKSPACE_CONFIG_PATH = "ui5-workspace.yaml";
 const DEFAULT_WORKSPACE_NAME = "default";
 
+/**
+ *
+ * @param root0
+ * @param root0.cwd
+ * @param root0.name
+ * @param root0.configObject
+ * @param root0.configPath
+ */
 export default async function createWorkspace({
-	cwd, name, configObject, configPath
+	cwd, name, configObject, configPath,
 }) {
 	if (!cwd || (!configObject && !configPath)) {
 		throw new Error(`createWorkspace: Missing parameter 'cwd', 'configObject' or 'configPath'`);
@@ -25,7 +33,7 @@ export default async function createWorkspace({
 			log.verbose(`Using provided workspace configuration ${configObject.metadata.name}...`);
 			return new Workspace({
 				cwd,
-				configuration: configObject
+				configuration: configObject,
 			});
 		}
 	} else {
@@ -46,7 +54,7 @@ export default async function createWorkspace({
 				log.verbose(`Using workspace configuration "${name}" from ${configPath}...`);
 				return new Workspace({
 					cwd: path.dirname(filePath),
-					configuration
+					configuration,
 				});
 			} else if (name === DEFAULT_WORKSPACE_NAME) {
 				// Requested workspace not found
@@ -68,9 +76,13 @@ export default async function createWorkspace({
 	}
 }
 
+/**
+ *
+ * @param filePath
+ */
 async function readWorkspaceConfigFile(filePath) {
 	const {
-		default: fs
+		default: fs,
 	} = await import("graceful-fs");
 	const {promisify} = await import("node:util");
 	const readFile = promisify(fs.readFile);
@@ -82,7 +94,7 @@ async function readWorkspaceConfigFile(filePath) {
 	} catch (err) {
 		throw new Error(
 			`Failed to load workspace configuration from path ${filePath}: ${err.message}`, {
-				cause: err
+				cause: err,
 			});
 	}
 	let configs;
@@ -94,7 +106,7 @@ async function readWorkspaceConfigFile(filePath) {
 		throw new Error(`Failed to parse workspace configuration at ${filePath}\nError: ${err.message}`);
 	}
 
-	if (!configs || !configs.length) {
+	if (!configs?.length) {
 		// No configs found => exit here
 		log.verbose(`Found empty workspace configuration file at ${filePath}`);
 		return configs;
@@ -112,8 +124,8 @@ async function readWorkspaceConfigFile(filePath) {
 					yaml: {
 						path: filePath,
 						source: fileContent,
-						documentIndex
-					}
+						documentIndex,
+					},
 				});
 			} catch (error) {
 				return error;

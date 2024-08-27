@@ -15,7 +15,7 @@ export default {
 	 * @param {Function} assertValidation assertion function
 	 * @param {string} type one of "application", "library", "theme-library" and "module"
 	 */
-	defineTests: function(test: Function, assertValidation: Function, type: string) {
+	defineTests: function (test: Function, assertValidation: Function, type: string) {
 		// framework tests
 		if (["application", "library", "theme-library"].includes(type)) {
 			framework.defineTests(test, assertValidation, type);
@@ -34,118 +34,118 @@ export default {
 			// tests for all kinds and version 2.0 and above
 			test(`${type} (specVersion ${specVersion}): No metadata`, async (t) => {
 				await assertValidation(t, {
-					"specVersion": specVersion,
-					"type": type
+					specVersion: specVersion,
+					type: type,
 				}, [{
 					dataPath: "",
 					keyword: "required",
 					message: "should have required property 'metadata'",
 					params: {
 						missingProperty: "metadata",
-					}
+					},
 				}]);
 			});
 
 			test(`${type} (specVersion ${specVersion}): Metadata not type object`, async (t) => {
 				await assertValidation(t, {
-					"specVersion": specVersion,
-					"type": type,
-					"metadata": "foo"
+					specVersion: specVersion,
+					type: type,
+					metadata: "foo",
 				}, [{
 					dataPath: "/metadata",
 					keyword: "type",
 					message: "should be object",
 					params: {
 						type: "object",
-					}
+					},
 				}]);
 			});
 
 			test(`${type} (specVersion ${specVersion}): No metadata.name`, async (t) => {
 				await assertValidation(t, {
-					"specVersion": specVersion,
-					"type": type,
-					"metadata": {}
+					specVersion: specVersion,
+					type: type,
+					metadata: {},
 				}, [{
 					dataPath: "/metadata",
 					keyword: "required",
 					message: "should have required property 'name'",
 					params: {
 						missingProperty: "name",
-					}
+					},
 				}]);
 			});
 
 			test(`${type} (specVersion ${specVersion}): Invalid metadata.copyright`, async (t) => {
 				await assertValidation(t, {
-					"specVersion": specVersion,
-					"type": type,
-					"metadata": {
-						"name": "foo",
-						"copyright": 123
-					}
+					specVersion: specVersion,
+					type: type,
+					metadata: {
+						name: "foo",
+						copyright: 123,
+					},
 				}, [
 					{
 						dataPath: "/metadata/copyright",
 						keyword: "type",
 						message: "should be string",
 						params: {
-							type: "string"
-						}
-					}
+							type: "string",
+						},
+					},
 				]);
 			});
 
 			test(`${type} (specVersion ${specVersion}): Additional metadata property`, async (t) => {
 				await assertValidation(t, {
-					"specVersion": specVersion,
-					"type": type,
-					"metadata": {
-						"name": "foo",
-						"copyrihgt": "typo"
-					}
+					specVersion: specVersion,
+					type: type,
+					metadata: {
+						name: "foo",
+						copyrihgt: "typo",
+					},
 				}, [
 					{
 						dataPath: "/metadata",
 						keyword: "additionalProperties",
 						message: "should NOT have additional properties",
 						params: {
-							additionalProperty: "copyrihgt"
-						}
-					}
+							additionalProperty: "copyrihgt",
+						},
+					},
 				]);
 			});
 
 			test(`${type} (specVersion ${specVersion}): metadata.deprecated: true`, async (t) => {
 				await assertValidation(t, {
-					"specVersion": specVersion,
-					"type": type,
-					"metadata": {
-						"name": "my-" + type,
-						"deprecated": true
-					}
+					specVersion: specVersion,
+					type: type,
+					metadata: {
+						name: "my-" + type,
+						deprecated: true,
+					},
 				});
 			});
 
 			test(`${type} (specVersion ${specVersion}): metadata.deprecated: false`, async (t) => {
 				await assertValidation(t, {
-					"specVersion": specVersion,
-					"type": type,
-					"metadata": {
-						"name": "my-" + type,
-						"deprecated": false
-					}
+					specVersion: specVersion,
+					type: type,
+					metadata: {
+						name: "my-" + type,
+						deprecated: false,
+					},
 				});
 			});
 
 			test(`${type} (specVersion ${specVersion}): Invalid metadata.deprecated`, async (t) => {
 				await assertValidation(t, {
-					"specVersion": specVersion,
-					"type": type,
-					"metadata": {
-						"name": "my-" + type,
-						"deprecated": "Yes"
-					}
+					specVersion: specVersion,
+					type: type,
+					metadata: {
+						name: "my-" + type,
+						deprecated: "Yes",
+					},
 				}, [
 					{
 						dataPath: "/metadata/deprecated",
@@ -153,41 +153,41 @@ export default {
 						message: "should be boolean",
 						params: {
 							type: "boolean",
-						}
-					}
+						},
+					},
 				]);
 			});
 
 			test(`${type} (specVersion ${specVersion}): metadata.sapInternal: true`, async (t) => {
 				await assertValidation(t, {
-					"specVersion": specVersion,
-					"type": type,
-					"metadata": {
-						"name": "my-" + type,
-						"sapInternal": true
-					}
+					specVersion: specVersion,
+					type: type,
+					metadata: {
+						name: "my-" + type,
+						sapInternal: true,
+					},
 				});
 			});
 
 			test(`${type} (specVersion ${specVersion}): metadata.sapInternal: false`, async (t) => {
 				await assertValidation(t, {
-					"specVersion": specVersion,
-					"type": type,
-					"metadata": {
-						"name": "my-" + type,
-						"sapInternal": false
-					}
+					specVersion: specVersion,
+					type: type,
+					metadata: {
+						name: "my-" + type,
+						sapInternal: false,
+					},
 				});
 			});
 
 			test(`${type} (specVersion ${specVersion}): Invalid metadata.sapInternal`, async (t) => {
 				await assertValidation(t, {
-					"specVersion": specVersion,
-					"type": type,
-					"metadata": {
-						"name": "my-" + type,
-						"sapInternal": "Yes"
-					}
+					specVersion: specVersion,
+					type: type,
+					metadata: {
+						name: "my-" + type,
+						sapInternal: "Yes",
+					},
 				}, [
 					{
 						dataPath: "/metadata/sapInternal",
@@ -195,41 +195,41 @@ export default {
 						message: "should be boolean",
 						params: {
 							type: "boolean",
-						}
-					}
+						},
+					},
 				]);
 			});
 
 			test(`${type} (specVersion ${specVersion}): metadata.allowSapInternal: true`, async (t) => {
 				await assertValidation(t, {
-					"specVersion": specVersion,
-					"type": type,
-					"metadata": {
-						"name": "my-" + type,
-						"allowSapInternal": true
-					}
+					specVersion: specVersion,
+					type: type,
+					metadata: {
+						name: "my-" + type,
+						allowSapInternal: true,
+					},
 				});
 			});
 
 			test(`${type} (specVersion ${specVersion}): metadata.allowSapInternal: false`, async (t) => {
 				await assertValidation(t, {
-					"specVersion": specVersion,
-					"type": type,
-					"metadata": {
-						"name": "my-" + type,
-						"allowSapInternal": false
-					}
+					specVersion: specVersion,
+					type: type,
+					metadata: {
+						name: "my-" + type,
+						allowSapInternal: false,
+					},
 				});
 			});
 
 			test(`${type} (specVersion ${specVersion}): Invalid metadata.allowSapInternal`, async (t) => {
 				await assertValidation(t, {
-					"specVersion": specVersion,
-					"type": type,
-					"metadata": {
-						"name": "my-" + type,
-						"allowSapInternal": "Yes"
-					}
+					specVersion: specVersion,
+					type: type,
+					metadata: {
+						name: "my-" + type,
+						allowSapInternal: "Yes",
+					},
 				}, [
 					{
 						dataPath: "/metadata/allowSapInternal",
@@ -237,19 +237,19 @@ export default {
 						message: "should be boolean",
 						params: {
 							type: "boolean",
-						}
-					}
+						},
+					},
 				]);
 			});
 
 			test(`${type} (specVersion ${specVersion}) Invalid configuration: Additional property`, async (t) => {
 				await assertValidation(t, {
-					"specVersion": specVersion,
-					"type": type,
-					"metadata": {
-						"name": "my-" + type
+					specVersion: specVersion,
+					type: type,
+					metadata: {
+						name: "my-" + type,
 					},
-					"notAllowed": true
+					notAllowed: true,
 				}, [{
 					dataPath: "",
 					keyword: "additionalProperties",
@@ -264,20 +264,20 @@ export default {
 		["2.6", "2.5", "2.4", "2.3", "2.2", "2.1", "2.0"].forEach((specVersion) => {
 			test(`${type} (specVersion ${specVersion}): Invalid metadata.name`, async (t) => {
 				await assertValidation(t, {
-					"specVersion": specVersion,
-					"type": type,
-					"metadata": {
-						"name": {}
-					}
+					specVersion: specVersion,
+					type: type,
+					metadata: {
+						name: {},
+					},
 				}, [
 					{
 						dataPath: "/metadata/name",
 						keyword: "type",
 						message: "should be string",
 						params: {
-							type: "string"
-						}
-					}
+							type: "string",
+						},
+					},
 				]);
 			});
 		});
@@ -285,11 +285,11 @@ export default {
 		SpecificationVersion.getVersionsForRange(">=3.0").forEach((specVersion) => {
 			test(`${type} (specVersion ${specVersion}): Invalid metadata.name`, async (t) => {
 				await assertValidation(t, {
-					"specVersion": specVersion,
-					"type": type,
-					"metadata": {
-						"name": {}
-					}
+					specVersion: specVersion,
+					type: type,
+					metadata: {
+						name: {},
+					},
 				}, [
 					{
 						dataPath: "/metadata/name",
@@ -302,12 +302,12 @@ export default {
 								message: "should be string",
 								params: {
 									type: "string",
-								}
-							}]
+								},
+							}],
 						},
-					}
+					},
 				]);
 			});
 		});
-	}
+	},
 };

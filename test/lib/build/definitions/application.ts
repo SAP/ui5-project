@@ -17,7 +17,7 @@ function getMockProject() {
 		getSpecVersion: () => {
 			return {
 				toString: () => "2.6",
-				gte: () => true
+				gte: () => true,
 			};
 		},
 		getMinificationExcludes: emptyarray,
@@ -36,7 +36,7 @@ test.beforeEach((t) => {
 		getProject: sinon.stub().returns(t.context.project),
 		isRootProject: sinon.stub().returns(true),
 		getBuildOption: sinon.stub(),
-		getInterface: sinon.stub()
+		getInterface: sinon.stub(),
 	};
 
 	t.context.getTask = sinon.stub();
@@ -45,32 +45,32 @@ test.beforeEach((t) => {
 test("Standard build", (t) => {
 	const {project, taskUtil, getTask} = t.context;
 	const tasks = application({
-		project, taskUtil, getTask
+		project, taskUtil, getTask,
 	});
 
 	t.deepEqual(Object.fromEntries(tasks), {
 		escapeNonAsciiCharacters: {
 			options: {
-				encoding: "UTF-412", pattern: "/**/*.properties"
-			}
+				encoding: "UTF-412", pattern: "/**/*.properties",
+			},
 		},
 		replaceCopyright: {
 			options: {
-				copyright: "copyright", pattern: "/**/*.{js,json}"
-			}
+				copyright: "copyright", pattern: "/**/*.{js,json}",
+			},
 		},
 		replaceVersion: {
 			options: {
-				version: "version", pattern: "/**/*.{js,json}"
-			}
+				version: "version", pattern: "/**/*.{js,json}",
+			},
 		},
 		minify: {
 			options: {
 				pattern: [
 					"/**/*.js",
 					"!**/*.support.js",
-				]
-			}
+				],
+			},
 		},
 		enhanceManifest: {},
 		generateFlexChangesBundle: {},
@@ -78,34 +78,34 @@ test("Standard build", (t) => {
 			options: {
 				namespaces: ["project/b"],
 				excludes: [],
-				skipBundles: []
-			}
+				skipBundles: [],
+			},
 		},
 		generateStandaloneAppBundle: {
-			requiresDependencies: true
+			requiresDependencies: true,
 		},
 		transformBootstrapHtml: {},
 		generateBundle: {
-			taskFunction: null
+			taskFunction: null,
 		},
 		generateVersionInfo: {
 			requiresDependencies: true,
 			options: {
 				rootProject: project,
-				pattern: "/resources/**/.library"
-			}
+				pattern: "/resources/**/.library",
+			},
 		},
 		generateCachebusterInfo: {
 			options: {
-				signatureType: "PONY"
-			}
+				signatureType: "PONY",
+			},
 		},
 		generateApiIndex: {
-			requiresDependencies: true
+			requiresDependencies: true,
 		},
 		generateResourcesJson: {
-			requiresDependencies: true
-		}
+			requiresDependencies: true,
+		},
 	}, "Correct task definitions");
 
 	t.is(taskUtil.getBuildOption.callCount, 0, "taskUtil#getBuildOption has not been called");
@@ -116,41 +116,41 @@ test("Standard build with legacy spec version", (t) => {
 	project.getSpecVersion = () => {
 		return {
 			toString: () => "0.1",
-			gte: () => false
+			gte: () => false,
 		};
 	};
 	const generateBundleTaskStub = sinon.stub();
 	getTask.returns({
-		task: generateBundleTaskStub
+		task: generateBundleTaskStub,
 	});
 
 	const tasks = application({
-		project, taskUtil, getTask
+		project, taskUtil, getTask,
 	});
 
 	t.deepEqual(Object.fromEntries(tasks), {
 		escapeNonAsciiCharacters: {
 			options: {
-				encoding: "UTF-412", pattern: "/**/*.properties"
-			}
+				encoding: "UTF-412", pattern: "/**/*.properties",
+			},
 		},
 		replaceCopyright: {
 			options: {
-				copyright: "copyright", pattern: "/**/*.{js,json}"
-			}
+				copyright: "copyright", pattern: "/**/*.{js,json}",
+			},
 		},
 		replaceVersion: {
 			options: {
-				version: "version", pattern: "/**/*.{js,json}"
-			}
+				version: "version", pattern: "/**/*.{js,json}",
+			},
 		},
 		minify: {
 			options: {
 				pattern: [
 					"/**/*.js",
 					"!**/*.support.js",
-				]
-			}
+				],
+			},
 		},
 		enhanceManifest: {},
 		generateFlexChangesBundle: {},
@@ -158,34 +158,34 @@ test("Standard build with legacy spec version", (t) => {
 			options: {
 				namespaces: ["project/b"],
 				excludes: [],
-				skipBundles: []
-			}
+				skipBundles: [],
+			},
 		},
 		generateStandaloneAppBundle: {
-			requiresDependencies: true
+			requiresDependencies: true,
 		},
 		transformBootstrapHtml: {},
 		generateBundle: {
-			taskFunction: null
+			taskFunction: null,
 		},
 		generateVersionInfo: {
 			requiresDependencies: true,
 			options: {
 				rootProject: project,
-				pattern: "/resources/**/.library"
-			}
+				pattern: "/resources/**/.library",
+			},
 		},
 		generateCachebusterInfo: {
 			options: {
-				signatureType: "PONY"
-			}
+				signatureType: "PONY",
+			},
 		},
 		generateApiIndex: {
-			requiresDependencies: true
+			requiresDependencies: true,
 		},
 		generateResourcesJson: {
-			requiresDependencies: true
-		}
+			requiresDependencies: true,
+		},
 	}, "Correct task definitions");
 });
 
@@ -200,8 +200,8 @@ test("Custom bundles", async (t) => {
 				filters: [
 					"project/b/sectionsA/",
 					"!project/b/sectionsA/section2**",
-				]
-			}]
+				],
+			}],
 		},
 		bundleOptions: {
 			optimize: true,
@@ -209,7 +209,7 @@ test("Custom bundles", async (t) => {
 			addTryCatchRestartWrapper: false,
 			decorateBootstrapModule: true,
 			numberOfParts: 1,
-		}
+		},
 	}, {
 		bundleDefinition: {
 			name: "project/b/sectionsB/customBundle.js",
@@ -219,8 +219,8 @@ test("Custom bundles", async (t) => {
 				filters: [
 					"project/b/sectionsB/",
 					"!project/b/sectionsB/section2**",
-				]
-			}]
+				],
+			}],
 		},
 		bundleOptions: {
 			optimize: false,
@@ -228,42 +228,42 @@ test("Custom bundles", async (t) => {
 			addTryCatchRestartWrapper: false,
 			decorateBootstrapModule: true,
 			numberOfParts: 1,
-		}
+		},
 	}];
 
 	const generateBundleTaskStub = sinon.stub();
 	getTask.returns({
-		task: generateBundleTaskStub
+		task: generateBundleTaskStub,
 	});
 
 	const tasks = application({
-		project, taskUtil, getTask
+		project, taskUtil, getTask,
 	});
 	const generateBundleTaskDefinition = tasks.get("generateBundle");
 
 	t.deepEqual(Object.fromEntries(tasks), {
 		escapeNonAsciiCharacters: {
 			options: {
-				encoding: "UTF-412", pattern: "/**/*.properties"
-			}
+				encoding: "UTF-412", pattern: "/**/*.properties",
+			},
 		},
 		replaceCopyright: {
 			options: {
-				copyright: "copyright", pattern: "/**/*.{js,json}"
-			}
+				copyright: "copyright", pattern: "/**/*.{js,json}",
+			},
 		},
 		replaceVersion: {
 			options: {
-				version: "version", pattern: "/**/*.{js,json}"
-			}
+				version: "version", pattern: "/**/*.{js,json}",
+			},
 		},
 		minify: {
 			options: {
 				pattern: [
 					"/**/*.js",
 					"!**/*.support.js",
-				]
-			}
+				],
+			},
 		},
 		enhanceManifest: {},
 		generateFlexChangesBundle: {},
@@ -273,46 +273,45 @@ test("Custom bundles", async (t) => {
 				excludes: [],
 				skipBundles: [
 					"project/b/sectionsA/customBundle.js",
-					"project/b/sectionsB/customBundle.js"
-				]
-			}
+					"project/b/sectionsB/customBundle.js",
+				],
+			},
 		},
 		generateStandaloneAppBundle: {
-			requiresDependencies: true
+			requiresDependencies: true,
 		},
 		transformBootstrapHtml: {},
 		generateBundle: {
 			requiresDependencies: true,
-			taskFunction: generateBundleTaskDefinition.taskFunction
+			taskFunction: generateBundleTaskDefinition.taskFunction,
 		},
 		generateVersionInfo: {
 			requiresDependencies: true,
 			options: {
 				rootProject: project,
-				pattern: "/resources/**/.library"
-			}
+				pattern: "/resources/**/.library",
+			},
 		},
 		generateCachebusterInfo: {
 			options: {
-				signatureType: "PONY"
-			}
+				signatureType: "PONY",
+			},
 		},
 		generateApiIndex: {
-			requiresDependencies: true
+			requiresDependencies: true,
 		},
 		generateResourcesJson: {
-			requiresDependencies: true
-		}
+			requiresDependencies: true,
+		},
 	}, "Correct task definitions");
-
 
 	await generateBundleTaskDefinition.taskFunction({
 		workspace: "workspace",
 		dependencies: "dependencies",
 		taskUtil,
 		options: {
-			projectName: "projectName"
-		}
+			projectName: "projectName",
+		},
 	});
 
 	t.is(generateBundleTaskStub.callCount, 2, "generateBundle task got called twice");
@@ -336,7 +335,7 @@ test("Custom bundles", async (t) => {
 					resolve: false,
 					resolveConditional: false,
 					sort: true,
-				}]
+				}],
 			},
 			bundleOptions: {
 				optimize: true,
@@ -344,8 +343,8 @@ test("Custom bundles", async (t) => {
 				addTryCatchRestartWrapper: false,
 				decorateBootstrapModule: true,
 				numberOfParts: 1,
-			}
-		}
+			},
+		},
 	}, "generateBundle task got called with correct arguments");
 	t.deepEqual(generateBundleTaskStub.getCall(1).args[0], {
 		workspace: "workspace",
@@ -367,7 +366,7 @@ test("Custom bundles", async (t) => {
 					resolve: false,
 					resolveConditional: false,
 					sort: true,
-				}]
+				}],
 			},
 			bundleOptions: {
 				optimize: false,
@@ -375,8 +374,8 @@ test("Custom bundles", async (t) => {
 				addTryCatchRestartWrapper: false,
 				decorateBootstrapModule: true,
 				numberOfParts: 1,
-			}
-		}
+			},
+		},
 	}, "generateBundle task got called with correct arguments");
 });
 
@@ -385,7 +384,7 @@ test("Minification excludes", (t) => {
 	project.getMinificationExcludes = () => ["**.html"];
 
 	const tasks = application({
-		project, taskUtil, getTask
+		project, taskUtil, getTask,
 	});
 
 	const taskDefinition = tasks.get("minify");
@@ -395,8 +394,8 @@ test("Minification excludes", (t) => {
 				"/**/*.js",
 				"!**/*.support.js",
 				"!/resources/**.html",
-			]
-		}
+			],
+		},
 	}, "Correct minify task definition");
 });
 
@@ -405,13 +404,13 @@ test("Minification excludes not applied for legacy specVersion", (t) => {
 	project.getSpecVersion = () => {
 		return {
 			toString: () => "2.5",
-			gte: () => false
+			gte: () => false,
 		};
 	};
 	project.getMinificationExcludes = () => ["**.html"];
 
 	const tasks = application({
-		project, taskUtil, getTask
+		project, taskUtil, getTask,
 	});
 
 	const taskDefinition = tasks.get("minify");
@@ -420,8 +419,8 @@ test("Minification excludes not applied for legacy specVersion", (t) => {
 			pattern: [
 				"/**/*.js",
 				"!**/*.support.js",
-			]
-		}
+			],
+		},
 	}, "Correct minify task definition");
 });
 
@@ -436,8 +435,8 @@ test("generateComponentPreload with custom paths, excludes and custom bundle", (
 				filters: [
 					"project/b/sectionsA/",
 					"!project/b/sectionsA/section2**",
-				]
-			}]
+				],
+			}],
 		},
 		bundleOptions: {
 			optimize: true,
@@ -445,17 +444,17 @@ test("generateComponentPreload with custom paths, excludes and custom bundle", (
 			addTryCatchRestartWrapper: false,
 			decorateBootstrapModule: true,
 			numberOfParts: 1,
-		}
+		},
 	}];
 
 	project.getComponentPreloadPaths = () => [
 		"project/b/**/Component.js",
-		"project/b/**/SubComponent.js"
+		"project/b/**/SubComponent.js",
 	];
 	project.getComponentPreloadExcludes = () => ["project/b/dir/**"];
 
 	const tasks = application({
-		project, taskUtil, getTask
+		project, taskUtil, getTask,
 	});
 
 	const taskDefinition = tasks.get("generateComponentPreload");
@@ -463,14 +462,14 @@ test("generateComponentPreload with custom paths, excludes and custom bundle", (
 		options: {
 			paths: [
 				"project/b/**/Component.js",
-				"project/b/**/SubComponent.js"
+				"project/b/**/SubComponent.js",
 			],
 			namespaces: [],
 			excludes: ["project/b/dir/**"],
 			skipBundles: [
-				"project/b/sectionsA/customBundle.js"
-			]
-		}
+				"project/b/sectionsA/customBundle.js",
+			],
+		},
 	}, "Correct generateComponentPreload task definition");
 });
 
@@ -478,12 +477,12 @@ test("generateComponentPreload with custom namespaces and excludes", (t) => {
 	const {project, taskUtil, getTask} = t.context;
 	project.getComponentPreloadNamespaces = () => [
 		"project/b/componentA",
-		"project/b/componentB"
+		"project/b/componentB",
 	];
 	project.getComponentPreloadExcludes = () => ["project/b/componentA/dir/**"];
 
 	const tasks = application({
-		project, taskUtil, getTask
+		project, taskUtil, getTask,
 	});
 
 	const taskDefinition = tasks.get("generateComponentPreload");
@@ -492,11 +491,11 @@ test("generateComponentPreload with custom namespaces and excludes", (t) => {
 			paths: [],
 			namespaces: [
 				"project/b/componentA",
-				"project/b/componentB"
+				"project/b/componentB",
 			],
 			excludes: ["project/b/componentA/dir/**"],
-			skipBundles: []
-		}
+			skipBundles: [],
+		},
 	}, "Correct generateComponentPreload task definition");
 });
 
@@ -505,7 +504,7 @@ test("generateComponentPreload with excludes", (t) => {
 	project.getComponentPreloadExcludes = () => ["project/b/componentA/dir/**"];
 
 	const tasks = application({
-		project, taskUtil, getTask
+		project, taskUtil, getTask,
 	});
 
 	const taskDefinition = tasks.get("generateComponentPreload");
@@ -515,7 +514,7 @@ test("generateComponentPreload with excludes", (t) => {
 				"project/b",
 			],
 			excludes: ["project/b/componentA/dir/**"],
-			skipBundles: []
-		}
+			skipBundles: [],
+		},
 	}, "Correct generateComponentPreload task definition");
 });

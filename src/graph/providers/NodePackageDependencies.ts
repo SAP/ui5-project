@@ -14,27 +14,24 @@ const log = getLogger("graph:providers:NodePackageDependencies");
 // * https://github.com/npm/name-from-folder ?
 
 /**
- * @public
- * @class
  * @alias @ui5/project/graph/providers/NodePackageDependencies
  */
 class NodePackageDependencies {
 	/**
 	 * Generates a project graph from npm modules
 	 *
-	 * @public
-	 * @param {object} options
-	 * @param {string} options.cwd Directory to start searching for the root module
-	 * @param {object} [options.rootConfiguration]
+	 * @param options
+	 * @param options.cwd Directory to start searching for the root module
+	 * @param [options.rootConfiguration]
 	 *		Configuration object to use for the root module instead of reading from a configuration file
-	 * @param {string} [options.rootConfigPath]
+	 * @param [options.rootConfigPath]
 	 *		Configuration file to use for the root module instead the default ui5.yaml
 	 */
-	constructor({ cwd, rootConfiguration, rootConfigPath }: {
-    cwd: string;
-    rootConfiguration?: object;
-    rootConfigPath?: string;
-}) {
+	constructor({cwd, rootConfiguration, rootConfigPath}: {
+		cwd: string;
+		rootConfiguration?: object;
+		rootConfigPath?: string;
+	}) {
 		this._cwd = cwd;
 		this._rootConfiguration = rootConfiguration;
 		this._rootConfigPath = rootConfigPath;
@@ -43,7 +40,7 @@ class NodePackageDependencies {
 	async getRootNode() {
 		const rootPkg = await readPackageUp({
 			cwd: this._cwd,
-			normalize: false
+			normalize: false,
 		});
 
 		if (!rootPkg || !rootPkg.packageJson) {
@@ -65,7 +62,7 @@ class NodePackageDependencies {
 			path: modulePath,
 			configuration: this._rootConfiguration,
 			configPath: this._rootConfigPath,
-			_dependencies: await this._getDependencies(modulePath, rootPkg.packageJson, true)
+			_dependencies: await this._getDependencies(modulePath, rootPkg.packageJson, true),
 		};
 	}
 
@@ -89,7 +86,7 @@ class NodePackageDependencies {
 			const workspaceNode = await workspace.getModuleByNodeId(moduleName);
 			if (workspaceNode) {
 				log.info(`Resolved module ${moduleName} via ${workspace.getName()} workspace ` +
-					`to version ${workspaceNode.getVersion()}`);
+				`to version ${workspaceNode.getVersion()}`);
 				log.verbose(`  Resolved module ${moduleName} to path ${workspaceNode.getPath()}`);
 				return workspaceNode.getPath();
 			}
@@ -98,7 +95,7 @@ class NodePackageDependencies {
 		try {
 			let packageJsonPath = await resolveModulePath(moduleName + "/package.json", {
 				basedir: baseDir,
-				preserveSymlinks: false
+				preserveSymlinks: false,
 			});
 			packageJsonPath = await realpath(packageJsonPath);
 
@@ -114,18 +111,18 @@ class NodePackageDependencies {
 	/**
 	 * Resolves a Node module by reading its package.json
 	 *
-	 * @param {string} modulePath Path to the module.
-	 * @param {boolean} optional Whether this dependency is optional.
-	 * @param {string} [nameAlias] The name of the module. It's usually the same as the name definfed
+	 * @param modulePath Path to the module.
+	 * @param optional Whether this dependency is optional.
+	 * @param [nameAlias] The name of the module. It's usually the same as the name definfed
 	 * 	in package.json and could easily be skipped. Useful when defining dependency as an alias:
 	 * 	{@link https://github.com/npm/rfcs/blob/main/implemented/0001-package-aliases.md}
-	 * @returns {Promise<object>}
+	 * @returns
 	 */
 	async _getNode(modulePath: string, optional: boolean, nameAlias?: string) {
 		log.verbose(`Reading package.json in directory ${modulePath}...`);
 		const packageJson = await readPackage({
 			cwd: modulePath,
-			normalize: false
+			normalize: false,
 		});
 
 		return {
@@ -133,7 +130,7 @@ class NodePackageDependencies {
 			version: packageJson.version,
 			path: modulePath,
 			optional,
-			_dependencies: await this._getDependencies(modulePath, packageJson)
+			_dependencies: await this._getDependencies(modulePath, packageJson),
 		};
 	}
 
@@ -143,7 +140,7 @@ class NodePackageDependencies {
 			Object.keys(packageJson.dependencies).forEach((depName) => {
 				dependencies.push({
 					name: depName,
-					optional: false
+					optional: false,
 				});
 			});
 		}
@@ -151,7 +148,7 @@ class NodePackageDependencies {
 			Object.keys(packageJson.devDependencies).forEach((depName) => {
 				dependencies.push({
 					name: depName,
-					optional: false
+					optional: false,
 				});
 			});
 		}
@@ -161,7 +158,7 @@ class NodePackageDependencies {
 					await this._resolveModulePath(modulePath, depName);
 					dependencies.push({
 						name: depName,
-						optional: true
+						optional: true,
 					});
 				} catch {
 					// Ignore error since it's a development dependency of a non-root module
@@ -174,7 +171,7 @@ class NodePackageDependencies {
 					await this._resolveModulePath(modulePath, depName);
 					dependencies.push({
 						name: depName,
-						optional: false
+						optional: false,
 					});
 				} catch {
 					// Ignore error since it's an optional dependency

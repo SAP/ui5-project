@@ -5,10 +5,7 @@ import * as resourceFactory from "@ui5/fs/resourceFactory";
 /**
  * Module
  *
- * @public
- * @class
  * @alias @ui5/project/specifications/types/Module
- * @extends @ui5/project/specifications/Project
  * @hideconstructor
  */
 class Module extends Project {
@@ -24,7 +21,6 @@ class Module extends Project {
 	/**
 	 * Since Modules have multiple source paths, this function always throws with an exception
 	 *
-	 * @public
 	 * @throws {Error} Projects of type module have more than one source path
 	 */
 	public getSourcePath() {
@@ -59,15 +55,14 @@ class Module extends Project {
 	 *
 	 * Resource readers always use POSIX-style paths.
 	 *
-	 * @public
-	 * @param {object} [options]
-	 * @param {string} [options.style=buildtime] Path style to access resources.
+	 * @param [options]
+	 * @param [options.style] Path style to access resources.
 	 *   Can be "buildtime", "dist", "runtime" or "flat"
-	 * @returns {@ui5/fs/ReaderCollection} A reader collection instance
+	 * @returns A reader collection instance
 	 */
-	public getReader({ style = "buildtime" }: {
-    style?: string;
-} = {}) {
+	public getReader({style = "buildtime"}: {
+		style?: string;
+	} = {}) {
 		// Apply builder excludes to all styles but "runtime"
 		const excludes = style === "runtime" ? [] : this.getBuilderResourcesExcludes();
 
@@ -77,7 +72,7 @@ class Module extends Project {
 				virBasePath,
 				fsBasePath,
 				project: this,
-				excludes
+				excludes,
 			});
 		});
 		if (readers.length === 1) {
@@ -85,19 +80,18 @@ class Module extends Project {
 		}
 		const readerCollection = resourceFactory.createReaderCollection({
 			name: `Reader collection for module project ${this.getName()}`,
-			readers
+			readers,
 		});
 		return resourceFactory.createReaderCollectionPrioritized({
 			name: `Reader/Writer collection for project ${this.getName()}`,
-			readers: [this._getWriter(), readerCollection]
+			readers: [this._getWriter(), readerCollection],
 		});
 	}
 
 	/**
 	 * Get a resource reader/writer for accessing and modifying a project's resources
 	 *
-	 * @public
-	 * @returns {@ui5/fs/ReaderCollection} A reader collection instance
+	 * @returns A reader collection instance
 	 */
 	public getWorkspace() {
 		const reader = this.getReader();
@@ -105,14 +99,14 @@ class Module extends Project {
 		const writer = this._getWriter();
 		return resourceFactory.createWorkspace({
 			reader,
-			writer
+			writer,
 		});
 	}
 
 	_getWriter() {
 		if (!this._writer) {
 			this._writer = resourceFactory.createAdapter({
-				virBasePath: "/"
+				virBasePath: "/",
 			});
 		}
 
@@ -142,7 +136,7 @@ class Module extends Project {
 				return {
 					name: `'${relFsPath}'' reader for module project ${this.getName()}`,
 					virBasePath,
-					fsBasePath: fsPath.join(this.getRootPath(), relFsPath)
+					fsBasePath: fsPath.join(this.getRootPath(), relFsPath),
 				};
 			}));
 		} else {
@@ -154,7 +148,7 @@ class Module extends Project {
 			this._paths = [{
 				name: `Root reader for module project ${this.getName()}`,
 				virBasePath: "/",
-				fsBasePath: this.getRootPath()
+				fsBasePath: this.getRootPath(),
 			}];
 		}
 	}

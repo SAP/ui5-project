@@ -34,7 +34,7 @@ test("Application A: Traverse project graph breadth first", async (t) => {
 		"library.d",
 		"library.a",
 		"library.b",
-		"library.c"
+		"library.c",
 	], "Traversed graph in correct order");
 });
 

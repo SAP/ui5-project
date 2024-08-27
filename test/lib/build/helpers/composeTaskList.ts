@@ -4,14 +4,14 @@ import esmock from "esmock";
 
 test.beforeEach(async (t) => {
 	t.context.log = {
-		warn: sinon.stub()
+		warn: sinon.stub(),
 	};
 	const getLoggerStub = sinon.stub().withArgs("build:helpers:composeTaskList").returns(t.context.log);
 
 	t.context.composeTaskList = await esmock("../../../../lib/build/helpers/composeTaskList.js", {
 		"@ui5/logger": {
-			getLogger: getLoggerStub
-		}
+			getLogger: getLoggerStub,
+		},
 	});
 });
 
@@ -38,7 +38,6 @@ const allTasks = [
 	"generateCachebusterInfo",
 ];
 
-
 [
 	[
 		"composeTaskList: archive=false / selfContained=false / jsdoc=false", {
@@ -46,7 +45,7 @@ const allTasks = [
 			selfContained: false,
 			jsdoc: false,
 			includedTasks: [],
-			excludedTasks: []
+			excludedTasks: [],
 		}, [
 			"replaceCopyright",
 			"replaceVersion",
@@ -59,7 +58,7 @@ const allTasks = [
 			"generateComponentPreload",
 			"generateBundle",
 			"generateLibraryPreload",
-		]
+		],
 	],
 	[
 		"composeTaskList: archive=true / selfContained=false / jsdoc=false", {
@@ -67,7 +66,7 @@ const allTasks = [
 			selfContained: false,
 			jsdoc: false,
 			includedTasks: [],
-			excludedTasks: []
+			excludedTasks: [],
 		}, [
 			"replaceCopyright",
 			"replaceVersion",
@@ -80,7 +79,7 @@ const allTasks = [
 			"generateComponentPreload",
 			"generateBundle",
 			"generateLibraryPreload",
-		]
+		],
 	],
 	[
 		"composeTaskList: archive=false / selfContained=true / jsdoc=false", {
@@ -88,7 +87,7 @@ const allTasks = [
 			selfContained: true,
 			jsdoc: false,
 			includedTasks: [],
-			excludedTasks: []
+			excludedTasks: [],
 		}, [
 			"replaceCopyright",
 			"replaceVersion",
@@ -100,8 +99,8 @@ const allTasks = [
 			"generateLibraryManifest",
 			"generateFlexChangesBundle",
 			"generateStandaloneAppBundle",
-			"generateBundle"
-		]
+			"generateBundle",
+		],
 	],
 	[
 		"composeTaskList: archive=false / selfContained=false / jsdoc=true", {
@@ -109,7 +108,7 @@ const allTasks = [
 			selfContained: false,
 			jsdoc: true,
 			includedTasks: [],
-			excludedTasks: []
+			excludedTasks: [],
 		}, [
 			"escapeNonAsciiCharacters",
 			"executeJsdocSdkTransformation",
@@ -118,7 +117,7 @@ const allTasks = [
 			"buildThemes",
 			"generateVersionInfo",
 			"generateBundle",
-		]
+		],
 	],
 	[
 		"composeTaskList: includedTasks / excludedTasks", {
@@ -126,7 +125,7 @@ const allTasks = [
 			selfContained: false,
 			jsdoc: false,
 			includedTasks: ["generateResourcesJson", "replaceVersion"],
-			excludedTasks: ["replaceCopyright", "generateApiIndex"]
+			excludedTasks: ["replaceCopyright", "generateApiIndex"],
 		}, [
 			"replaceVersion",
 			"replaceBuildtime",
@@ -139,7 +138,7 @@ const allTasks = [
 			"generateResourcesJson",
 			"generateBundle",
 			"generateLibraryPreload",
-		]
+		],
 	],
 	[
 		"composeTaskList: includedTasks=*", {
@@ -147,7 +146,7 @@ const allTasks = [
 			selfContained: false,
 			jsdoc: false,
 			includedTasks: ["*"],
-			excludedTasks: []
+			excludedTasks: [],
 		}, [
 			"replaceCopyright",
 			"replaceVersion",
@@ -169,7 +168,7 @@ const allTasks = [
 			"generateBundle",
 			"generateLibraryPreload",
 			"generateCachebusterInfo",
-		]
+		],
 	],
 	[
 		"composeTaskList: excludedTasks=*", {
@@ -177,8 +176,8 @@ const allTasks = [
 			selfContained: false,
 			jsdoc: false,
 			includedTasks: [],
-			excludedTasks: ["*"]
-		}, []
+			excludedTasks: ["*"],
+		}, [],
 	],
 	[
 		"composeTaskList: includedTasks with unknown tasks", {
@@ -186,7 +185,7 @@ const allTasks = [
 			selfContained: false,
 			jsdoc: false,
 			includedTasks: ["foo", "bar"],
-			excludedTasks: []
+			excludedTasks: [],
 		}, [
 			"replaceCopyright",
 			"replaceVersion",
@@ -202,7 +201,7 @@ const allTasks = [
 		], (t) => {
 			const {log} = t.context;
 			t.is(log.warn.callCount, 0);
-		}
+		},
 	],
 	[
 		"composeTaskList: excludedTasks with unknown tasks", {
@@ -226,7 +225,7 @@ const allTasks = [
 		], (t) => {
 			const {log} = t.context;
 			t.is(log.warn.callCount, 0);
-		}
+		},
 	],
 ].forEach(([testTitle, args, expectedTaskList, assertCb]) => {
 	test.serial(testTitle, (t) => {

@@ -21,12 +21,12 @@ const basicCjsServerMiddlewareInput = {
 		kind: "extension",
 		type: "server-middleware",
 		metadata: {
-			name: "middleware-a"
+			name: "middleware-a",
 		},
 		middleware: {
-			path: "lib/extensionModule.js"
-		}
-	}
+			path: "lib/extensionModule.js",
+		},
+	},
 };
 const basicEsmServerMiddlewareInput = {
 	id: "server.middleware.a",
@@ -37,12 +37,12 @@ const basicEsmServerMiddlewareInput = {
 		kind: "extension",
 		type: "server-middleware",
 		metadata: {
-			name: "middleware-a"
+			name: "middleware-a",
 		},
 		middleware: {
-			path: "lib/extensionModule.js"
-		}
-	}
+			path: "lib/extensionModule.js",
+		},
+	},
 };
 
 test.afterEach.always((t) => {

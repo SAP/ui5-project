@@ -11,49 +11,49 @@ export default {
 	 * @param {Function} assertValidation assertion function
 	 * @param {string} type one of "application", "library"
 	 */
-	defineTests: function(test: Function, assertValidation: Function, type: string) {
+	defineTests: function (test: Function, assertValidation: Function, type: string) {
 		// Version specific tests
-		SpecificationVersion.getVersionsForRange(">=4.0").forEach(function(specVersion) {
+		SpecificationVersion.getVersionsForRange(">=4.0").forEach(function (specVersion) {
 			test(`${type} (specVersion ${specVersion}): builder/bundles/bundleOptions`, async (t) => {
 				await assertValidation(t, {
-					"specVersion": specVersion,
-					"kind": "project",
-					"type": type,
-					"metadata": {
-						"name": "com.sap.ui5.test",
-						"copyright": "yes"
+					specVersion: specVersion,
+					kind: "project",
+					type: type,
+					metadata: {
+						name: "com.sap.ui5.test",
+						copyright: "yes",
 					},
-					"builder": {
-						"bundles": [{
-							"bundleOptions": {
-								"optimize": false,
-								"decorateBootstrapModule": false,
-								"addTryCatchRestartWrapper": true,
-								"numberOfParts": 8,
-								"sourceMap": false
-							}
-						}]
-					}
+					builder: {
+						bundles: [{
+							bundleOptions: {
+								optimize: false,
+								decorateBootstrapModule: false,
+								addTryCatchRestartWrapper: true,
+								numberOfParts: 8,
+								sourceMap: false,
+							},
+						}],
+					},
 				});
 			});
 
 			test(`${type} (specVersion ${specVersion}): builder/bundles/bundleOptions properties removal`,
 				async (t) => {
 					await assertValidation(t, {
-						"specVersion": specVersion,
-						"kind": "project",
-						"type": type,
-						"metadata": {
-							"name": "com.sap.ui5.test",
-							"copyright": "yes"
+						specVersion: specVersion,
+						kind: "project",
+						type: type,
+						metadata: {
+							name: "com.sap.ui5.test",
+							copyright: "yes",
 						},
-						"builder": {
-							"bundles": [{
-								"bundleOptions": {
-									"usePredefineCalls": true
-								}
-							}]
-						}
+						builder: {
+							bundles: [{
+								bundleOptions: {
+									usePredefineCalls: true,
+								},
+							}],
+						},
 					}, [
 						{
 							keyword: "additionalProperties",
@@ -68,24 +68,24 @@ export default {
 
 			test(`${type} invalid (specVersion ${specVersion}): builder/bundles/bundleOptions config`, async (t) => {
 				await assertValidation(t, {
-					"specVersion": specVersion,
-					"kind": "project",
-					"type": type,
-					"metadata": {
-						"name": "com.sap.ui5.test",
-						"copyright": "yes"
+					specVersion: specVersion,
+					kind: "project",
+					type: type,
+					metadata: {
+						name: "com.sap.ui5.test",
+						copyright: "yes",
 					},
-					"builder": {
-						"bundles": [{
-							"bundleOptions": {
-								"optimize": "invalid value",
-								"decorateBootstrapModule": {"invalid": "value"},
-								"addTryCatchRestartWrapper": ["invalid value"],
-								"numberOfParts": true,
-								"sourceMap": 55
-							}
-						}]
-					}
+					builder: {
+						bundles: [{
+							bundleOptions: {
+								optimize: "invalid value",
+								decorateBootstrapModule: {invalid: "value"},
+								addTryCatchRestartWrapper: ["invalid value"],
+								numberOfParts: true,
+								sourceMap: 55,
+							},
+						}],
+					},
 				}, [
 					{
 						keyword: "type",
@@ -93,7 +93,7 @@ export default {
 						params: {
 							type: "boolean",
 						},
-						message: "should be boolean"
+						message: "should be boolean",
 					},
 					{
 						keyword: "type",
@@ -102,7 +102,7 @@ export default {
 						params: {
 							type: "boolean",
 						},
-						message: "should be boolean"
+						message: "should be boolean",
 					},
 					{
 						keyword: "type",
@@ -111,7 +111,7 @@ export default {
 						params: {
 							type: "boolean",
 						},
-						message: "should be boolean"
+						message: "should be boolean",
 					},
 					{
 						keyword: "type",
@@ -120,7 +120,7 @@ export default {
 						params: {
 							type: "number",
 						},
-						message: "should be number"
+						message: "should be number",
 					},
 					{
 						keyword: "type",
@@ -128,54 +128,54 @@ export default {
 						params: {
 							type: "boolean",
 						},
-						message: "should be boolean"
-					}
+						message: "should be boolean",
+					},
 				]);
 			});
 		});
 
-		SpecificationVersion.getVersionsForRange("3.0 - 3.2").forEach(function(specVersion) {
+		SpecificationVersion.getVersionsForRange("3.0 - 3.2").forEach(function (specVersion) {
 			test(`${type} (specVersion ${specVersion}): builder/bundles/bundleOptions`, async (t) => {
 				await assertValidation(t, {
-					"specVersion": specVersion,
-					"kind": "project",
-					"type": type,
-					"metadata": {
-						"name": "com.sap.ui5.test",
-						"copyright": "yes"
+					specVersion: specVersion,
+					kind: "project",
+					type: type,
+					metadata: {
+						name: "com.sap.ui5.test",
+						copyright: "yes",
 					},
-					"builder": {
-						"bundles": [{
-							"bundleOptions": {
-								"optimize": false,
-								"decorateBootstrapModule": false,
-								"addTryCatchRestartWrapper": true,
-								"usePredefineCalls": true,
-								"numberOfParts": 8,
-								"sourceMap": false
-							}
-						}]
-					}
+					builder: {
+						bundles: [{
+							bundleOptions: {
+								optimize: false,
+								decorateBootstrapModule: false,
+								addTryCatchRestartWrapper: true,
+								usePredefineCalls: true,
+								numberOfParts: 8,
+								sourceMap: false,
+							},
+						}],
+					},
 				});
 			});
 
 			test(`${type} (specVersion ${specVersion}): builder/bundles/bundleOptions properties removal`,
 				async (t) => {
 					await assertValidation(t, {
-						"specVersion": specVersion,
-						"kind": "project",
-						"type": type,
-						"metadata": {
-							"name": "com.sap.ui5.test",
-							"copyright": "yes"
+						specVersion: specVersion,
+						kind: "project",
+						type: type,
+						metadata: {
+							name: "com.sap.ui5.test",
+							copyright: "yes",
 						},
-						"builder": {
-							"bundles": [{
-								"bundleOptions": {
-									"debugMode": true
-								}
-							}]
-						}
+						builder: {
+							bundles: [{
+								bundleOptions: {
+									debugMode: true,
+								},
+							}],
+						},
 					}, [
 						{
 							keyword: "additionalProperties",
@@ -190,25 +190,25 @@ export default {
 
 			test(`${type} invalid (specVersion ${specVersion}): builder/bundles/bundleOptions config`, async (t) => {
 				await assertValidation(t, {
-					"specVersion": specVersion,
-					"kind": "project",
-					"type": type,
-					"metadata": {
-						"name": "com.sap.ui5.test",
-						"copyright": "yes"
+					specVersion: specVersion,
+					kind: "project",
+					type: type,
+					metadata: {
+						name: "com.sap.ui5.test",
+						copyright: "yes",
 					},
-					"builder": {
-						"bundles": [{
-							"bundleOptions": {
-								"optimize": "invalid value",
-								"decorateBootstrapModule": {"invalid": "value"},
-								"addTryCatchRestartWrapper": ["invalid value"],
-								"usePredefineCalls": 12,
-								"numberOfParts": true,
-								"sourceMap": 55
-							}
-						}]
-					}
+					builder: {
+						bundles: [{
+							bundleOptions: {
+								optimize: "invalid value",
+								decorateBootstrapModule: {invalid: "value"},
+								addTryCatchRestartWrapper: ["invalid value"],
+								usePredefineCalls: 12,
+								numberOfParts: true,
+								sourceMap: 55,
+							},
+						}],
+					},
 				}, [
 					{
 						keyword: "type",
@@ -216,7 +216,7 @@ export default {
 						params: {
 							type: "boolean",
 						},
-						message: "should be boolean"
+						message: "should be boolean",
 					},
 					{
 						keyword: "type",
@@ -225,7 +225,7 @@ export default {
 						params: {
 							type: "boolean",
 						},
-						message: "should be boolean"
+						message: "should be boolean",
 					},
 					{
 						keyword: "type",
@@ -234,7 +234,7 @@ export default {
 						params: {
 							type: "boolean",
 						},
-						message: "should be boolean"
+						message: "should be boolean",
 					},
 					{
 						keyword: "type",
@@ -243,7 +243,7 @@ export default {
 						params: {
 							type: "boolean",
 						},
-						message: "should be boolean"
+						message: "should be boolean",
 					},
 					{
 						keyword: "type",
@@ -252,7 +252,7 @@ export default {
 						params: {
 							type: "number",
 						},
-						message: "should be number"
+						message: "should be number",
 					},
 					{
 						keyword: "type",
@@ -260,10 +260,10 @@ export default {
 						params: {
 							type: "boolean",
 						},
-						message: "should be boolean"
-					}
+						message: "should be boolean",
+					},
 				]);
 			});
 		});
-	}
+	},
 };

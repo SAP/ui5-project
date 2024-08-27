@@ -4,10 +4,7 @@ import escapeStringRegExp from "escape-string-regexp";
 /**
  * Error class for validation of project configuration.
  *
- * @public
- * @class
  * @alias @ui5/project/validation/ValidationError
- * @extends Error
  * @hideconstructor
  */
 class ValidationError extends Error {
@@ -17,11 +14,7 @@ class ValidationError extends Error {
 		/**
 		 * ValidationError
 		 *
-		 * @constant
 		 * @default
-		 * @type {string}
-		 * @readonly
-		 * @public
 		 */
 		this.name = "ValidationError";
 
@@ -33,9 +26,6 @@ class ValidationError extends Error {
 		/**
 		 * Formatted error message
 		 *
-		 * @type {string}
-		 * @readonly
-		 * @public
 		 */
 		this.message = this.formatErrors();
 
@@ -65,7 +55,7 @@ class ValidationError extends Error {
 
 	formatError(error) {
 		let errorMessage = ValidationError.formatMessage(error);
-		if (this.yaml && this.yaml.path && this.yaml.source) {
+		if (this.yaml?.path && this.yaml.source) {
 			const yamlExtract = ValidationError.getYamlExtract({error, yaml: this.yaml});
 			const errorLines = errorMessage.split("\n");
 			errorLines.splice(1, 0, "\n" + yamlExtract);
@@ -85,21 +75,21 @@ class ValidationError extends Error {
 		}
 
 		switch (error.keyword) {
-		case "additionalProperties":
-			message += `property ${error.params.additionalProperty} must not be provided here`;
-			break;
-		case "type":
-			message += `must be of type '${error.params.type}'`;
-			break;
-		case "required":
-			message += `must have required property '${error.params.missingProperty}'`;
-			break;
-		case "enum":
-			message += "must be equal to one of the allowed values\n";
-			message += "Allowed values: " + error.params.allowedValues.join(", ");
-			break;
-		default:
-			message += error.message;
+			case "additionalProperties":
+				message += `property ${error.params.additionalProperty} must not be provided here`;
+				break;
+			case "type":
+				message += `must be of type '${error.params.type}'`;
+				break;
+			case "required":
+				message += `must have required property '${error.params.missingProperty}'`;
+				break;
+			case "enum":
+				message += "must be equal to one of the allowed values\n";
+				message += "Allowed values: " + error.params.allowedValues.join(", ");
+				break;
+			default:
+				message += error.message;
 		}
 
 		return message;
@@ -204,7 +194,7 @@ class ValidationError extends Error {
 				let firstIndentation = -1;
 				let match;
 				while ((match = matchArrayElement.exec(currentSubstring)) !== null) {
-					const indentationMatch = match[2].match(matchArrayElementIndentation);
+					const indentationMatch = matchArrayElementIndentation.exec(match[2]);
 					if (!indentationMatch) {
 						return {line: -1, column: -1};
 					}
@@ -240,7 +230,7 @@ class ValidationError extends Error {
 
 		return {
 			line,
-			column
+			column,
 		};
 	}
 

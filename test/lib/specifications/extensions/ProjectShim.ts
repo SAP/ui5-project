@@ -20,26 +20,26 @@ const basicProjectShimInput = {
 		kind: "extension",
 		type: "project-shim",
 		metadata: {
-			name: "project-shim-a"
+			name: "project-shim-a",
 		},
 		shims: {
 			dependencies: {
-				"module.a": ["dependencies"]
+				"module.a": ["dependencies"],
 			},
 			configurations: {
 				"module.b": {
-					configuration: "configuration"
-				}
+					configuration: "configuration",
+				},
 			},
 			collections: {
 				"module.c": {
 					modules: {
-						"module.x": "some/path"
-					}
-				}
-			}
-		}
-	}
+						"module.x": "some/path",
+					},
+				},
+			},
+		},
+	},
 };
 
 test.afterEach.always((t) => {
@@ -64,7 +64,7 @@ test("Defaults", async (t) => {
 test("getDependencyShims", async (t) => {
 	const extension = await Specification.create(clone(basicProjectShimInput));
 	t.deepEqual(extension.getDependencyShims(), {
-		"module.a": ["dependencies"]
+		"module.a": ["dependencies"],
 	}, "Returned correct value for dependencies shim configuration");
 });
 
@@ -72,8 +72,8 @@ test("getConfigurationShims", async (t) => {
 	const extension = await Specification.create(clone(basicProjectShimInput));
 	t.deepEqual(extension.getConfigurationShims(), {
 		"module.b": {
-			configuration: "configuration"
-		}
+			configuration: "configuration",
+		},
 	}, "Returned correct value for configuration shim configuration");
 });
 
@@ -82,8 +82,8 @@ test("getCollectionShims", async (t) => {
 	t.deepEqual(extension.getCollectionShims(), {
 		"module.c": {
 			modules: {
-				"module.x": "some/path"
-			}
-		}
+				"module.x": "some/path",
+			},
+		},
 	}, "Returned correct value for collection shim configuration");
 });

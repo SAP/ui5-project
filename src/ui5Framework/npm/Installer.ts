@@ -13,35 +13,38 @@ const log = getLogger("ui5Framework:npm:Installer");
 
 class Installer extends AbstractInstaller {
 	/**
-	 * @param {object} parameters Parameters
-	 * @param {string} parameters.cwd Current working directory
-	 * @param {string} parameters.ui5DataDir UI5 home directory location. This will be used to store packages,
+	 * @param parameters Parameters
+	 * @param parameters.cwd Current working directory
+	 * @param parameters.ui5DataDir UI5 home directory location. This will be used to store packages,
 	 * metadata and configuration used by the resolvers.
-	 * @param {string} [parameters.packagesDir="${ui5DataDir}/framework/packages"] Where to install packages
-	 * @param {string} [parameters.stagingDir="${ui5DataDir}/framework/staging"] The staging directory for the packages
-	 * @param {string} [parameters.cacheDir="${ui5DataDir}/framework/cacache"] Where to store temp/cached packages.
+	 * @param [parameters.packagesDir] Where to install packages
+	 * @param [parameters.stagingDir] The staging directory for the packages
+	 * @param [parameters.cacheDir] Where to store temp/cached packages.
 	 */
-	constructor({ cwd, ui5DataDir, packagesDir, stagingDir, cacheDir }: {
-    cwd: string;
-    ui5DataDir: string;
-    packagesDir?: string;
-    stagingDir?: string;
-    cacheDir?: string;
-}) {
+	constructor({cwd, ui5DataDir, packagesDir, stagingDir, cacheDir}: {
+		cwd: string;
+		ui5DataDir: string;
+		packagesDir?: string;
+		stagingDir?: string;
+		cacheDir?: string;
+	}) {
 		super(ui5DataDir);
 		if (!cwd) {
 			throw new Error(`Installer: Missing parameter "cwd"`);
 		}
 		this._packagesDir = packagesDir ?
-			path.resolve(packagesDir) : path.join(ui5DataDir, "framework", "packages");
+			path.resolve(packagesDir) :
+			path.join(ui5DataDir, "framework", "packages");
 
 		log.verbose(`Installing to: ${this._packagesDir}`);
 
 		this._cwd = cwd;
 		this._caCacheDir = cacheDir ?
-			path.resolve(cacheDir) : path.join(ui5DataDir, "framework", "cacache");
+			path.resolve(cacheDir) :
+			path.join(ui5DataDir, "framework", "cacache");
 		this._stagingDir = stagingDir ?
-			path.resolve(stagingDir) : path.join(ui5DataDir, "framework", "staging");
+			path.resolve(stagingDir) :
+			path.join(ui5DataDir, "framework", "staging");
 	}
 
 	getRegistry() {
@@ -50,7 +53,7 @@ class Installer extends AbstractInstaller {
 		}
 		return this._cachedRegistry = new Registry({
 			cwd: this._cwd,
-			cacheDir: this._caCacheDir
+			cacheDir: this._caCacheDir,
 		});
 	}
 
@@ -75,7 +78,7 @@ class Installer extends AbstractInstaller {
 			return {
 				name: pkg.name,
 				dependencies: pkg.dependencies,
-				devDependencies: pkg.devDependencies
+				devDependencies: pkg.devDependencies,
 			};
 		} catch (err) {
 			if (err.code === "ENOENT") { // "File or directory does not exist"
@@ -83,7 +86,7 @@ class Installer extends AbstractInstaller {
 				return {
 					name: manifest.name,
 					dependencies: manifest.dependencies,
-					devDependencies: manifest.devDependencies
+					devDependencies: manifest.devDependencies,
 				};
 			} else {
 				throw err;
@@ -133,7 +136,7 @@ class Installer extends AbstractInstaller {
 			log.verbose(`Already installed: ${pkgName} in version ${version}`);
 		}
 		return {
-			pkgPath: targetDir
+			pkgPath: targetDir,
 		};
 	}
 

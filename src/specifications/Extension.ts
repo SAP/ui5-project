@@ -3,11 +3,7 @@ import Specification from "./Specification.js";
 /**
  * Extension
  *
- * @public
- * @abstract
- * @class
  * @alias @ui5/project/specifications/Extension
- * @extends @ui5/project/specifications/Specification
  * @hideconstructor
  */
 class Extension extends Specification {
@@ -19,18 +15,18 @@ class Extension extends Specification {
 	}
 
 	/**
-	 * @param {object} parameters Specification parameters
-	 * @param {string} parameters.id Unique ID
-	 * @param {string} parameters.version Version
-	 * @param {string} parameters.modulePath File System path to access resources
-	 * @param {object} parameters.configuration Configuration object
+	 * @param parameters Specification parameters
+	 * @param parameters.id Unique ID
+	 * @param parameters.version Version
+	 * @param parameters.modulePath File System path to access resources
+	 * @param parameters.configuration Configuration object
 	 */
 	async init(parameters: {
-    id: string;
-    version: string;
-    modulePath: string;
-    configuration: object;
-}) {
+		id: string;
+		version: string;
+		modulePath: string;
+		configuration: object;
+	}) {
 		await super.init(parameters);
 
 		try {

@@ -8,12 +8,12 @@ const log = getLogger("ui5Framework:maven:Registry");
 
 class Registry {
 	/**
-	 * @param {object} parameters Parameters
-	 * @param {string} parameters.endpointUrl Maven's endpoint URL
+	 * @param parameters Parameters
+	 * @param parameters.endpointUrl Maven's endpoint URL
 	 */
-	constructor({ endpointUrl }: {
-    endpointUrl: string;
-}) {
+	constructor({endpointUrl}: {
+		endpointUrl: string;
+	}) {
 		if (!endpointUrl) {
 			throw new Error(`Registry: Missing parameter "endpointUrl"`);
 		}
@@ -27,19 +27,19 @@ class Registry {
 	/**
 	 * Requests a <code>maven-metadata.xml</code> file from the repository
 	 *
-	 * @param {object} options options
-	 * @param {string} options.groupId
-	 * @param {string} options.artifactId
-	 * @param {string} [options.version] If given, the version must be a SNAPSHOT version.
+	 * @param options options
+	 * @param options.groupId
+	 * @param options.artifactId
+	 * @param [options.version] If given, the version must be a SNAPSHOT version.
 	 * 	In this case, the resulting metadata will list all artifact versions
 	 * 	(and timestamps) deployed for that SNAPSHOT.
 	 * 	If not provided, the resulting metadata will list all versions available for the artifact.
 	 */
-	async requestMavenMetadata({ groupId, artifactId, version }: {
-    groupId: string;
-    artifactId: string;
-    version?: string;
-}) {
+	async requestMavenMetadata({groupId, artifactId, version}: {
+		groupId: string;
+		artifactId: string;
+		version?: string;
+	}) {
 		try {
 			const optionalVersion = version ? version + "/" : "";
 			const url = this._endpointUrl +
@@ -53,7 +53,7 @@ class Registry {
 
 			const parser = new xml2js.Parser({
 				explicitArray: false,
-				ignoreAttrs: true
+				ignoreAttrs: true,
 			});
 			const readXML = promisify(parser.parseString);
 			const content = await res.buffer();

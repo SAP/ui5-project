@@ -24,11 +24,11 @@ test.beforeEach((t) => {
 				configuration: {
 					paths: {
 						src: "main/src",
-						test: "main/test"
-					}
-				}
+						test: "main/test",
+					},
+				},
 			},
-		}
+		},
 	};
 	t.context.flatProjectInput = {
 		id: "library.d.id",
@@ -40,8 +40,8 @@ test.beforeEach((t) => {
 			type: "library",
 			metadata: {
 				name: "library.h",
-			}
-		}
+			},
+		},
 	};
 });
 
@@ -82,8 +82,8 @@ test("getJsdocExcludes", async (t) => {
 	const {projectInput} = t.context;
 	projectInput.configuration.builder = {
 		jsdoc: {
-			excludes: ["excludes"]
-		}
+			excludes: ["excludes"],
+		},
 	};
 	const project = await (new Library().init(projectInput));
 	t.deepEqual(project.getJsdocExcludes(), ["excludes"],
@@ -139,8 +139,8 @@ test("Access project resources via reader w/ builder excludes", async (t) => {
 
 	projectInput.configuration.builder = {
 		resources: {
-			excludes: ["**/.library"]
-		}
+			excludes: ["**/.library"],
+		},
 	};
 	const excludesProject = await (new Library().init(projectInput));
 
@@ -181,8 +181,8 @@ test("Access project resources via workspace w/ builder excludes", async (t) => 
 
 	projectInput.configuration.builder = {
 		resources: {
-			excludes: ["**/.library"]
-		}
+			excludes: ["**/.library"],
+		},
 	};
 	const excludesProject = await (new Library().init(projectInput));
 
@@ -202,8 +202,8 @@ test("Access project resources via reader and workspace w/ absolute builder excl
 
 	projectInput.configuration.builder = {
 		resources: {
-			excludes: ["/resources/library/d/.library"]
-		}
+			excludes: ["/resources/library/d/.library"],
+		},
 	};
 	const excludesProject = await (new Library().init(projectInput));
 
@@ -249,8 +249,8 @@ test("Access project resources via reader and workspace w/ incorrect builder exc
 
 	projectInput.configuration.builder = {
 		resources: {
-			excludes: ["/.library"] // Absolute path does not match base path
-		}
+			excludes: ["/.library"], // Absolute path does not match base path
+		},
 	};
 	const excludesProject = await (new Library().init(projectInput));
 
@@ -296,8 +296,8 @@ test("Access project test-resources via reader and workspace w/ absolute builder
 
 	projectInput.configuration.builder = {
 		resources: {
-			excludes: ["/test-resources/library/d/Test.html"]
-		}
+			excludes: ["/test-resources/library/d/Test.html"],
+		},
 	};
 	const excludesProject = await (new Library().init(projectInput));
 
@@ -344,8 +344,8 @@ test("Access project test-resources via reader and workspace w/ relative builder
 
 	projectInput.configuration.builder = {
 		resources: {
-			excludes: ["Test.html"] // Has no effect since library excludes must be absolute or use wildcards
-		}
+			excludes: ["Test.html"], // Has no effect since library excludes must be absolute or use wildcards
+		},
 	};
 	const excludesProject = await (new Library().init(projectInput));
 
@@ -447,8 +447,8 @@ test("_configureAndValidatePaths: Default paths", async (t) => {
 			type: "library",
 			metadata: {
 				name: "library.e",
-			}
-		}
+			},
+		},
 	};
 
 	const project = await (new Library().init(projectInput));
@@ -517,7 +517,7 @@ test.serial("_parseConfiguration: Preload excludes from .library", async (t) => 
 
 	t.deepEqual(loggerVerboseSpy.getCall(10).args, [
 		"No preload excludes defined in project configuration of framework library library.d. " +
-		"Falling back to .library..."
+		"Falling back to .library...",
 	]);
 });
 
@@ -525,8 +525,8 @@ test("_parseConfiguration: Preload excludes from project configuration (non-fram
 	const {projectInput} = t.context;
 	projectInput.configuration.builder = {
 		libraryPreload: {
-			excludes: ["test/exclude/**"]
-		}
+			excludes: ["test/exclude/**"],
+		},
 	};
 	const project = await (new Library().init(projectInput));
 
@@ -551,7 +551,7 @@ test.serial("_parseConfiguration: Preload exclude fallback to .library (framewor
 
 	t.deepEqual(loggerVerboseSpy.getCall(10).args, [
 		"No preload excludes defined in project configuration of framework library library.d. " +
-		"Falling back to .library..."
+		"Falling back to .library...",
 	]);
 });
 
@@ -572,7 +572,7 @@ test.serial("_parseConfiguration: No preload excludes from .library", async (t) 
 
 	t.deepEqual(loggerVerboseSpy.getCall(10).args, [
 		"No preload excludes defined in project configuration of framework library library.d. " +
-		"Falling back to .library..."
+		"Falling back to .library...",
 	]);
 });
 
@@ -585,8 +585,8 @@ test.serial("_parseConfiguration: Preload excludes from project configuration (f
 
 	projectInput.configuration.builder = {
 		libraryPreload: {
-			excludes: ["test/exclude/**"]
-		}
+			excludes: ["test/exclude/**"],
+		},
 	};
 	const project = new Library();
 
@@ -598,7 +598,7 @@ test.serial("_parseConfiguration: Preload excludes from project configuration (f
 		"Correct library preload excludes have been set");
 
 	t.deepEqual(loggerVerboseSpy.getCall(10).args, [
-		"Using preload excludes for framework library library.d from project configuration"
+		"Using preload excludes for framework library library.d from project configuration",
 	]);
 
 	t.is(getPreloadExcludesFromDotLibraryStub.callCount, 0, "_getPreloadExcludesFromDotLibrary has not been called");
@@ -623,12 +623,12 @@ test("_getManifest: Reads correctly", async (t) => {
 	const project = await (new Library().init(projectInput));
 	const byGlobStub = sinon.stub().resolves([{
 		getString: async () => `{"pony": "no unicorn"}`,
-		getPath: () => "some path"
+		getPath: () => "some path",
 	}]);
 
 	project._getRawSourceReader = () => {
 		return {
-			byGlob: byGlobStub
+			byGlob: byGlobStub,
 		};
 	};
 	project._pManifest = null; // Clear cache from instantiation
@@ -647,7 +647,7 @@ test("_getManifest: No manifest.json", async (t) => {
 
 	project._getRawSourceReader = () => {
 		return {
-			byGlob: byGlobStub
+			byGlob: byGlobStub,
 		};
 	};
 	project._pManifest = null; // Clear cache from instantiation
@@ -663,12 +663,12 @@ test("_getManifest: Invalid JSON", async (t) => {
 	const project = await (new Library().init(projectInput));
 	const byGlobStub = sinon.stub().resolves([{
 		getString: async () => `no pony`,
-		getPath: () => "some path"
+		getPath: () => "some path",
 	}]);
 
 	project._getRawSourceReader = () => {
 		return {
-			byGlob: byGlobStub
+			byGlob: byGlobStub,
 		};
 	};
 	project._pManifest = null; // Clear cache from instantiation
@@ -687,7 +687,7 @@ test("_getManifest: Propagates exception", async (t) => {
 
 	project._getRawSourceReader = () => {
 		return {
-			byGlob: byGlobStub
+			byGlob: byGlobStub,
 		};
 	};
 	project._pManifest = null; // Clear cache from instantiation
@@ -703,15 +703,15 @@ test("_getManifest: Multiple manifest.json files", async (t) => {
 	const project = await (new Library().init(projectInput));
 	const byGlobStub = sinon.stub().resolves([{
 		getString: async () => `{"pony": "no unicorn"}`,
-		getPath: () => "some path"
+		getPath: () => "some path",
 	}, {
 		getString: async () => `{"pony": "no shark"}`,
-		getPath: () => "some other path"
+		getPath: () => "some other path",
 	}]);
 
 	project._getRawSourceReader = () => {
 		return {
-			byGlob: byGlobStub
+			byGlob: byGlobStub,
 		};
 	};
 	project._pManifest = null; // Clear cache from instantiation
@@ -726,12 +726,12 @@ test("_getManifest: Result is cached", async (t) => {
 	const project = await (new Library().init(projectInput));
 	const byGlobStub = sinon.stub().resolves([{
 		getString: async () => `{"pony": "no unicorn"}`,
-		getPath: () => "some path"
+		getPath: () => "some path",
 	}]);
 
 	project._getRawSourceReader = () => {
 		return {
-			byGlob: byGlobStub
+			byGlob: byGlobStub,
 		};
 	};
 	project._pManifest = null; // Clear cache from instantiation
@@ -754,12 +754,12 @@ test("_getDotLibrary: Reads correctly", async (t) => {
 	const project = await (new Library().init(projectInput));
 	const byGlobStub = sinon.stub().resolves([{
 		getString: async () => `<chicken>Fancy</chicken>`,
-		getPath: () => "some path"
+		getPath: () => "some path",
 	}]);
 
 	project._getRawSourceReader = () => {
 		return {
-			byGlob: byGlobStub
+			byGlob: byGlobStub,
 		};
 	};
 	project._pDotLibrary = null; // Clear cache from instantiation
@@ -778,7 +778,7 @@ test("_getDotLibrary: No .library file", async (t) => {
 
 	project._getRawSourceReader = () => {
 		return {
-			byGlob: byGlobStub
+			byGlob: byGlobStub,
 		};
 	};
 	project._pDotLibrary = null; // Clear cache from instantiation
@@ -794,12 +794,12 @@ test("_getDotLibrary: Invalid XML", async (t) => {
 	const project = await (new Library().init(projectInput));
 	const byGlobStub = sinon.stub().resolves([{
 		getString: async () => `no pony`,
-		getPath: () => "some path"
+		getPath: () => "some path",
 	}]);
 
 	project._getRawSourceReader = () => {
 		return {
-			byGlob: byGlobStub
+			byGlob: byGlobStub,
 		};
 	};
 	project._pDotLibrary = null; // Clear cache from instantiation
@@ -820,7 +820,7 @@ test("_getDotLibrary: Propagates exception", async (t) => {
 
 	project._getRawSourceReader = () => {
 		return {
-			byGlob: byGlobStub
+			byGlob: byGlobStub,
 		};
 	};
 	project._pDotLibrary = null; // Clear cache from instantiation
@@ -836,15 +836,15 @@ test("_getDotLibrary: Multiple .library files", async (t) => {
 	const project = await (new Library().init(projectInput));
 	const byGlobStub = sinon.stub().resolves([{
 		getString: async () => `<chicken>Fancy</chicken>`,
-		getPath: () => "some path"
+		getPath: () => "some path",
 	}, {
 		getString: async () => `<shark>Hungry</shark>`,
-		getPath: () => "some other path"
+		getPath: () => "some other path",
 	}]);
 
 	project._getRawSourceReader = () => {
 		return {
-			byGlob: byGlobStub
+			byGlob: byGlobStub,
 		};
 	};
 	project._pDotLibrary = null; // Clear cache from instantiation
@@ -859,12 +859,12 @@ test("_getDotLibrary: Result is cached", async (t) => {
 	const project = await (new Library().init(projectInput));
 	const byGlobStub = sinon.stub().resolves([{
 		getString: async () => `<chicken>Fancy</chicken>`,
-		getPath: () => "some path"
+		getPath: () => "some path",
 	}]);
 
 	project._getRawSourceReader = () => {
 		return {
-			byGlob: byGlobStub
+			byGlob: byGlobStub,
 		};
 	};
 	project._pDotLibrary = null; // Clear cache from instantiation
@@ -886,12 +886,12 @@ test("_getLibraryJsPath: Reads correctly", async (t) => {
 
 	const project = await (new Library().init(projectInput));
 	const byGlobStub = sinon.stub().resolves([{
-		getPath: () => "some path"
+		getPath: () => "some path",
 	}]);
 
 	project._getRawSourceReader = () => {
 		return {
-			byGlob: byGlobStub
+			byGlob: byGlobStub,
 		};
 	};
 	project._pLibraryJs = null; // Clear cache from instantiation
@@ -909,7 +909,7 @@ test("_getLibraryJsPath: No library.js file", async (t) => {
 
 	project._getRawSourceReader = () => {
 		return {
-			byGlob: byGlobStub
+			byGlob: byGlobStub,
 		};
 	};
 	project._pLibraryJs = null; // Clear cache from instantiation
@@ -927,7 +927,7 @@ test("_getLibraryJsPath: Propagates exception", async (t) => {
 
 	project._getRawSourceReader = () => {
 		return {
-			byGlob: byGlobStub
+			byGlob: byGlobStub,
 		};
 	};
 	project._pLibraryJs = null; // Clear cache from instantiation
@@ -942,14 +942,14 @@ test("_getLibraryJsPath: Multiple library.js files", async (t) => {
 
 	const project = await (new Library().init(projectInput));
 	const byGlobStub = sinon.stub().resolves([{
-		getPath: () => "some path"
+		getPath: () => "some path",
 	}, {
-		getPath: () => "some other path"
+		getPath: () => "some other path",
 	}]);
 
 	project._getRawSourceReader = () => {
 		return {
-			byGlob: byGlobStub
+			byGlob: byGlobStub,
 		};
 	};
 	project._pLibraryJs = null; // Clear cache from instantiation
@@ -963,12 +963,12 @@ test("_getLibraryJsPath: Result is cached", async (t) => {
 
 	const project = await (new Library().init(projectInput));
 	const byGlobStub = sinon.stub().resolves([{
-		getPath: () => "some path"
+		getPath: () => "some path",
 	}]);
 
 	project._getRawSourceReader = () => {
 		return {
-			byGlob: byGlobStub
+			byGlob: byGlobStub,
 		};
 	};
 	project._pLibraryJs = null; // Clear cache from instantiation
@@ -997,7 +997,7 @@ test.serial("_getNamespace: namespace resolution fails", async (t) => {
 
 	const error = await t.throwsAsync(project._getNamespace());
 	t.deepEqual(error.message, "Failed to detect namespace or namespace is empty for project library.d." +
-		" Check verbose log for details.");
+	" Check verbose log for details.");
 
 	t.is(loggerVerboseSpy.callCount, 2, "2 calls to log.verbose should be done");
 	const logVerboseCalls = loggerVerboseSpy.getCalls().map((call) => call.args[0]);
@@ -1019,16 +1019,16 @@ test("_getNamespace: from manifest.json with .library on same level", async (t) 
 	sinon.stub(project, "_getManifest").resolves({
 		content: {
 			"sap.app": {
-				id: "mani-pony"
-			}
+				id: "mani-pony",
+			},
 		},
-		filePath: "/mani-pony/manifest.json"
+		filePath: "/mani-pony/manifest.json",
 	});
 	sinon.stub(project, "_getDotLibrary").resolves({
 		content: {
-			library: {name: {_: "dot-pony"}}
+			library: {name: {_: "dot-pony"}},
 		},
-		filePath: "/mani-pony/.library"
+		filePath: "/mani-pony/.library",
 	});
 	const res = await project._getNamespace();
 	t.is(res, "mani-pony", "Returned correct namespace");
@@ -1042,16 +1042,16 @@ test("_getNamespace: from manifest.json for flat project", async (t) => {
 	sinon.stub(project, "_getManifest").resolves({
 		content: {
 			"sap.app": {
-				id: "mani-pony"
-			}
+				id: "mani-pony",
+			},
 		},
-		filePath: "/manifest.json"
+		filePath: "/manifest.json",
 	});
 	sinon.stub(project, "_getDotLibrary").resolves({
 		content: {
-			library: {name: {_: "dot-pony"}}
+			library: {name: {_: "dot-pony"}},
 		},
-		filePath: "/.library"
+		filePath: "/.library",
 	});
 	const res = await project._getNamespace();
 	t.is(res, "mani-pony", "Returned correct namespace");
@@ -1065,9 +1065,9 @@ test("_getNamespace: from .library for flat project", async (t) => {
 	sinon.stub(project, "_getManifest").rejects("No manifest aint' here");
 	sinon.stub(project, "_getDotLibrary").resolves({
 		content: {
-			library: {name: {_: "dot-pony"}}
+			library: {name: {_: "dot-pony"}},
 		},
-		filePath: "/.library"
+		filePath: "/.library",
 	});
 	const res = await project._getNamespace();
 	t.is(res, "dot-pony", "Returned correct namespace");
@@ -1081,16 +1081,16 @@ test("_getNamespace: from manifest.json with .library on same level but differen
 	sinon.stub(project, "_getManifest").resolves({
 		content: {
 			"sap.app": {
-				id: "mani-pony"
-			}
+				id: "mani-pony",
+			},
 		},
-		filePath: "/mani-pony/manifest.json"
+		filePath: "/mani-pony/manifest.json",
 	});
 	sinon.stub(project, "_getDotLibrary").resolves({
 		content: {
-			library: {name: {_: "dot-pony"}}
+			library: {name: {_: "dot-pony"}},
 		},
-		filePath: "/different-pony/.library"
+		filePath: "/different-pony/.library",
 	});
 
 	const err = await t.throwsAsync(project._getNamespace());
@@ -1111,21 +1111,21 @@ test("_getNamespace: from manifest.json with not matching file path", async (t) 
 	sinon.stub(project, "_getManifest").resolves({
 		content: {
 			"sap.app": {
-				id: "mani-pony"
-			}
+				id: "mani-pony",
+			},
 		},
-		filePath: "/different/namespace/manifest.json"
+		filePath: "/different/namespace/manifest.json",
 	});
 	sinon.stub(project, "_getDotLibrary").resolves({
 		content: {
-			library: {name: {_: "dot-pony"}}
+			library: {name: {_: "dot-pony"}},
 		},
-		filePath: "/different/namespace/.library"
+		filePath: "/different/namespace/.library",
 	});
 	const err = await t.throwsAsync(project._getNamespace());
 
 	t.deepEqual(err.message, `Detected namespace "mani-pony" does not match detected directory structure ` +
-		`"different/namespace" for project library.d`, "Rejected with correct error message");
+	`"different/namespace" for project library.d`, "Rejected with correct error message");
 });
 
 test.serial("_getNamespace: from manifest.json without sap.app id", async (t) => {
@@ -1137,9 +1137,9 @@ test.serial("_getNamespace: from manifest.json without sap.app id", async (t) =>
 	sinon.stub(project, "_getManifest").resolves({
 		content: {
 			"sap.app": {
-			}
+			},
 		},
-		filePath: manifestPath
+		filePath: manifestPath,
 	});
 	sinon.stub(project, "_getDotLibrary").resolves({});
 
@@ -1151,7 +1151,6 @@ test.serial("_getNamespace: from manifest.json without sap.app id", async (t) =>
 		`Failed to detect namespace or namespace is empty for project library.d. Check verbose log for details.`,
 		"Rejected with correct error message");
 	t.is(loggerStub.callCount, 4, "calls to verbose");
-
 
 	t.is(loggerStub.getCall(0).args[0],
 		`Namespace resolution from manifest.json failed for project library.d: ` +
@@ -1167,9 +1166,9 @@ test("_getNamespace: from .library", async (t) => {
 	sinon.stub(project, "_getManifest").rejects("No manifest aint' here");
 	sinon.stub(project, "_getDotLibrary").resolves({
 		content: {
-			library: {name: {_: "dot-pony"}}
+			library: {name: {_: "dot-pony"}},
 		},
-		filePath: "/dot-pony/.library"
+		filePath: "/dot-pony/.library",
 	});
 	const res = await project._getNamespace();
 	t.is(res, "dot-pony", "Returned correct namespace");
@@ -1183,16 +1182,16 @@ test("_getNamespace: from .library with ignored manifest.json on lower level", a
 	sinon.stub(project, "_getManifest").resolves({
 		content: {
 			"sap.app": {
-				id: "mani-pony"
-			}
+				id: "mani-pony",
+			},
 		},
-		filePath: "/namespace/somedir/manifest.json"
+		filePath: "/namespace/somedir/manifest.json",
 	});
 	sinon.stub(project, "_getDotLibrary").resolves({
 		content: {
-			library: {name: {_: "dot-pony"}}
+			library: {name: {_: "dot-pony"}},
 		},
-		filePath: "/dot-pony/.library"
+		filePath: "/dot-pony/.library",
 	});
 	const res = await project._getNamespace();
 	t.is(res, "dot-pony", "Returned correct namespace");
@@ -1209,16 +1208,16 @@ test("_getNamespace: manifest.json on higher level than .library", async (t) => 
 	sinon.stub(project, "_getManifest").resolves({
 		content: {
 			"sap.app": {
-				id: "mani-pony"
-			}
+				id: "mani-pony",
+			},
 		},
-		filePath: manifestFsPath
+		filePath: manifestFsPath,
 	});
 	sinon.stub(project, "_getDotLibrary").resolves({
 		content: {
-			library: {name: {_: "dot-pony"}}
+			library: {name: {_: "dot-pony"}},
 		},
-		filePath: dotLibraryFsPath
+		filePath: dotLibraryFsPath,
 	});
 	const err = await t.throwsAsync(project._getNamespace());
 
@@ -1240,9 +1239,9 @@ test("_getNamespace: from .library with maven placeholder", async (t) => {
 	sinon.stub(project, "_getManifest").rejects("No manifest aint' here");
 	sinon.stub(project, "_getDotLibrary").resolves({
 		content: {
-			library: {name: {_: "${mvn-pony}"}}
+			library: {name: {_: "${mvn-pony}"}},
 		},
-		filePath: "/mvn-unicorn/.library"
+		filePath: "/mvn-unicorn/.library",
 	});
 	const resolveMavenPlaceholderStub =
 		sinon.stub(project, "_resolveMavenPlaceholder").resolves("mvn-unicorn");
@@ -1261,14 +1260,14 @@ test("_getNamespace: from .library with not matching file path", async (t) => {
 	sinon.stub(project, "_getManifest").rejects("No manifest aint' here");
 	sinon.stub(project, "_getDotLibrary").resolves({
 		content: {
-			library: {name: {_: "mvn-pony"}}
+			library: {name: {_: "mvn-pony"}},
 		},
-		filePath: "/different/namespace/.library"
+		filePath: "/different/namespace/.library",
 	});
 	const err = await t.throwsAsync(project._getNamespace());
 
 	t.deepEqual(err.message, `Detected namespace "mvn-pony" does not match detected directory structure ` +
-		`"different/namespace" for project library.d`,
+	`"different/namespace" for project library.d`,
 	"Rejected with correct error message");
 	t.true(project._isSourceNamespaced, "Project still flagged as namespaced source structure");
 });
@@ -1331,10 +1330,10 @@ test("_getNamespace: maven placeholder resolution fails", async (t) => {
 	sinon.stub(project, "_getManifest").resolves({
 		content: {
 			"sap.app": {
-				id: "${mvn-pony}"
-			}
+				id: "${mvn-pony}",
+			},
 		},
-		filePath: "/not/used"
+		filePath: "/not/used",
 	});
 	sinon.stub(project, "_getDotLibrary").resolves({});
 	const resolveMavenPlaceholderStub =
@@ -1356,10 +1355,10 @@ test("_getCopyrightFromDotLibrary", async (t) => {
 		content: {
 			library: {
 				copyright: {
-					_: "copyleft"
-				}
-			}
-		}
+					_: "copyleft",
+				},
+			},
+		},
 	});
 	const copyright = await project._getCopyrightFromDotLibrary();
 	t.is(copyright, "copyleft", "Returned correct copyright");
@@ -1371,9 +1370,9 @@ test("_getCopyrightFromDotLibrary: No copyright in .library file", async (t) => 
 	const project = await (new Library().init(projectInput));
 	sinon.stub(project, "_getDotLibrary").resolves({
 		content: {
-			library: {}
+			library: {},
 		},
-		filePath: "some path"
+		filePath: "some path",
 	});
 	const copyright = await project._getCopyrightFromDotLibrary();
 	t.is(copyright, null, "No copyright returned");
@@ -1401,14 +1400,14 @@ test("_getPreloadExcludesFromDotLibrary: Single exclude", async (t) => {
 						"all-in-one": {
 							exclude: {
 								$: {
-									name: "test/exclude/**"
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+									name: "test/exclude/**",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	});
 	const excludes = await project._getPreloadExcludesFromDotLibrary();
 	t.deepEqual(excludes, [
@@ -1429,31 +1428,31 @@ test("_getPreloadExcludesFromDotLibrary: Multiple excludes", async (t) => {
 							exclude: [
 								{
 									$: {
-										name: "test/exclude1/**"
-									}
+										name: "test/exclude1/**",
+									},
 								},
 								{
 									$: {
-										name: "test/exclude2/**"
-									}
+										name: "test/exclude2/**",
+									},
 								},
 								{
 									$: {
-										name: "test/exclude3/**"
-									}
-								}
-							]
-						}
-					}
-				}
-			}
-		}
+										name: "test/exclude3/**",
+									},
+								},
+							],
+						},
+					},
+				},
+			},
+		},
 	});
 	const excludes = await project._getPreloadExcludesFromDotLibrary();
 	t.deepEqual(excludes, [
 		"test/exclude1/**",
 		"test/exclude2/**",
-		"test/exclude3/**"
+		"test/exclude3/**",
 	], "_getPreloadExcludesFromDotLibrary should return array with excludes");
 });
 
@@ -1463,9 +1462,9 @@ test("_getPreloadExcludesFromDotLibrary: No excludes in .library file", async (t
 	const project = await (new Library().init(projectInput));
 	sinon.stub(project, "_getDotLibrary").resolves({
 		content: {
-			library: {}
+			library: {},
 		},
-		filePath: "some path"
+		filePath: "some path",
 	});
 	const excludes = await project._getPreloadExcludesFromDotLibrary();
 	t.is(excludes, null, "No excludes returned");
@@ -1489,10 +1488,10 @@ test("_getNamespaceFromManifest", async (t) => {
 	sinon.stub(project, "_getManifest").resolves({
 		content: {
 			"sap.app": {
-				id: "library namespace"
-			}
+				id: "library namespace",
+			},
 		},
-		filePath: "some path"
+		filePath: "some path",
 	});
 	const {namespace, filePath} = await project._getNamespaceFromManifest();
 	t.is(namespace, "library namespace", "Returned correct namespace");
@@ -1505,9 +1504,9 @@ test("_getNamespaceFromManifest: No ID in manifest.json file", async (t) => {
 	const project = await (new Library().init(projectInput));
 	sinon.stub(project, "_getManifest").resolves({
 		content: {
-			"sap.app": {}
+			"sap.app": {},
 		},
-		filePath: "some path"
+		filePath: "some path",
 	});
 	const res = await project._getNamespaceFromManifest();
 	t.deepEqual(res, {}, "Empty object returned");
@@ -1531,11 +1530,11 @@ test("_getNamespaceFromDotLibrary", async (t) => {
 		content: {
 			library: {
 				name: {
-					_: "library namespace"
-				}
-			}
+					_: "library namespace",
+				},
+			},
 		},
-		filePath: "some path"
+		filePath: "some path",
 	});
 	const {namespace, filePath} = await project._getNamespaceFromDotLibrary();
 	t.is(namespace, "library namespace",
@@ -1550,9 +1549,9 @@ test("_getNamespaceFromDotLibrary: No library name in .library file", async (t) 
 	const project = await (new Library().init(projectInput));
 	sinon.stub(project, "_getDotLibrary").resolves({
 		content: {
-			library: {}
+			library: {},
 		},
-		filePath: "some path"
+		filePath: "some path",
 	});
 	const res = await project._getNamespaceFromDotLibrary();
 	t.deepEqual(res, {}, "Empty object returned");

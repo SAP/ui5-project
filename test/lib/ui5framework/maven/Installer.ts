@@ -34,31 +34,31 @@ test.beforeEach(async (t) => {
 
 	t.context.RegistryConstructorStub = sinon.stub().returns({
 		requestMavenMetadata: t.context.registryRequestMavenMetadataStub,
-		requestArtifact: t.context.registryRequestArtifactStub
+		requestArtifact: t.context.registryRequestArtifactStub,
 	});
 
 	t.context.AbstractInstaller = await esmock.p("../../../../lib/ui5Framework/AbstractInstaller.js", {
 		"../../../../lib/utils/fs.js": {
-			mkdirp: t.context.mkdirpStub
+			mkdirp: t.context.mkdirpStub,
 		},
 		"lockfile": {
 			lock: t.context.lockStub,
-			unlock: t.context.unlockStub
-		}
+			unlock: t.context.unlockStub,
+		},
 	});
 
 	t.context.Installer = await esmock.p("../../../../lib/ui5Framework/maven/Installer.js", {
 		"../../../../lib/ui5Framework/maven/Registry.js": t.context.RegistryConstructorStub,
 		"../../../../lib/ui5Framework/AbstractInstaller.js": t.context.AbstractInstaller,
 		"../../../../lib/utils/fs.js": {
-			mkdirp: t.context.mkdirpStub
+			mkdirp: t.context.mkdirpStub,
 		},
 		"node:util": {
-			"promisify": t.context.promisifyStub,
+			promisify: t.context.promisifyStub,
 		},
 		"node-stream-zip": {
-			"async": t.context.zipStub
-		}
+			async: t.context.zipStub,
+		},
 	});
 });
 
@@ -74,7 +74,7 @@ test.serial("constructor", (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
-		snapshotEndpointUrlCb: () => {}
+		snapshotEndpointUrlCb: () => {},
 	});
 	t.true(installer instanceof Installer, "Constructor returns instance of class");
 	t.is(installer._artifactsDir, path.join("/ui5Data/", "framework", "artifacts"));
@@ -89,7 +89,7 @@ test.serial("constructor requires 'ui5DataDir'", (t) => {
 
 	t.throws(() => {
 		new Installer({
-			cwd: "/cwd/"
+			cwd: "/cwd/",
 		});
 	}, {message: `Installer: Missing parameter "ui5DataDir"`});
 });
@@ -100,7 +100,7 @@ test.serial("constructor requires 'snapshotEndpointUrlCb'", (t) => {
 	t.throws(() => {
 		new Installer({
 			cwd: "/cwd/",
-			ui5DataDir: "/ui5Data"
+			ui5DataDir: "/ui5Data",
 		});
 	}, {message: `Installer: Missing Snapshot-Endpoint URL callback parameter`});
 });
@@ -111,7 +111,7 @@ test.serial("getRegistry", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
-		snapshotEndpointUrlCb: () => Promise.resolve("endpoint-url")
+		snapshotEndpointUrlCb: () => Promise.resolve("endpoint-url"),
 	});
 
 	const registry1 = await installer.getRegistry();
@@ -119,7 +119,7 @@ test.serial("getRegistry", async (t) => {
 	t.truthy(registry1, "Created registry");
 	t.is(RegistryConstructorStub.callCount, 1, "Registry constructor called once");
 	t.deepEqual(RegistryConstructorStub.firstCall.firstArg, {
-		endpointUrl: "endpoint-url"
+		endpointUrl: "endpoint-url",
 	}, "Registry constructor called with correct endpoint URL");
 
 	const registry2 = await installer.getRegistry();
@@ -133,14 +133,14 @@ test.serial("getRegistry: Missing endpoint URL", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
-		snapshotEndpointUrlCb: () => Promise.resolve(null)
+		snapshotEndpointUrlCb: () => Promise.resolve(null),
 	});
 
 	const err = await t.throwsAsync(installer.getRegistry());
 	t.is(err.message, "Installer: Missing or empty Maven repository URL for snapshot consumption. " +
-		"This URL is required for consuming snapshot versions of UI5 libraries. " +
-		"Please configure the correct URL using the following command: " +
-		"'ui5 config set mavenSnapshotEndpointUrl <url>'",
+	"This URL is required for consuming snapshot versions of UI5 libraries. " +
+	"Please configure the correct URL using the following command: " +
+	"'ui5 config set mavenSnapshotEndpointUrl <url>'",
 	"Threw with expected error message");
 
 	t.is(RegistryConstructorStub.callCount, 0, "Registry constructor did not get called");
@@ -152,16 +152,16 @@ test.serial("fetchPackageVersions", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
-		snapshotEndpointUrlCb: () => Promise.resolve("endpoint-url")
+		snapshotEndpointUrlCb: () => Promise.resolve("endpoint-url"),
 	});
 
 	registryRequestMavenMetadataStub
 		.resolves({
 			versioning: {
 				versions: {
-					version: ["1.0.0", "2.0.0", "2.0.0-SNAPSHOT", "3.0.0", "5.0.0-SNAPSHOT"]
-				}
-			}
+					version: ["1.0.0", "2.0.0", "2.0.0-SNAPSHOT", "3.0.0", "5.0.0-SNAPSHOT"],
+				},
+			},
 		});
 
 	const packageVersions = await installer.fetchPackageVersions({groupId: "ui5.corp", artifactId: "great-thing"});
@@ -179,7 +179,7 @@ test.serial("fetchPackageVersions throws", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
-		snapshotEndpointUrlCb: () => Promise.resolve("endpoint-url")
+		snapshotEndpointUrlCb: () => Promise.resolve("endpoint-url"),
 	});
 
 	registryRequestMavenMetadataStub.resolves({});
@@ -199,7 +199,7 @@ test.serial("_getLockPath", (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
-		snapshotEndpointUrlCb: () => {}
+		snapshotEndpointUrlCb: () => {},
 	});
 
 	const lockPath = installer._getLockPath("package-@openui5/sap.ui.lib1@1.2.3-SNAPSHOT");
@@ -214,7 +214,7 @@ test.serial("readJson", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
-		snapshotEndpointUrlCb: () => {}
+		snapshotEndpointUrlCb: () => {},
 	});
 
 	t.context.readFileStub.resolves(JSON.stringify(jsonStub));
@@ -230,16 +230,16 @@ test.serial("installPackage", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
-		snapshotEndpointUrlCb: () => {}
+		snapshotEndpointUrlCb: () => {},
 	});
 
 	const removeArtifactStub = sinon.stub().resolves();
 	const fetchArtifactMetadataStub = sinon.stub(installer, "_fetchArtifactMetadata").resolves({revision: "5"});
 	sinon.stub(installer, "_pathExists").resolves(false);
-	sinon.stub(installer, "_synchronize").callsFake( async (pckg, callback) => await callback());
+	sinon.stub(installer, "_synchronize").callsFake(async (pckg, callback) => await callback());
 	const installArtifactStub = sinon.stub(installer, "installArtifact").resolves({
 		artifactPath: "/ui5Data/framework/artifacts/com_sap_ui5_dist-sapui5-sdk-dist/5/npm-sources.zip",
-		removeArtifact: removeArtifactStub
+		removeArtifact: removeArtifactStub,
 	});
 
 	const installedPackage = await installer.installPackage({
@@ -286,16 +286,16 @@ test.serial("installPackage: No classifier", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
-		snapshotEndpointUrlCb: () => {}
+		snapshotEndpointUrlCb: () => {},
 	});
 
 	const removeArtifactStub = sinon.stub().resolves();
 	const fetchArtifactMetadataStub = sinon.stub(installer, "_fetchArtifactMetadata").resolves({revision: "5"});
 	sinon.stub(installer, "_pathExists").resolves(false);
-	sinon.stub(installer, "_synchronize").callsFake( async (pckg, callback) => await callback());
+	sinon.stub(installer, "_synchronize").callsFake(async (pckg, callback) => await callback());
 	const installArtifactStub = sinon.stub(installer, "installArtifact").resolves({
 		artifactPath: "/ui5Data/framework/artifacts/com_sap_ui5_dist-sapui5-sdk-dist/5/npm-sources.zip",
-		removeArtifact: removeArtifactStub
+		removeArtifact: removeArtifactStub,
 	});
 
 	const installedPackage = await installer.installPackage({
@@ -342,12 +342,12 @@ test.serial("installPackage: Already installed", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
-		snapshotEndpointUrlCb: () => {}
+		snapshotEndpointUrlCb: () => {},
 	});
 
 	sinon.stub(installer, "_fetchArtifactMetadata").resolves({revision: "5"});
 	sinon.stub(installer, "_projectExists").resolves(true);
-	sinon.stub(installer, "_synchronize").callsFake( async (pckg, callback) => await callback());
+	sinon.stub(installer, "_synchronize").callsFake(async (pckg, callback) => await callback());
 	const installArtifactStub = sinon.stub(installer, "installArtifact");
 
 	const installedPackage = await installer.installPackage({
@@ -375,14 +375,14 @@ test.serial("installPackage: Already installed only after lock acquired", async 
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
-		snapshotEndpointUrlCb: () => {}
+		snapshotEndpointUrlCb: () => {},
 	});
 
 	sinon.stub(installer, "_fetchArtifactMetadata").resolves({revision: "5"});
 	sinon.stub(installer, "_projectExists")
 		.onFirstCall().resolves(false)
 		.onSecondCall().resolves(true);
-	sinon.stub(installer, "_synchronize").callsFake( async (pckg, callback) => await callback());
+	sinon.stub(installer, "_synchronize").callsFake(async (pckg, callback) => await callback());
 	const installArtifactStub = sinon.stub(installer, "installArtifact");
 
 	const installedPackage = await installer.installPackage({
@@ -410,19 +410,19 @@ test.serial("installArtifact", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
-		snapshotEndpointUrlCb: async () => "url"
+		snapshotEndpointUrlCb: async () => "url",
 	});
 
 	const fetchArtifactMetadataStub = sinon.stub(installer, "_fetchArtifactMetadata").resolves({revision: "5"});
 	sinon.stub(installer, "_pathExists").resolves(false);
-	sinon.stub(installer, "_synchronize").callsFake( async (pckg, callback) => await callback());
+	sinon.stub(installer, "_synchronize").callsFake(async (pckg, callback) => await callback());
 
 	const installedArtifact = await installer.installArtifact({
 		groupId: "com.sap.ui5.dist",
 		artifactId: "sapui5-sdk-dist",
 		version: "1.75.0",
 		extension: "jar",
-		classifier: null
+		classifier: null,
 	});
 
 	const expectedPath = path.join("/ui5Data/", "framework", "artifacts", "com_sap_ui5_dist-sapui5-sdk-dist", "5.jar");
@@ -465,19 +465,18 @@ test.serial("installArtifact", async (t) => {
 	t.is(rmStub.firstCall.firstArg, expectedPath, "fs.rm got called with expected argument");
 });
 
-
 test.serial("installArtifact: Target revision provided", async (t) => {
 	const {Installer, rmStub, registryRequestArtifactStub} = t.context;
 
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
-		snapshotEndpointUrlCb: async () => "url"
+		snapshotEndpointUrlCb: async () => "url",
 	});
 
 	const fetchArtifactMetadataStub = sinon.stub(installer, "_fetchArtifactMetadata").resolves({revision: "5"});
 	sinon.stub(installer, "_pathExists").resolves(false);
-	sinon.stub(installer, "_synchronize").callsFake( async (pckg, callback) => await callback());
+	sinon.stub(installer, "_synchronize").callsFake(async (pckg, callback) => await callback());
 
 	const installedArtifact = await installer.installArtifact({
 		groupId: "com.sap.ui5.dist",
@@ -485,7 +484,7 @@ test.serial("installArtifact: Target revision provided", async (t) => {
 		version: "1.75.0",
 		extension: "zip",
 		classifier: "npm-sources",
-		revision: "16"
+		revision: "16",
 	});
 
 	const expectedPath = path.join("/ui5Data/", "framework", "artifacts",
@@ -528,12 +527,12 @@ test.serial("installArtifact: Already installed", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
-		snapshotEndpointUrlCb: () => {}
+		snapshotEndpointUrlCb: () => {},
 	});
 
 	sinon.stub(installer, "_fetchArtifactMetadata").resolves({revision: "5"});
 	sinon.stub(installer, "_pathExists").resolves(true);
-	sinon.stub(installer, "_synchronize").callsFake( async (pckg, callback) => await callback());
+	sinon.stub(installer, "_synchronize").callsFake(async (pckg, callback) => await callback());
 
 	const installedArtifact = await installer.installArtifact({
 		groupId: "com.sap.ui5.dist",
@@ -568,14 +567,14 @@ test.serial("installArtifact: Already installed only after lock acquired", async
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
-		snapshotEndpointUrlCb: () => {}
+		snapshotEndpointUrlCb: () => {},
 	});
 
 	sinon.stub(installer, "_fetchArtifactMetadata").resolves({revision: "5"});
 	sinon.stub(installer, "_pathExists")
 		.onFirstCall().resolves(false)
 		.onSecondCall().resolves(true);
-	sinon.stub(installer, "_synchronize").callsFake( async (pckg, callback) => await callback());
+	sinon.stub(installer, "_synchronize").callsFake(async (pckg, callback) => await callback());
 
 	const installedArtifact = await installer.installArtifact({
 		groupId: "com.sap.ui5.dist",
@@ -610,10 +609,10 @@ test.serial("_fetchArtifactMetadata", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
-		snapshotEndpointUrlCb: () => {}
+		snapshotEndpointUrlCb: () => {},
 	});
 
-	sinon.stub(installer, "_synchronize").callsFake( async (pckg, callback) => await callback());
+	sinon.stub(installer, "_synchronize").callsFake(async (pckg, callback) => await callback());
 	sinon.stub(installer, "_getLocalArtifactMetadata")
 		.resolves({
 			lastCheck: 0,
@@ -650,7 +649,7 @@ test.serial("_fetchArtifactMetadata: Cached", async (t) => {
 		snapshotEndpointUrlCb: () => {},
 	});
 
-	sinon.stub(installer, "_synchronize").callsFake( async (pckg, callback) => await callback());
+	sinon.stub(installer, "_synchronize").callsFake(async (pckg, callback) => await callback());
 	sinon.stub(installer, "_getLocalArtifactMetadata")
 		.resolves({
 			lastCheck: new Date().getTime(),
@@ -684,10 +683,10 @@ test.serial("_fetchArtifactMetadata: Cache available but disabled", async (t) =>
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
 		snapshotEndpointUrlCb: () => {},
-		cacheMode: "Off"
+		cacheMode: "Off",
 	});
 
-	sinon.stub(installer, "_synchronize").callsFake( async (pckg, callback) => await callback());
+	sinon.stub(installer, "_synchronize").callsFake(async (pckg, callback) => await callback());
 	sinon.stub(installer, "_getLocalArtifactMetadata")
 		.resolves({
 			lastCheck: new Date().getTime(),
@@ -720,10 +719,10 @@ test.serial("_fetchArtifactMetadata: Cache outdated but enforced", async (t) => 
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
 		snapshotEndpointUrlCb: () => {},
-		cacheMode: "Force"
+		cacheMode: "Force",
 	});
 
-	sinon.stub(installer, "_synchronize").callsFake( async (pckg, callback) => await callback());
+	sinon.stub(installer, "_synchronize").callsFake(async (pckg, callback) => await callback());
 	sinon.stub(installer, "_getLocalArtifactMetadata")
 		.resolves({
 			lastCheck: 1, // first millisecond to indicate a cache is present but outdated
@@ -757,10 +756,10 @@ test.serial("_fetchArtifactMetadata throws", async (t) => {
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
 		snapshotEndpointUrlCb: () => {},
-		cacheMode: "Force"
+		cacheMode: "Force",
 	});
 
-	sinon.stub(installer, "_synchronize").callsFake( async (pckg, callback) => await callback());
+	sinon.stub(installer, "_synchronize").callsFake(async (pckg, callback) => await callback());
 	sinon.stub(installer, "_getLocalArtifactMetadata").resolves({});
 
 	await t.throwsAsync(installer._fetchArtifactMetadata({
@@ -780,16 +779,16 @@ test.serial("_getRemoteArtifactMetadata", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
-		snapshotEndpointUrlCb: () => Promise.resolve("endpoint-url")
+		snapshotEndpointUrlCb: () => Promise.resolve("endpoint-url"),
 	});
 
 	registryRequestMavenMetadataStub
 		.resolves({
 			versioning: {
 				snapshotVersions: {
-					snapshotVersion: [{"extension": "jar", "updated": "20220828080910", "value": "5.0.0-SNAPSHOT"}]
-				}
-			}
+					snapshotVersion: [{extension: "jar", updated: "20220828080910", value: "5.0.0-SNAPSHOT"}],
+				},
+			},
 		});
 
 	const remoteArtifactMetadata = await installer._getRemoteArtifactMetadata({
@@ -814,7 +813,7 @@ test.serial("_getRemoteArtifactMetadata throws", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
-		snapshotEndpointUrlCb: () => Promise.resolve("endpoint-url")
+		snapshotEndpointUrlCb: () => Promise.resolve("endpoint-url"),
 	});
 
 	registryRequestMavenMetadataStub.resolves({});
@@ -833,7 +832,7 @@ test.serial("_getRemoteArtifactMetadata throws missing deployment metadata", asy
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
-		snapshotEndpointUrlCb: () => Promise.resolve("endpoint-url")
+		snapshotEndpointUrlCb: () => Promise.resolve("endpoint-url"),
 	});
 
 	registryRequestMavenMetadataStub
@@ -841,14 +840,14 @@ test.serial("_getRemoteArtifactMetadata throws missing deployment metadata", asy
 			versioning: {
 				snapshotVersions: {
 					snapshotVersion: [
-						{"extension": "jar", "updated": "20220828080910", "value": "5.0.0-SNAPSHOT"},
+						{extension: "jar", updated: "20220828080910", value: "5.0.0-SNAPSHOT"},
 						{
-							"classifier": "pony-sources", "extension": "zip", "updated": "20220828080910",
-							"value": "5.0.0-SNAPSHOT"
-						}
-					]
-				}
-			}
+							classifier: "pony-sources", extension: "zip", updated: "20220828080910",
+							value: "5.0.0-SNAPSHOT",
+						},
+					],
+				},
+			},
 		});
 
 	await t.throwsAsync(installer._getRemoteArtifactMetadata({
@@ -861,7 +860,7 @@ test.serial("_getRemoteArtifactMetadata throws missing deployment metadata", asy
 		message: "Could not find npm-sources.zip deployment for artifact " +
 		"com.sap.ui5.dist:sapui5-sdk-dist:1.75.0 in snapshot metadata:\n" +
 		`[{"extension":"jar","updated":"20220828080910","value":"5.0.0-SNAPSHOT"},` +
-		`{"classifier":"pony-sources","extension":"zip","updated":"20220828080910","value":"5.0.0-SNAPSHOT"}]`
+		`{"classifier":"pony-sources","extension":"zip","updated":"20220828080910","value":"5.0.0-SNAPSHOT"}]`,
 	});
 });
 
@@ -871,7 +870,7 @@ test.serial("_getLocalArtifactMetadata", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
-		snapshotEndpointUrlCb: () => {}
+		snapshotEndpointUrlCb: () => {},
 	});
 
 	sinon.stub(installer, "readJson").resolves({foo: "bar"});
@@ -886,7 +885,7 @@ test.serial("_getLocalArtifactMetadata file not found", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
-		snapshotEndpointUrlCb: () => {}
+		snapshotEndpointUrlCb: () => {},
 	});
 
 	sinon.stub(installer, "readJson").throws({code: "ENOENT"});
@@ -905,7 +904,7 @@ test.serial("_getLocalArtifactMetadata throws", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
-		snapshotEndpointUrlCb: () => {}
+		snapshotEndpointUrlCb: () => {},
 	});
 
 	sinon.stub(installer, "readJson").throws(() => {
@@ -917,14 +916,13 @@ test.serial("_getLocalArtifactMetadata throws", async (t) => {
 	});
 });
 
-
 test.serial("_writeLocalArtifactMetadata", async (t) => {
 	const {Installer, writeFileStub} = t.context;
 
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
-		snapshotEndpointUrlCb: () => {}
+		snapshotEndpointUrlCb: () => {},
 	});
 
 	// const writeJsonStub = sinon.stub(installer, "_writeJson").resolves("/path/to/file");
@@ -947,7 +945,7 @@ test.serial("_removeStaleRevisions", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
-		snapshotEndpointUrlCb: () => {}
+		snapshotEndpointUrlCb: () => {},
 	});
 
 	const pathForArtifact = sinon.stub(installer, "_getTargetPathForArtifact")
@@ -982,7 +980,7 @@ test.serial("_pathExists", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
-		snapshotEndpointUrlCb: () => {}
+		snapshotEndpointUrlCb: () => {},
 	});
 
 	statStub.resolves();
@@ -999,7 +997,7 @@ test.serial("_pathExists file not found", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
-		snapshotEndpointUrlCb: () => {}
+		snapshotEndpointUrlCb: () => {},
 	});
 
 	statStub.throws({code: "ENOENT"});
@@ -1014,7 +1012,7 @@ test.serial("_pathExists throws", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
-		snapshotEndpointUrlCb: () => {}
+		snapshotEndpointUrlCb: () => {},
 	});
 
 	statStub.throws(() => {
@@ -1032,7 +1030,7 @@ test.serial("_projectExists", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
-		snapshotEndpointUrlCb: () => {}
+		snapshotEndpointUrlCb: () => {},
 	});
 
 	const pathExistsStub = sinon.stub(installer, "_pathExists").resolves(true);
@@ -1050,7 +1048,7 @@ test.serial("_projectExists: Does not exist", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
-		snapshotEndpointUrlCb: () => {}
+		snapshotEndpointUrlCb: () => {},
 	});
 
 	const pathExistsStub = sinon.stub(installer, "_pathExists").resolves(false);
@@ -1068,7 +1066,7 @@ test.serial("_projectExists: Throws", async (t) => {
 	const installer = new Installer({
 		cwd: "/cwd/",
 		ui5DataDir: "/ui5Data/",
-		snapshotEndpointUrlCb: () => {}
+		snapshotEndpointUrlCb: () => {},
 	});
 
 	const pathExistsStub = sinon.stub(installer, "_pathExists").throws(() => {

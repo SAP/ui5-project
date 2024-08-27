@@ -10,7 +10,7 @@ test.beforeEach(async (t) => {
 
 	t.context.validatorModule = await esmock.p("../../../lib/validation/validator.js", {
 		"ajv": Ajv,
-		"ajv-errors": ajvErrors
+		"ajv-errors": ajvErrors,
 	});
 	const {validate, validateWorkspace, _Validator: Validator} = t.context.validatorModule;
 
@@ -113,7 +113,7 @@ test("Validator#_compileSchema cache test", async (t) => {
 	compileAsyncStub.resolves(sinon.stub().named("schema2Fn"));
 
 	const Ajv = sinon.stub().returns({
-		compileAsync: compileAsyncStub
+		compileAsync: compileAsyncStub,
 	});
 	const ajvErrors = sinon.stub();
 

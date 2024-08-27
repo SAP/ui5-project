@@ -5,10 +5,7 @@ import {createReader} from "@ui5/fs/resourceFactory";
 /**
  * Application
  *
- * @public
- * @class
  * @alias @ui5/project/specifications/types/Application
- * @extends @ui5/project/specifications/ComponentProject
  * @hideconstructor
  */
 class Application extends ComponentProject {
@@ -22,24 +19,21 @@ class Application extends ComponentProject {
 		this._isRuntimeNamespaced = false;
 	}
 
-
 	/* === Attributes === */
 
 	/**
-	* Get the cachebuster signature type configuration of the project
-	*
-	* @returns {string} <code>time</code> or <code>hash</code>
-	*/
+	 * Get the cachebuster signature type configuration of the project
+	 *
+	 * @returns <code>time</code> or <code>hash</code>
+	 */
 	getCachebusterSignatureType() {
-		return this._config.builder && this._config.builder.cachebuster &&
-			this._config.builder.cachebuster.signatureType || "time";
+		return this._config.builder?.cachebuster?.signatureType || "time";
 	}
 
 	/**
 	 * Get the path of the project's source directory. This might not be POSIX-style on some platforms.
 	 *
-	 * @public
-	 * @returns {string} Absolute path to the source directory of the project
+	 * @returns Absolute path to the source directory of the project
 	 */
 	public getSourcePath() {
 		return fsPath.join(this.getRootPath(), this._webappPath);
@@ -47,18 +41,18 @@ class Application extends ComponentProject {
 
 	/* === Resource Access === */
 	/**
-	* Get a resource reader for the sources of the project (excluding any test resources)
-	*
-	* @param {string[]} excludes List of glob patterns to exclude
-	* @returns {@ui5/fs/ReaderCollection} Reader collection
-	*/
+	 * Get a resource reader for the sources of the project (excluding any test resources)
+	 *
+	 * @param excludes List of glob patterns to exclude
+	 * @returns Reader collection
+	 */
 	_getSourceReader(excludes: string[]) {
 		return createReader({
 			fsBasePath: this.getSourcePath(),
 			virBasePath: `/resources/${this._namespace}/`,
 			name: `Source reader for application project ${this.getName()}`,
 			project: this,
-			excludes
+			excludes,
 		});
 	}
 
@@ -70,22 +64,21 @@ class Application extends ComponentProject {
 	 * Get a resource reader for the sources of the project (excluding any test resources)
 	 * without a virtual base path
 	 *
-	 * @returns {@ui5/fs/ReaderCollection} Reader collection
-	*/
+	 * @returns Reader collection
+	 */
 	_getRawSourceReader() {
 		return createReader({
 			fsBasePath: this.getSourcePath(),
 			virBasePath: "/",
 			name: `Raw source reader for application project ${this.getName()}`,
-			project: this
+			project: this,
 		});
 	}
 
 	private async _configureAndValidatePaths(config: object) {
 		await super._configureAndValidatePaths(config);
 
-		if (config.resources && config.resources.configuration &&
-			config.resources.configuration.paths && config.resources.configuration.paths.webapp) {
+		if (config.resources?.configuration?.paths?.webapp) {
 			this._webappPath = config.resources.configuration.paths.webapp;
 		}
 
@@ -113,7 +106,7 @@ class Application extends ComponentProject {
 	 * Determine application namespace either based on a project`s
 	 * manifest.json or manifest.appdescr_variant (fallback if present)
 	 *
-	 * @returns {string} Namespace of the project
+	 * @returns Namespace of the project
 	 * @throws {Error} if namespace can not be determined
 	 */
 	async _getNamespace() {
@@ -138,7 +131,7 @@ class Application extends ComponentProject {
 						`${this.getName()}: ${manifestJsonError.message}\n\n` +
 						`If you are about to start a new project, please refer to:\n` +
 						`https://sap.github.io/ui5-tooling/v4/pages/GettingStarted/#starting-a-new-project`, {
-							cause: manifestJsonError
+							cause: manifestJsonError,
 						});
 				}
 				throw appDescVarError;
@@ -150,14 +143,14 @@ class Application extends ComponentProject {
 	 * Determine application namespace by checking manifest.json.
 	 * Any maven placeholders are resolved from the projects pom.xml
 	 *
-	 * @returns {string} Namespace of the project
+	 * @returns Namespace of the project
 	 * @throws {Error} if namespace can not be determined
 	 */
 	async _getNamespaceFromManifestJson() {
 		const manifest = await this._getManifest("/manifest.json");
 		let appId;
 		// check for a proper sap.app/id in manifest.json to determine namespace
-		if (manifest["sap.app"] && manifest["sap.app"].id) {
+		if (manifest["sap.app"]?.id) {
 			appId = manifest["sap.app"].id;
 		} else {
 			throw new Error(
@@ -181,14 +174,14 @@ class Application extends ComponentProject {
 	/**
 	 * Determine application namespace by checking manifest.appdescr_variant.
 	 *
-	 * @returns {string} Namespace of the project
+	 * @returns Namespace of the project
 	 * @throws {Error} if namespace can not be determined
 	 */
 	async _getNamespaceFromManifestAppDescVariant() {
 		const manifest = await this._getManifest("/manifest.appdescr_variant");
 		let appId;
 		// check for the id property in manifest.appdescr_variant to determine namespace
-		if (manifest && manifest.id) {
+		if (manifest?.id) {
 			appId = manifest.id;
 		} else {
 			throw new Error(
@@ -204,8 +197,8 @@ class Application extends ComponentProject {
 	/**
 	 * Reads and parses a JSON file with the provided name from the projects source directory
 	 *
-	 * @param {string} filePath Name of the JSON file to read. Typically "manifest.json" or "manifest.appdescr_variant"
-	 * @returns {Promise<object>} resolves with an object containing the content requested manifest file
+	 * @param filePath Name of the JSON file to read. Typically "manifest.json" or "manifest.appdescr_variant"
+	 * @returns resolves with an object containing the content requested manifest file
 	 */
 	async _getManifest(filePath: string) {
 		if (this._pManifests[filePath]) {

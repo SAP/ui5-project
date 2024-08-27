@@ -32,15 +32,16 @@ class AjvCoverage {
 		this._sources = {};
 		this._globalCoverageVar = options.globalCoverage === true ? "__coverage__" : randomCoverageVar();
 		this._instrumenter = createInstrumenter({
-			coverageVariable: this._globalCoverageVar
+			coverageVariable: this._globalCoverageVar,
 		});
 	}
+
 	getSummary() {
 		const coverageMap = this._createCoverageMap();
 		const summary = libCoverage.createCoverageSummary();
 
 		const files = coverageMap.files();
-		files.forEach(function(file) {
+		files.forEach(function (file) {
 			const fileCoverageSummary = coverageMap.fileCoverageFor(file).toSummary();
 			summary.merge(fileCoverageSummary);
 			return;
@@ -54,9 +55,10 @@ class AjvCoverage {
 			branches: summary.branches.pct,
 			lines: summary.lines.pct,
 			statements: summary.statements.pct,
-			functions: summary.functions.pct
+			functions: summary.functions.pct,
 		};
 	}
+
 	verify(thresholds) {
 		const thresholdEntries = Object.entries(thresholds);
 		if (thresholdEntries.length === 0) {
@@ -66,7 +68,7 @@ class AjvCoverage {
 		const summary = this.getSummary();
 		const errors = [];
 
-		thresholdEntries.forEach(function([threshold, expectedPct]) {
+		thresholdEntries.forEach(function ([threshold, expectedPct]) {
 			const pct = summary[threshold];
 			if (pct === undefined) {
 				errors.push(`Invalid coverage threshold '${threshold}'`);
@@ -82,6 +84,7 @@ class AjvCoverage {
 			throw new Error(errorMessage);
 		}
 	}
+
 	createReport(name, contextOptions = {}, reportOptions = {}) {
 		const coverageMap = this._createCoverageMap();
 		const context = libReport.createContext(Object.assign({}, contextOptions, {
@@ -94,14 +97,16 @@ class AjvCoverage {
 				if (typeof sourceFinder === "function") {
 					return sourceFinder(filePath);
 				}
-			}
+			},
 		}));
 		const report = reports.create(name, reportOptions);
 		report.execute(context);
 	}
+
 	_createCoverageMap() {
 		return libCoverage.createCoverageMap(global[this._globalCoverageVar]);
 	}
+
 	_processCode(originalCode) {
 		let fileName;
 		const schemaNameMatch = rSchemaName.exec(originalCode);
@@ -134,6 +139,7 @@ class AjvCoverage {
 		this._sources[fileName] = code;
 		return instrumentedCode;
 	}
+
 	static insertIgnoreComments(code) {
 		code = code.replace(rRootDataUndefined, "\n/* istanbul ignore next */$&");
 		code = code.replace(rEnsureErrorArray, "\n/* istanbul ignore next */$&");

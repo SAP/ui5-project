@@ -71,9 +71,9 @@ test("getBuildConfig: Custom values", (t) => {
 	const buildContext = new BuildContext({
 		getRoot: () => {
 			return {
-				getType: () => "library"
+				getType: () => "library",
 			};
-		}
+		},
 	}, "taskRepository", {
 		selfContained: true,
 		outputStyle: OutputStyleEnum.Namespace,
@@ -100,11 +100,11 @@ test("createBuildManifest not supported for type application", (t) => {
 		new BuildContext({
 			getRoot: () => {
 				return {
-					getType: () => "application"
+					getType: () => "application",
 				};
-			}
+			},
 		}, "taskRepository", {
-			createBuildManifest: true
+			createBuildManifest: true,
 		});
 	});
 	t.is(err.message,
@@ -117,11 +117,11 @@ test("createBuildManifest not supported for type module", (t) => {
 		new BuildContext({
 			getRoot: () => {
 				return {
-					getType: () => "module"
+					getType: () => "module",
 				};
-			}
+			},
 		}, "taskRepository", {
-			createBuildManifest: true
+			createBuildManifest: true,
 		});
 	});
 	t.is(err.message,
@@ -134,12 +134,12 @@ test("createBuildManifest not supported for self-contained build", (t) => {
 		new BuildContext({
 			getRoot: () => {
 				return {
-					getType: () => "library"
+					getType: () => "library",
 				};
-			}
+			},
 		}, "taskRepository", {
 			createBuildManifest: true,
-			selfContained: true
+			selfContained: true,
 		});
 	});
 	t.is(err.message,
@@ -152,12 +152,12 @@ test("createBuildManifest supported for css-variables build", (t) => {
 		new BuildContext({
 			getRoot: () => {
 				return {
-					getType: () => "library"
+					getType: () => "library",
 				};
-			}
+			},
 		}, "taskRepository", {
 			createBuildManifest: true,
-			cssVariables: true
+			cssVariables: true,
 		});
 	});
 });
@@ -167,12 +167,12 @@ test("createBuildManifest supported for jsdoc build", (t) => {
 		new BuildContext({
 			getRoot: () => {
 				return {
-					getType: () => "library"
+					getType: () => "library",
 				};
-			}
+			},
 		}, "taskRepository", {
 			createBuildManifest: true,
-			jsdoc: true
+			jsdoc: true,
 		});
 	});
 });
@@ -182,11 +182,11 @@ test("outputStyle='Namespace' supported for type application", (t) => {
 		new BuildContext({
 			getRoot: () => {
 				return {
-					getType: () => "application"
+					getType: () => "application",
 				};
-			}
+			},
 		}, "taskRepository", {
-			outputStyle: OutputStyleEnum.Namespace
+			outputStyle: OutputStyleEnum.Namespace,
 		});
 	});
 });
@@ -196,11 +196,11 @@ test("outputStyle='Flat' not supported for type theme-library", (t) => {
 		new BuildContext({
 			getRoot: () => {
 				return {
-					getType: () => "theme-library"
+					getType: () => "theme-library",
 				};
-			}
+			},
 		}, "taskRepository", {
-			outputStyle: OutputStyleEnum.Flat
+			outputStyle: OutputStyleEnum.Flat,
 		});
 	});
 	t.is(err.message,
@@ -214,11 +214,11 @@ test("outputStyle='Flat' not supported for type module", (t) => {
 		new BuildContext({
 			getRoot: () => {
 				return {
-					getType: () => "module"
+					getType: () => "module",
 				};
-			}
+			},
 		}, "taskRepository", {
-			outputStyle: OutputStyleEnum.Flat
+			outputStyle: OutputStyleEnum.Flat,
 		});
 	});
 	t.is(err.message,
@@ -232,12 +232,12 @@ test("outputStyle='Flat' not supported for createBuildManifest build", (t) => {
 		new BuildContext({
 			getRoot: () => {
 				return {
-					getType: () => "library"
+					getType: () => "library",
 				};
-			}
+			},
 		}, "taskRepository", {
 			createBuildManifest: true,
-			outputStyle: OutputStyleEnum.Flat
+			outputStyle: OutputStyleEnum.Flat,
 		});
 	});
 	t.is(err.message,
@@ -285,10 +285,10 @@ test("executeCleanupTasks", async (t) => {
 	const executeCleanupTasks = sinon.stub().resolves();
 
 	buildContext._projectBuildContexts.push({
-		executeCleanupTasks
+		executeCleanupTasks,
 	});
 	buildContext._projectBuildContexts.push({
-		executeCleanupTasks
+		executeCleanupTasks,
 	});
 
 	await buildContext.executeCleanupTasks();
@@ -297,7 +297,6 @@ test("executeCleanupTasks", async (t) => {
 		"Project context executeCleanupTasks got called twice");
 	t.is(executeCleanupTasks.getCall(0).firstArg, false,
 		"Project context executeCleanupTasks got called with expected arguments");
-
 
 	executeCleanupTasks.reset();
 	await buildContext.executeCleanupTasks(true);

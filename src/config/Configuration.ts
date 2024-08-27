@@ -5,33 +5,29 @@ import os from "node:os";
  * Provides basic configuration for @ui5/project.
  * Reads/writes configuration from/to ~/.ui5rc
  *
- * @public
- * @class
  * @alias @ui5/project/config/Configuration
  */
 class Configuration {
 	/**
 	 * A list of all configuration options.
 	 *
-	 * @public
-	 * @static
 	 */
 	static OPTIONS = [
 		"mavenSnapshotEndpointUrl",
-		"ui5DataDir"
+		"ui5DataDir",
 	];
 
 	#options = new Map();
 
 	/**
-	 * @param {object} configuration
-	 * @param {string} [configuration.mavenSnapshotEndpointUrl]
-	 * @param {string} [configuration.ui5DataDir]
+	 * @param configuration
+	 * @param [configuration.mavenSnapshotEndpointUrl]
+	 * @param [configuration.ui5DataDir]
 	 */
 	constructor(configuration: {
-    mavenSnapshotEndpointUrl?: string;
-    ui5DataDir?: string;
-}) {
+		mavenSnapshotEndpointUrl?: string;
+		ui5DataDir?: string;
+	}) {
 		// Initialize map with undefined values for every option so that they are
 		// returned via toJson()
 		Configuration.OPTIONS.forEach((key) => this.#options.set(key, undefined));
@@ -48,8 +44,7 @@ class Configuration {
 	 * Maven Repository Snapshot URL.
 	 * Used to download artifacts and packages from Maven's build-snapshots URL.
 	 *
-	 * @public
-	 * @returns {string}
+	 * @returns
 	 */
 	public getMavenSnapshotEndpointUrl() {
 		return this.#options.get("mavenSnapshotEndpointUrl");
@@ -58,16 +53,14 @@ class Configuration {
 	/**
 	 * Configurable directory where the framework artefacts are stored.
 	 *
-	 * @public
-	 * @returns {string}
+	 * @returns
 	 */
 	public getUi5DataDir() {
 		return this.#options.get("ui5DataDir");
 	}
 
 	/**
-	 * @public
-	 * @returns {object} The configuration in a JSON format
+	 * @returns The configuration in a JSON format
 	 */
 	public toJson() {
 		return Object.fromEntries(this.#options);
@@ -94,7 +87,7 @@ class Configuration {
 			} else {
 				throw new Error(
 					`Failed to read UI5 Tooling configuration from ${filePath}: ${err.message}`, {
-						cause: err
+						cause: err,
 					});
 			}
 		}
@@ -114,7 +107,7 @@ class Configuration {
 		} catch (err) {
 			throw new Error(
 				`Failed to write UI5 Tooling configuration to ${filePath}: ${err.message}`, {
-					cause: err
+					cause: err,
 				});
 		}
 	}

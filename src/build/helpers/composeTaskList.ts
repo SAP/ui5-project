@@ -5,13 +5,16 @@
  * Based on the selected build mode (selfContained|preload), different tasks are enabled.
  * Tasks can be enabled or disabled. The wildcard <code>*</code> is also supported and affects all tasks.
  *
- * @private
- * @param {string[]} allTasks
- * @param {@ui5/project/build/ProjectBuilder~BuildConfiguration} buildConfig
+ * @param allTasks
+ * @param buildConfig
  * 			Build configuration
- * @returns {Array} List of tasks to be executed
+ * @param buildConfig.selfContained
+ * @param buildConfig.jsdoc
+ * @param buildConfig.includedTasks
+ * @param buildConfig.excludedTasks
+ * @returns List of tasks to be executed
  */
-export default function composeTaskList(allTasks: string[], { selfContained, jsdoc, includedTasks, excludedTasks }: object) {
+export default function composeTaskList(allTasks: string[], {selfContained, jsdoc, includedTasks, excludedTasks}: object) {
 	let selectedTasks = allTasks.reduce((list, key) => {
 		list[key] = true;
 		return list;

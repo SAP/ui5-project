@@ -18,9 +18,9 @@ test.beforeEach((t) => {
 			type: "theme-library",
 			metadata: {
 				name: "theme.library.e",
-				copyright: "Some fancy copyright"
-			}
-		}
+				copyright: "Some fancy copyright",
+			},
+		},
 	};
 });
 
@@ -79,8 +79,8 @@ test("Access project resources via reader w/ builder excludes", async (t) => {
 
 	projectInput.configuration.builder = {
 		resources: {
-			excludes: ["**/.theme"]
-		}
+			excludes: ["**/.theme"],
+		},
 	};
 	const excludesProject = await Specification.create(projectInput);
 
@@ -121,8 +121,8 @@ test("Access project resources via workspace w/ builder excludes", async (t) => 
 
 	projectInput.configuration.builder = {
 		resources: {
-			excludes: ["**/.theme"]
-		}
+			excludes: ["**/.theme"],
+		},
 	};
 	const excludesProject = await Specification.create(projectInput);
 
@@ -142,8 +142,8 @@ test("Access project resources via reader w/ absolute builder excludes", async (
 
 	projectInput.configuration.builder = {
 		resources: {
-			excludes: ["/resources/theme/library/e/themes/my_theme/.theme"]
-		}
+			excludes: ["/resources/theme/library/e/themes/my_theme/.theme"],
+		},
 	};
 	const excludesProject = await Specification.create(projectInput);
 
@@ -224,9 +224,9 @@ test("_configureAndValidatePaths: Test directory does not exist", async (t) => {
 	projectInput.configuration.resources = {
 		configuration: {
 			paths: {
-				test: "does/not/exist"
-			}
-		}
+				test: "does/not/exist",
+			},
+		},
 	};
 	const project = await Specification.create(projectInput);
 
@@ -240,9 +240,9 @@ test("_configureAndValidatePaths: Source directory does not exist", async (t) =>
 	projectInput.configuration.resources = {
 		configuration: {
 			paths: {
-				src: "does/not/exist"
-			}
-		}
+				src: "does/not/exist",
+			},
+		},
 	};
 	const err = await t.throwsAsync(Specification.create(projectInput));
 

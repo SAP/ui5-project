@@ -15,7 +15,7 @@ function getMockProject() {
 		getVersion: () => "version",
 		getSpecVersion: () => {
 			return {
-				toString: () => "2.6"
+				toString: () => "2.6",
 			};
 		},
 		getMinificationExcludes: emptyarray,
@@ -26,7 +26,7 @@ function getMockProject() {
 		getBundles: emptyarray,
 		getCachebusterSignatureType: () => "PONY",
 		getCustomTasks: emptyarray,
-		isFrameworkProject: () => false
+		isFrameworkProject: () => false,
 	};
 }
 
@@ -34,7 +34,7 @@ test.beforeEach((t) => {
 	t.context.taskUtil = {
 		isRootProject: sinon.stub().returns(true),
 		getBuildOption: sinon.stub(),
-		getInterface: sinon.stub()
+		getInterface: sinon.stub(),
 	};
 
 	t.context.project = getMockProject();
@@ -45,21 +45,21 @@ test("Standard build", (t) => {
 	const {project, taskUtil, getTask} = t.context;
 
 	const tasks = themeLibrary({
-		project, taskUtil, getTask
+		project, taskUtil, getTask,
 	});
 	const generateThemeDesignerResourcesTaskFunction = tasks.get("generateThemeDesignerResources");
 	t.deepEqual(Object.fromEntries(tasks), {
 		replaceCopyright: {
 			options: {
 				copyright: "copyright",
-				pattern: "/resources/**/*.{less,theme}"
-			}
+				pattern: "/resources/**/*.{less,theme}",
+			},
 		},
 		replaceVersion: {
 			options: {
 				version: "version",
-				pattern: "/resources/**/*.{less,theme}"
-			}
+				pattern: "/resources/**/*.{less,theme}",
+			},
 		},
 		buildThemes: {
 			requiresDependencies: true,
@@ -68,15 +68,15 @@ test("Standard build", (t) => {
 				librariesPattern: undefined,
 				themesPattern: undefined,
 				inputPattern: "/resources/**/themes/*/library.source.less",
-				cssVariables: undefined
-			}
+				cssVariables: undefined,
+			},
 		},
 		generateResourcesJson: {
-			requiresDependencies: true
+			requiresDependencies: true,
 		},
 		generateThemeDesignerResources: {
-			taskFunction: null
-		}
+			taskFunction: null,
+		},
 	}, "Correct task definitions");
 
 	t.is(taskUtil.getBuildOption.callCount, 1, "taskUtil#getBuildOption got called once");
@@ -92,13 +92,13 @@ test("Standard build (framework project)", (t) => {
 	project.isFrameworkProject = () => true;
 
 	const tasks = themeLibrary({
-		project, taskUtil, getTask
+		project, taskUtil, getTask,
 	});
 
 	t.deepEqual(tasks.get("generateThemeDesignerResources"), {
 		requiresDependencies: true, options: {
-			version: "version"
-		}
+			version: "version",
+		},
 	});
 });
 
@@ -107,20 +107,20 @@ test("Standard build for non root project", (t) => {
 	taskUtil.isRootProject.returns(false);
 
 	const tasks = themeLibrary({
-		project, taskUtil, getTask
+		project, taskUtil, getTask,
 	});
 	t.deepEqual(Object.fromEntries(tasks), {
 		replaceCopyright: {
 			options: {
 				copyright: "copyright",
-				pattern: "/resources/**/*.{less,theme}"
-			}
+				pattern: "/resources/**/*.{less,theme}",
+			},
 		},
 		replaceVersion: {
 			options: {
 				version: "version",
-				pattern: "/resources/**/*.{less,theme}"
-			}
+				pattern: "/resources/**/*.{less,theme}",
+			},
 		},
 		buildThemes: {
 			requiresDependencies: true,
@@ -129,15 +129,15 @@ test("Standard build for non root project", (t) => {
 				librariesPattern: "/resources/**/(*.library|library.js)",
 				themesPattern: "/resources/sap/ui/core/themes/*",
 				inputPattern: "/resources/**/themes/*/library.source.less",
-				cssVariables: undefined
-			}
+				cssVariables: undefined,
+			},
 		},
 		generateResourcesJson: {
-			requiresDependencies: true
+			requiresDependencies: true,
 		},
 		generateThemeDesignerResources: {
-			taskFunction: null
-		}
+			taskFunction: null,
+		},
 	}, "Correct task definitions");
 
 	t.is(taskUtil.getBuildOption.callCount, 1, "taskUtil#getBuildOption got called once");
@@ -150,7 +150,7 @@ test("CSS variables enabled", (t) => {
 	taskUtil.getBuildOption.returns(true);
 
 	const tasks = themeLibrary({
-		project, taskUtil, getTask
+		project, taskUtil, getTask,
 	});
 
 	const taskDefinition = tasks.get("buildThemes");
@@ -161,8 +161,8 @@ test("CSS variables enabled", (t) => {
 			librariesPattern: undefined,
 			themesPattern: undefined,
 			inputPattern: "/resources/**/themes/*/library.source.less",
-			cssVariables: true
-		}
+			cssVariables: true,
+		},
 	}, "Correct buildThemes task definition");
 
 	t.is(taskUtil.getBuildOption.callCount, 1, "taskUtil#getBuildOption got called once");

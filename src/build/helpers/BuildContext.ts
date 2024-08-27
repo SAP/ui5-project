@@ -4,8 +4,6 @@ import OutputStyleEnum from "./ProjectBuilderOutputStyle.js";
 /**
  * Context of a build process
  *
- * @private
- * @memberof @ui5/project/build/helpers
  */
 class BuildContext {
 	constructor(graph, taskRepository, { // buildConfig
@@ -45,15 +43,15 @@ class BuildContext {
 			if (rootProjectType === "theme-library") {
 				throw new Error(
 					`${outputStyle} build output style is currently not supported for projects of type` +
-						`theme-library since they commonly have more than one namespace. ` +
-						`Currently only the Default output style is supported for this project type.`
+					`theme-library since they commonly have more than one namespace. ` +
+					`Currently only the Default output style is supported for this project type.`
 				);
 			}
 			if (rootProjectType === "module") {
 				throw new Error(
 					`${outputStyle} build output style is currently not supported for projects of type` +
-						`module. Their path mappings configuration can't be mapped to any namespace.` +
-						`Currently only the Default output style is supported for this project type.`
+					`module. Their path mappings configuration can't be mapped to any namespace.` +
+					`Currently only the Default output style is supported for this project type.`
 				);
 			}
 		}
@@ -72,7 +70,7 @@ class BuildContext {
 		this._taskRepository = taskRepository;
 
 		this._options = {
-			cssVariables: cssVariables
+			cssVariables: cssVariables,
 		};
 		this._projectBuildContexts = [];
 	}
@@ -100,7 +98,7 @@ class BuildContext {
 	createProjectContext({project}) {
 		const projectBuildContext = new ProjectBuildContext({
 			buildContext: this,
-			project
+			project,
 		});
 		this._projectBuildContexts.push(projectBuildContext);
 		return projectBuildContext;

@@ -14,12 +14,12 @@ const libraryDDependerPath = path.join(__dirname, "..", "..", "..", "fixtures", 
 
 test.beforeEach(async (t) => {
 	t.context.log = {
-		warn: sinon.stub()
+		warn: sinon.stub(),
 	};
 	t.context.composeProjectList = await esmock("../../../../lib/build/helpers/composeProjectList", {
 		"@ui5/logger": {
-			getLogger: sinon.stub().withArgs("build:helpers:composeProjectList").returns(t.context.log)
-		}
+			getLogger: sinon.stub().withArgs("build:helpers:composeProjectList").returns(t.context.log),
+		},
 	});
 });
 
@@ -49,15 +49,15 @@ test.serial("_getFlattenedDependencyTree", async (t) => {
 						id: "library.b.id",
 						version: "1.0.0",
 						path: path.join(applicationAPath, "node_modules", "collection", "library.b"),
-						dependencies: []
+						dependencies: [],
 					}, {
 						id: "library.c.id",
 						version: "1.0.0",
 						path: path.join(applicationAPath, "node_modules", "collection", "library.c"),
-						dependencies: []
-					}]
-				}]
-			}]
+						dependencies: [],
+					}],
+				}],
+			}],
 		}, {
 			id: "library.f.id",
 			version: "1.0.0",
@@ -70,15 +70,15 @@ test.serial("_getFlattenedDependencyTree", async (t) => {
 					id: "library.b.id",
 					version: "1.0.0",
 					path: path.join(applicationAPath, "node_modules", "collection", "library.b"),
-					dependencies: []
+					dependencies: [],
 				}, {
 					id: "library.c.id",
 					version: "1.0.0",
 					path: path.join(applicationAPath, "node_modules", "collection", "library.c"),
-					dependencies: []
-				}]
-			}]
-		}]
+					dependencies: [],
+				}],
+			}],
+		}],
 	};
 	const graph = await graphFromObject({dependencyTree: tree});
 
@@ -88,7 +88,7 @@ test.serial("_getFlattenedDependencyTree", async (t) => {
 		"library.d": ["library.a", "library.b", "library.c"],
 		"library.a": ["library.b", "library.c"],
 		"library.b": [],
-		"library.c": []
+		"library.c": [],
 	});
 });
 
@@ -98,7 +98,7 @@ async function assertCreateDependencyLists(t, {
 	excludeDependency, excludeDependencyRegExp, excludeDependencyTree,
 	defaultIncludeDependency, defaultIncludeDependencyRegExp, defaultIncludeDependencyTree,
 	expectedIncludedDependencies, expectedExcludedDependencies,
-	expectedLogWarnCallCount = 0
+	expectedLogWarnCallCount = 0,
 }) {
 	const tree = { // Does not reflect actual dependencies in fixtures
 		id: "application.a.id",
@@ -112,7 +112,7 @@ async function assertCreateDependencyLists(t, {
 				id: "library.d.id",
 				version: "1.0.0",
 				path: path.join(applicationAPath, "node_modules", "library.d"),
-				dependencies: []
+				dependencies: [],
 			}, {
 				id: "library.a.id",
 				version: "1.0.0",
@@ -121,9 +121,9 @@ async function assertCreateDependencyLists(t, {
 					id: "library.b.id",
 					version: "1.0.0",
 					path: path.join(applicationAPath, "node_modules", "collection", "library.b"),
-					dependencies: []
-				}]
-			}]
+					dependencies: [],
+				}],
+			}],
 		}, {
 			id: "library.f.id",
 			version: "1.0.0",
@@ -132,7 +132,7 @@ async function assertCreateDependencyLists(t, {
 				id: "library.d.id",
 				version: "1.0.0",
 				path: path.join(applicationAPath, "node_modules", "library.d"),
-				dependencies: []
+				dependencies: [],
 			}, {
 				id: "library.a.id",
 				version: "1.0.0",
@@ -141,14 +141,14 @@ async function assertCreateDependencyLists(t, {
 					id: "library.b.id",
 					version: "1.0.0",
 					path: path.join(applicationAPath, "node_modules", "collection", "library.b"),
-					dependencies: []
-				}]
+					dependencies: [],
+				}],
 			}, {
 				id: "library.c.id",
 				version: "1.0.0",
 				path: path.join(applicationAPath, "node_modules", "collection", "library.c"),
-				dependencies: []
-			}]
+				dependencies: [],
+			}],
 		}, {
 			id: "library.g.id",
 			version: "1.0.0",
@@ -157,9 +157,9 @@ async function assertCreateDependencyLists(t, {
 				id: "library.d-depender.id",
 				version: "1.0.0",
 				path: libraryDDependerPath,
-				dependencies: []
-			}]
-		}]
+				dependencies: [],
+			}],
+		}],
 	};
 
 	const graph = await graphFromObject({dependencyTree: tree});
@@ -174,7 +174,7 @@ async function assertCreateDependencyLists(t, {
 		excludeDependencyTree,
 		defaultIncludeDependency,
 		defaultIncludeDependencyRegExp,
-		defaultIncludeDependencyTree
+		defaultIncludeDependencyTree,
 	});
 	t.deepEqual(includedDependencies, expectedIncludedDependencies, "Correct set of included dependencies");
 	t.deepEqual(excludedDependencies, expectedExcludedDependencies, "Correct set of excluded dependencies");
@@ -189,7 +189,7 @@ test.serial("createDependencyLists: only includes", async (t) => {
 		includeDependencyRegExp: ["^library\\.d$"],
 		includeDependencyTree: ["library.g"],
 		expectedIncludedDependencies: ["library.f", "library.c", "library.d", "library.g", "library.d-depender"],
-		expectedExcludedDependencies: []
+		expectedExcludedDependencies: [],
 	});
 });
 
@@ -200,7 +200,7 @@ test.serial("createDependencyLists: only excludes", async (t) => {
 		excludeDependencyRegExp: ["^library\\.d$"],
 		excludeDependencyTree: ["library.g"],
 		expectedIncludedDependencies: [],
-		expectedExcludedDependencies: ["library.f", "library.c", "library.d", "library.g", "library.d-depender"]
+		expectedExcludedDependencies: ["library.f", "library.c", "library.d", "library.g", "library.d-depender"],
 	});
 });
 
@@ -212,7 +212,7 @@ test.serial("createDependencyLists: include all + excludes", async (t) => {
 		excludeDependencyRegExp: ["^library\\.d$"],
 		excludeDependencyTree: ["library.g"],
 		expectedIncludedDependencies: ["library.b", "library.a", "library.e"],
-		expectedExcludedDependencies: ["library.f", "library.c", "library.d", "library.g", "library.d-depender"]
+		expectedExcludedDependencies: ["library.f", "library.c", "library.d", "library.g", "library.d-depender"],
 	});
 });
 
@@ -226,9 +226,9 @@ test.serial("createDependencyLists: include all", async (t) => {
 		expectedIncludedDependencies: [
 			"library.d", "library.b", "library.c",
 			"library.d-depender", "library.a", "library.g",
-			"library.e", "library.f"
+			"library.e", "library.f",
 		],
-		expectedExcludedDependencies: []
+		expectedExcludedDependencies: [],
 	});
 });
 
@@ -239,7 +239,7 @@ test.serial("createDependencyLists: includeDependencyTree has lower priority tha
 		excludeDependency: ["library.f"],
 		excludeDependencyRegExp: ["^library\\.[acd]$"],
 		expectedIncludedDependencies: ["library.b"],
-		expectedExcludedDependencies: ["library.f", "library.d", "library.c", "library.a"]
+		expectedExcludedDependencies: ["library.f", "library.d", "library.c", "library.a"],
 	});
 });
 
@@ -250,7 +250,7 @@ test.serial("createDependencyLists: excludeDependencyTree has lower priority tha
 		includeDependencyRegExp: ["^library\\.[acd]$"],
 		excludeDependencyTree: ["library.f"],
 		expectedIncludedDependencies: ["library.f", "library.d", "library.c", "library.a"],
-		expectedExcludedDependencies: ["library.b"]
+		expectedExcludedDependencies: ["library.b"],
 	});
 });
 
@@ -262,9 +262,9 @@ test.serial("createDependencyLists: include all, exclude tree and include single
 		excludeDependencyTree: ["library.f"],
 		expectedIncludedDependencies: [
 			"library.f", "library.d", "library.c", "library.a", "library.d-depender",
-			"library.g", "library.e"
+			"library.g", "library.e",
 		],
-		expectedExcludedDependencies: ["library.b"]
+		expectedExcludedDependencies: ["library.b"],
 	});
 });
 
@@ -275,7 +275,7 @@ test.serial("createDependencyLists: includeDependencyTree has higher priority th
 			includeDependencyTree: ["library.f"],
 			excludeDependencyTree: ["library.f"],
 			expectedIncludedDependencies: ["library.f", "library.d", "library.a", "library.b", "library.c"],
-			expectedExcludedDependencies: []
+			expectedExcludedDependencies: [],
 		});
 	});
 
@@ -287,7 +287,7 @@ test.serial("createDependencyLists: defaultIncludeDependency/RegExp has lower pr
 		excludeDependency: ["library.f"],
 		excludeDependencyRegExp: ["^library\\.[acd](-depender)?$"],
 		expectedIncludedDependencies: ["library.b"],
-		expectedExcludedDependencies: ["library.f", "library.d", "library.c", "library.d-depender", "library.a"]
+		expectedExcludedDependencies: ["library.f", "library.d", "library.c", "library.d-depender", "library.a"],
 	});
 });
 test.serial("createDependencyLists: include all and defaultIncludeDependency/RegExp", async (t) => {
@@ -298,7 +298,7 @@ test.serial("createDependencyLists: include all and defaultIncludeDependency/Reg
 		excludeDependency: ["library.f"],
 		excludeDependencyRegExp: ["^library\\.[acd](-depender)?$"],
 		expectedIncludedDependencies: ["library.b", "library.g", "library.e"],
-		expectedExcludedDependencies: ["library.f", "library.d", "library.c", "library.d-depender", "library.a"]
+		expectedExcludedDependencies: ["library.f", "library.d", "library.c", "library.d-depender", "library.a"],
 	});
 });
 
@@ -308,7 +308,7 @@ test.serial("createDependencyLists: defaultIncludeDependencyTree has lower prior
 		defaultIncludeDependencyTree: ["library.f"],
 		excludeDependencyTree: ["library.a"],
 		expectedIncludedDependencies: ["library.f", "library.d", "library.c"],
-		expectedExcludedDependencies: ["library.a", "library.b"]
+		expectedExcludedDependencies: ["library.a", "library.b"],
 	});
 });
 
@@ -318,9 +318,9 @@ test.serial("createDependencyLists: Could not find dependency", async (t) => {
 		includeDependency: ["not.in.dependency.tree"],
 		expectedIncludedDependencies: [],
 		expectedExcludedDependencies: [],
-		expectedLogWarnCallCount: 1
+		expectedLogWarnCallCount: 1,
 	});
 	t.deepEqual(t.context.log.warn.getCall(0).args, [
-		`Could not find dependency "not.in.dependency.tree" for project application.a. Dependency filter is ignored`
+		`Could not find dependency "not.in.dependency.tree" for project application.a. Dependency filter is ignored`,
 	]);
 });

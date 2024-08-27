@@ -13,57 +13,57 @@ export default {
 	 * @param {string} type one of "project-shim", "server-middleware" and "task"
 	 * @param {object} additionalConfiguration additional configuration content
 	 */
-	defineTests: function(test: Function, assertValidation: Function, type: string, additionalConfiguration: object) {
+	defineTests: function (test: Function, assertValidation: Function, type: string, additionalConfiguration: object) {
 		additionalConfiguration = additionalConfiguration || {};
-		additionalConfiguration = Object.assign({"kind": "extension"}, additionalConfiguration);
+		additionalConfiguration = Object.assign({kind: "extension"}, additionalConfiguration);
 
 		customConfiguration.defineTests(test, assertValidation, type, additionalConfiguration);
 
 		SpecificationVersion.getVersionsForRange(">=2.0").forEach((specVersion) => {
 			test(`kind: extension / type: ${type} basic (${specVersion})`, async (t) => {
 				await assertValidation(t, Object.assign({
-					"specVersion": specVersion,
-					"type": type,
-					"metadata": {
-						"name": "my-" + type
-					}
+					specVersion: specVersion,
+					type: type,
+					metadata: {
+						name: "my-" + type,
+					},
 				}, additionalConfiguration));
 			});
 
 			test(`kind: extension / type: ${type} additionalProperties (${specVersion})`, async (t) => {
 				await assertValidation(t, Object.assign({
-					"specVersion": specVersion,
-					"type": type,
-					"metadata": {
-						"name": "my-" + type
+					specVersion: specVersion,
+					type: type,
+					metadata: {
+						name: "my-" + type,
 					},
-					"resources": {}
+					resources: {},
 				}, additionalConfiguration), [{
 					dataPath: "",
 					keyword: "additionalProperties",
 					message: "should NOT have additional properties",
 					params: {
-						"additionalProperty": "resources"
-					}
+						additionalProperty: "resources",
+					},
 				}]);
 			});
 
 			test(`kind: extension / type: ${type} Invalid configuration: Additional property (${specVersion})`,
 				async (t) => {
-					await assertValidation(t, Object.assign( {
-						"specVersion": specVersion,
-						"type": type,
-						"metadata": {
-							"name": "my-" + type
+					await assertValidation(t, Object.assign({
+						specVersion: specVersion,
+						type: type,
+						metadata: {
+							name: "my-" + type,
 						},
-						"notAllowed": true
+						notAllowed: true,
 					}, additionalConfiguration), [{
 						dataPath: "",
 						keyword: "additionalProperties",
 						message: "should NOT have additional properties",
 						params: {
 							additionalProperty: "notAllowed",
-						}
+						},
 					}]);
 				});
 		});
@@ -71,18 +71,18 @@ export default {
 		SpecificationVersion.getVersionsForRange("2.0 - 2.6").forEach((specVersion) => {
 			test(`kind: extension / type: ${type}: Invalid metadata.name (${specVersion})`, async (t) => {
 				await assertValidation(t, Object.assign({
-					"specVersion": specVersion,
-					"type": type,
-					"metadata": {
-						"name": {}
-					}
+					specVersion: specVersion,
+					type: type,
+					metadata: {
+						name: {},
+					},
 				}, additionalConfiguration), [{
 					dataPath: "/metadata/name",
 					keyword: "type",
 					message: "should be string",
 					params: {
-						type: "string"
-					}
+						type: "string",
+					},
 				}]);
 			});
 		});
@@ -90,11 +90,11 @@ export default {
 		SpecificationVersion.getVersionsForRange(">=3.0").forEach((specVersion) => {
 			test(`kind: extension / type: ${type}: Invalid metadata.name (${specVersion})`, async (t) => {
 				await assertValidation(t, Object.assign({
-					"specVersion": specVersion,
-					"type": type,
-					"metadata": {
-						"name": {}
-					}
+					specVersion: specVersion,
+					type: type,
+					metadata: {
+						name: {},
+					},
 				}, additionalConfiguration), [{
 					dataPath: "/metadata/name",
 					keyword: "type",
@@ -113,11 +113,11 @@ export default {
 							message: "should be string",
 							params: {
 								type: "string",
-							}
-						}]
+							},
+						}],
 					},
 				}]);
 			});
 		});
-	}
+	},
 };

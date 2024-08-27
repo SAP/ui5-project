@@ -28,15 +28,15 @@ test.beforeEach(async (t) => {
 		info: sinon.stub(),
 		verbose: sinon.stub(),
 		silly: sinon.stub(),
-		isLevelEnabled: () => true
+		isLevelEnabled: () => true,
 	};
 
 	t.context.graph = await esmock.p("../../../lib/graph/graph.js", {
 		"../../../lib/graph/projectGraphBuilder": await esmock("../../../lib/graph/projectGraphBuilder.js", {
 			"@ui5/logger": {
-				getLogger: sinon.stub().withArgs("graph:projectGraphBuilder").returns(t.context.log)
-			}
-		})
+				getLogger: sinon.stub().withArgs("graph:projectGraphBuilder").returns(t.context.log),
+			},
+		}),
 	});
 	t.context.graphFromObject = t.context.graph.graphFromObject;
 });
@@ -68,7 +68,7 @@ test("Application A: Traverse project graph breadth first", async (t) => {
 		"library.d",
 		"library.a",
 		"library.b",
-		"library.c"
+		"library.c",
 	], "Traversed graph in correct order");
 });
 
@@ -109,7 +109,7 @@ test("Application Cycle B: Traverse project graph breadth first with cycles", as
 	t.deepEqual(callbackCalls, [
 		"application.cycle.b",
 		"module.d",
-		"module.e"
+		"module.e",
 	], "Traversed graph in correct order");
 });
 
@@ -132,7 +132,6 @@ test("Application A: Traverse project graph depth first", async (t) => {
 
 	], "Traversed graph in correct order");
 });
-
 
 test("Application Cycle A: Traverse project graph depth first with cycles", async (t) => {
 	const {graphFromObject, sinon} = t.context;
@@ -161,7 +160,6 @@ test("Application Cycle B: Traverse project graph depth first with cycles", asyn
 		"-> module.e -> *module.d*",
 		"Threw with expected error message");
 });
-
 
 /* ================================================================================================= */
 /* ======= The following tests have been derived from the existing projectPreprocessor tests ======= */
@@ -205,16 +203,15 @@ test("Project with inline configuration", async (t) => {
 			specVersion: "2.3",
 			type: "application",
 			metadata: {
-				name: "xy"
-			}
-		}
+				name: "xy",
+			},
+		},
 	};
 
 	await testBasicGraphCreationDfs(t, tree, [
-		"xy"
+		"xy",
 	]);
 });
-
 
 test("Project with inline configuration as array", async (t) => {
 	const tree = {
@@ -226,13 +223,13 @@ test("Project with inline configuration as array", async (t) => {
 			specVersion: "2.3",
 			type: "application",
 			metadata: {
-				name: "xy"
-			}
-		}]
+				name: "xy",
+			},
+		}],
 	};
 
 	await testBasicGraphCreationDfs(t, tree, [
-		"xy"
+		"xy",
 	]);
 });
 
@@ -247,22 +244,22 @@ test("Project with inline configuration for two projects", async (t) => {
 			specVersion: "2.3",
 			type: "application",
 			metadata: {
-				name: "xy"
-			}
+				name: "xy",
+			},
 		}, {
 			specVersion: "2.3",
 			type: "application",
 			metadata: {
-				name: "yz"
-			}
-		}]
+				name: "yz",
+			},
+		}],
 	};
 
 	await t.throwsAsync(graphFromObject({dependencyTree: tree}),
 		{
 			message:
 				`Found 2 configurations of kind 'project' for module application.a.id. ` +
-				`There must be only one project per module.`
+				`There must be only one project per module.`,
 		},
 		"Rejected with error");
 });
@@ -273,11 +270,11 @@ test("Project with configPath", async (t) => {
 		path: applicationAPath,
 		configPath: path.join(applicationBPath, "ui5.yaml"), // B, not A - just to have something different
 		dependencies: [],
-		version: "1.0.0"
+		version: "1.0.0",
 	};
 
 	await testBasicGraphCreationDfs(t, tree, [
-		"application.b"
+		"application.b",
 	]);
 });
 
@@ -286,11 +283,11 @@ test("Project with ui5.yaml at default location", async (t) => {
 		id: "application.a.id",
 		version: "1.0.0",
 		path: applicationAPath,
-		dependencies: []
+		dependencies: [],
 	};
 
 	await testBasicGraphCreationDfs(t, tree, [
-		"application.a"
+		"application.a",
 	]);
 });
 
@@ -299,11 +296,11 @@ test("Project with ui5.yaml at default location and some configuration", async (
 		id: "application.c",
 		version: "1.0.0",
 		path: applicationCPath,
-		dependencies: []
+		dependencies: [],
 	};
 
 	await testBasicGraphCreationDfs(t, tree, [
-		"application.c"
+		"application.c",
 	]);
 });
 
@@ -313,13 +310,13 @@ test("Missing configuration file for root project", async (t) => {
 		id: "application.a.id",
 		version: "1.0.0",
 		path: "/non-existent",
-		dependencies: []
+		dependencies: [],
 	};
 	await t.throwsAsync(graphFromObject({dependencyTree: tree}),
 		{
 			message:
 				"Failed to create a UI5 project from module application.a.id at /non-existent. " +
-				"Make sure the path is correct and a project configuration is present or supplied."
+				"Make sure the path is correct and a project configuration is present or supplied.",
 		},
 		"Rejected with error");
 });
@@ -328,7 +325,7 @@ test("Missing id for root project", async (t) => {
 	const {graphFromObject} = t.context;
 	const tree = {
 		path: path.join(__dirname, "fixtures/application.a"),
-		dependencies: []
+		dependencies: [],
 	};
 	await t.throwsAsync(graphFromObject({dependencyTree: tree}),
 		{message: "Could not create Module: Missing or empty parameter 'id'"}, "Rejected with error");
@@ -345,9 +342,9 @@ test("No type configured for root project", async (t) => {
 			specVersion: "2.1",
 			metadata: {
 				name: "application.a",
-				namespace: "id1"
-			}
-		}
+				namespace: "id1",
+			},
+		},
 	};
 	const error = await t.throwsAsync(graphFromObject({dependencyTree: tree}));
 
@@ -359,7 +356,7 @@ test("Missing dependencies", async (t) => {
 	const tree = ({
 		id: "application.a.id",
 		version: "1.0.0",
-		path: applicationAPath
+		path: applicationAPath,
 	});
 	await t.notThrowsAsync(graphFromObject({dependencyTree: tree}),
 		"Gracefully accepted project with no dependencies attribute");
@@ -374,8 +371,8 @@ test("Missing second-level dependencies", async (t) => {
 		dependencies: [{
 			id: "library.d.id",
 			version: "1.0.0",
-			path: path.join(applicationAPath, "node_modules", "library.d")
-		}]
+			path: path.join(applicationAPath, "node_modules", "library.d"),
+		}],
 	});
 	await t.notThrowsAsync(graphFromObject({dependencyTree: tree}),
 		"Gracefully accepted project with no dependencies attribute");
@@ -390,13 +387,13 @@ test("Single non-root application-project", async (t) => {
 			id: "application.a.id",
 			version: "1.0.0",
 			path: applicationAPath,
-			dependencies: []
-		}]
+			dependencies: [],
+		}],
 	});
 
 	await testBasicGraphCreationDfs(t, tree, [
 		"application.a",
-		"library.a"
+		"library.a",
 	]);
 });
 
@@ -410,23 +407,23 @@ test("Multiple non-root application-projects on same level", async (t) => {
 			id: "application.a",
 			version: "1.0.0",
 			path: applicationAPath,
-			dependencies: []
+			dependencies: [],
 		}, {
 			id: "application.b",
 			version: "1.0.0",
 			path: applicationBPath,
-			dependencies: []
-		}]
+			dependencies: [],
+		}],
 	});
 
 	await testBasicGraphCreationDfs(t, tree, [
 		"application.a",
-		"library.a"
+		"library.a",
 	]);
 
 	t.is(log.info.callCount, 1, "log.info should be called once");
 	t.is(log.info.getCall(0).args[0],
-		`Excluding additional application project application.b from graph. `+
+		`Excluding additional application project application.b from graph. ` +
 		`The project graph can only feature a single project of type application. ` +
 		`Project application.a has already qualified for that role.`,
 		"log.info should be called once with the expected argument");
@@ -442,7 +439,7 @@ test("Multiple non-root application-projects on different levels", async (t) => 
 			id: "application.a",
 			version: "1.0.0",
 			path: applicationAPath,
-			dependencies: []
+			dependencies: [],
 		}, {
 			id: "library.b",
 			version: "1.0.0",
@@ -451,20 +448,20 @@ test("Multiple non-root application-projects on different levels", async (t) => 
 				id: "application.b",
 				version: "1.0.0",
 				path: applicationBPath,
-				dependencies: []
-			}]
-		}]
+				dependencies: [],
+			}],
+		}],
 	});
 
 	await testBasicGraphCreationDfs(t, tree, [
 		"application.a",
 		"library.b",
-		"library.a"
+		"library.a",
 	]);
 
 	t.is(log.info.callCount, 1, "log.info should be called once");
 	t.is(log.info.getCall(0).args[0],
-		`Excluding additional application project application.b from graph. `+
+		`Excluding additional application project application.b from graph. ` +
 		`The project graph can only feature a single project of type application. ` +
 		`Project application.a has already qualified for that role.`,
 		"log.info should be called once with the expected argument");
@@ -484,9 +481,9 @@ test("Root- and non-root application-projects", async (t) => {
 				id: "application.b",
 				version: "1.0.0",
 				path: applicationBPath,
-				dependencies: []
-			}]
-		}]
+				dependencies: [],
+			}],
+		}],
 	});
 	await testBasicGraphCreationDfs(t, tree, [
 		"library.a",
@@ -495,7 +492,7 @@ test("Root- and non-root application-projects", async (t) => {
 
 	t.is(log.info.callCount, 1, "log.info should be called once");
 	t.is(log.info.getCall(0).args[0],
-		`Excluding additional application project application.b from graph. `+
+		`Excluding additional application project application.b from graph. ` +
 		`The project graph can only feature a single project of type application. ` +
 		`Project application.a has already qualified for that role.`,
 		"log.info should be called once with the expected argument");
@@ -511,8 +508,8 @@ test("Ignores additional application-projects", async (t) => {
 			id: "application.b",
 			version: "1.0.0",
 			path: applicationBPath,
-			dependencies: []
-		}]
+			dependencies: [],
+		}],
 	});
 	await testBasicGraphCreationDfs(t, tree, [
 		"application.a",
@@ -520,7 +517,7 @@ test("Ignores additional application-projects", async (t) => {
 
 	t.is(log.info.callCount, 1, "log.info should be called once");
 	t.is(log.info.getCall(0).args[0],
-		`Excluding additional application project application.b from graph. `+
+		`Excluding additional application project application.b from graph. ` +
 		`The project graph can only feature a single project of type application. ` +
 		`Project application.a has already qualified for that role.`,
 		"log.info should be called once with the expected argument");
@@ -542,9 +539,9 @@ test("Inconsistent dependencies with same ID", async (t) => {
 						propertiesFileSourceEncoding: "UTF-8",
 						paths: {
 							src: "main/src",
-							test: "main/test"
-						}
-					}
+							test: "main/test",
+						},
+					},
 				},
 				dependencies: [
 					{
@@ -556,25 +553,25 @@ test("Inconsistent dependencies with same ID", async (t) => {
 							type: "library",
 							metadata: {
 								name: "library.XY",
-							}
+							},
 						},
-						dependencies: []
-					}
-				]
+						dependencies: [],
+					},
+				],
 			},
 			{
 				id: "library.a",
 				version: "1.0.0",
 				path: libraryAPath,
-				dependencies: []
-			}
-		]
+				dependencies: [],
+			},
+		],
 	};
 	await testBasicGraphCreationDfs(t, tree, [
 		// "library.XY" is ignored since the ID has already been processed and resolved to library A
 		"library.a",
 		"library.d",
-		"application.a"
+		"application.a",
 	]);
 });
 
@@ -582,7 +579,7 @@ test("Project tree A with inline configs depth first", async (t) => {
 	await testBasicGraphCreationDfs(t, applicationATreeWithInlineConfigs, [
 		"library.a",
 		"library.d",
-		"application.a"
+		"application.a",
 	]);
 });
 
@@ -590,7 +587,7 @@ test("Project tree A with configPaths depth first", async (t) => {
 	await testBasicGraphCreationDfs(t, applicationATreeWithConfigPaths, [
 		"library.a",
 		"library.d",
-		"application.a"
+		"application.a",
 
 	]);
 });
@@ -599,7 +596,7 @@ test("Project tree A with default YAMLs depth first", async (t) => {
 	await testBasicGraphCreationDfs(t, applicationATreeWithDefaultYamls, [
 		"library.a",
 		"library.d",
-		"application.a"
+		"application.a",
 	]);
 });
 
@@ -615,7 +612,7 @@ test("Project tree A with configPaths breadth first", async (t) => {
 	await testBasicGraphCreationBfs(t, applicationATreeWithConfigPaths, [
 		"application.a",
 		"library.d",
-		"library.a"
+		"library.a",
 
 	]);
 });
@@ -624,7 +621,7 @@ test("Project tree A with default YAMLs breadth first", async (t) => {
 	await testBasicGraphCreationBfs(t, applicationATreeWithDefaultYamls, [
 		"application.a",
 		"library.d",
-		"library.a"
+		"library.a",
 	]);
 });
 
@@ -634,7 +631,7 @@ test("Project tree B with inline configs", async (t) => {
 		"library.a",
 		"library.d",
 		"library.b",
-		"application.b"
+		"application.b",
 	]);
 });
 
@@ -642,7 +639,7 @@ test("Project with nested invalid dependencies", async (t) => {
 	await testBasicGraphCreationDfs(t, treeWithInvalidModules, [
 		"library.a",
 		"library.b",
-		"application.a"
+		"application.a",
 	]);
 });
 
@@ -664,26 +661,25 @@ function getApplicationATree() {
 						id: "library.a.id",
 						version: "1.0.0",
 						path: path.join(applicationAPath, "node_modules", "collection", "library.a"),
-						dependencies: []
+						dependencies: [],
 					},
 					{
 						id: "library.b.id",
 						version: "1.0.0",
 						path: path.join(applicationAPath, "node_modules", "collection", "library.b"),
-						dependencies: []
+						dependencies: [],
 					},
 					{
 						id: "library.c.id",
 						version: "1.0.0",
 						path: path.join(applicationAPath, "node_modules", "collection", "library.c"),
-						dependencies: []
-					}
-				]
-			}
-		]
+						dependencies: [],
+					},
+				],
+			},
+		],
 	};
 }
-
 
 const applicationCycleATreeIncDeduped = {
 	id: "application.cycle.a",
@@ -705,9 +701,9 @@ const applicationCycleATreeIncDeduped = {
 							version: "1.0.0",
 							path: path.join(cycleDepsBasePath, "component.cycle.a"),
 							dependencies: [],
-							deduped: true
-						}
-					]
+							deduped: true,
+						},
+					],
 				},
 				{
 					id: "library.cycle.b",
@@ -719,20 +715,20 @@ const applicationCycleATreeIncDeduped = {
 							version: "1.0.0",
 							path: path.join(cycleDepsBasePath, "component.cycle.a"),
 							dependencies: [],
-							deduped: true
-						}
-					]
+							deduped: true,
+						},
+					],
 				},
 				{
 					id: "application.cycle.a",
 					version: "1.0.0",
 					path: path.join(cycleDepsBasePath, "application.cycle.a"),
 					dependencies: [],
-					deduped: true
-				}
-			]
-		}
-	]
+					deduped: true,
+				},
+			],
+		},
+	],
 };
 
 const applicationCycleBTreeIncDeduped = {
@@ -755,11 +751,11 @@ const applicationCycleBTreeIncDeduped = {
 							version: "1.0.0",
 							path: path.join(cycleDepsBasePath, "module.d"),
 							dependencies: [],
-							deduped: true
-						}
-					]
-				}
-			]
+							deduped: true,
+						},
+					],
+				},
+			],
 		},
 		{
 			id: "module.e",
@@ -776,15 +772,14 @@ const applicationCycleBTreeIncDeduped = {
 							version: "1.0.0",
 							path: path.join(cycleDepsBasePath, "module.e"),
 							dependencies: [],
-							deduped: true
-						}
-					]
-				}
-			]
-		}
-	]
+							deduped: true,
+						},
+					],
+				},
+			],
+		},
+	],
 };
-
 
 /* === Tree A === */
 const applicationATreeWithInlineConfigs = {
@@ -814,10 +809,10 @@ const applicationATreeWithInlineConfigs = {
 						propertiesFileSourceEncoding: "UTF-8",
 						paths: {
 							src: "main/src",
-							test: "main/test"
-						}
-					}
-				}
+							test: "main/test",
+						},
+					},
+				},
 			},
 			dependencies: [
 				{
@@ -831,9 +826,9 @@ const applicationATreeWithInlineConfigs = {
 							name: "library.a",
 						},
 					},
-					dependencies: []
-				}
-			]
+					dependencies: [],
+				},
+			],
 		},
 		{
 			id: "library.a",
@@ -843,12 +838,12 @@ const applicationATreeWithInlineConfigs = {
 				specVersion: "2.3",
 				type: "library",
 				metadata: {
-					name: "library.a"
+					name: "library.a",
 				},
 			},
-			dependencies: []
-		}
-	]
+			dependencies: [],
+		},
+	],
 };
 
 const applicationATreeWithConfigPaths = {
@@ -868,18 +863,18 @@ const applicationATreeWithConfigPaths = {
 					version: "1.0.0",
 					path: libraryAPath,
 					configPath: path.join(libraryAPath, "ui5.yaml"),
-					dependencies: []
-				}
-			]
+					dependencies: [],
+				},
+			],
 		},
 		{
 			id: "library.a",
 			version: "1.0.0",
 			path: libraryAPath,
 			configPath: path.join(libraryAPath, "ui5.yaml"),
-			dependencies: []
-		}
-	]
+			dependencies: [],
+		},
+	],
 };
 
 const applicationATreeWithDefaultYamls = {
@@ -896,17 +891,17 @@ const applicationATreeWithDefaultYamls = {
 					id: "library.a",
 					version: "1.0.0",
 					path: libraryAPath,
-					dependencies: []
-				}
-			]
+					dependencies: [],
+				},
+			],
 		},
 		{
 			id: "library.a",
 			version: "1.0.0",
 			path: libraryAPath,
-			dependencies: []
-		}
-	]
+			dependencies: [],
+		},
+	],
 };
 
 /* === Tree B === */
@@ -918,8 +913,8 @@ const applicationBTreeWithInlineConfigs = {
 		specVersion: "2.3",
 		type: "application",
 		metadata: {
-			name: "application.b"
-		}
+			name: "application.b",
+		},
 	},
 	dependencies: [
 		{
@@ -931,7 +926,7 @@ const applicationBTreeWithInlineConfigs = {
 				type: "library",
 				metadata: {
 					name: "library.b",
-				}
+				},
 			},
 			dependencies: [
 				{
@@ -949,10 +944,10 @@ const applicationBTreeWithInlineConfigs = {
 								propertiesFileSourceEncoding: "UTF-8",
 								paths: {
 									src: "main/src",
-									test: "main/test"
-								}
-							}
-						}
+									test: "main/test",
+								},
+							},
+						},
 					},
 					dependencies: [
 						{
@@ -963,14 +958,14 @@ const applicationBTreeWithInlineConfigs = {
 								specVersion: "2.3",
 								type: "library",
 								metadata: {
-									name: "library.a"
-								}
+									name: "library.a",
+								},
 							},
-							dependencies: []
-						}
-					]
-				}
-			]
+							dependencies: [],
+						},
+					],
+				},
+			],
 		},
 		{
 			id: "library.d",
@@ -987,10 +982,10 @@ const applicationBTreeWithInlineConfigs = {
 						propertiesFileSourceEncoding: "UTF-8",
 						paths: {
 							src: "main/src",
-							test: "main/test"
-						}
-					}
-				}
+							test: "main/test",
+						},
+					},
+				},
 			},
 			dependencies: [
 				{
@@ -1001,14 +996,14 @@ const applicationBTreeWithInlineConfigs = {
 						specVersion: "2.3",
 						type: "library",
 						metadata: {
-							name: "library.a"
-						}
+							name: "library.a",
+						},
 					},
-					dependencies: []
-				}
-			]
-		}
-	]
+					dependencies: [],
+				},
+			],
+		},
+	],
 };
 
 /* === Invalid Modules */
@@ -1026,22 +1021,22 @@ const treeWithInvalidModules = {
 					id: "module.c",
 					dependencies: [],
 					path: pathToInvalidModule,
-					version: "1.0.0"
+					version: "1.0.0",
 				},
 				{
 					// D - invalid - should be missing in preprocessed tree
 					id: "module.d",
 					dependencies: [],
 					path: pathToInvalidModule,
-					version: "1.0.0"
-				}
+					version: "1.0.0",
+				},
 			],
 			version: "1.0.0",
 			configuration: {
 				specVersion: "2.3",
 				type: "library",
-				metadata: {name: "library.a"}
-			}
+				metadata: {name: "library.a"},
+			},
 		},
 		// B
 		{
@@ -1053,32 +1048,32 @@ const treeWithInvalidModules = {
 					id: "module.c",
 					dependencies: [],
 					path: pathToInvalidModule,
-					version: "1.0.0"
+					version: "1.0.0",
 				},
 				{
 					// D - invalid - should be missing in preprocessed tree
 					id: "module.d",
 					dependencies: [],
 					path: pathToInvalidModule,
-					version: "1.0.0"
-				}
+					version: "1.0.0",
+				},
 			],
 			version: "1.0.0",
 			configuration: {
 				specVersion: "2.3",
 				type: "library",
-				metadata: {name: "library.b"}
-			}
-		}
+				metadata: {name: "library.b"},
+			},
+		},
 	],
 	version: "1.0.0",
 	configuration: {
 		specVersion: "2.3",
 		type: "application",
 		metadata: {
-			name: "application.a"
-		}
-	}
+			name: "application.a",
+		},
+	},
 };
 
 /* ======================================================================================= */
@@ -1135,7 +1130,7 @@ test("Legacy: Project with project-shim extension with dependency configuration"
 		"legacy.library.a",
 		"application.a",
 	]);
-});*/
+}); */
 
 test("Project with project-shim extension with dependency configuration", async (t) => {
 	const tree = {
@@ -1146,14 +1141,14 @@ test("Project with project-shim extension with dependency configuration", async 
 			specVersion: "2.3",
 			type: "application",
 			metadata: {
-				name: "application.a"
-			}
+				name: "application.a",
+			},
 		}, {
 			specVersion: "2.3",
 			kind: "extension",
 			type: "project-shim",
 			metadata: {
-				name: "shim.a"
+				name: "shim.a",
 			},
 			shims: {
 				configurations: {
@@ -1162,17 +1157,17 @@ test("Project with project-shim extension with dependency configuration", async 
 						type: "library",
 						metadata: {
 							name: "legacy.library.a",
-						}
-					}
-				}
-			}
+						},
+					},
+				},
+			},
 		}],
 		dependencies: [{
 			id: "legacy.library.a.id",
 			version: "1.0.0",
 			path: legacyLibraryAPath,
-			dependencies: []
-		}]
+			dependencies: [],
+		}],
 	};
 	await testBasicGraphCreationDfs(t, tree, [
 		"legacy.library.a",
@@ -1189,8 +1184,8 @@ test("Project with project-shim extension dependency with dependency configurati
 			specVersion: "2.3",
 			type: "application",
 			metadata: {
-				name: "application.a"
-			}
+				name: "application.a",
+			},
 		},
 		dependencies: [{
 			id: "extension.a.id",
@@ -1201,7 +1196,7 @@ test("Project with project-shim extension dependency with dependency configurati
 				kind: "extension",
 				type: "project-shim",
 				metadata: {
-					name: "shim.a"
+					name: "shim.a",
 				},
 				shims: {
 					configurations: {
@@ -1210,18 +1205,18 @@ test("Project with project-shim extension dependency with dependency configurati
 							type: "library",
 							metadata: {
 								name: "legacy.library.a",
-							}
-						}
-					}
-				}
+							},
+						},
+					},
+				},
 			},
 			dependencies: [{
 				id: "legacy.library.a.id",
 				version: "1.0.0",
 				path: legacyLibraryAPath,
-				dependencies: []
+				dependencies: [],
 			}],
-		}]
+		}],
 	};
 	await testBasicGraphCreationDfs(t, tree, [
 		"legacy.library.a",
@@ -1243,33 +1238,33 @@ test("Project with project-shim extension with invalid dependency configuration"
 			specVersion: "2.3",
 			type: "application",
 			metadata: {
-				name: "xy"
-			}
+				name: "xy",
+			},
 		}, {
 			specVersion: "2.3",
 			kind: "extension",
 			type: "project-shim",
 			metadata: {
-				name: "shims.a"
+				name: "shims.a",
 			},
 			shims: {
 				configurations: {
 					"legacy.library.a.id": {
 						specVersion: "2.3",
-						type: "library"
-					}
-				}
-			}
+						type: "library",
+					},
+				},
+			},
 		}],
 		dependencies: [{
 			id: "legacy.library.a.id",
 			version: "1.0.0",
 			path: legacyLibraryAPath,
-			dependencies: []
-		}]
+			dependencies: [],
+		}],
 	};
 	const validationError = await t.throwsAsync(graphFromObject({dependencyTree: tree}), {
-		instanceOf: ValidationError
+		instanceOf: ValidationError,
 	});
 	t.true(validationError.message.includes("Configuration must have required property 'metadata'"),
 		"ValidationError should contain error about missing metadata configuration");
@@ -1284,8 +1279,8 @@ test("Project with project-shim extension with dependency declaration and config
 			specVersion: "2.3",
 			type: "application",
 			metadata: {
-				name: "application.a"
-			}
+				name: "application.a",
+			},
 		},
 		dependencies: [{
 			id: "extension.a.id",
@@ -1296,7 +1291,7 @@ test("Project with project-shim extension with dependency declaration and config
 				kind: "extension",
 				type: "project-shim",
 				metadata: {
-					name: "shims.a"
+					name: "shims.a",
 				},
 				shims: {
 					configurations: {
@@ -1305,35 +1300,35 @@ test("Project with project-shim extension with dependency declaration and config
 							type: "library",
 							metadata: {
 								name: "legacy.library.a",
-							}
+							},
 						},
 						"legacy.library.b.id": {
 							specVersion: "2.3",
 							type: "library",
 							metadata: {
 								name: "legacy.library.b",
-							}
-						}
+							},
+						},
 					},
 					dependencies: {
 						"legacy.library.a.id": [
-							"legacy.library.b.id"
-						]
-					}
-				}
+							"legacy.library.b.id",
+						],
+					},
+				},
 			},
 			dependencies: [{
 				id: "legacy.library.a.id",
 				version: "1.0.0",
 				path: legacyLibraryAPath,
-				dependencies: []
+				dependencies: [],
 			}, {
 				id: "legacy.library.b.id",
 				version: "1.0.0",
 				path: legacyLibraryBPath,
-				dependencies: []
+				dependencies: [],
 			}],
-		}]
+		}],
 	};
 	// application.a and legacy.library.a will both have a dependency to legacy.library.b
 	//	(one because it's the actual dependency and one because it's a shimmed dependency)
@@ -1343,7 +1338,7 @@ test("Project with project-shim extension with dependency declaration and config
 		"application.a",
 	]);
 	t.deepEqual(graph.getDependencies("legacy.library.a"), [
-		"legacy.library.b"
+		"legacy.library.b",
 	], "Shimmed dependencies should be applied");
 
 	const {log} = t.context;
@@ -1360,8 +1355,8 @@ test("Project with project-shim extension with collection", async (t) => {
 			specVersion: "2.3",
 			type: "application",
 			metadata: {
-				name: "application.a"
-			}
+				name: "application.a",
+			},
 		},
 		dependencies: [{
 			id: "extension.a.id",
@@ -1372,7 +1367,7 @@ test("Project with project-shim extension with collection", async (t) => {
 				kind: "extension",
 				type: "project-shim",
 				metadata: {
-					name: "shims.a"
+					name: "shims.a",
 				},
 				shims: {
 					configurations: {
@@ -1381,42 +1376,42 @@ test("Project with project-shim extension with collection", async (t) => {
 							type: "library",
 							metadata: {
 								name: "legacy.library.x",
-							}
+							},
 						},
 						"legacy.library.y.id": {
 							specVersion: "2.3",
 							type: "library",
 							metadata: {
 								name: "legacy.library.y",
-							}
-						}
+							},
+						},
 					},
 					dependencies: {
 						"application.a.id": [
 							"legacy.library.x.id",
-							"legacy.library.y.id"
+							"legacy.library.y.id",
 						],
 						"legacy.library.x.id": [
-							"legacy.library.y.id"
-						]
+							"legacy.library.y.id",
+						],
 					},
 					collections: {
 						"legacy.collection.a": {
 							modules: {
 								"legacy.library.x.id": "src/legacy.library.x",
-								"legacy.library.y.id": "src/legacy.library.y"
-							}
-						}
-					}
-				}
+								"legacy.library.y.id": "src/legacy.library.y",
+							},
+						},
+					},
+				},
 			},
 			dependencies: [{
 				id: "legacy.collection.a",
 				version: "1.0.0",
 				path: legacyCollectionAPath,
-				dependencies: []
-			}]
-		}]
+				dependencies: [],
+			}],
+		}],
 	};
 
 	const graph = await testBasicGraphCreationDfs(t, tree, [
@@ -1426,7 +1421,7 @@ test("Project with project-shim extension with collection", async (t) => {
 	]);
 	t.deepEqual(graph.getDependencies("application.a"), [
 		"legacy.library.x",
-		"legacy.library.y"
+		"legacy.library.y",
 	], "Shimmed dependencies should be applied");
 
 	const {log} = t.context;
@@ -1445,8 +1440,8 @@ test.skip("Project with project-shim extension with self-containing collection s
 			specVersion: "2.3",
 			type: "application",
 			metadata: {
-				name: "application.a"
-			}
+				name: "application.a",
+			},
 		},
 		dependencies: [{
 			id: "legacy.collection.a",
@@ -1456,17 +1451,17 @@ test.skip("Project with project-shim extension with self-containing collection s
 				specVersion: "2.3",
 				type: "library",
 				metadata: {
-					name: "my.fe"
+					name: "my.fe",
 				},
 				framework: {
-					name: "OpenUI5"
-				}
+					name: "OpenUI5",
+				},
 			}, {
 				specVersion: "2.3",
 				kind: "extension",
 				type: "project-shim",
 				metadata: {
-					name: "shims.a"
+					name: "shims.a",
 				},
 				shims: {
 					configurations: {
@@ -1475,33 +1470,33 @@ test.skip("Project with project-shim extension with self-containing collection s
 							type: "library",
 							metadata: {
 								name: "legacy.library.x",
-							}
+							},
 						},
 						"legacy.library.y.id": {
 							specVersion: "2.3",
 							type: "library",
 							metadata: {
 								name: "legacy.library.y",
-							}
-						}
+							},
+						},
 					},
 					dependencies: {
 						"legacy.library.x.id": [
-							"legacy.library.y.id"
-						]
+							"legacy.library.y.id",
+						],
 					},
 					collections: {
 						"legacy.collection.a": {
 							modules: {
 								"legacy.library.x.id": "src/legacy.library.x",
-								"legacy.library.y.id": "src/legacy.library.y"
-							}
-						}
-					}
-				}
+								"legacy.library.y.id": "src/legacy.library.y",
+							},
+						},
+					},
+				},
 			}],
-			dependencies: []
-		}]
+			dependencies: [],
+		}],
 	};
 
 	const graph = await testBasicGraphCreationDfs(t, tree, [
@@ -1511,7 +1506,7 @@ test.skip("Project with project-shim extension with self-containing collection s
 	]);
 	t.deepEqual(graph.getDependencies("application.a"), [
 		"legacy.library.x",
-		"legacy.library.y"
+		"legacy.library.y",
 	], "Shimmed dependencies should be applied");
 
 	const {log} = t.context;
@@ -1520,7 +1515,7 @@ test.skip("Project with project-shim extension with self-containing collection s
 
 	const libraryY = graph.getProject("legacy.library.y");
 	t.deepEqual(libraryY.getFrameworkName(), {
-		name: "OpenUI5"
+		name: "OpenUI5",
 	}, "Configuration from collection project should be taken over into shimmed project");
 });
 
@@ -1534,8 +1529,8 @@ test("Project with unknown extension dependency inline configuration", async (t)
 			specVersion: "2.3",
 			type: "application",
 			metadata: {
-				name: "xy"
-			}
+				name: "xy",
+			},
 		},
 		dependencies: [{
 			id: "extension.a",
@@ -1546,8 +1541,8 @@ test("Project with unknown extension dependency inline configuration", async (t)
 				kind: "extension",
 				type: "phony-pony",
 				metadata: {
-					name: "pinky.pie"
-				}
+					name: "pinky.pie",
+				},
 			},
 			dependencies: [],
 		}],
@@ -1567,8 +1562,8 @@ test("Project with task extension dependency", async (t) => {
 			specVersion: "2.3",
 			type: "application",
 			metadata: {
-				name: "application.a"
-			}
+				name: "application.a",
+			},
 		},
 		dependencies: [{
 			id: "ext.task.a",
@@ -1579,17 +1574,17 @@ test("Project with task extension dependency", async (t) => {
 				kind: "extension",
 				type: "task",
 				metadata: {
-					name: "task.a"
+					name: "task.a",
 				},
 				task: {
-					path: "task.a.js"
-				}
+					path: "task.a.js",
+				},
 			},
 			dependencies: [],
-		}]
+		}],
 	};
 	const graph = await testBasicGraphCreationDfs(t, tree, [
-		"application.a"
+		"application.a",
 	]);
 	t.truthy(graph.getExtension("task.a"), "Extension should be added to the graph");
 });
@@ -1603,8 +1598,8 @@ test("Project with middleware extension dependency", async (t) => {
 			specVersion: "2.3",
 			type: "application",
 			metadata: {
-				name: "application.a"
-			}
+				name: "application.a",
+			},
 		},
 		dependencies: [{
 			id: "ext.middleware.a",
@@ -1615,17 +1610,17 @@ test("Project with middleware extension dependency", async (t) => {
 				kind: "extension",
 				type: "server-middleware",
 				metadata: {
-					name: "middleware.a"
+					name: "middleware.a",
 				},
 				middleware: {
-					path: "middleware.a.js"
-				}
+					path: "middleware.a.js",
+				},
 			},
 			dependencies: [],
 		}],
 	};
 	const graph = await testBasicGraphCreationDfs(t, tree, [
-		"application.a"
+		"application.a",
 	]);
 	t.truthy(graph.getExtension("middleware.a"), "Extension should be added to the graph");
 });
@@ -1638,16 +1633,16 @@ test("rootConfiguration", async (t) => {
 			specVersion: "2.6",
 			type: "application",
 			metadata: {
-				name: "application.a"
+				name: "application.a",
 			},
 			customConfiguration: {
-				rootConfigurationTest: true
-			}
-		}
+				rootConfigurationTest: true,
+			},
+		},
 	});
 
 	t.deepEqual(projectGraph.getRoot().getCustomConfiguration(), {
-		rootConfigurationTest: true
+		rootConfigurationTest: true,
 	});
 });
 
@@ -1659,6 +1654,6 @@ test("rootConfig", async (t) => {
 		rootConfigPath: "ui5-test-configPath.yaml",
 	});
 	t.deepEqual(projectGraph.getRoot().getCustomConfiguration(), {
-		configPathTest: true
+		configPathTest: true,
 	});
 });

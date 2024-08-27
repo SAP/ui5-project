@@ -14,6 +14,10 @@ const log = getLogger("graph:Module");
 const DEFAULT_CONFIG_PATH = "ui5.yaml";
 const SAP_THEMES_NS_EXEMPTIONS = ["themelib_sap_fiori_3", "themelib_sap_bluecrystal", "themelib_sap_belize"];
 
+/**
+ *
+ * @param obj
+ */
 function clone(obj) {
 	return JSON.parse(JSON.stringify(obj));
 }
@@ -22,31 +26,29 @@ function clone(obj) {
  * This class is intended for private use by the
  * [@ui5/project/graph/ProjectGraphBuilder]{@link @ui5/project/graph/ProjectGraphBuilder} module
  *
- * @private
- * @class
  * @alias @ui5/project/graph/Module
  */
 class Module {
 	/**
-	 * @param {object} parameters Module parameters
-	 * @param {string} parameters.id Unique ID for the module
-	 * @param {string} parameters.version Version of the module
-	 * @param {string} parameters.modulePath Absolute File System path of the module
-	 * @param {string} [parameters.configPath=ui5.yaml]
+	 * @param parameters Module parameters
+	 * @param parameters.id Unique ID for the module
+	 * @param parameters.version Version of the module
+	 * @param parameters.modulePath Absolute File System path of the module
+	 * @param [parameters.configPath]
 	 *						Either a path relative to `modulePath` which will be resolved by @ui5/fs (default),
 	 *						or an absolute File System path to the configuration file.
-	 * @param {object|object[]} [parameters.configuration]
+	 * @param [parameters.configuration]
 	 * 						Configuration object or array of objects to use. If supplied, no configuration files
 	 * 						will be read and the `configPath` option must not be provided.
-	 * @param {@ui5/project/graph.ShimCollection} [parameters.shimCollection]
+	 * @param [parameters.shimCollection]
 	 *						Collection of shims that might be relevant for this module
 	 */
-	constructor({ id, version, modulePath, configPath, configuration = [], shimCollection }: {
-    id: string;
-    version: string;
-    modulePath: string;
-    configPath?: string;
-}) {
+	constructor({id, version, modulePath, configPath, configuration = [], shimCollection}: {
+		id: string;
+		version: string;
+		modulePath: string;
+		configPath?: string;
+	}) {
 		if (!id) {
 			throw new Error(`Could not create Module: Missing or empty parameter 'id'`);
 		}
@@ -85,7 +87,7 @@ class Module {
 			// Retrieve and clone shims in constructor
 			// Shims added to the collection at a later point in time should not be applied in this module
 			const shims = shimCollection.getProjectConfigurationShims(this.getId());
-			if (shims && shims.length) {
+			if (shims?.length) {
 				this._projectConfigShims = clone(shims);
 			}
 		}
@@ -106,16 +108,15 @@ class Module {
 	/**
 	 * Specifications found in the module
 	 *
-	 * @private
-	 * @typedef {object} @ui5/project/graph/Module~SpecificationsResult
-	 * @property {@ui5/project/specifications/Project|null} Project found in the module (if one is found)
-	 * @property {@ui5/project/specifications/Extension[]} Array of extensions found in the module
+	 * Project found in the module (if one is found)
+	 *
+	 * Array of extensions found in the module
 	 */
 
 	/**
 	 * Get any available project and extensions of the module
 	 *
-	 * @returns {@ui5/project/graph/Module~SpecificationsResult} Project and extensions found in the module
+	 * @returns Project and extensions found in the module
 	 */
 	async getSpecifications() {
 		if (this._pGetSpecifications) {
@@ -134,8 +135,7 @@ class Module {
 		const isCollection = configs.find((configuration) => {
 			if (configuration.kind === "extension" && configuration.type === "project-shim") {
 				// TODO create Specification instance and ask it for the configuration
-				if (configuration.shims && configuration.shims.collections &&
-						configuration.shims.collections[this.getId()]) {
+				if (configuration.shims?.collections?.[this.getId()]) {
 					return true;
 				}
 			}
@@ -152,7 +152,7 @@ class Module {
 			// Patch configs
 			configs.forEach((configuration) => {
 				if (configuration.kind === "project" && configuration.type === "library" &&
-					configuration.metadata && configuration.metadata.name) {
+					configuration.metadata?.name) {
 					const libraryName = configuration.metadata.name;
 					// Old theme-libraries where configured as type "library"
 					if (SAP_THEMES_NS_EXEMPTIONS.includes(libraryName)) {
@@ -172,7 +172,7 @@ class Module {
 				version: this.getVersion(),
 				modulePath: this.getPath(),
 				configuration,
-				buildManifest
+				buildManifest,
 			});
 
 			log.verbose(`Module ${this.getId()} contains ${spec.getKind()} ${spec.getName()}`);
@@ -195,25 +195,25 @@ class Module {
 
 		return {
 			project: projects[0] || null,
-			extensions
+			extensions,
 		};
 	}
 
 	/**
-	* Configuration
-	*/
+	 * Configuration
+	 */
 	async _getConfigurations() {
 		let configurations;
 
 		configurations = await this._getSuppliedConfigurations();
 
-		if (!configurations || !configurations.length) {
+		if (!configurations?.length) {
 			configurations = await this._getBuildManifestConfigurations();
 		}
-		if (!configurations || !configurations.length) {
+		if (!configurations?.length) {
 			configurations = await this._getYamlConfigurations();
 		}
-		if (!configurations || !configurations.length) {
+		if (!configurations?.length) {
 			configurations = await this._getShimConfigurations();
 		}
 		return configurations || [];
@@ -277,7 +277,7 @@ class Module {
 	async _getYamlConfigurations() {
 		const configs = await this._readConfigFile();
 
-		if (!configs || !configs.length) {
+		if (!configs?.length) {
 			log.verbose(`Could not find a configuration file for module ${this.getId()}`);
 			return [];
 		}
@@ -298,7 +298,7 @@ class Module {
 				// TODO: Caller might wants to ignore exceptions for ENOENT errors for non-root projects
 				// However, this decision should not be made here
 				throw new Error("Failed to read configuration for module " +
-						`${this.getId()} at '${configPath}'. Error: ${err.message}`);
+					`${this.getId()} at '${configPath}'. Error: ${err.message}`);
 			}
 		} else {
 			// Handle relative file paths with the @ui5/fs (virtual) file system
@@ -308,12 +308,12 @@ class Module {
 				configResource = await reader.byPath(path.posix.join("/", configPath));
 			} catch (err) {
 				throw new Error("Failed to read configuration for module " +
-						`${this.getId()} at "${configPath}". Error: ${err.message}`);
+					`${this.getId()} at "${configPath}". Error: ${err.message}`);
 			}
 			if (!configResource) {
 				if (configPath !== DEFAULT_CONFIG_PATH) {
 					throw new Error("Failed to read configuration for module " +
-							`${this.getId()}: Could not find configuration file in module at path '${configPath}'`);
+						`${this.getId()}: Could not find configuration file in module at path '${configPath}'`);
 				}
 				return null;
 			}
@@ -328,18 +328,18 @@ class Module {
 			// See https://github.com/nodeca/js-yaml/issues/456 and https://github.com/nodeca/js-yaml/pull/381
 			configs = jsyaml.loadAll(configFile, undefined, {
 				filename: configPath,
-				schema: jsyaml.DEFAULT_SAFE_SCHEMA
+				schema: jsyaml.DEFAULT_SAFE_SCHEMA,
 			});
 		} catch (err) {
 			if (err.name === "YAMLException") {
 				throw new Error("Failed to parse configuration for project " +
-				`${this.getId()} at '${configPath}'\nError: ${err.message}`);
+					`${this.getId()} at '${configPath}'\nError: ${err.message}`);
 			} else {
 				throw err;
 			}
 		}
 
-		if (!configs || !configs.length) {
+		if (!configs?.length) {
 			// No configs found => exit here
 			return configs;
 		}
@@ -354,13 +354,13 @@ class Module {
 					await validate({
 						config,
 						project: {
-							id: this.getId()
+							id: this.getId(),
 						},
 						yaml: {
 							path: configPath,
 							source: configFile,
-							documentIndex
-						}
+							documentIndex,
+						},
 					});
 				} catch (error) {
 					return error;
@@ -412,13 +412,13 @@ class Module {
 	}
 
 	/**
-	* Resource Access
-	*/
+	 * Resource Access
+	 */
 	getReader() {
 		return createReader({
 			fsBasePath: this.getPath(),
 			virBasePath: "/",
-			name: `Reader for module ${this.getId()}`
+			name: `Reader for module ${this.getId()}`,
 		});
 	}
 }

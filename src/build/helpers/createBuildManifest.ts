@@ -3,10 +3,18 @@ import {createRequire} from "node:module";
 // Using CommonsJS require since JSON module imports are still experimental
 const require = createRequire(import.meta.url);
 
+/**
+ *
+ * @param pkg
+ */
 async function getVersion(pkg) {
 	return require(`${pkg}/package.json`).version;
 }
 
+/**
+ *
+ * @param project
+ */
 function getSortedTags(project) {
 	const tags = project.getResourceTagCollection().getAllTags();
 	const entities = Object.entries(tags);
@@ -16,7 +24,13 @@ function getSortedTags(project) {
 	return Object.fromEntries(entities);
 }
 
-export default async function(project, buildConfig, taskRepository) {
+/**
+ *
+ * @param project
+ * @param buildConfig
+ * @param taskRepository
+ */
+export default async function (project, buildConfig, taskRepository) {
 	if (!project) {
 		throw new Error(`Missing parameter 'project'`);
 	}
@@ -31,18 +45,18 @@ export default async function(project, buildConfig, taskRepository) {
 
 	const pathMapping = Object.create(null);
 	switch (type) {
-	case "application":
-		pathMapping.webapp = `resources/${project.getNamespace()}`;
-		break;
-	case "library":
-	case "theme-library":
-		pathMapping.src = `resources`;
-		pathMapping.test = `test-resources`;
-		break;
-	default:
-		throw new Error(
-			`Unable to create archive metadata for project ${project.getName()}: ` +
-			`Project type ${type} is currently not supported`);
+		case "application":
+			pathMapping.webapp = `resources/${project.getNamespace()}`;
+			break;
+		case "library":
+		case "theme-library":
+			pathMapping.src = `resources`;
+			pathMapping.test = `test-resources`;
+			break;
+		default:
+			throw new Error(
+				`Unable to create archive metadata for project ${project.getName()}: ` +
+				`Project type ${type} is currently not supported`);
 	}
 
 	const {builderVersion, fsVersion: builderFsVersion} = await taskRepository.getVersions();
@@ -55,9 +69,9 @@ export default async function(project, buildConfig, taskRepository) {
 			},
 			resources: {
 				configuration: {
-					paths: pathMapping
-				}
-			}
+					paths: pathMapping,
+				},
+			},
 		},
 		buildManifest: {
 			manifestVersion: "0.2",
@@ -70,8 +84,8 @@ export default async function(project, buildConfig, taskRepository) {
 			buildConfig,
 			version: project.getVersion(),
 			namespace: project.getNamespace(),
-			tags: getSortedTags(project)
-		}
+			tags: getSortedTags(project),
+		},
 	};
 
 	if (metadata.buildManifest.versions.fsVersion !== builderFsVersion) {

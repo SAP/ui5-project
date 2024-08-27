@@ -36,8 +36,8 @@ test.beforeEach(async (t) => {
 		"../../../lib/graph/helpers/createWorkspace.js": t.context.createWorkspaceStub,
 		"../../../lib/graph/projectGraphBuilder.js": t.context.projectGraphBuilderStub,
 		"../../../lib/graph/helpers/ui5Framework.js": {
-			"enrichProjectGraph": t.context.enrichProjectGraphStub
-		}
+			enrichProjectGraph: t.context.enrichProjectGraphStub,
+		},
 	});
 });
 
@@ -49,7 +49,7 @@ test.afterEach.always((t) => {
 test.serial("graphFromPackageDependencies", async (t) => {
 	const {
 		createWorkspaceStub, npmProviderConstructorStub,
-		projectGraphBuilderStub, enrichProjectGraphStub, MockNpmProvider
+		projectGraphBuilderStub, enrichProjectGraphStub, MockNpmProvider,
 	} = t.context;
 	const {graphFromPackageDependencies} = t.context.graph;
 
@@ -59,7 +59,7 @@ test.serial("graphFromPackageDependencies", async (t) => {
 		rootConfigPath: "/rootConfigPath",
 		versionOverride: "versionOverride",
 		cacheMode: CacheMode.Off,
-		workspaceName: null
+		workspaceName: null,
 	});
 
 	t.is(res, "graph");
@@ -69,7 +69,7 @@ test.serial("graphFromPackageDependencies", async (t) => {
 	t.deepEqual(npmProviderConstructorStub.getCall(0).args[0], {
 		cwd: path.join(__dirname, "..", "..", "..", "cwd"),
 		rootConfiguration: "rootConfiguration",
-		rootConfigPath: "/rootConfigPath"
+		rootConfigPath: "/rootConfigPath",
 	}, "Created NodePackageDependencies provider instance with correct parameters");
 
 	t.is(projectGraphBuilderStub.callCount, 1, "projectGraphBuilder got called once");
@@ -84,14 +84,14 @@ test.serial("graphFromPackageDependencies", async (t) => {
 	t.deepEqual(enrichProjectGraphStub.getCall(0).args[1], {
 		versionOverride: "versionOverride",
 		workspace: undefined,
-		cacheMode: "Off"
+		cacheMode: "Off",
 	}, "enrichProjectGraph got called with correct options");
 });
 
 test.serial("graphFromPackageDependencies with workspace name", async (t) => {
 	const {
 		createWorkspaceStub, npmProviderConstructorStub,
-		projectGraphBuilderStub, enrichProjectGraphStub, MockNpmProvider
+		projectGraphBuilderStub, enrichProjectGraphStub, MockNpmProvider,
 	} = t.context;
 	const {graphFromPackageDependencies} = t.context.graph;
 
@@ -101,7 +101,7 @@ test.serial("graphFromPackageDependencies with workspace name", async (t) => {
 		rootConfigPath: "/rootConfigPath",
 		versionOverride: "versionOverride",
 		workspaceName: "dolphin",
-		cacheMode: CacheMode.Off
+		cacheMode: CacheMode.Off,
 	});
 
 	t.is(res, "graph");
@@ -133,13 +133,13 @@ test.serial("graphFromPackageDependencies with workspace name", async (t) => {
 	t.deepEqual(enrichProjectGraphStub.getCall(0).args[1], {
 		versionOverride: "versionOverride",
 		workspace: "workspace",
-		cacheMode: "Off"
+		cacheMode: "Off",
 	}, "enrichProjectGraph got called with correct options");
 });
 
 test.serial("graphFromPackageDependencies with workspace object", async (t) => {
 	const {
-		createWorkspaceStub
+		createWorkspaceStub,
 	} = t.context;
 	const {graphFromPackageDependencies} = t.context.graph;
 
@@ -149,7 +149,7 @@ test.serial("graphFromPackageDependencies with workspace object", async (t) => {
 		rootConfigPath: "/rootConfigPath",
 		versionOverride: "versionOverride",
 		workspaceConfiguration: "workspaceConfiguration",
-		workspaceName: null
+		workspaceName: null,
 	});
 
 	t.is(res, "graph");
@@ -159,13 +159,13 @@ test.serial("graphFromPackageDependencies with workspace object", async (t) => {
 		cwd: path.join(__dirname, "..", "..", "..", "cwd"),
 		configPath: "ui5-workspace.yaml",
 		name: null,
-		configObject: "workspaceConfiguration"
+		configObject: "workspaceConfiguration",
 	}, "createWorkspace called with correct parameters");
 });
 
 test.serial("graphFromPackageDependencies with workspace object and workspace name", async (t) => {
 	const {
-		createWorkspaceStub
+		createWorkspaceStub,
 	} = t.context;
 	const {graphFromPackageDependencies} = t.context.graph;
 
@@ -175,7 +175,7 @@ test.serial("graphFromPackageDependencies with workspace object and workspace na
 		rootConfigPath: "/rootConfigPath",
 		versionOverride: "versionOverride",
 		workspaceName: "dolphin",
-		workspaceConfiguration: "workspaceConfiguration"
+		workspaceConfiguration: "workspaceConfiguration",
 	});
 
 	t.is(res, "graph");
@@ -185,13 +185,13 @@ test.serial("graphFromPackageDependencies with workspace object and workspace na
 		cwd: path.join(__dirname, "..", "..", "..", "cwd"),
 		name: "dolphin",
 		configPath: "ui5-workspace.yaml",
-		configObject: "workspaceConfiguration"
+		configObject: "workspaceConfiguration",
 	}, "createWorkspace called with correct parameters");
 });
 
 test.serial("graphFromPackageDependencies with workspace path and workspace name", async (t) => {
 	const {
-		createWorkspaceStub
+		createWorkspaceStub,
 	} = t.context;
 	const {graphFromPackageDependencies} = t.context.graph;
 
@@ -201,7 +201,7 @@ test.serial("graphFromPackageDependencies with workspace path and workspace name
 		rootConfigPath: "/rootConfigPath",
 		versionOverride: "versionOverride",
 		workspaceName: "dolphin",
-		workspaceConfigPath: "workspaceConfigurationPath"
+		workspaceConfigPath: "workspaceConfigurationPath",
 	});
 
 	t.is(res, "graph");
@@ -211,14 +211,14 @@ test.serial("graphFromPackageDependencies with workspace path and workspace name
 		cwd: path.join(__dirname, "..", "..", "..", "cwd"),
 		name: "dolphin",
 		configPath: "workspaceConfigurationPath",
-		configObject: undefined
+		configObject: undefined,
 	}, "createWorkspace called with correct parameters");
 });
 
 test.serial("graphFromPackageDependencies with empty workspace", async (t) => {
 	const {
 		createWorkspaceStub, npmProviderConstructorStub,
-		projectGraphBuilderStub, enrichProjectGraphStub, MockNpmProvider
+		projectGraphBuilderStub, enrichProjectGraphStub, MockNpmProvider,
 	} = t.context;
 	const {graphFromPackageDependencies} = t.context.graph;
 
@@ -231,7 +231,7 @@ test.serial("graphFromPackageDependencies with empty workspace", async (t) => {
 		rootConfigPath: "/rootConfigPath",
 		versionOverride: "versionOverride",
 		workspaceName: "dolphin",
-		cacheMode: CacheMode.Off
+		cacheMode: CacheMode.Off,
 	});
 
 	t.is(res, "graph");
@@ -263,7 +263,7 @@ test.serial("graphFromPackageDependencies with empty workspace", async (t) => {
 	t.deepEqual(enrichProjectGraphStub.getCall(0).args[1], {
 		versionOverride: "versionOverride",
 		workspace: null,
-		cacheMode: "Off"
+		cacheMode: "Off",
 	}, "enrichProjectGraph got called with correct options");
 });
 
@@ -276,7 +276,7 @@ test.serial("graphFromPackageDependencies: Do not resolve framework dependencies
 		rootConfiguration: "rootConfiguration",
 		rootConfigPath: "/rootConfigPath",
 		versionOverride: "versionOverride",
-		resolveFrameworkDependencies: false
+		resolveFrameworkDependencies: false,
 	});
 
 	t.is(res, "graph");
@@ -292,7 +292,7 @@ test.serial("graphFromPackageDependencies: Default workspace name", async (t) =>
 		rootConfiguration: "rootConfiguration",
 		rootConfigPath: "/rootConfigPath",
 		versionOverride: "versionOverride",
-		resolveFrameworkDependencies: false
+		resolveFrameworkDependencies: false,
 	});
 
 	t.is(res, "graph");
@@ -304,7 +304,7 @@ test.serial("graphFromPackageDependencies: Default workspace name", async (t) =>
 test.serial("graphFromStaticFile", async (t) => {
 	const {
 		dependencyTreeProviderStub,
-		projectGraphBuilderStub, enrichProjectGraphStub, DummyDependencyTreeProvider
+		projectGraphBuilderStub, enrichProjectGraphStub, DummyDependencyTreeProvider,
 	} = t.context;
 	const {graphFromStaticFile} = t.context.graph;
 
@@ -317,7 +317,7 @@ test.serial("graphFromStaticFile", async (t) => {
 		rootConfiguration: "rootConfiguration",
 		rootConfigPath: "/rootConfigPath",
 		versionOverride: "versionOverride",
-		cacheMode: CacheMode.Off
+		cacheMode: CacheMode.Off,
 	});
 
 	t.is(res, "graph");
@@ -344,7 +344,7 @@ test.serial("graphFromStaticFile", async (t) => {
 		"enrichProjectGraph got called with graph");
 	t.deepEqual(enrichProjectGraphStub.getCall(0).args[1], {
 		versionOverride: "versionOverride",
-		cacheMode: "Off"
+		cacheMode: "Off",
 	}, "enrichProjectGraph got called with correct options");
 });
 
@@ -361,7 +361,7 @@ test.serial("graphFromStaticFile: Do not resolve framework dependencies", async 
 		rootConfiguration: "rootConfiguration",
 		rootConfigPath: "/rootConfigPath",
 		versionOverride: "versionOverride",
-		resolveFrameworkDependencies: false
+		resolveFrameworkDependencies: false,
 	});
 
 	t.is(res, "graph");
@@ -371,7 +371,7 @@ test.serial("graphFromStaticFile: Do not resolve framework dependencies", async 
 test.serial("usingObject", async (t) => {
 	const {
 		dependencyTreeProviderStub,
-		projectGraphBuilderStub, enrichProjectGraphStub, DummyDependencyTreeProvider
+		projectGraphBuilderStub, enrichProjectGraphStub, DummyDependencyTreeProvider,
 	} = t.context;
 	const {graphFromObject} = t.context.graph;
 
@@ -380,7 +380,7 @@ test.serial("usingObject", async (t) => {
 		rootConfiguration: "rootConfiguration",
 		rootConfigPath: "/rootConfigPath",
 		versionOverride: "versionOverride",
-		cacheMode: "Off"
+		cacheMode: "Off",
 	});
 
 	t.is(res, "graph");
@@ -401,7 +401,7 @@ test.serial("usingObject", async (t) => {
 		"enrichProjectGraph got called with graph");
 	t.deepEqual(enrichProjectGraphStub.getCall(0).args[1], {
 		versionOverride: "versionOverride",
-		cacheMode: "Off"
+		cacheMode: "Off",
 	}, "enrichProjectGraph got called with correct options");
 });
 
@@ -414,7 +414,7 @@ test.serial("usingObject: Do not resolve framework dependencies", async (t) => {
 		rootConfiguration: "rootConfiguration",
 		rootConfigPath: "/rootConfigPath",
 		versionOverride: "versionOverride",
-		resolveFrameworkDependencies: false
+		resolveFrameworkDependencies: false,
 	});
 
 	t.is(res, "graph");
@@ -437,4 +437,3 @@ test.serial("utils: readDependencyConfigFile", async (t) => {
 		}],
 	}, "Returned correct file content");
 });
-

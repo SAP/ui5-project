@@ -1,14 +1,12 @@
-
 /**
  * Appends the list of 'excludes' to the list of 'patterns'. To harmonize both lists, the 'excludes'
  * are negated and the 'patternPrefix' is added to make them absolute.
  *
- * @private
- * @param {string[]} patterns
+ * @param patterns
  *   List of absolute default patterns.
- * @param {string[]} excludes
+ * @param excludes
  *   List of relative patterns to be excluded. Excludes with a leading "!" are meant to be re-included.
- * @param {string} patternPrefix
+ * @param patternPrefix
  *   Prefix to be added to the excludes to make them absolute. The prefix must have a leading and a
  *   trailing "/".
  */

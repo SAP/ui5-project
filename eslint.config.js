@@ -5,5 +5,5 @@ export default [
 	{
 		// Add project-specific ESLint config rules here
 		// in order to override common config
-	}
+	},
 ];

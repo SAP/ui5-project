@@ -17,24 +17,21 @@ const DIST_ARTIFACT_ID = "sapui5-sdk-dist";
  * a Maven repository. It's meant for internal usage only as no use cases
  * outside of SAP are known.
  *
- * @public
- * @class
  * @alias @ui5/project/ui5Framework/Sapui5MavenSnapshotResolver
- * @extends @ui5/project/ui5Framework/AbstractResolver
  */
 class Sapui5MavenSnapshotResolver extends AbstractResolver {
 	/**
-	 * @param {*} options options
-	 * @param {string} [options.snapshotEndpointUrl] Maven Repository Snapshot URL. Can by overruled
+	 * @param options options
+	 * @param [options.snapshotEndpointUrl] Maven Repository Snapshot URL. Can by overruled
 	 *	by setting the <code>UI5_MAVEN_SNAPSHOT_ENDPOINT_URL</code> environment variable. If neither is provided,
 	 *	falling back to the standard Maven settings.xml file (if existing).
-	 * @param {string} options.version SAPUI5 version to use
-	 * @param {boolean} [options.sources=false] Whether to install framework libraries as sources or
+	 * @param options.version SAPUI5 version to use
+	 * @param [options.sources] Whether to install framework libraries as sources or
 	 * pre-built (with build manifest)
-	 * @param {string} [options.cwd=process.cwd()] Current working directory
-	 * @param {string} [options.ui5DataDir="~/.ui5"] UI5 home directory location. This will be used to store packages,
+	 * @param [options.cwd] Current working directory
+	 * @param [options.ui5DataDir] UI5 home directory location. This will be used to store packages,
 	 * metadata and configuration used by the resolvers. Relative to `process.cwd()`
-	 * @param {module:@ui5/project/ui5Framework/maven/CacheMode} [options.cacheMode=Default]
+	 * @param [options.cacheMode]
 	 * Cache mode to use
 	 */
 	constructor(options: any) {
@@ -54,9 +51,10 @@ class Sapui5MavenSnapshotResolver extends AbstractResolver {
 
 		// TODO 5.0: Remove support for legacy snapshot versions
 		this._isLegacySnapshotVersion = semver.lt(this._version, "1.116.0-SNAPSHOT", {
-			includePrerelease: true
+			includePrerelease: true,
 		});
 	}
+
 	loadDistMetadata() {
 		if (!this._loadDistMetadata) {
 			this._loadDistMetadata = Promise.resolve().then(async () => {
@@ -81,6 +79,7 @@ class Sapui5MavenSnapshotResolver extends AbstractResolver {
 		}
 		return this._loadDistMetadata;
 	}
+
 	async getLibraryMetadata(libraryName) {
 		const distMetadata = await this.loadDistMetadata();
 		const metadata = distMetadata.libraries[libraryName];
@@ -91,12 +90,13 @@ class Sapui5MavenSnapshotResolver extends AbstractResolver {
 
 		return metadata;
 	}
+
 	async handleLibrary(libraryName) {
 		const metadata = await this.getLibraryMetadata(libraryName);
 		if (!metadata.gav) {
 			throw new Error(
 				"Metadata is missing GAV (group, artifact and version) " +
-					"information. This might indicate an unsupported SNAPSHOT version."
+				"information. This might indicate an unsupported SNAPSHOT version."
 			);
 		}
 		const gav = metadata.gav.split(":");
@@ -176,7 +176,7 @@ class Sapui5MavenSnapshotResolver extends AbstractResolver {
 	 * Read the Maven repository snapshot endpoint URL from the central
 	 * UI5 Tooling configuration, with a fallback to central Maven configuration (is existing)
 	 *
-	 * @returns {Promise<string>} The resolved snapshotEndpointUrl
+	 * @returns The resolved snapshotEndpointUrl
 	 */
 	static async _resolveSnapshotEndpointUrl() {
 		const {default: Configuration} = await import("../config/Configuration.js");
@@ -201,9 +201,9 @@ class Sapui5MavenSnapshotResolver extends AbstractResolver {
 	 * Tries to detect whether ~/.m2/settings.xml exist, and if so, whether
 	 * the snapshot.build URL is extracted from there
 	 *
-	 * @param {string} [settingsXML=~/.m2/settings.xml] Path to the settings.xml.
+	 * @param [settingsXML] Path to the settings.xml.
 	 * 				If not provided, the default location is used
-	 * @returns {Promise<string>} The resolved snapshot.build URL from ~/.m2/settings.xml
+	 * @returns The resolved snapshot.build URL from ~/.m2/settings.xml
 	 */
 	static async _resolveSnapshotEndpointUrlFromMaven(settingsXML?: string) {
 		if (!process.stdout.isTTY) {

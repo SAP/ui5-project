@@ -17,8 +17,8 @@ const applicationAConfig = {
 		specVersion: "2.3",
 		kind: "project",
 		type: "application",
-		metadata: {name: "application.a"}
-	}
+		metadata: {name: "application.a"},
+	},
 };
 const libraryEPath = path.join(__dirname, "..", "..", "..", "fixtures", "library.e");
 const buildDescrLibraryEPath = path.join(__dirname, "..", "..", "..", "fixtures", "build-manifest", "library.e");
@@ -30,15 +30,15 @@ const libraryEConfig = {
 		specVersion: "2.3",
 		kind: "project",
 		type: "library",
-		metadata: {name: "library.e"}
-	}
+		metadata: {name: "library.e"},
+	},
 };
 
 const buildConfig = {
 	selfContained: false,
 	jsdoc: false,
 	includedTasks: [],
-	excludedTasks: []
+	excludedTasks: [],
 };
 
 // Note: The actual build-manifest.json files in the fixtures are never used in these tests
@@ -48,7 +48,7 @@ test("Create project from application project providing a build manifest", async
 	inputProject.getResourceTagCollection().setTag("/resources/id1/foo.js", "ui5:HasDebugVariant");
 
 	const taskRepository = {
-		getVersions: async () => ({a: "a", b: "b"})
+		getVersions: async () => ({a: "a", b: "b"}),
 	};
 
 	const metadata = await createBuildManifest(inputProject, buildConfig, taskRepository);
@@ -56,7 +56,7 @@ test("Create project from application project providing a build manifest", async
 		id: "build-descr-application.a.id",
 		version: "2.0.0",
 		modulePath: buildDescrApplicationAPath,
-		configuration: metadata
+		configuration: metadata,
 	});
 
 	const {project} = await m.getSpecifications();
@@ -80,7 +80,7 @@ test("Create project from library project providing a build manifest", async (t)
 	inputProject.getResourceTagCollection().setTag("/resources/library/e/file.js", "ui5:HasDebugVariant");
 
 	const taskRepository = {
-		getVersions: async () => ({a: "a", b: "b"})
+		getVersions: async () => ({a: "a", b: "b"}),
 	};
 
 	const metadata = await createBuildManifest(inputProject, buildConfig, taskRepository);
@@ -88,7 +88,7 @@ test("Create project from library project providing a build manifest", async (t)
 		id: "build-descr-library.e.id",
 		version: "2.0.0",
 		modulePath: buildDescrLibraryEPath,
-		configuration: metadata
+		configuration: metadata,
 	});
 
 	const {project} = await m.getSpecifications();

@@ -5,25 +5,35 @@ import ShimCollection from "./ShimCollection.js";
 import {getLogger} from "@ui5/logger";
 const log = getLogger("graph:projectGraphBuilder");
 
+/**
+ *
+ * @param graph
+ * @param shimCollection
+ * @param extensions
+ */
 function _handleExtensions(graph, shimCollection, extensions) {
 	extensions.forEach((extension) => {
 		const type = extension.getType();
 		switch (type) {
-		case "project-shim":
-			shimCollection.addProjectShim(extension);
-			break;
-		case "task":
-		case "server-middleware":
-			graph.addExtension(extension);
-			break;
-		default:
-			throw new Error(
-				`Encountered unexpected extension of type ${type} ` +
-				`Supported types are 'project-shim', 'task' and 'middleware'`);
+			case "project-shim":
+				shimCollection.addProjectShim(extension);
+				break;
+			case "task":
+			case "server-middleware":
+				graph.addExtension(extension);
+				break;
+			default:
+				throw new Error(
+					`Encountered unexpected extension of type ${type} ` +
+					`Supported types are 'project-shim', 'task' and 'middleware'`);
 		}
 	});
 }
 
+/**
+ *
+ * @param node
+ */
 function validateNode(node) {
 	if (node.specVersion) {
 		throw new Error(
@@ -40,38 +50,39 @@ function validateNode(node) {
 }
 
 /**
- * @public
  * @module @ui5/project/graph/ProjectGraphBuilder
  */
 
 /**
  * Dependency graph node representing a module
  *
- * @public
- * @typedef {object} @ui5/project/graph/ProjectGraphBuilder~Node
- * @property {string} node.id Unique ID for the project
- * @property {string} node.version Version of the project
- * @property {string} node.path File System path to access the projects resources
- * @property {object|object[]} [node.configuration]
- *	Configuration object or array of objects to use instead of reading from a configuration file
- * @property {string} [node.configPath] Configuration file to use instead the default ui5.yaml
- * @property {boolean} [node.optional]
- *					Whether the node is an optional dependency of the parent it has been requested for
- * @property {*} * Additional attributes are allowed but ignored.
+ * node.id Unique ID for the project
+ *
+ * node.version Version of the project
+ *
+ * node.path File System path to access the projects resources
+ *
+ * [node.configuration]
+ * Configuration object or array of objects to use instead of reading from a configuration file
+ *
+ * [node.configPath] Configuration file to use instead the default ui5.yaml
+ *
+ * [node.optional]
+ * Whether the node is an optional dependency of the parent it has been requested for
+ *
+ * Additional attributes are allowed but ignored.
  *					These can be used to pass information internally in the provider.
  */
 
 /**
  * Node Provider interface
  *
- * @public
  * @interface @ui5/project/graph/ProjectGraphBuilder~NodeProvider
  */
 
 /**
  * Retrieve information on the root module
  *
- * @public
  * @function
  * @name @ui5/project/graph/ProjectGraphBuilder~NodeProvider#getRootNode
  * @returns {Node} The root node of the dependency graph
@@ -80,7 +91,6 @@ function validateNode(node) {
 /**
  * Retrieve information on given a nodes dependencies
  *
- * @public
  * @function
  * @name @ui5/project/graph/ProjectGraphBuilder~NodeProvider#getDependencies
  * @param {Node} node The root node of the dependency graph
@@ -92,14 +102,11 @@ function validateNode(node) {
  * Generic helper module to create a [@ui5/project/graph/ProjectGraph]{@link @ui5/project/graph/ProjectGraph}.
  * For example from a dependency tree as returned by the legacy "translators".
  *
- * @public
- * @function default
- * @static
- * @param {@ui5/project/graph/ProjectGraphBuilder~NodeProvider} nodeProvider
+ * @param nodeProvider
  * 	Node provider instance to use for building the graph
- * @param {@ui5/project/graph/Workspace} [workspace]
+ * @param [workspace]
  * 	Optional workspace instance to use for overriding project resolutions
- * @returns {@ui5/project/graph/ProjectGraph} A new project graph instance
+ * @returns A new project graph instance
  */
 async function projectGraphBuilder(nodeProvider, workspace) {
 	const shimCollection = new ShimCollection();
@@ -113,7 +120,7 @@ async function projectGraphBuilder(nodeProvider, workspace) {
 		version: rootNode.version,
 		modulePath: rootNode.path,
 		configPath: rootNode.configPath,
-		configuration: rootNode.configuration
+		configuration: rootNode.configuration,
 	});
 	const {project: rootProject, extensions: rootExtensions} = await rootModule.getSpecifications();
 	if (!rootProject) {
@@ -132,12 +139,15 @@ async function projectGraphBuilder(nodeProvider, workspace) {
 		qualifiedApplicationProject = rootProject;
 	}
 
-
 	const projectGraph = new ProjectGraph({
-		rootProjectName: rootProjectName
+		rootProjectName: rootProjectName,
 	});
 	projectGraph.addProject(rootProject);
 
+	/**
+	 *
+	 * @param extensions
+	 */
 	function handleExtensions(extensions) {
 		return _handleExtensions(projectGraph, shimCollection, extensions);
 	}
@@ -149,10 +159,10 @@ async function projectGraphBuilder(nodeProvider, workspace) {
 
 	const rootDependencies = await nodeProvider.getDependencies(rootNode, workspace);
 
-	if (rootDependencies && rootDependencies.length) {
+	if (rootDependencies?.length) {
 		queue.push({
 			nodes: rootDependencies,
-			parentProject: rootProject
+			parentProject: rootProject,
 		});
 	}
 
@@ -190,7 +200,7 @@ async function projectGraphBuilder(nodeProvider, workspace) {
 					modulePath: node.path,
 					configPath: node.configPath,
 					configuration: node.configuration,
-					shimCollection
+					shimCollection,
 				});
 			} else if (ui5Module.getPath() !== node.path) {
 				log.verbose(
@@ -203,7 +213,7 @@ async function projectGraphBuilder(nodeProvider, workspace) {
 			return {
 				node,
 				project,
-				extensions
+				extensions,
 			};
 		}));
 
@@ -213,7 +223,7 @@ async function projectGraphBuilder(nodeProvider, workspace) {
 			const {
 				node, // Tree "raw" dependency tree node
 				project, // The project found for this node, if any
-				extensions // Any extensions found for this node
+				extensions, // Any extensions found for this node
 			} = res[i];
 
 			if (extensions.length && (!node.optional || parentProject === rootProject)) {
@@ -231,7 +241,7 @@ async function projectGraphBuilder(nodeProvider, workspace) {
 
 			// Check for collection shims
 			const collectionShims = shimCollection.getCollectionShims(node.id);
-			if (collectionShims && collectionShims.length) {
+			if (collectionShims?.length) {
 				log.verbose(
 					`One or more module collection shims have been defined for module ${node.id}. ` +
 					`Therefore the module itself will not be resolved.`);
@@ -244,7 +254,7 @@ async function projectGraphBuilder(nodeProvider, workspace) {
 						return {
 							id: shimModuleId,
 							version: node.version,
-							path: shimModulePath
+							path: shimModulePath,
 						};
 					});
 				});
@@ -275,7 +285,7 @@ async function projectGraphBuilder(nodeProvider, workspace) {
 						//	(in this case misleading) general verbose logging:
 						//	"Ignoring project with missing configuration"
 						log.info(
-							`Excluding additional application project ${projectName} from graph. `+
+							`Excluding additional application project ${projectName} from graph. ` +
 							`The project graph can only feature a single project of type application. ` +
 							`Project ${qualifiedApplicationProject.getName()} has already qualified for that role.`);
 						continue;
@@ -302,7 +312,7 @@ async function projectGraphBuilder(nodeProvider, workspace) {
 					}
 
 					if (project.isDeprecated() && parentProject === rootProject &&
-							parentProject.getName() !== "testsuite") {
+						parentProject.getName() !== "testsuite") {
 						// Only warn for direct dependencies of the root project
 						// No warning for testsuite projects
 						log.warn(
@@ -333,7 +343,7 @@ async function projectGraphBuilder(nodeProvider, workspace) {
 			}
 
 			const nodeDependencies = await nodeProvider.getDependencies(node);
-			if (nodeDependencies && nodeDependencies.length) {
+			if (nodeDependencies?.length) {
 				queue.push({
 					// copy array, so that the queue is stable while ignored project dependencies are removed
 					nodes: [...nodeDependencies],
@@ -351,13 +361,13 @@ async function projectGraphBuilder(nodeProvider, workspace) {
 			const depShim = moduleDepShims[j];
 			if (!sourceModule) {
 				log.warn(`Could not apply dependency shim ${depShim.name} for ${shimmedModuleId}: ` +
-					`Module ${shimmedModuleId} is unknown`);
+				`Module ${shimmedModuleId} is unknown`);
 				continue;
 			}
 			const {project: sourceProject} = await sourceModule.getSpecifications();
 			if (!sourceProject) {
 				log.warn(`Could not apply dependency shim ${depShim.name} for ${shimmedModuleId}: ` +
-					`Source module ${shimmedModuleId} does not contain a project`);
+				`Source module ${shimmedModuleId} does not contain a project`);
 				continue;
 			}
 			for (let k = 0; k < depShim.shim.length; k++) {
@@ -365,13 +375,13 @@ async function projectGraphBuilder(nodeProvider, workspace) {
 				const targetModule = moduleCollection[targetModuleId];
 				if (!targetModule) {
 					log.warn(`Could not apply dependency shim ${depShim.name} for ${shimmedModuleId}: ` +
-						`Target module $${depShim} is unknown`);
+					`Target module $${depShim} is unknown`);
 					continue;
 				}
 				const {project: targetProject} = await targetModule.getSpecifications();
 				if (!targetProject) {
 					log.warn(`Could not apply dependency shim ${depShim.name} for ${shimmedModuleId}: ` +
-						`Target module ${targetModuleId} does not contain a project`);
+					`Target module ${targetModuleId} does not contain a project`);
 					continue;
 				}
 				projectGraph.declareDependency(sourceProject.getName(), targetProject.getName());

@@ -5,10 +5,7 @@ import {pathToFileURL} from "node:url";
 /**
  * Task
  *
- * @public
- * @class
  * @alias @ui5/project/specifications/extensions/Task
- * @extends @ui5/project/specifications/Extension
  * @hideconstructor
  */
 class Task extends Extension {
@@ -28,7 +25,7 @@ class Task extends Extension {
 		const taskPath = path.join(this.getRootPath(), this._config.task.path);
 		const {default: task, determineRequiredDependencies} = await import(pathToFileURL(taskPath));
 		return {
-			task, determineRequiredDependencies
+			task, determineRequiredDependencies,
 		};
 	}
 

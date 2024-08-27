@@ -4,37 +4,36 @@ import {enhanceBundlesWithDefaults} from "../../validation/validator.js";
 /**
  * Get tasks and their configuration for a given application project
  *
- * @private
- * @param {object} parameters
- * @param {object} parameters.project
- * @param {object} parameters.taskUtil
- * @param {Function} parameters.getTask
+ * @param parameters
+ * @param parameters.project
+ * @param parameters.taskUtil
+ * @param parameters.getTask
  */
-export default function({ project, taskUtil, getTask }: {
-    project: object;
-    taskUtil: object;
-    getTask: Function;
+export default function ({project, taskUtil, getTask}: {
+	project: object;
+	taskUtil: object;
+	getTask: Function;
 }) {
 	const tasks = new Map();
 	tasks.set("escapeNonAsciiCharacters", {
 		options: {
 			encoding: project.getPropertiesFileSourceEncoding(),
-			pattern: "/**/*.properties"
-		}
+			pattern: "/**/*.properties",
+		},
 	});
 
 	tasks.set("replaceCopyright", {
 		options: {
 			copyright: project.getCopyright(),
-			pattern: "/**/*.{js,json}"
-		}
+			pattern: "/**/*.{js,json}",
+		},
 	});
 
 	tasks.set("replaceVersion", {
 		options: {
 			version: project.getVersion(),
-			pattern: "/**/*.{js,json}"
-		}
+			pattern: "/**/*.{js,json}",
+		},
 	});
 
 	// Support rules should not be minified to have readable code in the Support Assistant
@@ -47,8 +46,8 @@ export default function({ project, taskUtil, getTask }: {
 	}
 	tasks.set("minify", {
 		options: {
-			pattern: minificationPattern
-		}
+			pattern: minificationPattern,
+		},
 	});
 
 	tasks.set("enhanceManifest", {});
@@ -68,8 +67,8 @@ export default function({ project, taskUtil, getTask }: {
 				paths: componentPreloadPaths,
 				namespaces: componentPreloadNamespaces,
 				excludes: componentPreloadExcludes,
-				skipBundles: existingBundleDefinitionNames
-			}
+				skipBundles: existingBundleDefinitionNames,
+			},
 		});
 	} else {
 		// Default component preload for application namespace
@@ -77,8 +76,8 @@ export default function({ project, taskUtil, getTask }: {
 			options: {
 				namespaces: [project.getNamespace()],
 				excludes: componentPreloadExcludes,
-				skipBundles: existingBundleDefinitionNames
-			}
+				skipBundles: existingBundleDefinitionNames,
+			},
 		});
 	}
 
@@ -94,8 +93,8 @@ export default function({ project, taskUtil, getTask }: {
 				// Async resolve default values for bundle definitions and options
 				const bundlesDefaults = await enhanceBundlesWithDefaults(bundles, taskUtil.getProject());
 
-				return bundlesDefaults.reduce(async function(sequence, bundle) {
-					return sequence.then(function() {
+				return bundlesDefaults.reduce(async function (sequence, bundle) {
+					return sequence.then(function () {
 						return generateBundleTask.task({
 							workspace,
 							dependencies,
@@ -103,17 +102,17 @@ export default function({ project, taskUtil, getTask }: {
 							options: {
 								projectName: options.projectName,
 								bundleDefinition: bundle.bundleDefinition,
-								bundleOptions: bundle.bundleOptions
-							}
+								bundleOptions: bundle.bundleOptions,
+							},
 						});
 					});
 				}, Promise.resolve());
-			}
+			},
 		});
 	} else {
 		// No bundles defined. Just set task so that it can be referenced by custom tasks
 		tasks.set("generateBundle", {
-			taskFunction: null
+			taskFunction: null,
 		});
 	}
 
@@ -121,14 +120,14 @@ export default function({ project, taskUtil, getTask }: {
 		requiresDependencies: true,
 		options: {
 			rootProject: project,
-			pattern: "/resources/**/.library"
-		}
+			pattern: "/resources/**/.library",
+		},
 	});
 
 	tasks.set("generateCachebusterInfo", {
 		options: {
 			signatureType: project.getCachebusterSignatureType(),
-		}
+		},
 	});
 
 	tasks.set("generateApiIndex", {requiresDependencies: true});

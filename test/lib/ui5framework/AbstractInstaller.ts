@@ -6,6 +6,6 @@ test("AbstractInstaller: constructor throws an error", (t) => {
 		new AbstractInstaller();
 	}, {
 		instanceOf: TypeError,
-		message: "Class 'AbstractInstaller' is abstract"
+		message: "Class 'AbstractInstaller' is abstract",
 	});
 });
