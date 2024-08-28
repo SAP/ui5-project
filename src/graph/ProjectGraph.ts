@@ -1,15 +1,31 @@
 import OutputStyleEnum from "../build/helpers/ProjectBuilderOutputStyle.js";
 import {getLogger} from "@ui5/logger";
+import type Project from "../specifications/Project.js";
+import type Extension from "../specifications/Extension.js";
+import type * as taskRepositoryModule from "@ui5/builder/internal/taskRepository";
 const log = getLogger("graph:ProjectGraph");
+
+type TraversalCallback = (arg: {project: Project; dependencies: string[]}) => Promise<undefined>;
+type VisitedNodes = Record<string, Promise<undefined> | undefined>;
 
 /**
  * A rooted, directed graph representing a UI5 project, its dependencies and available extensions.
  * <br><br>
  * While it allows defining cyclic dependencies, both traversal functions will throw an error if they encounter cycles.
  *
- * @alias @ui5/project/graph/ProjectGraph
  */
 class ProjectGraph {
+	_rootProjectName: string;
+
+	_projects: Map<string, Project>;
+	_adjList: Map<string, Set<string>>;
+	_optAdjList: Map<string, Set<string>>;
+	_extensions: Map<string, Extension>;
+
+	_sealed: boolean;
+	_hasUnresolvedOptionalDependencies: boolean;
+	_taskRepository: typeof taskRepositoryModule | null;
+
 	/**
 	 * @param parameters Parameters
 	 * @param parameters.rootProjectName Root project name
@@ -38,7 +54,7 @@ class ProjectGraph {
 	 *
 	 * @returns Root project
 	 */
-	public getRoot() {
+	public getRoot(): Project {
 		const rootProject = this._projects.get(this._rootProjectName);
 		if (!rootProject) {
 			throw new Error(`Unable to find root project with name ${this._rootProjectName} in project graph`);
@@ -51,7 +67,7 @@ class ProjectGraph {
 	 *
 	 * @param project Project which should be added to the graph
 	 */
-	public addProject(project) {
+	public addProject(project: Project) {
 		this._checkSealed();
 		const projectName = project.getName();
 		if (this._projects.has(projectName)) {
@@ -59,7 +75,7 @@ class ProjectGraph {
 				`Failed to add project ${projectName} to graph: A project with that name has already been added. ` +
 				`This might be caused by multiple modules containing projects with the same name`);
 		}
-		if (!isNaN(projectName)) {
+		if (!isNaN(projectName as unknown as number)) {
 			// Reject integer-like project names. They would take precedence when traversing object keys which
 			// could lead to unexpected behavior. We don't really expect anyone to use such names anyways
 			throw new Error(
@@ -114,7 +130,7 @@ class ProjectGraph {
 	 *
 	 * @param extension Extension which should be available in the graph
 	 */
-	public addExtension(extension) {
+	public addExtension(extension: Extension) {
 		this._checkSealed();
 		const extensionName = extension.getName();
 		if (this._extensions.has(extensionName)) {
@@ -123,7 +139,7 @@ class ProjectGraph {
 				`An extension with that name has already been added. ` +
 				`This might be caused by multiple modules containing extensions with the same name`);
 		}
-		if (!isNaN(extensionName)) {
+		if (!isNaN(extensionName as unknown as number)) {
 			// Reject integer-like extension names. They would take precedence when traversing object keys which
 			// might lead to unexpected behavior in the future. We don't really expect anyone to use such names anyways
 			throw new Error(
@@ -171,9 +187,12 @@ class ProjectGraph {
 			log.verbose(`Declaring dependency: ${fromProjectName} depends on ${toProjectName}`);
 			this._declareDependency(this._adjList, fromProjectName, toProjectName);
 		} catch (err) {
-			throw new Error(
-				`Failed to declare dependency from project ${fromProjectName} to ${toProjectName}: ` +
-				err.message);
+			if (err instanceof Error) {
+				throw new Error(
+					`Failed to declare dependency from project ${fromProjectName} to ${toProjectName}: ` +
+					err.message);
+			}
+			throw err;
 		}
 	}
 
@@ -190,9 +209,12 @@ class ProjectGraph {
 			this._declareDependency(this._optAdjList, fromProjectName, toProjectName);
 			this._hasUnresolvedOptionalDependencies = true;
 		} catch (err) {
-			throw new Error(
-				`Failed to declare optional dependency from project ${fromProjectName} to ${toProjectName}: ` +
-				err.message);
+			if (err instanceof Error) {
+				throw new Error(
+					`Failed to declare optional dependency from project ${fromProjectName} to ${toProjectName}: ` +
+					err.message);
+			}
+			throw err;
 		}
 	}
 
@@ -203,7 +225,7 @@ class ProjectGraph {
 	 * @param fromProjectName Name of the depending project
 	 * @param toProjectName Name of project on which the other depends
 	 */
-	_declareDependency(map: object, fromProjectName: string, toProjectName: string) {
+	_declareDependency(map: typeof this._adjList, fromProjectName: string, toProjectName: string) {
 		if (!this._projects.has(fromProjectName)) {
 			throw new Error(
 				`Unable to find depending project with name ${fromProjectName} in project graph`);
@@ -216,7 +238,7 @@ class ProjectGraph {
 			throw new Error(
 				`A project can't depend on itself`);
 		}
-		const adjacencies = map.get(fromProjectName);
+		const adjacencies = map.get(fromProjectName)!;
 		if (adjacencies.has(toProjectName)) {
 			log.warn(`Dependency has already been declared: ${fromProjectName} depends on ${toProjectName}`);
 		} else {
@@ -254,8 +276,8 @@ class ProjectGraph {
 				`Unable to find project in project graph`);
 		}
 
-		const processDependency = (depName) => {
-			const adjacencies = this._adjList.get(depName);
+		const processDependency = (depName: string) => {
+			const adjacencies = this._adjList.get(depName)!;
 			adjacencies.forEach((depName) => {
 				if (!dependencies.has(depName)) {
 					dependencies.add(depName);
@@ -287,7 +309,7 @@ class ProjectGraph {
 		if (adjacencies.has(toProjectName)) {
 			return false;
 		}
-		const optAdjacencies = this._optAdjList.get(fromProjectName);
+		const optAdjacencies = this._optAdjList.get(fromProjectName)!;
 		if (optAdjacencies.has(toProjectName)) {
 			return true;
 		}
@@ -340,26 +362,26 @@ class ProjectGraph {
 		}
 	}
 
-	public async traverseBreadthFirst(startName?: string, callback) {
+	public async traverseBreadthFirst(startName?: string, callback?: TraversalCallback) {
 		if (!callback) {
 			// Default optional first parameter
-			callback = startName;
+			callback = startName as unknown as TraversalCallback;
 			startName = this._rootProjectName;
 		}
 
-		if (!this.getProject(startName)) {
+		if (!this.getProject(startName!)) {
 			throw new Error(`Failed to start graph traversal: Could not find project ${startName} in project graph`);
 		}
 
 		const queue = [{
-			projectNames: [startName],
-			ancestors: [],
+			projectNames: [startName] as string[],
+			ancestors: [] as string[],
 		}];
 
-		const visited = Object.create(null);
+		const visited = Object.create(null) as VisitedNodes;
 
 		while (queue.length) {
-			const {projectNames, ancestors} = queue.shift(); // Get and remove first entry from queue
+			const {projectNames, ancestors} = queue.shift()!; // Get and remove first entry from queue
 
 			await Promise.all(projectNames.map(async (projectName) => {
 				this._checkCycle(ancestors, projectName);
@@ -386,20 +408,22 @@ class ProjectGraph {
 		}
 	}
 
-	public async traverseDepthFirst(startName?: string, callback) {
+	public async traverseDepthFirst(startName?: string, callback?: TraversalCallback) {
 		if (!callback) {
 			// Default optional first parameter
-			callback = startName;
+			callback = startName as unknown as TraversalCallback;
 			startName = this._rootProjectName;
 		}
 
-		if (!this.getProject(startName)) {
+		if (!this.getProject(startName!)) {
 			throw new Error(`Failed to start graph traversal: Could not find project ${startName} in project graph`);
 		}
-		return this._traverseDepthFirst(startName, Object.create(null), [], callback);
+		return this._traverseDepthFirst(startName!, Object.create(null) as VisitedNodes, [], callback);
 	}
 
-	async _traverseDepthFirst(projectName, visited, ancestors, callback) {
+	async _traverseDepthFirst(
+		projectName: string, visited: VisitedNodes, ancestors: string[], callback: TraversalCallback
+	) {
 		this._checkCycle(ancestors, projectName);
 
 		if (visited[projectName]) {
@@ -425,7 +449,7 @@ class ProjectGraph {
 	 *
 	 * @param projectGraph Project Graph to merge into this one
 	 */
-	public join(projectGraph) {
+	public join(projectGraph: ProjectGraph) {
 		try {
 			this._checkSealed();
 			if (!projectGraph.isSealed()) {
@@ -450,7 +474,7 @@ class ProjectGraph {
 	}
 
 	// Only to be used by @ui5/builder tests to inject its version of the taskRepository
-	setTaskRepository(taskRepository) {
+	setTaskRepository(taskRepository: typeof taskRepositoryModule) {
 		this._taskRepository = taskRepository;
 	}
 
@@ -459,9 +483,12 @@ class ProjectGraph {
 			try {
 				this._taskRepository = await import("@ui5/builder/internal/taskRepository");
 			} catch (err) {
-				throw new Error(
-					`Failed to load task repository. Missing dependency to '@ui5/builder'? ` +
-					`Error: ${err.message}`);
+				if (err instanceof Error) {
+					throw new Error(
+						`Failed to load task repository. Missing dependency to '@ui5/builder'? ` +
+						`Error: ${err.message}`);
+				}
+				throw err;
 			}
 		}
 		return this._taskRepository;
@@ -530,7 +557,7 @@ class ProjectGraph {
 		}
 	}
 
-	_checkCycle(ancestors, projectName) {
+	_checkCycle(ancestors: string[], projectName: string) {
 		if (ancestors.includes(projectName)) {
 			// "Back-edge" detected. Neither BFS nor DFS searches should continue
 			// Mark first and last occurrence in chain with an asterisk and throw an error detailing the
@@ -543,12 +570,7 @@ class ProjectGraph {
 	// TODO: introduce function to check for dangling nodes/consistency in general?
 }
 
-/**
- *
- * @param target
- * @param source
- */
-function mergeMap(target, source) {
+function mergeMap(target: Map<string, string | Set<string>>, source: Map<string, string | Set<string>>) {
 	for (const [key, value] of source) {
 		if (target.has(key)) {
 			throw new Error(`Failed to merge map: Key '${key}' already present in target set`);

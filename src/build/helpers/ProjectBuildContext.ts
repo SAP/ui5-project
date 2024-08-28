@@ -2,6 +2,10 @@ import ResourceTagCollection from "@ui5/fs/internal/ResourceTagCollection";
 import ProjectBuildLogger from "@ui5/logger/internal/loggers/ProjectBuild";
 import TaskUtil from "./TaskUtil.js";
 import TaskRunner from "../TaskRunner.js";
+import type BuildContext from "./BuildContext.js";
+import type Project from "../../specifications/Project.js";
+
+export type CleanupCallback = (force: boolean) => Promise<void>;
 
 /**
  * Build context of a single project. Always part of an overall
@@ -9,7 +13,13 @@ import TaskRunner from "../TaskRunner.js";
  *
  */
 class ProjectBuildContext {
-	constructor({buildContext, project}) {
+	_buildContext: BuildContext;
+	_project: Project;
+	_log: ProjectBuildLogger;
+	_queues: {cleanup: CleanupCallback[]};
+	_resourceTagCollection: ResourceTagCollection;
+
+	constructor({buildContext, project}: {buildContext: BuildContext; project: Project}) {
 		if (!buildContext) {
 			throw new Error(`Missing parameter 'buildContext'`);
 		}
@@ -37,15 +47,15 @@ class ProjectBuildContext {
 		return this._project === this._buildContext.getRootProject();
 	}
 
-	getOption(key) {
+	getOption(key: keyof typeof BuildContext.prototype._options) {
 		return this._buildContext.getOption(key);
 	}
 
-	registerCleanupTask(callback) {
+	registerCleanupTask(callback: CleanupCallback) {
 		this._queues.cleanup.push(callback);
 	}
 
-	async executeCleanupTasks(force) {
+	async executeCleanupTasks(force: boolean) {
 		await Promise.all(this._queues.cleanup.map((callback) => {
 			return callback(force);
 		}));

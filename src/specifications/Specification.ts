@@ -1,21 +1,51 @@
 import path from "node:path";
+import type Logger from "@ui5/logger/Logger";
 import {getLogger} from "@ui5/logger";
 import {createReader} from "@ui5/fs/resourceFactory";
 import SpecificationVersion from "./SpecificationVersion.js";
 
+export interface SpecificationConfiguration {
+	kind: string;
+	type: string;
+	specVersion: string;
+	metadata: {
+		name: string;
+	};
+}
+
+interface LegacySpecificationConfiguration extends SpecificationConfiguration {
+	resources?: {
+		configuration?: {
+			propertiesFileSourceEncoding?: string;
+		};
+	};
+}
+
+interface SpecificationParameters {
+	id: string;
+	version: string;
+	modulePath: string;
+	configuration: SpecificationConfiguration;
+}
+
 /**
  * Abstract superclass for all projects and extensions
  *
- * @alias @ui5/project/specifications/Specification
  * @hideconstructor
  */
 class Specification {
-	public static async create(parameters: {
-		id: string;
-		version: string;
-		modulePath: string;
-		configuration: object;
-	}) {
+	_log: Logger;
+	_version!: string;
+	_modulePath!: string;
+	__id!: string;
+	_name!: string;
+	_kind!: string;
+	_type!: string;
+	_specVersionString!: string;
+	_specVersion!: SpecificationVersion;
+	_config!: SpecificationConfiguration;
+
+	public static async create(parameters: SpecificationParameters) {
 		if (!parameters.configuration) {
 			throw new Error(
 				`Unable to create Specification instance: Missing configuration parameter`);
@@ -99,7 +129,7 @@ class Specification {
 		this.__id = id;
 
 		// Deep clone config to prevent changes by reference
-		const config = JSON.parse(JSON.stringify(configuration));
+		const config = JSON.parse(JSON.stringify(configuration)) as SpecificationConfiguration;
 		const {validate} = await import("../validation/validator.js");
 
 		if (SpecificationVersion.major(config.specVersion) <= 1) {
@@ -107,7 +137,7 @@ class Specification {
 			this._log.verbose(`Detected legacy Specification Version ${config.specVersion}, defined for ` +
 			`${config.kind} ${config.metadata.name}. ` +
 			`Attempting to migrate the project to a supported specification version...`);
-			this._migrateLegacyProject(config);
+			this._migrateLegacyProject(config as LegacySpecificationConfiguration);
 			try {
 				await validate({
 					config,
@@ -116,15 +146,18 @@ class Specification {
 					},
 				});
 			} catch (err) {
-				this._log.verbose(
-					`Validation error after migration of ${config.kind} ${config.metadata.name}:`);
-				this._log.verbose(err.message);
-				throw new Error(
-					`${config.kind} ${config.metadata.name} defines unsupported Specification Version ` +
-					`${originalSpecVersion}. Please manually upgrade to 3.0 or higher. ` +
-					`For details see https://sap.github.io/ui5-tooling/pages/Configuration/#specification-versions - ` +
-					`An attempted migration to a supported specification version failed, ` +
-					`likely due to unrecognized configuration. Check verbose log for details.`);
+				if (err instanceof Error) {
+					this._log.verbose(
+						`Validation error after migration of ${config.kind} ${config.metadata.name}:`);
+					this._log.verbose(err.message);
+					throw new Error(
+						`${config.kind} ${config.metadata.name} defines unsupported Specification Version ` +
+						`${originalSpecVersion}. Please manually upgrade to 3.0 or higher. ` +
+						`For details see https://sap.github.io/ui5-tooling/pages/Configuration/#specification-versions - ` +
+						`An attempted migration to a supported specification version failed, ` +
+						`likely due to unrecognized configuration. Check verbose log for details.`);
+				}
+				throw err;
 			}
 		} else {
 			await validate({
@@ -235,7 +268,7 @@ class Specification {
 	 * @returns Reader collection
 	 */
 	public getRootReader({useGitignore = true}: {
-		useGitignore?: object;
+		useGitignore?: boolean;
 	} = {}) {
 		return createReader({
 			fsBasePath: this.getRootPath(),
@@ -247,13 +280,13 @@ class Specification {
 
 	private async _dirExists(dirPath: string) {
 		const resource = await this.getRootReader().byPath(dirPath, {nodir: false});
-		if (resource && resource.getStatInfo().isDirectory()) {
+		if (resource?.getStatInfo().isDirectory()) {
 			return true;
 		}
 		return false;
 	}
 
-	_migrateLegacyProject(config) {
+	_migrateLegacyProject(config: LegacySpecificationConfiguration) {
 		// Stick to 2.6 since 3.0 adds further restrictions (i.e. for the name) and enables
 		// functionality for extensions that shouldn't be enabled if the specVersion is not
 		// explicitly set to 3.x
@@ -264,20 +297,15 @@ class Specification {
 		// Adding back the old default if no configuration is provided.
 		if (config.kind === "project" && ["application", "library"].includes(config.type) &&
 			!config.resources?.configuration?.propertiesFileSourceEncoding) {
-			config.resources = config.resources || {};
-			config.resources.configuration = config.resources.configuration || {};
+			config.resources = config.resources ?? {};
+			config.resources.configuration = config.resources.configuration ?? {};
 			config.resources.configuration.propertiesFileSourceEncoding = "ISO-8859-1";
 		}
 	}
 }
 
-/**
- *
- * @param moduleName
- * @param params
- */
-async function createAndInitializeSpec(moduleName, params) {
-	const {default: Spec} = await import(`./${moduleName}`);
+async function createAndInitializeSpec(moduleName: string, params: SpecificationParameters) {
+	const {default: Spec} = await import(`./${moduleName}`) as {default: typeof Specification};
 	return new Spec().init(params);
 }
 

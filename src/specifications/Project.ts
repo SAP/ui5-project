@@ -4,7 +4,6 @@ import ResourceTagCollection from "@ui5/fs/internal/ResourceTagCollection";
 /**
  * Project
  *
- * @alias @ui5/project/specifications/Project
  * @hideconstructor
  */
 class Project extends Specification {

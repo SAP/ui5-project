@@ -1,3 +1,4 @@
+import {ResourceInterface} from "@ui5/fs/Resource";
 import {
 	createReaderCollection,
 	createReaderCollectionPrioritized,
@@ -16,7 +17,6 @@ import {
  * The set of available functions on that interface depends on the specification
  * version defined for the extension.
  *
- * @alias @ui5/project/build/helpers/TaskUtil
  * @hideconstructor
  */
 class TaskUtil {
@@ -47,7 +47,9 @@ class TaskUtil {
 	 * @param parameters
 	 * @param parameters.projectBuildContext ProjectBuildContext
 	 */
-	constructor({projectBuildContext}: object) {
+	STANDARD_TAGS: object;
+
+	constructor({projectBuildContext}) {
 		this._projectBuildContext = projectBuildContext;
 		/**
 		 */
@@ -79,7 +81,7 @@ class TaskUtil {
 	 * 	[STANDARD_TAGS]{@link @ui5/project/build/helpers/TaskUtil#STANDARD_TAGS} are allowed
 	 * @param [value] Tag value. Must be primitive
 	 */
-	public setTag(resource, tag: string, value?: string | boolean | integer) {
+	public setTag(resource: ResourceInterface, tag: string, value?: string | boolean | number) {
 		if (typeof resource === "string") {
 			throw new Error("Deprecated parameter: " +
 				"Since UI5 Tooling 3.0, #setTag requires a resource instance. Strings are no longer accepted");
@@ -101,7 +103,7 @@ class TaskUtil {
 	 * @returns Tag value for the given resource.
 	 * 										<code>undefined</code> if no value is available
 	 */
-	public getTag(resource, tag: string) {
+	public getTag(resource: ResourceInterface, tag: string) {
 		if (typeof resource === "string") {
 			throw new Error("Deprecated parameter: " +
 				"Since UI5 Tooling 3.0, #getTag requires a resource instance. Strings are no longer accepted");
@@ -121,7 +123,7 @@ class TaskUtil {
 	 * @param resource Resource-instance the tag should be cleared for
 	 * @param tag Tag
 	 */
-	public clearTag(resource, tag: string) {
+	public clearTag(resource: ResourceInterface, tag: string) {
 		if (typeof resource === "string") {
 			throw new Error("Deprecated parameter: " +
 				"Since UI5 Tooling 3.0, #clearTag requires a resource instance. Strings are no longer accepted");

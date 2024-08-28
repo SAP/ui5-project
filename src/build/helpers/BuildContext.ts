@@ -1,19 +1,38 @@
+import type ProjectGraph from "../../graph/ProjectGraph.js";
+import type Project from "../../specifications/Project.js";
 import ProjectBuildContext from "./ProjectBuildContext.js";
 import OutputStyleEnum from "./ProjectBuilderOutputStyle.js";
+import type * as taskRepositoryModule from "@ui5/builder/internal/taskRepository";
+
+interface BuildConfig {
+	selfContained: boolean;
+	cssVariables: boolean;
+	jsdoc: boolean;
+	createBuildManifest: boolean;
+	outputStyle: typeof OutputStyleEnum[keyof typeof OutputStyleEnum];
+	includedTasks: string[];
+	excludedTasks: string[];
+}
 
 /**
  * Context of a build process
  *
  */
 class BuildContext {
-	constructor(graph, taskRepository, { // buildConfig
+	_graph: ProjectGraph;
+	_buildConfig: BuildConfig;
+	_taskRepository: typeof taskRepositoryModule;
+	_options: {cssVariables: boolean};
+	_projectBuildContexts: ProjectBuildContext[];
+
+	constructor(graph: ProjectGraph, taskRepository: typeof taskRepositoryModule, { // buildConfig
 		selfContained = false,
 		cssVariables = false,
 		jsdoc = false,
 		createBuildManifest = false,
 		outputStyle = OutputStyleEnum.Default,
 		includedTasks = [], excludedTasks = [],
-	} = {}) {
+	} = {} as Partial<BuildConfig>) {
 		if (!graph) {
 			throw new Error(`Missing parameter 'graph'`);
 		}
@@ -79,7 +98,7 @@ class BuildContext {
 		return this._graph.getRoot();
 	}
 
-	getOption(key) {
+	getOption(key: keyof typeof this._options) {
 		return this._options[key];
 	}
 
@@ -95,7 +114,7 @@ class BuildContext {
 		return this._graph;
 	}
 
-	createProjectContext({project}) {
+	createProjectContext({project}: {project: Project}) {
 		const projectBuildContext = new ProjectBuildContext({
 			buildContext: this,
 			project,

@@ -30,7 +30,7 @@ function getSortedTags(project) {
  * @param buildConfig
  * @param taskRepository
  */
-export default async function (project, buildConfig, taskRepository) {
+export default async function (project, buildConfig, taskRepository: typeof import("@ui5/builder/internal/taskRepository")) {
 	if (!project) {
 		throw new Error(`Missing parameter 'project'`);
 	}
