@@ -4,6 +4,7 @@ import TaskUtil from "./TaskUtil.js";
 import TaskRunner from "../TaskRunner.js";
 import type BuildContext from "./BuildContext.js";
 import type Project from "../../specifications/Project.js";
+import {ResourceInterface} from "@ui5/fs/Resource";
 
 export type CleanupCallback = (force: boolean) => Promise<void>;
 
@@ -18,6 +19,8 @@ class ProjectBuildContext {
 	_log: ProjectBuildLogger;
 	_queues: {cleanup: CleanupCallback[]};
 	_resourceTagCollection: ResourceTagCollection;
+	_taskRunner: TaskRunner | undefined;
+	_taskUtil: TaskUtil | undefined;
 
 	constructor({buildContext, project}: {buildContext: BuildContext; project: Project}) {
 		if (!buildContext) {
@@ -86,7 +89,7 @@ class ProjectBuildContext {
 		return this._buildContext.getGraph().getDependencies(projectName || this._project.getName());
 	}
 
-	getResourceTagCollection(resource, tag) {
+	getResourceTagCollection(resource: ResourceInterface, tag: string) {
 		if (!resource.hasProject()) {
 			this._log.silly(`Associating resource ${resource.getPath()} with project ${this._project.getName()}`);
 			resource.setProject(this._project);

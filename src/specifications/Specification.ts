@@ -1,8 +1,15 @@
-import path from "node:path";
 import type Logger from "@ui5/logger/Logger";
-import {getLogger} from "@ui5/logger";
-import {createReader} from "@ui5/fs/resourceFactory";
 import SpecificationVersion from "./SpecificationVersion.js";
+import {createReader} from "@ui5/fs/resourceFactory";
+import {getLogger} from "@ui5/logger";
+import path from "node:path";
+
+export interface SpecificationParameters {
+	id: string;
+	version: string;
+	modulePath: string;
+	configuration: SpecificationConfiguration;
+}
 
 export interface SpecificationConfiguration {
 	kind: string;
@@ -21,19 +28,12 @@ interface LegacySpecificationConfiguration extends SpecificationConfiguration {
 	};
 }
 
-interface SpecificationParameters {
-	id: string;
-	version: string;
-	modulePath: string;
-	configuration: SpecificationConfiguration;
-}
-
 /**
  * Abstract superclass for all projects and extensions
  *
  * @hideconstructor
  */
-class Specification {
+abstract class Specification {
 	_log: Logger;
 	_version!: string;
 	_modulePath!: string;
@@ -97,12 +97,7 @@ class Specification {
 	 * @param parameters.modulePath Absolute File System path to access resources
 	 * @param parameters.configuration Configuration object
 	 */
-	async init({id, version, modulePath, configuration}: {
-		id: string;
-		version: string;
-		modulePath: string;
-		configuration: object;
-	}) {
+	async init({id, version, modulePath, configuration}: SpecificationParameters) {
 		if (!id) {
 			throw new Error(`Could not create Specification: Missing or empty parameter 'id'`);
 		}
@@ -305,7 +300,7 @@ class Specification {
 }
 
 async function createAndInitializeSpec(moduleName: string, params: SpecificationParameters) {
-	const {default: Spec} = await import(`./${moduleName}`) as {default: typeof Specification};
+	const {default: Spec} = await import(`./${moduleName}`) as {default: new () => Specification};
 	return new Spec().init(params);
 }
 

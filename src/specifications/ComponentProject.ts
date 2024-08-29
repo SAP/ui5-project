@@ -1,22 +1,44 @@
-import {promisify} from "node:util";
-import Project from "./Project.js";
+import Project, {type ProjectReaderStyle, type ProjectReaderOptions} from "./Project.js";
 import * as resourceFactory from "@ui5/fs/resourceFactory";
+import type ReaderCollection from "@ui5/fs/ReaderCollection";
+import type AbstractReaderWriter from "@ui5/fs/AbstractReaderWriter";
+import type AbstractReader from "@ui5/fs/AbstractReader";
+// import type * as xml2jsModule from "xml2js";
+// import {Parser} from "xml2js";
+
+type MavenPropertyValue = string | Record<string, MavenProperty>;
+// eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
+interface MavenProperty {
+	[key: string]: MavenPropertyValue;
+}
+
+interface Pom extends MavenProperty {
+	project: {
+		properties: Record<string, string>;
+	};
+}
 
 /**
  * Subclass for projects potentially containing Components
  *
- * @alias @ui5/project/specifications/ComponentProject
  * @hideconstructor
  */
-class ComponentProject extends Project {
-	constructor(parameters) {
-		super(parameters);
+abstract class ComponentProject extends Project {
+	_pPom: null | Promise<Pom> = null;
+	_namespace!: string; // Must be set during initialization of child class
+	_isRuntimeNamespaced: boolean;
+	_writers: undefined | {
+		namespaceWriter: AbstractReaderWriter;
+		generalWriter: AbstractReaderWriter;
+		collection: AbstractReaderWriter;
+	};
+
+	constructor() {
+		super();
 		if (new.target === ComponentProject) {
 			throw new TypeError("Class 'ComponentProject' is abstract. Please use one of the 'types' subclasses");
 		}
 
-		this._pPom = null;
-		this._namespace = null;
 		this._isRuntimeNamespaced = true;
 	}
 
@@ -30,46 +52,32 @@ class ComponentProject extends Project {
 		return this._namespace;
 	}
 
-	/**
-	 */
 	private getCopyright() {
 		return this._config.metadata.copyright;
 	}
 
-	/**
-	 */
 	private getComponentPreloadPaths() {
-		return this._config.builder?.componentPreload?.paths || [];
+		return this._config.builder?.componentPreload?.paths ?? [];
 	}
 
-	/**
-	 */
 	private getComponentPreloadNamespaces() {
-		return this._config.builder?.componentPreload?.namespaces || [];
+		return this._config.builder?.componentPreload?.namespaces ?? [];
 	}
 
-	/**
-	 */
 	private getComponentPreloadExcludes() {
-		return this._config.builder?.componentPreload?.excludes || [];
+		return this._config.builder?.componentPreload?.excludes ?? [];
 	}
 
-	/**
-	 */
 	private getMinificationExcludes() {
-		return this._config.builder?.minification?.excludes || [];
+		return this._config.builder?.minification?.excludes ?? [];
 	}
 
-	/**
-	 */
 	private getBundles() {
-		return this._config.builder?.bundles || [];
+		return this._config.builder?.bundles ?? [];
 	}
 
-	/**
-	 */
 	private getPropertiesFileSourceEncoding() {
-		return this._config.resources?.configuration?.propertiesFileSourceEncoding || "UTF-8";
+		return this._config.resources?.configuration?.propertiesFileSourceEncoding ?? "UTF-8";
 	}
 
 	/* === Resource Access === */
@@ -100,14 +108,12 @@ class ComponentProject extends Project {
 	 *
 	 * Resource readers always use POSIX-style paths.
 	 *
-	 * @param [options]
+	 * @param [options] Reader options
 	 * @param [options.style] Path style to access resources.
 	 *   Can be "buildtime", "dist", "runtime" or "flat"
 	 * @returns A reader collection instance
 	 */
-	public getReader({style = "buildtime"}: {
-		style?: string;
-	} = {}) {
+	public getReader({style = "buildtime"}: ProjectReaderOptions = {}) {
 		// TODO: Additional style 'ABAP' using "sap.platform.abap".uri from manifest.json?
 
 		// Apply builder excludes to all styles but "runtime"
@@ -142,6 +148,7 @@ class ComponentProject extends Project {
 				});
 				break;
 			default:
+				// eslint-disable-next-line @typescript-eslint/restrict-template-expressions
 				throw new Error(`Unknown path mapping style ${style}`);
 		}
 
@@ -154,18 +161,14 @@ class ComponentProject extends Project {
 	 *
 	 * @returns Reader collection
 	 */
-	_getSourceReader() {
-		throw new Error(`_getSourceReader must be implemented by subclass ${this.constructor.name}`);
-	}
+	protected abstract _getSourceReader(excludes: string[]): AbstractReader;
 
 	/**
 	 * Get a resource reader for the test resources of the project
 	 *
 	 * @returns Reader collection
 	 */
-	_getTestReader() {
-		throw new Error(`_getTestReader must be implemented by subclass ${this.constructor.name}`);
-	}
+	protected abstract _getTestReader(excludes: string[]): AbstractReader;
 
 	/**
 	 * Get a resource reader/writer for accessing and modifying a project's resources
@@ -184,37 +187,38 @@ class ComponentProject extends Project {
 	}
 
 	_getWriter() {
-		if (!this._writers) {
-			// writer is always of style "buildtime"
-			const namespaceWriter = resourceFactory.createAdapter({
-				virBasePath: "/",
-				project: this,
-			});
-
-			const generalWriter = resourceFactory.createAdapter({
-				virBasePath: "/",
-				project: this,
-			});
-
-			const collection = resourceFactory.createWriterCollection({
-				name: `Writers for project ${this.getName()}`,
-				writerMapping: {
-					[`/resources/${this._namespace}/`]: namespaceWriter,
-					[`/test-resources/${this._namespace}/`]: namespaceWriter,
-					[`/`]: generalWriter,
-				},
-			});
-
-			this._writers = {
-				namespaceWriter,
-				generalWriter,
-				collection,
-			};
+		if (this._writers) {
+			return this._writers;
 		}
+		// writer is always of style "buildtime"
+		const namespaceWriter = resourceFactory.createAdapter({
+			virBasePath: "/",
+			project: this,
+		});
+
+		const generalWriter = resourceFactory.createAdapter({
+			virBasePath: "/",
+			project: this,
+		});
+
+		const collection = resourceFactory.createWriterCollection({
+			name: `Writers for project ${this.getName()}`,
+			writerMapping: {
+				[`/resources/${this._namespace}/`]: namespaceWriter,
+				[`/test-resources/${this._namespace}/`]: namespaceWriter,
+				[`/`]: generalWriter,
+			},
+		});
+
+		this._writers = {
+			namespaceWriter,
+			generalWriter,
+			collection,
+		};
 		return this._writers;
 	}
 
-	_getReader(excludes) {
+	_getReader(excludes: string[]) {
 		let reader = this._getSourceReader(excludes);
 		const testReader = this._getTestReader(excludes);
 		if (testReader) {
@@ -226,7 +230,7 @@ class ComponentProject extends Project {
 		return reader;
 	}
 
-	_addWriter(reader, style) {
+	_addWriter(reader: AbstractReader, style: ProjectReaderStyle): ReaderCollection {
 		const {namespaceWriter, generalWriter} = this._getWriter();
 
 		if ((style === "runtime" || style === "dist") && this._isRuntimeNamespaced) {
@@ -259,8 +263,6 @@ class ComponentProject extends Project {
 				}));
 				// General writer resources can't be flattened, so they are not available
 				break;
-			default:
-				throw new Error(`Unknown path mapping style ${style}`);
 		}
 		readers.push(reader);
 
@@ -270,13 +272,7 @@ class ComponentProject extends Project {
 		});
 	}
 
-	private async _parseConfiguration(config: object) {
-		await super._parseConfiguration(config);
-	}
-
-	async _getNamespace() {
-		throw new Error(`_getNamespace must be implemented by subclass ${this.constructor.name}`);
-	}
+	protected abstract _getNamespace(): Promise<string>;
 
 	/* === Helper === */
 	/**
@@ -302,15 +298,15 @@ class ComponentProject extends Project {
 			this._log.verbose(
 				`"${value}" contains a maven placeholder "${parts[1]}". Resolving from projects pom.xml...`);
 			const pom = await this._getPom();
-			let mvnValue;
+			let mvnValue: string;
 			if (pom.project?.properties?.[parts[1]]) {
 				mvnValue = pom.project.properties[parts[1]];
 			} else {
-				let obj = pom;
+				let obj: MavenProperty = pom;
 				parts[1].split(".").forEach((part) => {
-					obj = obj?.[part];
+					obj = obj?.[part] as MavenProperty;
 				});
-				mvnValue = obj;
+				mvnValue = obj as unknown as string;
 			}
 			if (!mvnValue) {
 				throw new Error(`"${value}" couldn't be resolved from maven property ` +
@@ -339,18 +335,18 @@ class ComponentProject extends Project {
 						`Could not find pom.xml in project ${this.getName()}`);
 				}
 				const content = await resource.getString();
-				const {
-					default: xml2js,
-				} = await import("xml2js");
-				const parser = new xml2js.Parser({
+				const {Parser} = await import("xml2js");
+				const parser = new Parser({
 					explicitArray: false,
 					ignoreAttrs: true,
 				});
-				const readXML = promisify(parser.parseString);
-				return readXML(content);
+				return parser.parseStringPromise(content) as Promise<Pom>;
 			}).catch((err) => {
-				throw new Error(
-					`Failed to read pom.xml for project ${this.getName()}: ${err.message}`);
+				if (err instanceof Error) {
+					throw new Error(
+						`Failed to read pom.xml for project ${this.getName()}: ${err.message}`);
+				}
+				throw err;
 			});
 	}
 }

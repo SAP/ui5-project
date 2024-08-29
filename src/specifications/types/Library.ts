@@ -1,8 +1,8 @@
+import * as resourceFactory from "@ui5/fs/resourceFactory";
+import ComponentProject from "../ComponentProject.js";
 import fsPath from "node:path";
 import posixPath from "node:path/posix";
 import {promisify} from "node:util";
-import ComponentProject from "../ComponentProject.js";
-import * as resourceFactory from "@ui5/fs/resourceFactory";
 
 /**
  * Library

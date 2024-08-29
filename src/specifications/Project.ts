@@ -1,14 +1,75 @@
-import Specification from "./Specification.js";
+import Specification, {type SpecificationConfiguration, type SpecificationParameters} from "./Specification.js";
+import type AbstractReader from "@ui5/fs/AbstractReader";
+import type DuplexCollection from "@ui5/fs/DuplexCollection";
 import ResourceTagCollection from "@ui5/fs/internal/ResourceTagCollection";
+
+interface ProjectParameters extends SpecificationParameters {
+	buildManifest?: object;
+}
+
+export interface ProjectConfiguration extends SpecificationConfiguration {
+	metadata: {
+		name: string;
+		copyright?: string;
+		deprecated?: boolean;
+		sapInternal?: boolean;
+		allowSapInternal?: boolean;
+	};
+	resources?: {
+		configuration?: {
+			propertiesFileSourceEncoding: string;
+		};
+	};
+	framework?: {
+		name: string;
+		version: string;
+		libraries?: {
+			name: string;
+			development?: boolean;
+			optional?: boolean;
+		}[];
+	};
+	builder?: {
+		resources?: {
+			excludes: string[];
+		};
+		customTasks?: string[];
+		settings?: object;
+		componentPreload?: {
+			paths?: string[];
+			namespaces?: string[];
+			excludes?: string[];
+		};
+		minification?: {
+			excludes?: string[];
+		};
+		bundles?: object[];
+	};
+	server?: {
+		customMiddleware?: string[];
+		settings?: object;
+	};
+	customConfiguration?: object;
+}
+
+export type ProjectReaderStyle = "buildtime" | "dist" | "runtime" | "flat";
+
+export interface ProjectReaderOptions {
+	style?: ProjectReaderStyle;
+}
 
 /**
  * Project
  *
  * @hideconstructor
  */
-class Project extends Specification {
-	constructor(parameters) {
-		super(parameters);
+abstract class Project extends Specification {
+	_resourceTagCollection: ResourceTagCollection | null;
+	_buildManifest: object | undefined;
+	declare _config: ProjectConfiguration;
+
+	constructor() {
+		super();
 		if (new.target === Project) {
 			throw new TypeError("Class 'Project' is abstract. Please use one of the 'types' subclasses");
 		}
@@ -24,13 +85,7 @@ class Project extends Specification {
 	 * @param parameters.configuration Configuration object
 	 * @param [parameters.buildManifest] Build metadata object
 	 */
-	async init(parameters: {
-		id: string;
-		version: string;
-		modulePath: string;
-		configuration: object;
-		buildManifest?: object;
-	}) {
+	async init(parameters: ProjectParameters) {
 		await super.init(parameters);
 
 		this._buildManifest = parameters.buildManifest;
@@ -48,7 +103,7 @@ class Project extends Specification {
 	 *
 	 * @returns Project namespace in slash notation (e.g. <code>my/project/name</code>) or null
 	 */
-	public getNamespace() {
+	public getNamespace(): string | null {
 		// Default namespace for general Projects:
 		// Their resources should be structured with globally unique paths, hence their namespace is undefined
 		return null;
@@ -73,6 +128,7 @@ class Project extends Specification {
 		return this._config.customConfiguration;
 	}
 
+	// eslint-disable-next-line jsdoc/require-returns-check
 	/**
 	 * Get the path of the project's source directory. This might not be POSIX-style on some platforms.
 	 * Projects with multiple source paths will throw an error. For example Modules.
@@ -119,7 +175,7 @@ class Project extends Specification {
 	 * @returns Framework dependencies configuration
 	 */
 	public getFrameworkDependencies() {
-		return this._config.framework?.libraries || [];
+		return this._config.framework?.libraries ?? [];
 	}
 
 	/**
@@ -154,8 +210,8 @@ class Project extends Specification {
 	 *
 	 * @returns BuilderResourcesExcludes configuration
 	 */
-	private getBuilderResourcesExcludes() {
-		return this._config.builder?.resources?.excludes || [];
+	protected getBuilderResourcesExcludes() {
+		return this._config.builder?.resources?.excludes ?? [];
 	}
 
 	/**
@@ -164,7 +220,7 @@ class Project extends Specification {
 	 * @returns CustomTasks configuration
 	 */
 	private getCustomTasks() {
-		return this._config.builder?.customTasks || [];
+		return this._config.builder?.customTasks ?? [];
 	}
 
 	/**
@@ -173,7 +229,7 @@ class Project extends Specification {
 	 * @returns CustomMiddleware configuration
 	 */
 	private getCustomMiddleware() {
-		return this._config.server?.customMiddleware || [];
+		return this._config.server?.customMiddleware ?? [];
 	}
 
 	/**
@@ -200,7 +256,7 @@ class Project extends Specification {
 	 * @returns BuildManifest configuration or null if none is available
 	 */
 	private getBuildManifest() {
-		return this._buildManifest || null;
+		return this._buildManifest ?? null;
 	}
 
 	/* === Resource Access === */
@@ -232,13 +288,9 @@ class Project extends Specification {
 	 *   Can be "buildtime", "dist", "runtime" or "flat"
 	 * @returns Reader collection allowing access to all resources of the project
 	 */
-	public getReader(options?: {
-		style?: string;
-	}) {
-		throw new Error(`getReader must be implemented by subclass ${this.constructor.name}`);
-	}
+	abstract getReader(options?: ProjectReaderOptions): AbstractReader;
 
-	getResourceTagCollection() {
+	public getResourceTagCollection() {
 		if (!this._resourceTagCollection) {
 			this._resourceTagCollection = new ResourceTagCollection({
 				allowedTags: ["ui5:IsDebugVariant", "ui5:HasDebugVariant"],
@@ -255,13 +307,11 @@ class Project extends Specification {
 	 *
 	 * @returns DuplexCollection
 	 */
-	public getWorkspace() {
-		throw new Error(`getWorkspace must be implemented by subclass ${this.constructor.name}`);
-	}
+	abstract getWorkspace(): DuplexCollection;
 
-	private async _configureAndValidatePaths(config: object) {}
+	protected abstract _configureAndValidatePaths(config: object): Promise<void>;
 
-	private async _parseConfiguration(config: object) {}
+	protected abstract _parseConfiguration(config: object, _buildManifest: object | undefined): Promise<void>;
 }
 
 export default Project;
