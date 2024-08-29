@@ -1,20 +1,22 @@
 import fsPath from "node:path";
-import Project from "../Project.js";
+import Project, {type ProjectConfiguration, type ProjectReaderOptions} from "../Project.js";
 import * as resourceFactory from "@ui5/fs/resourceFactory";
+import type AbstractReaderWriter from "@ui5/fs/AbstractReaderWriter";
+import {type BuildManifest} from "../../build/helpers/createBuildManifest.js";
 
 /**
  * Module
  *
- * @alias @ui5/project/specifications/types/Module
  * @hideconstructor
  */
 class Module extends Project {
-	constructor(parameters) {
-		super(parameters);
+	_paths!: {
+		name: string;
+		virBasePath: string;
+		fsBasePath: string;
+	}[];
 
-		this._paths = null;
-		this._writer = null;
-	}
+	_writer: AbstractReaderWriter | null = null;
 
 	/* === Attributes === */
 
@@ -55,14 +57,12 @@ class Module extends Project {
 	 *
 	 * Resource readers always use POSIX-style paths.
 	 *
-	 * @param [options]
+	 * @param [options] Reader options
 	 * @param [options.style] Path style to access resources.
 	 *   Can be "buildtime", "dist", "runtime" or "flat"
 	 * @returns A reader collection instance
 	 */
-	public getReader({style = "buildtime"}: {
-		style?: string;
-	} = {}) {
+	public getReader({style = "buildtime"}: ProjectReaderOptions = {}) {
 		// Apply builder excludes to all styles but "runtime"
 		const excludes = style === "runtime" ? [] : this.getBuilderResourcesExcludes();
 
@@ -113,9 +113,7 @@ class Module extends Project {
 		return this._writer;
 	}
 
-	private async _configureAndValidatePaths(config: object) {
-		await super._configureAndValidatePaths(config);
-
+	protected async _configureAndValidatePaths(config: ProjectConfiguration) {
 		this._log.verbose(`Path mapping for module project ${this.getName()}:`);
 		this._log.verbose(`  Physical root path: ${this.getRootPath()}`);
 		this._log.verbose(`  Mapped to:`);
@@ -151,6 +149,10 @@ class Module extends Project {
 				fsBasePath: this.getRootPath(),
 			}];
 		}
+	}
+
+	protected async _parseConfiguration(_config: ProjectConfiguration, _buildManifest?: BuildManifest) {
+		// Nothing to do
 	}
 }
 

@@ -1,43 +1,82 @@
 import * as resourceFactory from "@ui5/fs/resourceFactory";
-import ComponentProject from "../ComponentProject.js";
+import ComponentProject, {type Manifest} from "../ComponentProject.js";
 import fsPath from "node:path";
 import posixPath from "node:path/posix";
-import {promisify} from "node:util";
+import {type ProjectConfiguration} from "../Project.js";
+import {type BuildManifest} from "../../build/helpers/createBuildManifest.js";
+
+interface FoundNamespace {
+	namespace: string;
+	filePath: string;
+}
+type EmptyObject = {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	[K in any]: never
+};
+type NamespaceResult = FoundNamespace | EmptyObject;
+
+interface ManifestResult {
+	content: Manifest;
+	filePath: string;
+};
+
+interface DotLibraryExcludeEntry {
+	$: {
+		name: string;
+	};
+}
+
+interface DotLibrary {
+	library?: {
+		name?: {
+			_?: string;
+		};
+		appData?: {
+			packaging?: {
+				"all-in-one"?: {
+					exclude?: DotLibraryExcludeEntry | DotLibraryExcludeEntry[];
+				};
+			};
+		};
+		copyright?: {
+			_?: string;
+		};
+	};
+};
+
+interface DotLibraryResult {
+	content: DotLibrary;
+	filePath: string;
+};
 
 /**
  * Library
  *
- * @alias @ui5/project/specifications/types/Library
  * @hideconstructor
  */
 class Library extends ComponentProject {
-	constructor(parameters) {
-		super(parameters);
+	_pManifest: null | Promise<ManifestResult> = null;
+	_pDotLibrary: null | Promise<DotLibraryResult> = null;
+	_pLibraryJs: null | Promise<string> = null;
+	_testPathExists = false;
+	_isSourceNamespaced = true;
 
-		this._pManifest = null;
-		this._pDotLibrary = null;
-		this._pLibraryJs = null;
-
-		this._srcPath = "src";
-		this._testPath = "test";
-		this._testPathExists = false;
-		this._isSourceNamespaced = true;
-
-		this._propertiesFilesSourceEncoding = "UTF-8";
-	}
+	_srcPath = "src";
+	_testPath = "test";
+	_propertiesFilesSourceEncoding = "UTF-8";
 
 	/* === Attributes === */
 	/**
 	 *
 	 */
 	private getLibraryPreloadExcludes() {
-		return this._config.builder?.libraryPreload?.excludes || [];
+		return this._config.builder?.libraryPreload?.excludes ?? [];
 	}
 
 	/**
 	 */
 	private getJsdocExcludes() {
-		return this._config.builder?.jsdoc?.excludes || [];
+		return this._config.builder?.jsdoc?.excludes ?? [];
 	}
 
 	/**
@@ -116,9 +155,7 @@ class Library extends ComponentProject {
 		});
 	}
 
-	private async _configureAndValidatePaths(config: object) {
-		await super._configureAndValidatePaths(config);
-
+	protected async _configureAndValidatePaths(config: ProjectConfiguration) {
 		if (config.resources?.configuration?.paths) {
 			if (config.resources.configuration.paths.src) {
 				this._srcPath = config.resources.configuration.paths.src;
@@ -141,11 +178,9 @@ class Library extends ComponentProject {
 			`    /test-resources/ => ${this._testPath}${this._testPathExists ? "" : " [does not exist]"}`);
 	}
 
-	private async _parseConfiguration(config: object, buildDescription: object) {
-		await super._parseConfiguration(config, buildDescription);
-
-		if (buildDescription) {
-			this._namespace = buildDescription.namespace;
+	protected async _parseConfiguration(config: ProjectConfiguration, buildManifest?: BuildManifest) {
+		if (buildManifest) {
+			this._namespace = buildManifest.namespace;
 			return;
 		}
 
@@ -275,9 +310,12 @@ class Library extends ComponentProject {
 				try {
 					libraryNs = await this._resolveMavenPlaceholder(libraryNs);
 				} catch (err) {
-					throw new Error(
-						`Failed to resolve namespace maven placeholder of project ` +
-						`${this.getName()}: ${err.message}`);
+					if (err instanceof Error) {
+						throw new Error(
+							`Failed to resolve namespace maven placeholder of project ` +
+							`${this.getName()}: ${err.message}`);
+					}
+					throw err;
 				}
 			}
 
@@ -285,7 +323,7 @@ class Library extends ComponentProject {
 			if (namespacePath === "/") {
 				this._log.verbose(`Detected flat library source structure for project ${this.getName()}`);
 				this._isSourceNamespaced = false;
-			} else {
+			} else if (namespacePath) {
 				namespacePath = namespacePath.replace("/", ""); // remove leading slash
 				if (namespacePath !== namespace) {
 					throw new Error(
@@ -306,9 +344,11 @@ class Library extends ComponentProject {
 					`Deriving namespace for project ${this.getName()} from ` +
 					`path of library.js file`);
 			} catch (err) {
-				this._log.verbose(
-					`Namespace resolution from library.js file path failed for project ` +
-					`${this.getName()}: ${err.message}`);
+				if (err instanceof Error) {
+					this._log.verbose(
+						`Namespace resolution from library.js file path failed for project ` +
+						`${this.getName()}: ${err.message}`);
+				}
 			}
 		}
 
@@ -322,7 +362,7 @@ class Library extends ComponentProject {
 		return namespace;
 	}
 
-	async _getNamespaceFromManifest() {
+	async _getNamespaceFromManifest(): Promise<NamespaceResult> {
 		try {
 			const {content: manifest, filePath} = await this._getManifest();
 			// check for a proper sap.app/id in manifest.json to determine namespace
@@ -341,14 +381,16 @@ class Library extends ComponentProject {
 					`at ${filePath}`);
 			}
 		} catch (err) {
-			this._log.verbose(
-				`Namespace resolution from manifest.json failed for project ` +
-				`${this.getName()}: ${err.message}`);
+			if (err instanceof Error) {
+				this._log.verbose(
+					`Namespace resolution from manifest.json failed for project ` +
+					`${this.getName()}: ${err.message}`);
+			}
 		}
 		return {};
 	}
 
-	async _getNamespaceFromDotLibrary() {
+	async _getNamespaceFromDotLibrary(): Promise<NamespaceResult> {
 		try {
 			const {content: dotLibrary, filePath} = await this._getDotLibrary();
 			const namespace = dotLibrary?.library?.name?._;
@@ -366,9 +408,11 @@ class Library extends ComponentProject {
 					`at ${filePath}`);
 			}
 		} catch (err) {
-			this._log.verbose(
-				`Namespace resolution from .library failed for project ` +
-				`${this.getName()}: ${err.message}`);
+			if (err instanceof Error) {
+				this._log.verbose(
+					`Namespace resolution from .library failed for project ` +
+					`${this.getName()}: ${err.message}`);
+			}
 		}
 		return {};
 	}
@@ -394,9 +438,11 @@ class Library extends ComponentProject {
 				return null;
 			}
 		} catch (err) {
-			this._log.verbose(
-				`Copyright determination from .library failed for project ` +
-				`${this.getName()}: ${err.message}`);
+			if (err instanceof Error) {
+				this._log.verbose(
+					`Copyright determination from .library failed for project ` +
+					`${this.getName()}: ${err.message}`);
+			}
 			return null;
 		}
 	}
@@ -428,7 +474,7 @@ class Library extends ComponentProject {
 	 * @returns resolves with an object containing the <code>content</code> (as JSON) and
 	 * 							<code>filePath</code> (as string) of the manifest.json file
 	 */
-	async _getManifest() {
+	async _getManifest(): Promise<ManifestResult> {
 		if (this._pManifest) {
 			return this._pManifest;
 		}
@@ -444,12 +490,15 @@ class Library extends ComponentProject {
 				const resource = manifestResources[0];
 				try {
 					return {
-						content: JSON.parse(await resource.getString()),
+						content: JSON.parse(await resource.getString()) as unknown as Manifest,
 						filePath: resource.getPath(),
 					};
 				} catch (err) {
-					throw new Error(
-						`Failed to read ${resource.getPath()} for project ${this.getName()}: ${err.message}`);
+					if (err instanceof Error) {
+						throw new Error(
+							`Failed to read ${resource.getPath()} for project ${this.getName()}: ${err.message}`);
+					}
+					throw err;
 				}
 			});
 	}
@@ -460,7 +509,7 @@ class Library extends ComponentProject {
 	 * @returns resolves with an object containing the <code>content</code> (as JSON) and
 	 * 							<code>filePath</code> (as string) of the .library file
 	 */
-	async _getDotLibrary() {
+	async _getDotLibrary(): Promise<DotLibraryResult> {
 		if (this._pDotLibrary) {
 			return this._pDotLibrary;
 		}
@@ -477,21 +526,22 @@ class Library extends ComponentProject {
 				const content = await resource.getString();
 
 				try {
-					const {
-						default: xml2js,
-					} = await import("xml2js");
-					const parser = new xml2js.Parser({
+					const {Parser} = await import("xml2js");
+					const parser = new Parser({
 						explicitArray: false,
 						explicitCharkey: true,
 					});
-					const readXML = promisify(parser.parseString);
+
 					return {
-						content: await readXML(content),
+						content: await parser.parseStringPromise(content) as Promise<DotLibrary>,
 						filePath: resource.getPath(),
-					};
+					} as DotLibraryResult;
 				} catch (err) {
-					throw new Error(
-						`Failed to read ${resource.getPath()} for project ${this.getName()}: ${err.message}`);
+					if (err instanceof Error) {
+						throw new Error(
+							`Failed to read ${resource.getPath()} for project ${this.getName()}: ${err.message}`);
+					}
+					throw err;
 				}
 			});
 	}
@@ -507,7 +557,7 @@ class Library extends ComponentProject {
 			return this._pLibraryJs;
 		}
 		return this._pLibraryJs = this._getRawSourceReader().byGlob("**/library.js")
-			.then(async (libraryJsResources) => {
+			.then((libraryJsResources) => {
 				if (!libraryJsResources.length) {
 					throw new Error(`Could not find library.js file for project ${this.getName()}`);
 				}

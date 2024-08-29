@@ -113,6 +113,7 @@
 		"@types/graceful-fs": "^4.1.9",
 		"@types/js-yaml": "^4.0.9",
 		"@types/node": "^22.5.0",
+		"@types/semver": "^7.5.8",
 		"@types/sinon": "^17.0.3",
 		"@types/xml2js": "^0.4.14",
 		"ava": "^6.1.3",

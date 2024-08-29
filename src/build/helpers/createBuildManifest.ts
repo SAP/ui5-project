@@ -3,6 +3,21 @@ import {createRequire} from "node:module";
 // Using CommonsJS require since JSON module imports are still experimental
 const require = createRequire(import.meta.url);
 
+export interface BuildManifest {
+	manifestVersion: string;
+	timestamp: string;
+	versions: {
+		builderVersion: string;
+		projectVersion: string;
+		fsVersion: string;
+		builderFsVersion?: string;
+	};
+	buildConfig: object;
+	version: string;
+	namespace: string;
+	tags: Record<string, string>;
+}
+
 /**
  *
  * @param pkg

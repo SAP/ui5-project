@@ -273,7 +273,7 @@ abstract class Specification {
 		});
 	}
 
-	private async _dirExists(dirPath: string) {
+	protected async _dirExists(dirPath: string) {
 		const resource = await this.getRootReader().byPath(dirPath, {nodir: false});
 		if (resource?.getStatInfo().isDirectory()) {
 			return true;

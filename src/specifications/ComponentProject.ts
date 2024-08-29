@@ -3,8 +3,6 @@ import * as resourceFactory from "@ui5/fs/resourceFactory";
 import type ReaderCollection from "@ui5/fs/ReaderCollection";
 import type AbstractReaderWriter from "@ui5/fs/AbstractReaderWriter";
 import type AbstractReader from "@ui5/fs/AbstractReader";
-// import type * as xml2jsModule from "xml2js";
-// import {Parser} from "xml2js";
 
 type MavenPropertyValue = string | Record<string, MavenProperty>;
 // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
@@ -17,6 +15,15 @@ interface Pom extends MavenProperty {
 		properties: Record<string, string>;
 	};
 }
+
+export interface Manifest {
+	"sap.app"?: {
+		id: string;
+		applicationVersion: {
+			version: string;
+		};
+	};
+};
 
 /**
  * Subclass for projects potentially containing Components
@@ -166,9 +173,9 @@ abstract class ComponentProject extends Project {
 	/**
 	 * Get a resource reader for the test resources of the project
 	 *
-	 * @returns Reader collection
+	 * @returns Reader collection or null if no dedicated test path exists
 	 */
-	protected abstract _getTestReader(excludes: string[]): AbstractReader;
+	protected abstract _getTestReader(excludes: string[]): AbstractReader | null;
 
 	/**
 	 * Get a resource reader/writer for accessing and modifying a project's resources

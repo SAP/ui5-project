@@ -1,18 +1,12 @@
-import Specification from "./Specification.js";
+import Specification, {type SpecificationConfiguration, type SpecificationParameters} from "./Specification.js";
 
 /**
  * Extension
  *
- * @alias @ui5/project/specifications/Extension
  * @hideconstructor
  */
-class Extension extends Specification {
-	constructor(parameters) {
-		super(parameters);
-		if (new.target === Extension) {
-			throw new TypeError("Class 'Extension' is abstract. Please use one of the 'types' subclasses");
-		}
-	}
+abstract class Extension<Configuration extends SpecificationConfiguration> extends Specification {
+	declare _config: Configuration;
 
 	/**
 	 * @param parameters Specification parameters
@@ -21,26 +15,24 @@ class Extension extends Specification {
 	 * @param parameters.modulePath File System path to access resources
 	 * @param parameters.configuration Configuration object
 	 */
-	async init(parameters: {
-		id: string;
-		version: string;
-		modulePath: string;
-		configuration: object;
-	}) {
+	async init(parameters: SpecificationParameters) {
 		await super.init(parameters);
 
 		try {
 			await this._validateConfig();
 		} catch (err) {
-			throw new Error(
-				`Failed to validate configuration of ${this.getType()} extension ${this.getName()}: ` +
-				err.message);
+			if (err instanceof Error) {
+				throw new Error(
+					`Failed to validate configuration of ${this.getType()} extension ${this.getName()}: ` +
+					err.message);
+			}
+			throw err;
 		}
 
 		return this;
 	}
 
-	async _validateConfig() {}
+	protected abstract _validateConfig(): Promise<void>;
 }
 
 export default Extension;

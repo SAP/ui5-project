@@ -1,22 +1,19 @@
-import Project from "../Project.js";
+import Project, {type ProjectConfiguration, type ProjectReaderOptions} from "../Project.js";
 import fsPath from "node:path";
 import * as resourceFactory from "@ui5/fs/resourceFactory";
+import type AbstractReaderWriter from "@ui5/fs/AbstractReaderWriter";
+import {type BuildManifest} from "../../build/helpers/createBuildManifest.js";
 
 /**
  * ThemeLibrary
  *
- * @alias @ui5/project/specifications/types/ThemeLibrary
  * @hideconstructor
  */
 class ThemeLibrary extends Project {
-	constructor(parameters) {
-		super(parameters);
-
-		this._srcPath = "src";
-		this._testPath = "test";
-		this._testPathExists = false;
-		this._writer = null;
-	}
+	_srcPath = "src";
+	_testPath = "test";
+	_testPathExists = false;
+	_writer: AbstractReaderWriter | null = null;
 
 	/* === Attributes === */
 	/**
@@ -61,14 +58,12 @@ class ThemeLibrary extends Project {
 	 *
 	 * Resource readers always use POSIX-style paths.
 	 *
-	 * @param [options]
+	 * @param [options] Reader options
 	 * @param [options.style] Path style to access resources.
 	 *   Can be "buildtime", "dist", "runtime" or "flat"
 	 * @returns A reader collection instance
 	 */
-	public getReader({style = "buildtime"}: {
-		style?: string;
-	} = {}) {
+	public getReader({style = "buildtime"}: ProjectReaderOptions = {}) {
 		// Apply builder excludes to all styles but "runtime"
 		const excludes = style === "runtime" ? [] : this.getBuilderResourcesExcludes();
 
@@ -130,9 +125,7 @@ class ThemeLibrary extends Project {
 		return this._writer;
 	}
 
-	private async _configureAndValidatePaths(config: object) {
-		await super._configureAndValidatePaths(config);
-
+	protected async _configureAndValidatePaths(config: ProjectConfiguration) {
 		if (config.resources?.configuration?.paths) {
 			if (config.resources.configuration.paths.src) {
 				this._srcPath = config.resources.configuration.paths.src;
@@ -154,6 +147,10 @@ class ThemeLibrary extends Project {
 		this._log.verbose(`    /resources/ => ${this._srcPath}`);
 		this._log.verbose(
 			`    /test-resources/ => ${this._testPath}${this._testPathExists ? "" : " [does not exist]"}`);
+	}
+
+	protected async _parseConfiguration(_config: ProjectConfiguration, _buildManifest?: BuildManifest) {
+		// Nothing to do
 	}
 }
 

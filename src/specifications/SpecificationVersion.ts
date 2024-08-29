@@ -8,11 +8,12 @@ const SUPPORTED_VERSIONS = [
 	"4.0",
 ];
 
+type SemverComparator = (a: string, b: string) => boolean;
+
 /**
  * Helper class representing a Specification Version. Featuring helper functions for easy comparison
  * of versions.
  *
- * @alias @ui5/project/specifications/utils/SpecificationVersion
  */
 class SpecificationVersion {
 	#specVersion;
@@ -182,33 +183,19 @@ class SpecificationVersion {
 	}
 }
 
-/**
- *
- * @param specVersion
- */
-function getUnsupportedSpecVersionMessage(specVersion) {
+function getUnsupportedSpecVersionMessage(specVersion: string) {
 	return `Unsupported Specification Version ${specVersion} defined. Your UI5 CLI installation might be outdated. ` +
 		`For details, see https://sap.github.io/ui5-tooling/pages/Configuration/#specification-versions`;
 }
 
-/**
- *
- * @param specVersion
- */
-function getSemverCompatibleVersion(specVersion) {
+function getSemverCompatibleVersion(specVersion: string) {
 	if (SpecificationVersion.isSupportedSpecVersion(specVersion)) {
 		return specVersion + ".0";
 	}
 	throw new Error(getUnsupportedSpecVersionMessage(specVersion));
 }
 
-/**
- *
- * @param comparator
- * @param baseVersion
- * @param testVersion
- */
-function handleSemverComparator(comparator, baseVersion, testVersion) {
+function handleSemverComparator(comparator: SemverComparator, baseVersion: string, testVersion: string) {
 	if (SPEC_VERSION_PATTERN.test(testVersion)) {
 		const a = baseVersion;
 		const b = testVersion + ".0";
@@ -221,4 +208,5 @@ export default SpecificationVersion;
 
 // Export local function for testing only
 export const __localFunctions__ = (process.env.NODE_ENV === "test") ?
-		{getSemverCompatibleVersion, handleSemverComparator} : /* istanbul ignore next */ undefined;
+		{getSemverCompatibleVersion, handleSemverComparator} :
+/* istanbul ignore next */ undefined;

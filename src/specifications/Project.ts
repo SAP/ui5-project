@@ -2,9 +2,10 @@ import Specification, {type SpecificationConfiguration, type SpecificationParame
 import type AbstractReader from "@ui5/fs/AbstractReader";
 import type DuplexCollection from "@ui5/fs/DuplexCollection";
 import ResourceTagCollection from "@ui5/fs/internal/ResourceTagCollection";
+import {type BuildManifest} from "../build/helpers/createBuildManifest.js";
 
 interface ProjectParameters extends SpecificationParameters {
-	buildManifest?: object;
+	buildManifest?: BuildManifest;
 }
 
 export interface ProjectConfiguration extends SpecificationConfiguration {
@@ -18,6 +19,7 @@ export interface ProjectConfiguration extends SpecificationConfiguration {
 	resources?: {
 		configuration?: {
 			propertiesFileSourceEncoding: string;
+			paths: Record<string, string>;
 		};
 	};
 	framework?: {
@@ -40,10 +42,19 @@ export interface ProjectConfiguration extends SpecificationConfiguration {
 			namespaces?: string[];
 			excludes?: string[];
 		};
+		libraryPreload?: {
+			excludes?: string[];
+		};
 		minification?: {
 			excludes?: string[];
 		};
+		jsdoc?: {
+			excludes?: string[];
+		};
 		bundles?: object[];
+		cachebuster?: {
+			signatureType: "time" | "hash";
+		};
 	};
 	server?: {
 		customMiddleware?: string[];
@@ -65,7 +76,7 @@ export interface ProjectReaderOptions {
  */
 abstract class Project extends Specification {
 	_resourceTagCollection: ResourceTagCollection | null;
-	_buildManifest: object | undefined;
+	_buildManifest?: BuildManifest;
 	declare _config: ProjectConfiguration;
 
 	constructor() {
@@ -309,9 +320,9 @@ abstract class Project extends Specification {
 	 */
 	abstract getWorkspace(): DuplexCollection;
 
-	protected abstract _configureAndValidatePaths(config: object): Promise<void>;
+	protected abstract _configureAndValidatePaths(config: ProjectConfiguration): Promise<void>;
 
-	protected abstract _parseConfiguration(config: object, _buildManifest: object | undefined): Promise<void>;
+	protected abstract _parseConfiguration(config: ProjectConfiguration, buildManifest?: BuildManifest): Promise<void>;
 }
 
 export default Project;
