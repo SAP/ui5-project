@@ -408,7 +408,7 @@ test("Legacy patches are applied", async (t) => {
 			.map(testLegacyLibrary));
 });
 
-test("Environment variables in configuration", async (t) => {
+test.serial("Environment variables in configuration", async (t) => {
 	const testEnvVars = ["testEnvVarForString", "testEnvVarForObject", "testEnvVarForArray"].map(
 		(testEnvVar, index) => {
 			const wrapper = {
