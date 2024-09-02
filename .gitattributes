@@ -3,3 +3,6 @@ build/** -linguist-generated=false
 lib/build/** linguist-generated=false
 lib/** linguist-vendored=false
 lib/** linguist-generated=false
+src/build/** linguist-generated=false
+src/** linguist-vendored=false
+src/** linguist-generated=false
