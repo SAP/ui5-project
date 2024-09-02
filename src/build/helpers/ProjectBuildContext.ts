@@ -4,7 +4,8 @@ import TaskUtil from "./TaskUtil.js";
 import TaskRunner from "../TaskRunner.js";
 import type BuildContext from "./BuildContext.js";
 import type Project from "../../specifications/Project.js";
-import {ResourceInterface} from "@ui5/fs/Resource";
+import {type ResourceInterface} from "@ui5/fs/Resource";
+import {type BuildContextOptions} from "./BuildContext.js";
 
 export type CleanupCallback = (force: boolean) => Promise<void>;
 
@@ -50,7 +51,7 @@ class ProjectBuildContext {
 		return this._project === this._buildContext.getRootProject();
 	}
 
-	getOption(key: keyof typeof BuildContext.prototype._options) {
+	getOption(key: BuildContextOptions) {
 		return this._buildContext.getOption(key);
 	}
 
@@ -86,10 +87,10 @@ class ProjectBuildContext {
 	 * @throws {Error} If the requested project is unknown to the graph
 	 */
 	getDependencies(projectName?: string) {
-		return this._buildContext.getGraph().getDependencies(projectName || this._project.getName());
+		return this._buildContext.getGraph().getDependencies(projectName ?? this._project.getName());
 	}
 
-	getResourceTagCollection(resource: ResourceInterface, tag: string) {
+	getResourceTagCollection(resource: ResourceInterface, tag: string): ResourceTagCollection {
 		if (!resource.hasProject()) {
 			this._log.silly(`Associating resource ${resource.getPath()} with project ${this._project.getName()}`);
 			resource.setProject(this._project);
@@ -97,7 +98,7 @@ class ProjectBuildContext {
 			// 	`Unable to get tag collection for resource ${resource.getPath()}: ` +
 			// 	`Resource must be associated to a project`);
 		}
-		const projectCollection = resource.getProject().getResourceTagCollection();
+		const projectCollection = (resource.getProject() as Project).getResourceTagCollection();
 		if (projectCollection.acceptsTag(tag)) {
 			return projectCollection;
 		}

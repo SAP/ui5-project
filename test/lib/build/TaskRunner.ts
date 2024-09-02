@@ -1,22 +1,32 @@
-import test from "ava";
+import anyTest, {type TestFn} from "ava";
 import sinonGlobal from "sinon";
 import esmock from "esmock";
 import {setLogLevel} from "@ui5/logger";
+import type TaskRunner from "../../../src/build/TaskRunner.js";
+import type TaskUtil from "../../../src/build/helpers/TaskUtil.js";
+import type * as taskRepositoryModule from "@ui5/builder/internal/taskRepository";
+import type ProjectGraph from "../../../src/graph/ProjectGraph.js";
+import type * as resourceFactory from "@ui5/fs/resourceFactory";
+import type * as logger from "@ui5/logger";
+import type ProjectBuildLogger from "@ui5/logger/internal/loggers/ProjectBuild";
+import {type BuildConfig} from "../../../src/build/helpers/BuildContext.js";
+import type Project from "../../../src/specifications/Project.js";
 setLogLevel("perf");
 
+// eslint-disable-next-line @typescript-eslint/no-empty-function
 function noop() {}
 function emptyarray() {
 	return [];
 }
 
-const buildConfig = {
+const buildConfig: BuildConfig = {
 	selfContained: false,
 	jsdoc: false,
 	includedTasks: [],
 	excludedTasks: [],
 };
 
-function getMockProject(type) {
+function getMockProject(type: string): Project {
 	return {
 		getName: () => "project.b",
 		getNamespace: () => "project/b",
@@ -59,28 +69,49 @@ function getMockProject(type) {
 		hasBuildManifest: () => false,
 		getWorkspace: () => "workspace",
 		isFrameworkProject: () => false,
-	};
+	} as unknown as Project; // unknown necessary because depending on the "type", the signature changes
 }
+
+const test = anyTest as TestFn<{
+	sinon: sinonGlobal.SinonSandbox;
+	taskUtil: TaskUtil;
+	taskRepository: typeof taskRepositoryModule;
+	customTaskSpecVersionGteStub: sinonGlobal.SinonStub;
+	getRequiredDependenciesCallbackStub: sinonGlobal.SinonStub;
+	customTask: {
+		getName: () => string;
+		getSpecVersion: () => {
+			gte: sinonGlobal.SinonStub;
+		};
+		getRequiredDependenciesCallback: sinonGlobal.SinonStub;
+	};
+	graph: ProjectGraph;
+	logger: typeof logger;
+	projectBuildLogger: ProjectBuildLogger;
+	resourceFactory: typeof resourceFactory;
+	TaskRunner: typeof TaskRunner;
+}>;
 
 test.beforeEach(async (t) => {
 	const sinon = t.context.sinon = sinonGlobal.createSandbox();
 
+	const getInterface = sinon.stub();
 	t.context.taskUtil = {
 		isRootProject: sinon.stub().returns(true),
 		getBuildOption: sinon.stub(),
 		getProject: sinon.stub(),
 		getDependencies: sinon.stub().returns(["dep.a", "dep.b"]),
-		getInterface: sinon.stub(),
-	};
-	t.context.taskUtil.getInterface.returns(t.context.taskUtil);
+		getInterface,
+	} as unknown as TaskUtil;
+	getInterface.returns(t.context.taskUtil);
 
 	t.context.taskRepository = {
-		getTask: sinon.stub().callsFake(async (taskName) => {
+		getTask: sinon.stub().callsFake((taskName) => {
 			throw new Error(`taskRepository: Unknown Task ${taskName}`);
 		}),
 		getAllTaskNames: sinon.stub().returns(["replaceVersion"]),
 		getRemovedTaskNames: sinon.stub().returns(["removedTask"]),
-	};
+	} as unknown as typeof taskRepositoryModule;
 
 	t.context.customTaskSpecVersionGteStub = sinon.stub().returns(true);
 	t.context.getRequiredDependenciesCallbackStub = sinon.stub().resolves(null);
@@ -103,11 +134,11 @@ test.beforeEach(async (t) => {
 		getExtension: sinon.stub().returns(t.context.customTask),
 		traverseBreadthFirst: sinon.stub(),
 		getTransitiveDependencies: sinon.stub().returns(["dep.a", "dep.b", "dep.c"]),
-	};
+	} as unknown as ProjectGraph;
 
 	t.context.logger = {
 		getLogger: sinon.stub().returns("group logger"),
-	};
+	} as unknown as typeof logger;
 
 	t.context.projectBuildLogger = {
 		setTasks: sinon.stub(),
@@ -116,12 +147,12 @@ test.beforeEach(async (t) => {
 		verbose: sinon.stub(),
 		perf: sinon.stub(),
 		isLevelEnabled: sinon.stub().returns(true),
-	};
+	} as unknown as ProjectBuildLogger;
 
 	t.context.resourceFactory = {
 		createReaderCollection: sinon.stub()
 			.returns("reader collection"),
-	};
+	} as unknown as typeof resourceFactory;
 
 	t.context.TaskRunner = await esmock("../../../src/build/TaskRunner.js", {
 		"@ui5/logger": t.context.logger,
@@ -136,6 +167,7 @@ test.afterEach.always((t) => {
 test("Missing parameters", (t) => {
 	const {graph, taskUtil, taskRepository, TaskRunner, projectBuildLogger} = t.context;
 	t.throws(() => {
+		// @ts-expect-error testing invalid value
 		new TaskRunner({
 			graph,
 			taskUtil,
@@ -147,6 +179,7 @@ test("Missing parameters", (t) => {
 		message: "TaskRunner: One or more mandatory parameters not provided",
 	}, "Threw with expected error message for missing project parameter");
 	t.throws(() => {
+		// @ts-expect-error testing invalid value
 		new TaskRunner({
 			project: getMockProject("application"),
 			taskUtil,
@@ -158,6 +191,7 @@ test("Missing parameters", (t) => {
 		message: "TaskRunner: One or more mandatory parameters not provided",
 	}, "Threw with expected error message for missing graph parameter");
 	t.throws(() => {
+		// @ts-expect-error testing invalid value
 		new TaskRunner({
 			project: getMockProject("application"),
 			graph,
@@ -169,6 +203,7 @@ test("Missing parameters", (t) => {
 		message: "TaskRunner: One or more mandatory parameters not provided",
 	}, "Threw with expected error message for missing taskUtil parameter");
 	t.throws(() => {
+		// @ts-expect-error testing invalid value
 		new TaskRunner({
 			project: getMockProject("application"),
 			graph,
@@ -180,6 +215,7 @@ test("Missing parameters", (t) => {
 		message: "TaskRunner: One or more mandatory parameters not provided",
 	}, "Threw with expected error message for missing taskRepository parameter");
 	t.throws(() => {
+		// @ts-expect-error testing invalid value
 		new TaskRunner({
 			project: getMockProject("application"),
 			graph,
@@ -191,6 +227,7 @@ test("Missing parameters", (t) => {
 		message: "TaskRunner: One or more mandatory parameters not provided",
 	}, "Threw with expected error message for missing log parameter");
 	t.throws(() => {
+		// @ts-expect-error testing invalid value
 		new TaskRunner({
 			project: getMockProject("application"),
 			graph,
@@ -548,7 +585,7 @@ test("_initTasks: Custom tasks with unknown afterTask", async (t) => {
 
 test("_initTasks: Custom tasks is unknown", async (t) => {
 	const {graph, taskUtil, taskRepository, TaskRunner, projectBuildLogger} = t.context;
-	graph.getExtension.returns(undefined);
+	(graph.getExtension as sinonGlobal.SinonStub).returns(undefined);
 	const project = getMockProject("application");
 	project.getCustomTasks = () => [
 		{name: "myTask", afterTask: "minify"},
@@ -591,10 +628,11 @@ test("_initTasks: Create dependencies reader for all dependencies", async (t) =>
 		project, graph, taskUtil, taskRepository, log: projectBuildLogger, buildConfig,
 	});
 	await taskRunner._initTasks();
-	t.is(graph.traverseBreadthFirst.callCount, 1, "ProjectGraph#traverseBreadthFirst called once");
-	t.is(graph.traverseBreadthFirst.getCall(0).args[0], "project.b",
+	t.is((graph.traverseBreadthFirst as sinonGlobal.SinonStub).callCount, 1,
+		"ProjectGraph#traverseBreadthFirst called once");
+	t.is((graph.traverseBreadthFirst as sinonGlobal.SinonStub).getCall(0).args[0], "project.b",
 		"ProjectGraph#traverseBreadthFirst called with correct project name for start");
-	const traversalCallback = graph.traverseBreadthFirst.getCall(0).args[1];
+	const traversalCallback = (graph.traverseBreadthFirst as sinonGlobal.SinonStub).getCall(0).args[1];
 
 	// Call with root project should be ignored
 	await traversalCallback({
@@ -621,8 +659,9 @@ test("_initTasks: Create dependencies reader for all dependencies", async (t) =>
 			getReader: () => "transitive.dep.a reader",
 		},
 	});
-	t.is(resourceFactory.createReaderCollection.callCount, 1, "createReaderCollection got called once");
-	t.deepEqual(resourceFactory.createReaderCollection.getCall(0).args[0], {
+	t.is((resourceFactory.createReaderCollection as sinonGlobal.SinonStub).callCount, 1,
+		"createReaderCollection got called once");
+	t.deepEqual((resourceFactory.createReaderCollection as sinonGlobal.SinonStub).getCall(0).args[0], {
 		name: "Dependency reader collection of project project.b",
 		readers: [
 			"dep.a reader", "dep.b reader", "transitive.dep.a reader",
@@ -656,11 +695,11 @@ test("Custom task is called correctly", async (t) => {
 	});
 	await taskRunner._initTasks();
 
-	t.truthy(taskRunner._tasks.myTask, "Custom tasks has been added to task map");
-	t.deepEqual(taskRunner._tasks.myTask.requiredDependencies, new Set(["dep.a", "dep.b"]),
+	t.truthy(taskRunner._tasks.get("myTask"), "Custom tasks has been added to task map");
+	t.deepEqual(taskRunner._tasks.get("myTask").requiredDependencies, new Set(["dep.a", "dep.b"]),
 		"Custom tasks requires all dependencies by default");
 	const createDependencyReaderStub = sinon.stub(taskRunner, "_createDependenciesReader").resolves("dependencies");
-	await taskRunner._tasks.myTask.task();
+	await taskRunner._tasks.get("myTask").task();
 
 	t.is(specVersionGteStub.callCount, 2, "SpecificationVersion#gte got called twice");
 	t.is(specVersionGteStub.getCall(0).args[0], "3.0",
@@ -716,12 +755,12 @@ test("Custom task with legacy spec version", async (t) => {
 	});
 	await taskRunner._initTasks();
 
-	t.truthy(taskRunner._tasks.myTask, "Custom tasks has been added to task map");
-	t.deepEqual(taskRunner._tasks.myTask.requiredDependencies, new Set(["dep.a", "dep.b"]),
+	t.truthy(taskRunner._tasks.get("myTask"), "Custom tasks has been added to task map");
+	t.deepEqual(taskRunner._tasks.get("myTask").requiredDependencies, new Set(["dep.a", "dep.b"]),
 		"Custom tasks requires all dependencies by default");
 
 	const createDependencyReaderStub = sinon.stub(taskRunner, "_createDependenciesReader").resolves("dependencies");
-	await taskRunner._tasks.myTask.task();
+	await taskRunner._tasks.get("myTask").task();
 
 	t.is(specVersionGteStub.callCount, 2, "SpecificationVersion#gte got called twice");
 	t.is(specVersionGteStub.getCall(0).args[0], "3.0",
@@ -777,8 +816,8 @@ test("Custom task with legacy spec version and requiredDependenciesCallback", as
 	});
 	await taskRunner._initTasks();
 
-	t.truthy(taskRunner._tasks.myTask, "Custom tasks has been added to task map");
-	t.deepEqual(taskRunner._tasks.myTask.requiredDependencies, new Set(["dep.b"]),
+	t.truthy(taskRunner._tasks.get("myTask"), "Custom tasks has been added to task map");
+	t.deepEqual(taskRunner._tasks.get("myTask").requiredDependencies, new Set(["dep.b"]),
 		"Custom tasks requires all dependencies by default");
 
 	t.is(requiredDependenciesCallbackStub.callCount, 1, "requiredDependenciesCallback got called once");
@@ -793,7 +832,7 @@ test("Custom task with legacy spec version and requiredDependenciesCallback", as
 	}, "requiredDependenciesCallback got called with expected arguments");
 
 	const createDependencyReaderStub = sinon.stub(taskRunner, "_createDependenciesReader").resolves("dependencies");
-	await taskRunner._tasks.myTask.task();
+	await taskRunner._tasks.get("myTask").task();
 
 	t.is(specVersionGteStub.callCount, 2, "SpecificationVersion#gte got called twice");
 	t.is(specVersionGteStub.getCall(0).args[0], "3.0",
@@ -881,11 +920,11 @@ test("Custom task with specVersion 3.0", async (t) => {
 		},
 	}, "requiredDependenciesCallback got called with expected arguments");
 
-	t.truthy(taskRunner._tasks.myTask, "Custom tasks has been added to task map");
-	t.deepEqual(taskRunner._tasks.myTask.requiredDependencies, new Set(["dep.b"]),
+	t.truthy(taskRunner._tasks.get("myTask"), "Custom tasks has been added to task map");
+	t.deepEqual(taskRunner._tasks.get("myTask").requiredDependencies, new Set(["dep.b"]),
 		"Custom tasks requires all dependencies by default");
 	const createDependencyReaderStub = sinon.stub(taskRunner, "_createDependenciesReader").resolves("dependencies");
-	await taskRunner._tasks.myTask.task();
+	await taskRunner._tasks.get("myTask").task();
 
 	t.is(specVersionGteStub.callCount, 2, "SpecificationVersion#gte got called twice");
 	t.is(specVersionGteStub.getCall(0).args[0], "3.0",
@@ -948,11 +987,11 @@ test("Custom task with specVersion 3.0 and no requiredDependenciesCallback", asy
 	});
 	await taskRunner._initTasks();
 
-	t.truthy(taskRunner._tasks.myTask, "Custom tasks has been added to task map");
-	t.deepEqual(taskRunner._tasks.myTask.requiredDependencies, new Set(),
+	t.truthy(taskRunner._tasks.get("myTask"), "Custom tasks has been added to task map");
+	t.deepEqual(taskRunner._tasks.get("myTask").requiredDependencies, new Set(),
 		"Custom tasks requires no dependencies by default");
 	const createDependencyReaderStub = sinon.stub(taskRunner, "_createDependenciesReader").resolves("dependencies");
-	await taskRunner._tasks.myTask.task();
+	await taskRunner._tasks.get("myTask").task();
 
 	t.is(specVersionGteStub.callCount, 2, "SpecificationVersion#gte got called twice");
 	t.is(specVersionGteStub.getCall(0).args[0], "3.0",
@@ -1054,19 +1093,19 @@ test("Multiple custom tasks with same name are called correctly", async (t) => {
 	t.is(requiredDependenciesCallbackStubD.callCount, 1,
 		"requiredDependenciesCallback stub for Task D stub was called once");
 
-	t.truthy(taskRunner._tasks.myTask, "Custom tasks A has been added to task map");
-	t.truthy(taskRunner._tasks["myTask--2"], "Custom tasks B has been added to task map");
-	t.truthy(taskRunner._tasks["myTask--3"], "Custom tasks C has been added to task map");
-	t.truthy(taskRunner._tasks["myTask--4"], "Custom tasks D has been added to task map");
-	t.deepEqual(taskRunner._tasks.myTask.requiredDependencies, new Set(["dep.b"]),
+	t.truthy(taskRunner._tasks.get("myTask"), "Custom tasks A has been added to task map");
+	t.truthy(taskRunner._tasks.get("myTask--2"), "Custom tasks B has been added to task map");
+	t.truthy(taskRunner._tasks.get("myTask--3"), "Custom tasks C has been added to task map");
+	t.truthy(taskRunner._tasks.get("myTask--4"), "Custom tasks D has been added to task map");
+	t.deepEqual(taskRunner._tasks.get("myTask").requiredDependencies, new Set(["dep.b"]),
 		"Custom tasks with legacy specVersion and requiredDependenciesCallback defines " +
 		"required dependencies");
-	t.deepEqual(taskRunner._tasks["myTask--2"].requiredDependencies, new Set(["dep.a", "dep.b"]),
+	t.deepEqual(taskRunner._tasks.get("myTask--2").requiredDependencies, new Set(["dep.a", "dep.b"]),
 		"Custom tasks with legacy specVersion require all dependencies by default");
-	t.deepEqual(taskRunner._tasks["myTask--3"].requiredDependencies, new Set([]),
+	t.deepEqual(taskRunner._tasks.get("myTask--3").requiredDependencies, new Set([]),
 		"Custom tasks with specVersion 3.0 but no requiredDependenciesCallback " +
 		"require no dependencies by default");
-	t.deepEqual(taskRunner._tasks["myTask--4"].requiredDependencies, new Set(["dep.a"]),
+	t.deepEqual(taskRunner._tasks.get("myTask--4").requiredDependencies, new Set(["dep.a"]),
 		"Custom tasks with specVersion 3.0 and requiredDependenciesCallback defines " +
 		"required dependencies");
 
@@ -1310,13 +1349,13 @@ test.serial("_addTask", async (t) => {
 
 	taskRunner._addTask("standardTask");
 
-	t.truthy(taskRunner._tasks.standardTask, "Task has been added to task map");
-	t.deepEqual(taskRunner._tasks.standardTask.requiredDependencies, new Set(),
+	t.truthy(taskRunner._tasks.get("standardTask"), "Task has been added to task map");
+	t.deepEqual(taskRunner._tasks.get("standardTask").requiredDependencies, new Set(),
 		"By default, no dependencies required");
-	t.truthy(taskRunner._tasks.standardTask.task, "Task function got set correctly");
+	t.truthy(taskRunner._tasks.get("standardTask").task, "Task function got set correctly");
 	t.deepEqual(taskRunner._taskExecutionOrder, ["standardTask"], "Task got added to execution order");
 
-	await taskRunner._tasks.standardTask.task({
+	await taskRunner._tasks.get("standardTask").task({
 		workspace: "workspace",
 		dependencies: "dependencies",
 	});
@@ -1354,14 +1393,14 @@ test.serial("_addTask with options", async (t) => {
 		taskFunction: taskStub,
 	});
 
-	t.truthy(taskRunner._tasks.standardTask, "Task has been added to task map");
-	t.deepEqual(taskRunner._tasks.standardTask.requiredDependencies, new Set(["dep.a", "dep.b"]),
+	t.truthy(taskRunner._tasks.get("standardTask"), "Task has been added to task map");
+	t.deepEqual(taskRunner._tasks.get("standardTask").requiredDependencies, new Set(["dep.a", "dep.b"]),
 		"All dependencies required");
-	t.truthy(taskRunner._tasks.standardTask.task, "Task function got set correctly");
+	t.truthy(taskRunner._tasks.get("standardTask").task, "Task function got set correctly");
 	t.deepEqual(taskRunner._taskExecutionOrder, ["standardTask"], "Task got added to execution order");
 
 	const createDependencyReaderStub = sinon.stub(taskRunner, "_createDependenciesReader").resolves("dependencies");
-	await taskRunner._tasks.standardTask.task({
+	await taskRunner._tasks.get("standardTask").task({
 		workspace: "workspace",
 		dependencies: "dependencies",
 	});

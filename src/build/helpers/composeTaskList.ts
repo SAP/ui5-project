@@ -1,3 +1,5 @@
+import {type BuildConfig} from "./BuildContext.js";
+
 /**
  * Creates the list of tasks to be executed by the build process
  *
@@ -14,8 +16,9 @@
  * @param buildConfig.excludedTasks
  * @returns List of tasks to be executed
  */
-export default function composeTaskList(allTasks: string[], {selfContained, jsdoc, includedTasks, excludedTasks}: object) {
-	let selectedTasks = allTasks.reduce((list, key) => {
+export default function composeTaskList(
+	allTasks: string[], {selfContained, jsdoc, includedTasks, excludedTasks}: BuildConfig) {
+	const selectedTasks: Record<string, boolean> = allTasks.reduce((list: Record<string, boolean>, key) => {
 		list[key] = true;
 		return list;
 	}, {});
@@ -93,7 +96,5 @@ export default function composeTaskList(allTasks: string[], {selfContained, jsdo
 	}
 
 	// Filter only for tasks that will be executed
-	selectedTasks = Object.keys(selectedTasks).filter((task) => selectedTasks[task]);
-
-	return selectedTasks;
+	return Object.keys(selectedTasks).filter((task) => selectedTasks[task]);
 }

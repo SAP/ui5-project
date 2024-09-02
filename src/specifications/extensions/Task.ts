@@ -1,11 +1,10 @@
 import path from "node:path";
 import Extension from "../Extension.js";
 import {pathToFileURL} from "node:url";
-import {SpecificationConfiguration} from "../Specification.js";
-import AbstractReader from "@ui5/fs/AbstractReader";
-import Logger from "@ui5/logger/Logger";
-import TaskUtil from "../../build/helpers/TaskUtil.js";
-import AbstractReaderWriter from "@ui5/fs/AbstractReaderWriter";
+import {type SpecificationConfiguration} from "../Specification.js";
+import type Logger from "@ui5/logger/Logger";
+import {type TaskParamsBase} from "../../build/TaskRunner.js";
+import {type TaskUtilInterface3_0, type TaskUtilInterfaceBase} from "../../build/helpers/TaskUtil.js";
 
 interface TaskConfiguration extends SpecificationConfiguration {
 	task: {
@@ -13,18 +12,35 @@ interface TaskConfiguration extends SpecificationConfiguration {
 	};
 }
 
-interface CustomTaskParams {
-	dependencies: AbstractReader;
-	log: Logger;
-	options: Record<string, unknown>;
-	taskUtil: TaskUtil;
-	workspace: AbstractReaderWriter;
+export type CustomTaskParamsBase = TaskParamsBase;
+
+export interface CustomTaskParams_2_1 extends CustomTaskParamsBase {
+	taskUtil: TaskUtilInterfaceBase;
 }
-type CustomTask = ({dependencies, log, options, taskUtil, workspace}: CustomTaskParams) => Promise<void>;
+
+export interface CustomTaskParams_3_0 extends CustomTaskParamsBase {
+	log?: Logger;
+}
+
+type CustomTaskFunction = (params: CustomTaskParamsBase) => Promise<void>;
+
+export interface DetermineRequiredDependenciesParams {
+	availableDependencies: Set<string>;
+	// Only provided for specVersion >=3.0
+	getProject?: TaskUtilInterface3_0["getProject"];
+	// Only provided for specVersion >=3.0
+	getDependencies?: TaskUtilInterface3_0["getDependencies"];
+	options: {
+		projectName: string;
+		projectNamespace: string;
+		taskName: string;
+		configuration: unknown;
+	};
+}
 
 interface CustomTaskModule {
-	default: CustomTask;
-	determineRequiredDependencies?: (dependencies: AbstractReader) => Promise<void>;
+	default: CustomTaskFunction;
+	determineRequiredDependencies?: (params: DetermineRequiredDependenciesParams) => Promise<Set<string>>;
 }
 
 /**

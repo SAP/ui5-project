@@ -5,8 +5,8 @@ import type Extension from "../specifications/Extension.js";
 import type * as taskRepositoryModule from "@ui5/builder/internal/taskRepository";
 const log = getLogger("graph:ProjectGraph");
 
-type TraversalCallback = (arg: {project: Project; dependencies: string[]}) => Promise<undefined>;
-type VisitedNodes = Record<string, Promise<undefined> | undefined>;
+type TraversalCallback = (arg: {project: Project; dependencies: string[]}) => void | Promise<void>;
+type VisitedNodes = Record<string, void | Promise<void>>;
 
 /**
  * A rooted, directed graph representing a UI5 project, its dependencies and available extensions.
@@ -252,7 +252,7 @@ class ProjectGraph {
 	 * @param projectName Name of the project to retrieve the dependencies of
 	 * @returns Names of all direct dependencies
 	 */
-	public getDependencies(projectName: string) {
+	public getDependencies(projectName: string): string[] {
 		const adjacencies = this._adjList.get(projectName);
 		if (!adjacencies) {
 			throw new Error(
@@ -268,8 +268,8 @@ class ProjectGraph {
 	 * @param projectName Name of the project to retrieve the dependencies of
 	 * @returns Names of all direct and transitive dependencies
 	 */
-	public getTransitiveDependencies(projectName: string) {
-		const dependencies = new Set();
+	public getTransitiveDependencies(projectName: string): string[] {
+		const dependencies = new Set<string>();
 		if (!this._projects.has(projectName)) {
 			throw new Error(
 				`Failed to get transitive dependencies for project ${projectName}: ` +

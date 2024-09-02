@@ -18,7 +18,7 @@ class ThemeLibrary extends Project {
 	/* === Attributes === */
 	/**
 	 */
-	private getCopyright() {
+	public getCopyright() {
 		return this._config.metadata.copyright;
 	}
 

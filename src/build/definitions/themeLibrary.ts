@@ -1,17 +1,8 @@
-/**
- * Get tasks and their configuration for a given application project
- *
- * @param parameters
- * @param parameters.project
- * @param parameters.taskUtil
- * @param parameters.getTask
- */
-export default function ({project, taskUtil, getTask}: {
-	project: object;
-	taskUtil: object;
-	getTask: Function;
-}) {
-	const tasks = new Map();
+import type ThemeLibrary from "../../specifications/types/ThemeLibrary.js";
+import {type ProjectBuildDefinition, type StandardTaskDefinition} from "../TaskRunner.js";
+
+const libraryDefinition: ProjectBuildDefinition<ThemeLibrary> = function ({project, taskUtil}) {
+	const tasks = new Map<string, StandardTaskDefinition>();
 	tasks.set("replaceCopyright", {
 		options: {
 			copyright: project.getCopyright(),
@@ -50,4 +41,6 @@ export default function ({project, taskUtil, getTask}: {
 
 	tasks.set("generateResourcesJson", {requiresDependencies: true});
 	return tasks;
-}
+};
+
+export default libraryDefinition;

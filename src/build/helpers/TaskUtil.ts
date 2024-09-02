@@ -1,4 +1,4 @@
-import {ResourceInterface} from "@ui5/fs/Resource";
+import {type ResourceInterface} from "@ui5/fs/Resource";
 import {
 	createReaderCollection,
 	createReaderCollectionPrioritized,
@@ -7,6 +7,42 @@ import {
 	createLinkReader,
 	createFlatReader,
 } from "@ui5/fs/resourceFactory";
+import type * as resourceFactory from "@ui5/fs/resourceFactory";
+import type ProjectBuildContext from "./ProjectBuildContext.js";
+import type SpecificationVersion from "../../specifications/SpecificationVersion.js";
+import {type BuildContextOptions} from "./BuildContext.js";
+import {type CleanupCallback} from "./ProjectBuildContext.js";
+import type Project from "../../specifications/Project.js";
+
+export interface TaskUtilInterfaceBase extends Pick<TaskUtil,
+"setTag" | "clearTag" | "getTag" | "isRootProject" | "registerCleanupTask"> {
+	STANDARD_TAGS: object;
+}
+
+type ProjectInterface3_0 = Pick<Project,
+"getType" | "getName" | "getVersion" | "getNamespace" | "getRootReader" | "getReader" |
+"getRootPath" | "getSourcePath" | "getCustomConfiguration" | "isFrameworkProject" | "getFrameworkName" |
+"getFrameworkVersion" | "getFrameworkDependencies">;
+
+type ResourceFactoryInterface = {
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+	[key in keyof typeof resourceFactory]: Function;
+};
+
+interface ResourceFactoryInterface_3_0 extends ResourceFactoryInterface {
+	createResource: typeof createResource;
+	createReaderCollection: typeof createReaderCollection;
+	createReaderCollectionPrioritized: typeof createReaderCollectionPrioritized;
+	createFilterReader: typeof createFilterReader;
+	createLinkReader: typeof createLinkReader;
+	createFlatReader: typeof createFlatReader;
+}
+
+export interface TaskUtilInterface3_0 extends TaskUtilInterfaceBase {
+	getProject(projectNameOrResource?: string | ResourceInterface): ProjectInterface3_0 | undefined;
+	getDependencies: TaskUtil["getDependencies"];
+	resourceFactory: ResourceFactoryInterface_3_0;
+}
 
 /**
  * Convenience functions for UI5 tasks.
@@ -49,7 +85,9 @@ class TaskUtil {
 	 */
 	STANDARD_TAGS: object;
 
-	constructor({projectBuildContext}) {
+	_projectBuildContext: ProjectBuildContext;
+
+	constructor({projectBuildContext}: {projectBuildContext: ProjectBuildContext}) {
 		this._projectBuildContext = projectBuildContext;
 		/**
 		 */
@@ -152,7 +190,7 @@ class TaskUtil {
 	 * @param key The option key
 	 * @returns The build option (or undefined)
 	 */
-	private getBuildOption(key: string) {
+	public getBuildOption(key: BuildContextOptions) {
 		return this._projectBuildContext.getOption(key);
 	}
 
@@ -176,7 +214,7 @@ class TaskUtil {
 	 * @param callback Callback to
 	 * 									register; it will be waited for if it returns a Promise
 	 */
-	public registerCleanupTask(callback) {
+	public registerCleanupTask(callback: CleanupCallback) {
 		return this._projectBuildContext.registerCleanupTask(callback);
 	}
 
@@ -225,14 +263,14 @@ class TaskUtil {
 	 * Specification Version-dependent interface to the Project instance or <code>undefined</code>
 	 * if the project name is unknown or the provided resource is not associated with any project.
 	 */
-	public getProject(projectNameOrResource) {
+	public getProject(projectNameOrResource?: string | ResourceInterface): Project | undefined {
 		if (projectNameOrResource) {
 			if (typeof projectNameOrResource === "string" || projectNameOrResource instanceof String) {
 				// A project name has been provided
-				return this._projectBuildContext.getProject(projectNameOrResource);
+				return this._projectBuildContext.getProject(projectNameOrResource as string);
 			} else {
 				// A Resource instance has been provided
-				return projectNameOrResource.getProject();
+				return projectNameOrResource.getProject() as Project;
 			}
 		}
 		// No parameter has been provided, default to the project currently being built.
@@ -304,61 +342,67 @@ class TaskUtil {
 	 * SpecVersionComparator instance of the custom task
 	 * @returns An object with bound instance methods supported by the given specification version
 	 */
-	getInterface(specVersion) {
+	getInterface(specVersion: SpecificationVersion): TaskUtilInterfaceBase | TaskUtilInterface3_0 | undefined {
 		if (specVersion.lte("2.1")) {
 			// Tasks defining specVersion <= 2.1 do not have access to any TaskUtil APIs
 			return undefined;
 		}
 
-		const baseInterface = {
-			STANDARD_TAGS: this.STANDARD_TAGS,
-		};
-		bindFunctions(this, baseInterface, [
+		const baseInterface = bindFunctions(this, [
 			"setTag", "clearTag", "getTag", "isRootProject", "registerCleanupTask",
-		]);
+		]) as Partial<TaskUtilInterfaceBase>;
+
+		baseInterface.STANDARD_TAGS = this.STANDARD_TAGS;
 
 		if (specVersion.gte("3.0")) {
+			const interface_3_0: Partial<TaskUtilInterface3_0> = baseInterface;
 			// getProject function, returning an interfaced project instance
-			baseInterface.getProject = (projectName) => {
+			interface_3_0.getProject = (projectName) => {
 				const project = this.getProject(projectName);
-				const baseProjectInterface = {};
-				bindFunctions(project, baseProjectInterface, [
+				if (!project) {
+					return undefined;
+				}
+
+				const baseProjectInterface = bindFunctions(project, [
 					"getType", "getName", "getVersion", "getNamespace",
 					"getRootReader", "getReader", "getRootPath", "getSourcePath",
 					"getCustomConfiguration", "isFrameworkProject", "getFrameworkName",
 					"getFrameworkVersion", "getFrameworkDependencies",
 				]);
-				return baseProjectInterface;
+				return baseProjectInterface as ProjectInterface3_0;
 			};
 			// getDependencies function, returning an array of project names
-			baseInterface.getDependencies = (projectName) => {
+			interface_3_0.getDependencies = (projectName?) => {
 				return this.getDependencies(projectName);
 			};
 
-			baseInterface.resourceFactory = Object.create(null);
-			[
-				// Once new functions get added, extract this array into a variable
-				// and enhance based on spec version once new functions get added
-				"createResource", "createReaderCollection", "createReaderCollectionPrioritized",
-				"createFilterReader", "createLinkReader", "createFlatReader",
-			].forEach((factoryFunction) => {
-				baseInterface.resourceFactory[factoryFunction] = this.resourceFactory[factoryFunction];
-			});
+			interface_3_0.resourceFactory =
+				bindFunctions(this.resourceFactory, [
+					// Once new functions get added, extract this array into a variable
+					// and enhance based on spec version once new functions get added
+					"createResource", "createReaderCollection", "createReaderCollectionPrioritized",
+					"createFilterReader", "createLinkReader", "createFlatReader",
+				]) as TaskUtilInterface3_0["resourceFactory"];
+
+			// interface_3_0.resourceFactory = Object.create(null) as TaskUtilInterface3_0["resourceFactory"];
+			// for (const factoryFunction of TASK_UTIL_INTERFACE_FACTORY_FUNCTIONS_3_0) {
+			// 	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+			// 	interface_3_0.resourceFactory[factoryFunction] = this.resourceFactory[factoryFunction] as any;
+			// }
+			return interface_3_0 as TaskUtilInterface3_0;
+		} else {
+			return baseInterface as TaskUtilInterfaceBase;
 		}
-		return baseInterface;
 	}
 }
 
-/**
- *
- * @param sourceObject
- * @param targetObject
- * @param funcNames
- */
-function bindFunctions(sourceObject, targetObject, funcNames) {
-	funcNames.forEach((funcName) => {
-		targetObject[funcName] = sourceObject[funcName].bind(sourceObject);
+function bindFunctions<T, K extends keyof T>(object: T, functions: K[]): Record<K, T[K]> {
+	const boundFunctions: Partial<Record<K, T[K]>> = {};
+	functions.forEach((func) => {
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-function-type
+		boundFunctions[func] = (object[func] as Function).bind(object);
 	});
+	return boundFunctions as Record<K, T[K]>;
 }
 
 export default TaskUtil;

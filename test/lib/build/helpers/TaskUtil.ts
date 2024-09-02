@@ -290,12 +290,12 @@ test("getInterface: specVersion 2.2", (t) => {
 	const interfacedTaskUtil = taskUtil.getInterface(getSpecificationVersion("2.2"));
 
 	t.deepEqual(Object.keys(interfacedTaskUtil), [
-		"STANDARD_TAGS",
 		"setTag",
 		"clearTag",
 		"getTag",
 		"isRootProject",
 		"registerCleanupTask",
+		"STANDARD_TAGS",
 	], "Correct methods are provided");
 
 	t.deepEqual(interfacedTaskUtil.STANDARD_TAGS, STANDARD_TAGS, "attribute STANDARD_TAGS is provided");
@@ -314,12 +314,12 @@ test("getInterface: specVersion 2.3", (t) => {
 	const interfacedTaskUtil = taskUtil.getInterface(getSpecificationVersion("2.3"));
 
 	t.deepEqual(Object.keys(interfacedTaskUtil), [
-		"STANDARD_TAGS",
 		"setTag",
 		"clearTag",
 		"getTag",
 		"isRootProject",
 		"registerCleanupTask",
+		"STANDARD_TAGS",
 	], "Correct methods are provided");
 
 	t.deepEqual(interfacedTaskUtil.STANDARD_TAGS, STANDARD_TAGS, "attribute STANDARD_TAGS is provided");
@@ -338,12 +338,12 @@ test("getInterface: specVersion 2.4", (t) => {
 	const interfacedTaskUtil = taskUtil.getInterface(getSpecificationVersion("2.4"));
 
 	t.deepEqual(Object.keys(interfacedTaskUtil), [
-		"STANDARD_TAGS",
 		"setTag",
 		"clearTag",
 		"getTag",
 		"isRootProject",
 		"registerCleanupTask",
+		"STANDARD_TAGS",
 	], "Correct methods are provided");
 
 	t.deepEqual(interfacedTaskUtil.STANDARD_TAGS, STANDARD_TAGS, "attribute STANDARD_TAGS is provided");
@@ -362,12 +362,12 @@ test("getInterface: specVersion 2.5", (t) => {
 	const interfacedTaskUtil = taskUtil.getInterface(getSpecificationVersion("2.5"));
 
 	t.deepEqual(Object.keys(interfacedTaskUtil), [
-		"STANDARD_TAGS",
 		"setTag",
 		"clearTag",
 		"getTag",
 		"isRootProject",
 		"registerCleanupTask",
+		"STANDARD_TAGS",
 	], "Correct methods are provided");
 
 	t.deepEqual(interfacedTaskUtil.STANDARD_TAGS, STANDARD_TAGS, "attribute STANDARD_TAGS is provided");
@@ -386,12 +386,12 @@ test("getInterface: specVersion 2.6", (t) => {
 	const interfacedTaskUtil = taskUtil.getInterface(getSpecificationVersion("2.6"));
 
 	t.deepEqual(Object.keys(interfacedTaskUtil), [
-		"STANDARD_TAGS",
 		"setTag",
 		"clearTag",
 		"getTag",
 		"isRootProject",
 		"registerCleanupTask",
+		"STANDARD_TAGS",
 	], "Correct methods are provided");
 
 	t.deepEqual(interfacedTaskUtil.STANDARD_TAGS, STANDARD_TAGS, "attribute STANDARD_TAGS is provided");
@@ -432,12 +432,12 @@ test("getInterface: specVersion 3.0", (t) => {
 	const interfacedTaskUtil = taskUtil.getInterface(getSpecificationVersion("3.0"));
 
 	t.deepEqual(Object.keys(interfacedTaskUtil), [
-		"STANDARD_TAGS",
 		"setTag",
 		"clearTag",
 		"getTag",
 		"isRootProject",
 		"registerCleanupTask",
+		"STANDARD_TAGS",
 		"getProject",
 		"getDependencies",
 		"resourceFactory",

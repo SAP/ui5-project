@@ -1,20 +1,10 @@
 import {enhancePatternWithExcludes} from "./_utils.js";
 import {enhanceBundlesWithDefaults} from "../../validation/validator.js";
+import {type StandardTaskDefinition, type ProjectBuildDefinition} from "../TaskRunner.js";
+import type Library from "../../specifications/types/Library.js";
 
-/**
- * Get tasks and their configuration for a given application project
- *
- * @param parameters
- * @param parameters.project
- * @param parameters.taskUtil
- * @param parameters.getTask
- */
-export default function ({project, taskUtil, getTask}: {
-	project: object;
-	taskUtil: object;
-	getTask: Function;
-}) {
-	const tasks = new Map();
+const libraryDefinition: ProjectBuildDefinition<Library> = function ({project, taskUtil, getTask}) {
+	const tasks = new Map<string, StandardTaskDefinition>();
 	tasks.set("escapeNonAsciiCharacters", {
 		options: {
 			encoding: project.getPropertiesFileSourceEncoding(),
@@ -175,4 +165,6 @@ export default function ({project, taskUtil, getTask}: {
 	});
 
 	return tasks;
-}
+};
+
+export default libraryDefinition;

@@ -59,31 +59,31 @@ abstract class ComponentProject extends Project {
 		return this._namespace;
 	}
 
-	private getCopyright() {
+	public getCopyright() {
 		return this._config.metadata.copyright;
 	}
 
-	private getComponentPreloadPaths() {
+	public getComponentPreloadPaths() {
 		return this._config.builder?.componentPreload?.paths ?? [];
 	}
 
-	private getComponentPreloadNamespaces() {
+	public getComponentPreloadNamespaces() {
 		return this._config.builder?.componentPreload?.namespaces ?? [];
 	}
 
-	private getComponentPreloadExcludes() {
+	public getComponentPreloadExcludes() {
 		return this._config.builder?.componentPreload?.excludes ?? [];
 	}
 
-	private getMinificationExcludes() {
+	public getMinificationExcludes() {
 		return this._config.builder?.minification?.excludes ?? [];
 	}
 
-	private getBundles() {
+	public getBundles() {
 		return this._config.builder?.bundles ?? [];
 	}
 
-	private getPropertiesFileSourceEncoding() {
+	public getPropertiesFileSourceEncoding() {
 		return this._config.resources?.configuration?.propertiesFileSourceEncoding ?? "UTF-8";
 	}
 

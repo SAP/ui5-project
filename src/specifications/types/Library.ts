@@ -69,13 +69,13 @@ class Library extends ComponentProject {
 	/**
 	 *
 	 */
-	private getLibraryPreloadExcludes() {
+	public getLibraryPreloadExcludes() {
 		return this._config.builder?.libraryPreload?.excludes ?? [];
 	}
 
 	/**
 	 */
-	private getJsdocExcludes() {
+	public getJsdocExcludes() {
 		return this._config.builder?.jsdoc?.excludes ?? [];
 	}
 

@@ -8,6 +8,13 @@ interface ProjectParameters extends SpecificationParameters {
 	buildManifest?: BuildManifest;
 }
 
+export interface TaskDefinition {
+	name: string;
+	beforeTask?: string;
+	afterTask?: string;
+	configuration?: unknown;
+}
+
 export interface ProjectConfiguration extends SpecificationConfiguration {
 	metadata: {
 		name: string;
@@ -35,7 +42,7 @@ export interface ProjectConfiguration extends SpecificationConfiguration {
 		resources?: {
 			excludes: string[];
 		};
-		customTasks?: string[];
+		customTasks?: TaskDefinition[];
 		settings?: object;
 		componentPreload?: {
 			paths?: string[];
@@ -230,7 +237,7 @@ abstract class Project extends Specification {
 	 *
 	 * @returns CustomTasks configuration
 	 */
-	private getCustomTasks() {
+	public getCustomTasks() {
 		return this._config.builder?.customTasks ?? [];
 	}
 
@@ -266,7 +273,7 @@ abstract class Project extends Specification {
 	 *
 	 * @returns BuildManifest configuration or null if none is available
 	 */
-	private getBuildManifest() {
+	public getBuildManifest() {
 		return this._buildManifest ?? null;
 	}
 
@@ -301,7 +308,7 @@ abstract class Project extends Specification {
 	 */
 	abstract getReader(options?: ProjectReaderOptions): AbstractReader;
 
-	public getResourceTagCollection() {
+	public getResourceTagCollection(): ResourceTagCollection {
 		if (!this._resourceTagCollection) {
 			this._resourceTagCollection = new ResourceTagCollection({
 				allowedTags: ["ui5:IsDebugVariant", "ui5:HasDebugVariant"],

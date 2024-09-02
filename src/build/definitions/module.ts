@@ -1,15 +1,8 @@
-/**
- * Get tasks and their configuration for a given application project
- *
- * @param parameters
- * @param parameters.project
- * @param parameters.taskUtil
- * @param parameters.getTask
- */
-export default function ({project, taskUtil, getTask}: {
-	project: object;
-	taskUtil: object;
-	getTask: Function;
-}) {
+import type Module from "../../specifications/types/Module.js";
+import {type ProjectBuildDefinition} from "../TaskRunner.js";
+
+const libraryDefinition: ProjectBuildDefinition<Module> = function () {
 	return new Map();
-}
+};
+
+export default libraryDefinition;

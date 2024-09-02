@@ -4,15 +4,17 @@ import ProjectBuildContext from "./ProjectBuildContext.js";
 import OutputStyleEnum from "./ProjectBuilderOutputStyle.js";
 import type * as taskRepositoryModule from "@ui5/builder/internal/taskRepository";
 
-interface BuildConfig {
-	selfContained: boolean;
-	cssVariables: boolean;
-	jsdoc: boolean;
-	createBuildManifest: boolean;
-	outputStyle: typeof OutputStyleEnum[keyof typeof OutputStyleEnum];
-	includedTasks: string[];
-	excludedTasks: string[];
+export interface BuildConfig {
+	selfContained?: boolean;
+	cssVariables?: boolean;
+	jsdoc?: boolean;
+	createBuildManifest?: boolean;
+	outputStyle?: typeof OutputStyleEnum[keyof typeof OutputStyleEnum];
+	includedTasks?: string[];
+	excludedTasks?: string[];
 }
+
+export type BuildContextOptions = keyof typeof BuildContext.prototype._options;
 
 /**
  * Context of a build process
@@ -32,7 +34,7 @@ class BuildContext {
 		createBuildManifest = false,
 		outputStyle = OutputStyleEnum.Default,
 		includedTasks = [], excludedTasks = [],
-	} = {} as Partial<BuildConfig>) {
+	} = {} as BuildConfig) {
 		if (!graph) {
 			throw new Error(`Missing parameter 'graph'`);
 		}
@@ -98,7 +100,7 @@ class BuildContext {
 		return this._graph.getRoot();
 	}
 
-	getOption(key: keyof typeof this._options) {
+	getOption(key: BuildContextOptions) {
 		return this._options[key];
 	}
 

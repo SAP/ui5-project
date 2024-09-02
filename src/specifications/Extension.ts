@@ -5,7 +5,8 @@ import Specification, {type SpecificationConfiguration, type SpecificationParame
  *
  * @hideconstructor
  */
-abstract class Extension<Configuration extends SpecificationConfiguration> extends Specification {
+abstract class Extension<Configuration extends SpecificationConfiguration = SpecificationConfiguration>
+	extends Specification {
 	declare _config: Configuration;
 
 	/**
