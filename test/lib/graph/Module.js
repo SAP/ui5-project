@@ -409,36 +409,27 @@ test("Legacy patches are applied", async (t) => {
 });
 
 test.serial("Environment variables in configuration", async (t) => {
-	const testEnvVars = ["testEnvVarForString", "testEnvVarForObject", "testEnvVarForArray"].map(
-		(testEnvVar, index) => {
-			const wrapper = {
-				name: testEnvVar,
-				oldValue: process.env[testEnvVar],
-				newValue: `testValue${index}`,
-			};
-			process.env[testEnvVar] = wrapper.newValue;
-			return wrapper;
-		}
-	);
+	const testEnvVars = [
+		"testEnvVarForString",
+		"testEnvVarForObject",
+		"testEnvVarForArray",
+		"testEnvVarForBuilder",
+		"testEnvVarForServer",
+	].map((testEnvVar, index) => {
+		const wrapper = {
+			name: testEnvVar,
+			oldValue: process.env[testEnvVar],
+			newValue: `testValue${index}`,
+		};
+		process.env[testEnvVar] = wrapper.newValue;
+		return wrapper;
+	});
 	try {
 		const ui5Module = new Module({
 			id: "application.a.id",
 			version: "1.0.0",
 			modulePath: applicationAPath,
-			configuration: {
-				specVersion: "2.6",
-				type: "application",
-				metadata: {
-					name: "application.a-object",
-				},
-				customConfiguration: {
-					stringWithEnvVar: `env:${testEnvVars[0].name}`,
-					objectWithEnvVar: {
-						someKey: `env:${testEnvVars[1].name}`,
-					},
-					arrayWithEnvVar: ["a", `env:${testEnvVars[2].name}`, "c"]
-				},
-			},
+			configPath: "ui5-test-env.yaml",
 		});
 		const {project} = await ui5Module.getSpecifications();
 		t.deepEqual(
@@ -450,7 +441,21 @@ test.serial("Environment variables in configuration", async (t) => {
 				},
 				arrayWithEnvVar: ["a", testEnvVars[2].newValue, "c"],
 			},
-			"Environment variable is filled in"
+			"Environment variables in custom configuration are filled in"
+		);
+		t.deepEqual(
+			project.getCustomTasks()?.[0]?.configuration,
+			{
+				builderWithEnvVar: testEnvVars[3].newValue,
+			},
+			"Environment variable in builder custom tasks is filled in"
+		);
+		t.deepEqual(
+			project.getCustomMiddleware()?.[0]?.configuration,
+			{
+				serverWithEnvVar: testEnvVars[4].newValue,
+			},
+			"Environment variable in server custom middleware is filled in"
 		);
 	} finally {
 		// Reset all env vars back to their value previous to testing
@@ -462,6 +467,16 @@ test.serial("Environment variables in configuration", async (t) => {
 			}
 		});
 	}
+});
+
+test.serial("Undefined environment variables in configuration", async (t) => {
+	const ui5Module = new Module({
+		id: "application.a.id",
+		version: "1.0.0",
+		modulePath: applicationAPath,
+		configPath: "ui5-test-env.yaml",
+	});
+	await t.throwsAsync(() => ui5Module.getSpecifications());
 });
 
 test("Invalid configuration in file", async (t) => {
