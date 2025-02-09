@@ -124,7 +124,7 @@
 		"@ui5/fs": "^4.0.1",
 		"@ui5/logger": "^4.0.1",
 		"ajv": "^6.12.6",
-		"ajv-errors": "^1.0.1",
+		"ajv-errors": "^3.0.0",
 		"chalk": "^5.4.1",
 		"escape-string-regexp": "^5.0.0",
 		"globby": "^14.1.0",
