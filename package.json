@@ -126,7 +126,7 @@
 		"@ui5/logger": "^3.0.0",
 		"ajv": "^6.12.6",
 		"ajv-errors": "^1.0.1",
-		"chalk": "^5.4.1",
+		"chalk": "^5.5.0",
 		"escape-string-regexp": "^5.0.0",
 		"globby": "^13.2.2",
 		"graceful-fs": "^4.2.11",
