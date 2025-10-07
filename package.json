@@ -143,7 +143,7 @@
 		"yesno": "^0.4.0"
 	},
 	"peerDependencies": {
-		"@ui5/builder": "^4.0.12"
+		"@ui5/builder": "^4.0.13"
 	},
 	"peerDependenciesMeta": {
 		"@ui5/builder": {
