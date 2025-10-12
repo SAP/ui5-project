@@ -140,7 +140,7 @@
 		"read-pkg-up": "^10.1.0",
 		"resolve": "^1.22.10",
 		"rimraf": "^5.0.10",
-		"semver": "^7.7.2",
+		"semver": "^7.7.3",
 		"xml2js": "^0.6.2",
 		"yesno": "^0.4.0"
 	},
@@ -161,7 +161,7 @@
 		"istanbul-lib-report": "^3.0.1",
 		"istanbul-reports": "^3.2.0",
 		"js-beautify": "^1.15.4",
-		"jsdoc": "^4.0.4",
+		"jsdoc": "^4.0.5",
 		"nyc": "^15.1.0",
 		"open-cli": "^7.2.0",
 		"sinon": "^16.1.3",
