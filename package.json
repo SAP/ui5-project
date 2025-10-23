@@ -137,13 +137,13 @@
 		"pretty-hrtime": "^1.0.3",
 		"read-package-up": "^11.0.0",
 		"read-pkg": "^9.0.1",
-		"resolve": "^1.22.10",
+		"resolve": "^1.22.11",
 		"semver": "^7.7.3",
 		"xml2js": "^0.6.2",
 		"yesno": "^0.4.0"
 	},
 	"peerDependencies": {
-		"@ui5/builder": "^4.0.13"
+		"@ui5/builder": "^4.1.0"
 	},
 	"peerDependenciesMeta": {
 		"@ui5/builder": {
