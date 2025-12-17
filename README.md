@@ -9,6 +9,8 @@
 [![npm Package Version](https://badge.fury.io/js/%40ui5%2Fproject.svg)](https://www.npmjs.com/package/@ui5/project)
 [![Coverage Status](https://coveralls.io/repos/github/SAP/ui5-project/badge.svg)](https://coveralls.io/github/SAP/ui5-project)
 
+> ⚠️ UI5 CLI v3 has been deprecated! We highly recommend migrating to [**the latest version**](https://ui5.github.io/cli/stable/).
+
 ## Documentation
 UI5 Project documentation can be found here: [ui5.github.io/cli](https://ui5.github.io/cli/v3/pages/Project/)
 
