@@ -12,14 +12,13 @@ const config = {
 		catalog: "off",
 		exports: "off",
 		types: "off",
-		enumMembers: "off",
+		enumMembers: "off"
 	},
 
 	ignoreDependencies: [
-		"@ui5/*",
+		"@ui5/builder",
 		"@istanbuljs/esm-loader-hook",
-		"docdash",
-		"jsdoc",
+		"docdash"
 	],
 };
 
