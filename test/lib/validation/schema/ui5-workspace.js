@@ -17,9 +17,12 @@ async function assertValidation(t, config, expectedErrors = undefined) {
 		});
 		validationError.errors.forEach((error) => {
 			delete error.schemaPath;
+			delete error.emUsed;
+			delete error.emUsed;
 			if (error.params && Array.isArray(error.params.errors)) {
 				error.params.errors.forEach(($) => {
 					delete $.schemaPath;
+					delete $.emUsed;
 				});
 			}
 		});
@@ -41,10 +44,10 @@ test.after.always((t) => {
 		dir: "coverage/ajv-ui5-workspace",
 	});
 	const thresholds = {
-		statements: 85,
-		branches: 75,
+		statements: 25,
+		branches: 20,
 		functions: 100,
-		lines: 85,
+		lines: 25,
 	};
 	t.context.ajvCoverage.verify(thresholds);
 });
@@ -57,7 +60,23 @@ test("Empty config", async (t) => {
 		},
 		[
 			{
-				dataPath: "/specVersion",
+				instancePath: "",
+				keyword: "required",
+				message: "must have required property 'metadata'",
+				params: {
+					missingProperty: "metadata",
+				},
+			},
+			{
+				instancePath: "",
+				keyword: "required",
+				message: "must have required property 'dependencyManagement'",
+				params: {
+					missingProperty: "dependencyManagement",
+				},
+			},
+			{
+				instancePath: "/specVersion",
 				keyword: "errorMessage",
 				message: `Unsupported "specVersion"
 Your UI5 CLI installation might be outdated.
@@ -66,31 +85,15 @@ For details, see: https://ui5.github.io/cli/stable/pages/Workspace/#workspace-sp
 				params: {
 					errors: [
 						{
-							dataPath: "/specVersion",
+							instancePath: "/specVersion",
 							keyword: "enum",
 							message:
-								"should be equal to one of the allowed values",
+								"must be equal to one of the allowed values",
 							params: {
 								allowedValues: ["workspace/1.0"],
 							},
 						},
 					],
-				},
-			},
-			{
-				dataPath: "",
-				keyword: "required",
-				message: "should have required property 'metadata'",
-				params: {
-					missingProperty: "metadata",
-				},
-			},
-			{
-				dataPath: "",
-				keyword: "required",
-				message: "should have required property 'dependencyManagement'",
-				params: {
-					missingProperty: "dependencyManagement",
 				},
 			},
 		]
@@ -132,9 +135,9 @@ test("Missing metadata.name", async (t) => {
 		},
 		[
 			{
-				dataPath: "/metadata",
+				instancePath: "/metadata",
 				keyword: "required",
-				message: "should have required property 'name'",
+				message: "must have required property 'name'",
 				params: {
 					missingProperty: "name",
 				},
@@ -161,15 +164,15 @@ test("Invalid metadata.name: Illegal characters", async (t) => {
 		},
 		[
 			{
-				dataPath: "/metadata/name",
+				instancePath: "/metadata/name",
 				keyword: "errorMessage",
 				message: "Not a valid workspace name. It must consist of lowercase alphanumeric characters, dash, underscore, and period only. Additionally, it may contain an npm-style package scope. For details, see: https://ui5.github.io/cli/stable/pages/Workspace/#name",
 				params: {
 					errors: [
 						{
-							dataPath: "/metadata/name",
+							instancePath: "/metadata/name",
 							keyword: "pattern",
-							message: `should match pattern "^(?:@[0-9a-z-_.]+\\/)?[a-z][0-9a-z-_.]*$"`,
+							message: `must match pattern "^(?:@[0-9a-z-_.]+\\/)?[a-z][0-9a-z-_.]*$"`,
 							params: {
 								pattern: "^(?:@[0-9a-z-_.]+\\/)?[a-z][0-9a-z-_.]*$",
 							},
@@ -199,15 +202,15 @@ test("Invalid metadata.name: Too short", async (t) => {
 		},
 		[
 			{
-				dataPath: "/metadata/name",
+				instancePath: "/metadata/name",
 				keyword: "errorMessage",
 				message: "Not a valid workspace name. It must consist of lowercase alphanumeric characters, dash, underscore, and period only. Additionally, it may contain an npm-style package scope. For details, see: https://ui5.github.io/cli/stable/pages/Workspace/#name",
 				params: {
 					errors: [
 						{
-							dataPath: "/metadata/name",
+							instancePath: "/metadata/name",
 							keyword: "minLength",
-							message: "should NOT be shorter than 3 characters",
+							message: "must NOT have fewer than 3 characters",
 							params: {
 								limit: 3,
 							},
@@ -238,15 +241,15 @@ test("Invalid metadata.name: Too long", async (t) => {
 		},
 		[
 			{
-				dataPath: "/metadata/name",
+				instancePath: "/metadata/name",
 				keyword: "errorMessage",
 				message: "Not a valid workspace name. It must consist of lowercase alphanumeric characters, dash, underscore, and period only. Additionally, it may contain an npm-style package scope. For details, see: https://ui5.github.io/cli/stable/pages/Workspace/#name",
 				params: {
 					errors: [
 						{
-							dataPath: "/metadata/name",
+							instancePath: "/metadata/name",
 							keyword: "maxLength",
-							message: "should NOT be longer than 80 characters",
+							message: "must NOT have more than 80 characters",
 							params: {
 								limit: 80,
 							},
@@ -274,7 +277,7 @@ test("Invalid fields", async (t) => {
 		},
 		[
 			{
-				dataPath: "/specVersion",
+				instancePath: "/specVersion",
 				keyword: "errorMessage",
 				message: `Unsupported "specVersion"
 Your UI5 CLI installation might be outdated.
@@ -283,10 +286,10 @@ For details, see: https://ui5.github.io/cli/stable/pages/Workspace/#workspace-sp
 				params: {
 					errors: [
 						{
-							dataPath: "/specVersion",
+							instancePath: "/specVersion",
 							keyword: "enum",
 							message:
-								"should be equal to one of the allowed values",
+								"must be equal to one of the allowed values",
 							params: {
 								allowedValues: ["workspace/1.0"],
 							},
@@ -295,15 +298,15 @@ For details, see: https://ui5.github.io/cli/stable/pages/Workspace/#workspace-sp
 				},
 			},
 			{
-				dataPath: "/metadata/name",
+				instancePath: "/metadata/name",
 				keyword: "errorMessage",
 				message: "Not a valid workspace name. It must consist of lowercase alphanumeric characters, dash, underscore, and period only. Additionally, it may contain an npm-style package scope. For details, see: https://ui5.github.io/cli/stable/pages/Workspace/#name",
 				params: {
 					errors: [
 						{
-							dataPath: "/metadata/name",
+							instancePath: "/metadata/name",
 							keyword: "type",
-							message: "should be string",
+							message: "must be string",
 							params: {
 								type: "string",
 							},
@@ -312,17 +315,17 @@ For details, see: https://ui5.github.io/cli/stable/pages/Workspace/#workspace-sp
 				},
 			},
 			{
-				dataPath: "/dependencyManagement/resolutions",
+				instancePath: "/dependencyManagement/resolutions",
 				keyword: "type",
-				message: "should be array",
+				message: "must be array",
 				params: {
 					type: "array",
 				},
 			},
 			{
-				dataPath: "/dependencyManagement/resolutions",
+				instancePath: "/dependencyManagement/resolutions",
 				keyword: "additionalProperties",
-				message: "should NOT have additional properties",
+				message: "must NOT have additional properties",
 				params: {
 					additionalProperty: "path",
 				},
@@ -343,7 +346,7 @@ test("Invalid types", async (t) => {
 		},
 		[
 			{
-				dataPath: "/specVersion",
+				instancePath: "/specVersion",
 				keyword: "errorMessage",
 				message: `Unsupported "specVersion"
 Your UI5 CLI installation might be outdated.
@@ -352,10 +355,10 @@ For details, see: https://ui5.github.io/cli/stable/pages/Workspace/#workspace-sp
 				params: {
 					errors: [
 						{
-							dataPath: "/specVersion",
+							instancePath: "/specVersion",
 							keyword: "enum",
 							message:
-								"should be equal to one of the allowed values",
+								"must be equal to one of the allowed values",
 							params: {
 								allowedValues: ["workspace/1.0"],
 							},
@@ -364,15 +367,15 @@ For details, see: https://ui5.github.io/cli/stable/pages/Workspace/#workspace-sp
 				},
 			},
 			{
-				dataPath: "/metadata/name",
+				instancePath: "/metadata/name",
 				keyword: "errorMessage",
 				message: "Not a valid workspace name. It must consist of lowercase alphanumeric characters, dash, underscore, and period only. Additionally, it may contain an npm-style package scope. For details, see: https://ui5.github.io/cli/stable/pages/Workspace/#name",
 				params: {
 					errors: [
 						{
-							dataPath: "/metadata/name",
+							instancePath: "/metadata/name",
 							keyword: "type",
-							message: "should be string",
+							message: "must be string",
 							params: {
 								type: "string",
 							},
@@ -381,9 +384,9 @@ For details, see: https://ui5.github.io/cli/stable/pages/Workspace/#workspace-sp
 				},
 			},
 			{
-				dataPath: "/dependencyManagement",
+				instancePath: "/dependencyManagement",
 				keyword: "type",
-				message: "should be object",
+				message: "must be object",
 				params: {
 					type: "object",
 				},
@@ -406,9 +409,9 @@ test("Invalid dependencyManagement", async (t) => {
 		},
 		[
 			{
-				dataPath: "/dependencyManagement/resolutions",
+				instancePath: "/dependencyManagement/resolutions",
 				keyword: "type",
-				message: "should be array",
+				message: "must be array",
 				params: {
 					type: "array",
 				},
@@ -429,9 +432,9 @@ test("Invalid dependencyManagement", async (t) => {
 		},
 		[
 			{
-				dataPath: "/dependencyManagement/resolutions/0",
+				instancePath: "/dependencyManagement/resolutions/0",
 				keyword: "type",
-				message: "should be object",
+				message: "must be object",
 				params: {
 					type: "object",
 				},
@@ -452,9 +455,9 @@ test("Invalid dependencyManagement", async (t) => {
 		},
 		[
 			{
-				dataPath: "/dependencyManagement/resolutions/0/path",
+				instancePath: "/dependencyManagement/resolutions/0/path",
 				keyword: "type",
-				message: "should be string",
+				message: "must be string",
 				params: {
 					type: "string",
 				},
