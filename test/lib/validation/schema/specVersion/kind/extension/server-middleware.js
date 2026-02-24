@@ -17,7 +17,6 @@ async function assertValidation(t, config, expectedErrors = undefined) {
 		validationError.errors.forEach((error) => {
 			delete error.schemaPath;
 			delete error.emUsed;
-			delete error.emUsed;
 			if (error.params && Array.isArray(error.params.errors)) {
 				error.params.errors.forEach(($) => {
 					delete $.schemaPath;
@@ -41,10 +40,10 @@ test.before((t) => {
 test.after.always((t) => {
 	t.context.ajvCoverage.createReport("html", {dir: "coverage/ajv-extension-server-middleware"});
 	const thresholds = {
-		statements: 45,
-		branches: 45,
+		statements: 48,
+		branches: 50,
 		functions: 100,
-		lines: 45
+		lines: 48
 	};
 	t.context.ajvCoverage.verify(thresholds);
 });

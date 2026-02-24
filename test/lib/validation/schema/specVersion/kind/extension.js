@@ -35,7 +35,7 @@ test.after.always((t) => {
 	t.context.ajvCoverage.createReport("html", {dir: "coverage/ajv-extension"});
 	const thresholds = {
 		statements: 65,
-		branches: 55,
+		branches: 60,
 		functions: 100,
 		lines: 65
 	};
