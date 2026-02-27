@@ -178,18 +178,6 @@
 		"tap-xunit": "^2.4.1"
 	},
 	"overrides": {
-		"glob": {
-			"minimatch": "^10.2.2"
-		},
-		"ignore-walk": {
-			"minimatch": "^10.2.2"
-		},
-		"@tufjs/models": {
-			"minimatch": "^10.2.2"
-		},
-		"@npmcli/map-workspaces": {
-			"minimatch": "^10.2.2"
-		},
-		"tar": "^7.5.8"
+		"tar": "^7.5.9"
 	}
 }
