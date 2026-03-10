@@ -20,6 +20,7 @@
 		}
 	},
 	"if": {
+		"type": "object",
 		"properties": {
 			"type": {"const": null}
 		},
@@ -28,6 +29,7 @@
 	"then": {},
 	"else": {
 		"if": {
+			"type": "object",
 			"properties": {
 				"type": {"const": "application"}
 			}
@@ -37,6 +39,7 @@
 		},
 		"else": {
 			"if": {
+				"type": "object",
 				"properties": {
 					"type": {"const": "library"}
 				}
@@ -46,6 +49,7 @@
 			},
 			"else": {
 				"if": {
+					"type": "object",
 					"properties": {
 						"type": {"const": "theme-library"}
 					}
@@ -55,6 +59,7 @@
 				},
 				"else": {
 					"if": {
+						"type": "object",
 						"properties": {
 							"type": {"const": "module"}
 						}
@@ -144,7 +149,6 @@
 		},
 		"builder-bundles": {
 			"type": "array",
-			"additionalProperties": false,
 			"items": {
 				"type": "object",
 				"additionalProperties": false,
@@ -160,7 +164,6 @@
 		},
 		"builder-bundles-2.4": {
 			"type": "array",
-			"additionalProperties": false,
 			"items": {
 				"type": "object",
 				"additionalProperties": false,
@@ -176,7 +179,6 @@
 		},
 		"builder-bundles-3.0": {
 			"type": "array",
-			"additionalProperties": false,
 			"items": {
 				"type": "object",
 				"additionalProperties": false,
@@ -192,7 +194,6 @@
 		},
 		"builder-bundles-3.2": {
 			"type": "array",
-			"additionalProperties": false,
 			"items": {
 				"type": "object",
 				"additionalProperties": false,
@@ -208,7 +209,6 @@
 		},
 		"builder-bundles-4.0": {
 			"type": "array",
-			"additionalProperties": false,
 			"items": {
 				"type": "object",
 				"additionalProperties": false,
@@ -414,6 +414,7 @@
 					"type": "array",
 					"items": {
 						"if": {
+							"type": "object",
 							"properties": {
 								"mode": {
 									"const": "require"
@@ -740,17 +741,20 @@
 							"not": {
 								"anyOf": [
 									{
+										"type": "object",
 										"properties": {
 											"optional": {"enum": [false, null]}
 										}
 									},
 									{
+										"type": "object",
 										"properties": {
 											"development": {"enum": [false, null]}
 										}
 									},
 									{
 										"not": {
+											"type": "object",
 											"properties": {
 												"optional": {"type": "boolean"}
 											}
@@ -758,6 +762,7 @@
 									},
 									{
 										"not": {
+											"type": "object",
 											"properties": {
 												"development": {"type": "boolean"}
 											}
@@ -768,6 +773,7 @@
 							}
 						},
 						"then": {
+							"type": "object",
 							"additionalProperties": false,
 							"properties": {
 								"name": {

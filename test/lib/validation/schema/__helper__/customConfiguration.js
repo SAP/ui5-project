@@ -27,9 +27,9 @@ export default {
 				"customConfiguration": {}
 			}, additionalConfiguration), [
 				{
-					dataPath: "",
+					instancePath: "",
 					keyword: "additionalProperties",
-					message: "should NOT have additional properties",
+					message: "must NOT have additional properties",
 					params: {
 						additionalProperty: "customConfiguration",
 					}
