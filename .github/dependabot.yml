@@ -33,3 +33,19 @@ updates:
     # eslint@10 requires node ^20.19.0 || ^22.13.0 || >=24
     - dependency-name: "eslint"
       update-types: ["version-update:semver-major"]
+    - dependency-name: "eslint"
+      update-types: ["version-update:semver-major"]
+    # pacote requires ^22.22.2 || ^24.15.0 || >=26.0.0
+    - dependency-name: "pacote"
+      update-types: ["version-update:semver-major"]
+    # make-fetch-happen requires ^22.22.2 || ^24.15.0 || >=26.0.0
+    - dependency-name: "make-fetch-happen"
+      update-types: ["version-update:semver-major"]
+    # @npmcli/config requires ^22.22.2 || ^24.15.0 || >=26.0.0
+    - dependency-name: "@npmcli/config"
+      update-types: ["version-update:semver-major"]
+    # Transitive dependencies of 'read-package-up' require higher node versions:
+    #   hosted-git-info { node: '^20.17.0 || >=22.9.0' } incompatible with { node: '^20.11.0 || >=22.0.0' }
+    #   normalize-package-data { node: '^20.17.0 || >=22.9.0' } incompatible with { node: '^20.11.0 || >=22.0.0' }
+    - dependency-name: "read-package-up"
+      update-types: ["version-update:semver-major"]
