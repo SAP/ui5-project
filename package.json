@@ -86,7 +86,8 @@
 			"test/**",
 			".eslintrc.cjs",
 			"jsdoc-plugin.cjs",
-			"knip.config.js"
+			"knip.config.js",
+			"lib/validation/ajvErrors/**"
 		],
 		"check-coverage": true,
 		"statements": 90,
