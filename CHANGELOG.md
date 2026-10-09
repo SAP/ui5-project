@@ -2,7 +2,17 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-A list of unreleased changes can be found [here](https://github.com/SAP/ui5-project/compare/v4.0.17...HEAD).
+A list of unreleased changes can be found [here](https://github.com/SAP/ui5-project/compare/v4.0.18...HEAD).
+
+<a name="v4.0.18"></a>
+## [v4.0.18] - 2026-10-09
+### Bug Fixes
+- Build crashing when the consumer has more than 1 resolved versions of `ajv` package ([#887](https://github.com/SAP/ui5-project/issues/887)) [`f8c7909`](https://github.com/SAP/ui5-project/commit/f8c790989f33674350535b3276af322a6f96c161)
+- Prevent npm config from reading UI5 CLI args [`a575e4a`](https://github.com/SAP/ui5-project/commit/a575e4a2d7b7f90891c4aa0eac722608d910a6bb)
+
+### Dependency Updates
+- Bump uuid and nyc ([#877](https://github.com/SAP/ui5-project/issues/877)) [`7b0becf`](https://github.com/SAP/ui5-project/commit/7b0becf7a104cc1abb17d9439ba4468411602780)
+
 
 <a name="v4.0.17"></a>
 ## [v4.0.17] - 2026-06-15
@@ -620,6 +630,7 @@ Renamed parameter "translator" of functions generateDependencyTree and generateP
 ## v0.0.1 - 2018-06-06
 ### Bug Fixes
 - **npm t8r:** Fix collection fallback with missing package.json [`578466f`](https://github.com/SAP/ui5-project/commit/578466fdedf871091874c93d1a9305859e34e3ed)
+[v4.0.18]: https://github.com/SAP/ui5-project/compare/v4.0.17...v4.0.18
 [v4.0.17]: https://github.com/SAP/ui5-project/compare/v4.0.16...v4.0.17
 [v4.0.16]: https://github.com/SAP/ui5-project/compare/v4.0.15...v4.0.16
 [v4.0.15]: https://github.com/SAP/ui5-project/compare/v4.0.14...v4.0.15
