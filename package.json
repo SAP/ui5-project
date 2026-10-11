@@ -150,7 +150,7 @@
 		}
 	},
 	"devDependencies": {
-		"@eslint/js": "^9.8.0",
+		"@eslint/js": "^10.0.1",
 		"@istanbuljs/esm-loader-hook": "^0.3.0",
 		"ava": "^6.4.1",
 		"check-engine-light": "0.4.0",
