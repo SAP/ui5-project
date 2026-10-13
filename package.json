@@ -167,7 +167,7 @@
 		"istanbul-lib-instrument": "^6.0.3",
 		"istanbul-lib-report": "^3.0.1",
 		"istanbul-reports": "^3.2.0",
-		"js-beautify": "^1.15.4",
+		"js-beautify": "^2.0.3",
 		"jsdoc": "^4.0.5",
 		"knip": "^5.88.1",
 		"nyc": "^18.0.0",
