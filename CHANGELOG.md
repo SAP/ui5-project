@@ -2,7 +2,18 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-A list of unreleased changes can be found [here](https://github.com/SAP/ui5-project/compare/v4.0.18...HEAD).
+A list of unreleased changes can be found [here](https://github.com/SAP/ui5-project/compare/v4.0.19...HEAD).
+
+<a name="v4.0.19"></a>
+## [v4.0.19] - 2026-11-06
+### Bug Fixes
+- Restore merge key and timestamp support for js-yaml v5 [`55d91fc`](https://github.com/SAP/ui5-project/commit/55d91fc86b49b22acc5bb3f18bea2fc6da018511)
+- **Workspace:** Correct Module JSDoc links [`fcf47d0`](https://github.com/SAP/ui5-project/commit/fcf47d059432d23d089e4df8fcc857573743d5c8)
+
+### Dependency Updates
+- Bump globby from 14.1.0 to 16.2.4 [`fb82eba`](https://github.com/SAP/ui5-project/commit/fb82eba2e3e534b3d761b4abc1997fc1fdeb589f)
+- Bump js-yaml from 4.3.2 to 5.4.3 [`9cfb9ac`](https://github.com/SAP/ui5-project/commit/9cfb9acb1f8d0af643b82433b6c9d65ca7a697b3)
+
 
 <a name="v4.0.18"></a>
 ## [v4.0.18] - 2026-10-09
@@ -630,6 +641,7 @@ Renamed parameter "translator" of functions generateDependencyTree and generateP
 ## v0.0.1 - 2018-06-06
 ### Bug Fixes
 - **npm t8r:** Fix collection fallback with missing package.json [`578466f`](https://github.com/SAP/ui5-project/commit/578466fdedf871091874c93d1a9305859e34e3ed)
+[v4.0.19]: https://github.com/SAP/ui5-project/compare/v4.0.18...v4.0.19
 [v4.0.18]: https://github.com/SAP/ui5-project/compare/v4.0.17...v4.0.18
 [v4.0.17]: https://github.com/SAP/ui5-project/compare/v4.0.16...v4.0.17
 [v4.0.16]: https://github.com/SAP/ui5-project/compare/v4.0.15...v4.0.16
