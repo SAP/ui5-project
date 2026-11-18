@@ -2,7 +2,13 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-A list of unreleased changes can be found [here](https://github.com/SAP/ui5-project/compare/v4.0.19...HEAD).
+A list of unreleased changes can be found [here](https://github.com/SAP/ui5-project/compare/v4.1.0...HEAD).
+
+<a name="v4.1.0"></a>
+## [v4.1.0] - 2026-11-17
+### Features
+- Offer `configPath` property to workspace configs (`workspace/1.1)` ([#902](https://github.com/SAP/ui5-project/issues/902)) [`8027b1a`](https://github.com/SAP/ui5-project/commit/8027b1a86e50e9f9c6c50d7eae75f4a58c010e58)
+
 
 <a name="v4.0.19"></a>
 ## [v4.0.19] - 2026-11-06
@@ -641,6 +647,7 @@ Renamed parameter "translator" of functions generateDependencyTree and generateP
 ## v0.0.1 - 2018-06-06
 ### Bug Fixes
 - **npm t8r:** Fix collection fallback with missing package.json [`578466f`](https://github.com/SAP/ui5-project/commit/578466fdedf871091874c93d1a9305859e34e3ed)
+[v4.1.0]: https://github.com/SAP/ui5-project/compare/v4.0.19...v4.1.0
 [v4.0.19]: https://github.com/SAP/ui5-project/compare/v4.0.18...v4.0.19
 [v4.0.18]: https://github.com/SAP/ui5-project/compare/v4.0.17...v4.0.18
 [v4.0.17]: https://github.com/SAP/ui5-project/compare/v4.0.16...v4.0.17
