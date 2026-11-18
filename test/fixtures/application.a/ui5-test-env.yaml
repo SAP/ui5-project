@@ -1,0 +1,25 @@
+---
+specVersion: "3.0"
+type: application
+metadata:
+  name: application.a
+customConfiguration:
+  stringWithEnvVar: env:testEnvVarForString
+  objectWithEnvVar:
+    someKey: env:testEnvVarForObject
+  arrayWithEnvVar:
+    - a
+    - env:testEnvVarForArray
+    - c
+builder:
+  customTasks:
+    - name: foo
+      afterTask: replaceVersion
+      configuration:
+        builderWithEnvVar: env:testEnvVarForBuilder
+server:
+  customMiddleware:
+    - name: bar
+      afterMiddleware: compression
+      configuration:
+        serverWithEnvVar: env:testEnvVarForServer
